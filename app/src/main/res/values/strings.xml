@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (c) 2023 Rohan Khayech
+  -->
+
+<resources>
+    <string name="app_name" translatable="false">Choona</string>
+    <string name="cancel">Cancel</string>
+    <string name="tuning">Tuning</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="open_permission_settings">Open Settings</string>
+    <string name="tuner_audio_permission_rationale">The tuner requires permission to record audio to detect the pitch of incoming audio.\n\nPlease enable this permission to use the tuner:</string>
+    <string name="tuner_audio_permission_rationale_denied">Cannot use tuner as permission to record audio has not been granted.\n\nThe tuner requires this permission to detect the pitch of incoming audio.\n\nPlease enable this permission in Settings:</string>
+    <string name="request_permission">Request Permission</string>
+    <string name="permission_needed">Permission Needed</string>
+    <string name="tuner">Tuner</string>
+    <string name="listening">Listening</string>
+    <string name="in_tune">In Tune</string>
+    <string name="tune_up">Tune Up</string>
+    <string name="tune_down">Tune Down</string>
+    <string name="semitones">Semitones</string>
+    <string name="cents">Cents</string>
+    <string name="auto_detect_label">Auto</string>
+    <string name="tuner_settings">Tuner Settings</string>
+    <string name="pref_string_layout">String Layout</string>
+    <string name="pref_string_layout_inline">Inline</string>
+    <string name="pref_string_layout_inline_desc">For most electric guitars.</string>
+    <string name="pref_string_layout_side_by_side">Side by side</string>
+    <string name="pref_string_layout_side_by_side_desc">For most acoustic guitars.</string>
+    <string name="pref_display_type">Tuning Display</string>
+    <string name="pref_display_type_simple">Simple</string>
+    <string name="pref_display_type_semitones">Semitones</string>
+    <string name="pref_display_type_semitones_desc">Display tuning offset in semitones.</string>
+    <string name="pref_display_type_cents">Cents</string>
+    <string name="pref_display_type_cents_desc">Display tuning offset in cents.</string>
+    <string name="prefs_sound">Sound</string>
+    <string name="pref_enable_string_select_sound">Play sound on string selection</string>
+    <string name="pref_enable_string_select_sound_desc">Play a note sound when strings are selected.</string>
+    <string name="pref_enable_in_tune_sound">Play in-tune sound</string>
+    <string name="pref_enable_in_tune_sound_desc">Play a sound once the string is in tune.</string>
+    <string name="prefs_theme">Theme</string>
+    <string name="pref_use_black_theme">Use full black theme when in dark mode</string>
+    <string name="pref_use_black_theme_desc">Optimised for AMOLED displays.</string>
+    <string name="nav_back">Back</string>
+    <string name="open_tuning_selector">More…</string>
+    <string name="select_tuning">Select Tuning</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="tuning_list_current">Current</string>
+    <string name="tuning_list_favourites">Favourites</string>
+    <string name="tuning_list_custom">Custom</string>
+    <string name="tuning_list_common">Common</string>
+    <string name="instr_guitar">Guitar</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="unfavourite">Unfavourite</string>
+    <string name="favourite">Favourite</string>
+    <string name="num_strings_suffix">-String</string>
+    <string name="dialog_title_save_tuning">Save tuning as…</string>
+</resources>
