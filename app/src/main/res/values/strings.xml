@@ -20,7 +20,7 @@
     <string name="semitones">Semitones</string>
     <string name="cents">Cents</string>
     <string name="auto_detect_label">Auto</string>
-    <string name="tuner_settings">Tuner Settings</string>
+    <string name="tuner_settings">Settings</string>
     <string name="pref_string_layout">String Layout</string>
     <string name="pref_string_layout_inline">Inline</string>
     <string name="pref_string_layout_inline_desc">For most electric guitars.</string>
@@ -55,4 +55,11 @@
     <string name="favourite">Favourite</string>
     <string name="num_strings_suffix">-String</string>
     <string name="dialog_title_save_tuning">Save tuning as…</string>
+    <string name="about">About</string>
+    <string name="license_desc">is licensed under the GNU General Public License v3.0.</string>
+    <string name="copyright">Copyright</string>
+    <string name="license">License</string>
+    <string name="license_terms">License terms</string>
+    <string name="source_code">Source code</string>
+    <string name="third_party_licenses">Third-party licenses</string>
 </resources>

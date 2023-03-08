@@ -6,8 +6,13 @@ package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -21,11 +26,10 @@ import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.view.screens.AboutScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.theme.AppTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -38,6 +42,9 @@ class SettingsActivity : AppCompatActivity() {
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
 
+    /** Callback used to dismiss about screen when the back button is pressed. */
+    private lateinit var dismissAboutScreenOnBack: OnBackPressedCallback
+
     /** Called when the activity is created. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,22 +55,56 @@ class SettingsActivity : AppCompatActivity() {
             SettingsActivityViewModel.Factory(tunerPreferenceDataStore)
         )[SettingsActivityViewModel::class.java]
 
+        // Setup custom back navigation.
+        dismissAboutScreenOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.showAboutScreen.value
+        ) {
+            dismissAboutScreen()
+        }
+
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
+            val showAboutScreen by vm.showAboutScreen.collectAsStateWithLifecycle()
             
             AppTheme(fullBlack = prefs.useBlackTheme) {
-                SettingsScreen(
-                    prefs = prefs,
-                    onSelectDisplayType = vm::setDisplayType,
-                    onSelectStringLayout = vm::setStringLayout,
-                    onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                    onEnableInTuneSound = vm::setEnableInTuneSound,
-                    onSetUseBlackTheme = vm::setUseBlackTheme,
-                    onBackPressed = ::finish
-                )
+                AnimatedVisibility(
+                    visible = !showAboutScreen,
+                    enter = slideInHorizontally { -it/4 },
+                    exit = slideOutHorizontally { -it/4 }
+                ) {
+                    SettingsScreen(
+                        prefs = prefs,
+                        onSelectDisplayType = vm::setDisplayType,
+                        onSelectStringLayout = vm::setStringLayout,
+                        onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                        onEnableInTuneSound = vm::setEnableInTuneSound,
+                        onSetUseBlackTheme = vm::setUseBlackTheme,
+                        onAboutPressed = ::openAboutScreen,
+                        onBackPressed = ::finish
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showAboutScreen,
+                    enter = slideInHorizontally { it/4 },
+                    exit = slideOutHorizontally { it/4 }
+                ) {
+                    AboutScreen(onBackPressed = ::dismissAboutScreen)
+                }
             }
         }
+    }
+
+    /** Opens the about screen and enables custom back behaviour. */
+    private fun openAboutScreen() {
+        dismissAboutScreenOnBack.isEnabled = true
+        vm.openAboutScreen()
+    }
+
+    private fun dismissAboutScreen() {
+        dismissAboutScreenOnBack.isEnabled = false
+        vm.dismissAboutScreen()
     }
 }
 
@@ -77,6 +118,12 @@ class SettingsActivity : AppCompatActivity() {
 class SettingsActivityViewModel(
     private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
+
+    /** Mutable backing property for [showAboutScreen]. */
+    private val _showAboutScreen = MutableStateFlow(false)
+
+    /** Whether to show the about screen. */
+    val showAboutScreen = _showAboutScreen.asStateFlow()
 
     /** Flow containing the users preferences. */
     val prefs: Flow<TunerPreferences> = dataStore.data
@@ -115,6 +162,16 @@ class SettingsActivityViewModel(
                 it[key] = value
             }
         }
+    }
+
+    /** Opens the about screen. */
+    fun openAboutScreen() {
+        _showAboutScreen.update { true }
+    }
+
+    /** Dismisses the about screen. */
+    fun dismissAboutScreen() {
+        _showAboutScreen.update { false }
     }
 
     /**

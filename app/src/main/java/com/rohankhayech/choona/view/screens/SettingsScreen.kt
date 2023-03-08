@@ -16,13 +16,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 
 /**
@@ -47,6 +46,7 @@ fun SettingsScreen(
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
+    onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     Scaffold(
@@ -183,20 +183,16 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable { onSetUseBlackTheme(!prefs.useBlackTheme) }
             )
+            Divider()
+
+            // About
+            SectionLabel(stringResource(R.string.about))
+            ListItem(
+                text = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
+                modifier = Modifier.clickable(onClick = onAboutPressed)
+            )
         }
     }
-}
-
-/** UI component displaying a preferences section label with [title] text. */
-@Composable
-private fun SectionLabel(title: String) {
-    Text(
-        text = title,
-        fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.caption,
-        color = MaterialTheme.colors.primaryVariant,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-    )
 }
 
 // Preview
@@ -212,6 +208,7 @@ private fun Preview() {
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
+            onAboutPressed = {},
             onBackPressed = {},
         )
     }

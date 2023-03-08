@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
 
@@ -402,15 +402,7 @@ private fun LazyItemScope.TuningItem(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyItemScope.SectionLabel(title: String) {
-    Text(
-        text = title,
-        fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.caption,
-        color = MaterialTheme.colors.primaryVariant,
-        modifier = Modifier
-            .padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-            .animateItemPlacement()
-    )
+    SectionLabel(modifier = Modifier.animateItemPlacement(), title = title)
 }
 
 /**

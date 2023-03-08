@@ -158,7 +158,6 @@ class TunerActivity : AppCompatActivity() {
                                 }
                             },
                             onOpenTuningSelector = ::openTuningSelector,
-                            onBackPressed = ::finish,
                             onSettingsPressed = ::openSettings
                         )
 
@@ -177,7 +176,6 @@ class TunerActivity : AppCompatActivity() {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(
                         requestAgain = !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
-                        onBackPressed = {},
                         onSettingsPressed = ::openSettings,
                         onRequestPermission = ::requestPermission,
                         onOpenPermissionSettings = ::openPermissionSettings,

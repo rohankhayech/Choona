@@ -69,7 +69,6 @@ import com.rohankhayech.music.Tuning
  * @param onAutoChanged Called when the auto detect switch is toggled.
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
- * @param onBackPressed Called when the back navigation button is pressed.
  * @param onSettingsPressed Called when the settings button is pressed.
  *
  * @author Rohan Khayech
@@ -94,11 +93,10 @@ fun TunerScreen(
     onAutoChanged: (Boolean) -> Unit,
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
-    onBackPressed: () -> Unit,
     onSettingsPressed: () -> Unit
 ) {
     Scaffold (
-        topBar = { AppBar(onBackPressed, onSettingsPressed) }
+        topBar = { AppBar(onSettingsPressed) }
     ) { padding ->
         // Check window orientation/size.
         if (windowSizeClass.heightSizeClass != WindowHeightSizeClass.Compact) {
@@ -344,7 +342,6 @@ private fun LandscapeTunerBody(
  * UI screen shown to the user when the audio permission is not granted.
  *
  * @param requestAgain Whether the permission should be requested again.
- * @param onBackPressed Called when the back navigation button is pressed.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -352,13 +349,12 @@ private fun LandscapeTunerBody(
 @Composable
 fun TunerPermissionScreen(
     requestAgain: Boolean,
-    onBackPressed: () -> Unit,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(onBackPressed, onSettingsPressed) }
+        topBar = { AppBar(onSettingsPressed) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -403,22 +399,14 @@ fun TunerPermissionScreen(
 
 /**
  * App bar for the tuning screen.
- * @param onBackPressed Called when the back navigation button is pressed.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun AppBar(
-    onBackPressed: () -> Unit,
     onSettingsPressed: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(stringResource(R.string.tuner)) },
-        // Back navigation button
-        navigationIcon = {
-            IconButton(onClick = onBackPressed) {
-                Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
-            }
-        },
+        title = { Text(stringResource(R.string.app_name)) },
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -1039,7 +1027,6 @@ private fun TunerPreview() {
             onAutoChanged = {},
             onTuned = {},
             onOpenTuningSelector = {},
-            onBackPressed = {},
             onSettingsPressed = {}
         )
     }
@@ -1069,7 +1056,6 @@ private fun LandscapePreview() {
             onAutoChanged = {},
             onTuned = {},
             onOpenTuningSelector = {},
-            onBackPressed = {},
             onSettingsPressed = {}
         )
     }
@@ -1117,7 +1103,6 @@ private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
             requestAgain = true,
-            onBackPressed = {},
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
@@ -1132,7 +1117,6 @@ private fun PermissionDeniedPreview() {
         TunerPermissionScreen(
             requestAgain = false,
             onSettingsPressed = {},
-            onBackPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
         )
