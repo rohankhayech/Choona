@@ -63,18 +63,18 @@ fun AboutScreen(
             Divider()
 
             // License
-            SectionLabel(stringResource(R.string.license))
+            SectionLabel(stringResource(R.string.licence))
             Text(
                 "${stringResource(R.string.app_name)} ${stringResource(R.string.license_desc)}",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.body2,
             )
             Divider()
-            LinkListItem(text = stringResource(R.string.license_terms), url = "https://github.com/rohankhayech/Choona/blob/main/LICENSE")
+            LinkListItem(text = stringResource(R.string.licence_terms), url = "https://github.com/rohankhayech/Choona/blob/main/LICENSE")
             LinkListItem(text = stringResource(R.string.source_code), url = "https://github.com/rohankhayech/Choona")
 
             ListItem(Modifier.clickable{/*TODO*/}) {
-                Text(stringResource(R.string.third_party_licenses))
+                Text(stringResource(R.string.third_party_licences))
             }
         }
     }

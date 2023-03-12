@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2023 Rohan Khayech
+  -->
+
+<resources>
+    <string name="pref_use_black_theme_desc">Optimized for AMOLED displays.</string>
+    <string name="tuning_list_favourites">Favorites</string>
+    <string name="unfavourite">Unfavorite</string>
+    <string name="favourite">Favorite</string>
+    <string name="third_party_licences">Third-party licenses</string>
+    <string name="licence">License</string>
+    <string name="licence_terms">License terms</string>
+</resources>
