@@ -193,6 +193,9 @@ class TunerActivity : AppCompatActivity() {
         // Call superclass.
         super.onResume()
 
+        // Start midi driver.
+        MidiDriver.getInstance().start()
+
         checkPermission()
         // Start the tuner.
         if (!vm.tuningSelectorOpen.value) {
@@ -208,20 +211,14 @@ class TunerActivity : AppCompatActivity() {
         // Stop the tuner.
         vm.tuner.stop()
 
+        // Stop midi driver.
+        MidiDriver.getInstance().stop()
+
         // Save tunings.
         vm.tuningList.saveTunings(this)
 
         // Call superclass.
         super.onPause()
-    }
-
-    /** Called before the activity is destroyed. */
-    override fun onDestroy() {
-        // Close midi driver.
-        MidiDriver.getInstance().stop()
-
-        // Call superclass
-        super.onDestroy()
     }
 
     /** Plays the string selection sound for the specified [string]. */
