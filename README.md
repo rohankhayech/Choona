@@ -13,8 +13,10 @@ Guitar tuner application for Android with support for custom tunings.
 - Plays sounds to indicate how a string should sound and when it is in tune.
 - Support for dark mode.
 
-## License and  Copyright
-See [LICENSE](LICENSE).
+## License and Copyright
+Copyright © 2023 Rohan Khayech
 
-Copyright © 2022 Rohan Khayech
-___
+Choona is licensed under the GNU General Public License v3.0.
+See [LICENSE](LICENSE) for the full license terms.
+
+See [NOTICES](NOTICES.md) for a list of notices for the third-party software used or included in this application.
