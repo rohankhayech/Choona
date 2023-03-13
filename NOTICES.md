@@ -46,7 +46,7 @@ This file contains the relevant notices and licenses for the following 3rd party
 
 # Licenses
 
-## GNU General Public License v3.0:
+## GNU General Public License v3.0
 
                           GNU GENERAL PUBLIC LICENSE
                            Version 3, 29 June 2007
