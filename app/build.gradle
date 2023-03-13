@@ -4,6 +4,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 android {
     compileSdkVersion 33
@@ -65,7 +66,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation "androidx.compose.material3:material3-window-size-class:1.0.1"
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
-
+    implementation "com.mikepenz:aboutlibraries-core:10.6.1"
+    implementation "com.mikepenz:aboutlibraries-compose:10.6.1"
 }
 repositories {
     mavenCentral()

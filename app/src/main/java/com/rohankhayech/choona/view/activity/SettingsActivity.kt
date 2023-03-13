@@ -10,9 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.*
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -27,6 +25,7 @@ import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.view.screens.AboutScreen
+import com.rohankhayech.choona.view.screens.LicencesScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import kotlinx.coroutines.flow.*
@@ -45,7 +44,11 @@ class SettingsActivity : AppCompatActivity() {
     /** Callback used to dismiss about screen when the back button is pressed. */
     private lateinit var dismissAboutScreenOnBack: OnBackPressedCallback
 
+    /** Callback used to dismiss licences screen when the back button is pressed. */
+    private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
+
     /** Called when the activity is created. */
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,40 +60,51 @@ class SettingsActivity : AppCompatActivity() {
 
         // Setup custom back navigation.
         dismissAboutScreenOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.showAboutScreen.value
+            enabled = vm.screen.value >= Screen.ABOUT
         ) {
             dismissAboutScreen()
+        }
+        dismissLicencesScreenOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.screen.value >= Screen.LICENCES
+        ) {
+            dismissLicencesScreen()
         }
 
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            val showAboutScreen by vm.showAboutScreen.collectAsStateWithLifecycle()
-            
-            AppTheme(fullBlack = prefs.useBlackTheme) {
-                AnimatedVisibility(
-                    visible = !showAboutScreen,
-                    enter = slideInHorizontally { -it/4 },
-                    exit = slideOutHorizontally { -it/4 }
-                ) {
-                    SettingsScreen(
-                        prefs = prefs,
-                        onSelectDisplayType = vm::setDisplayType,
-                        onSelectStringLayout = vm::setStringLayout,
-                        onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                        onEnableInTuneSound = vm::setEnableInTuneSound,
-                        onSetUseBlackTheme = vm::setUseBlackTheme,
-                        onAboutPressed = ::openAboutScreen,
-                        onBackPressed = ::finish
-                    )
-                }
+            val screen by vm.screen.collectAsStateWithLifecycle()
 
-                AnimatedVisibility(
-                    visible = showAboutScreen,
-                    enter = slideInHorizontally { it/4 },
-                    exit = slideOutHorizontally { it/4 }
+            AppTheme(fullBlack = prefs.useBlackTheme) {
+                AnimatedContent(
+                    targetState = screen,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.Start) with
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Start)
+                        } else {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
+                        }
+                    }
                 ) {
-                    AboutScreen(onBackPressed = ::dismissAboutScreen)
+                    when (it) {
+                        Screen.SETTINGS -> SettingsScreen(
+                            prefs = prefs,
+                            onSelectDisplayType = vm::setDisplayType,
+                            onSelectStringLayout = vm::setStringLayout,
+                            onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                            onEnableInTuneSound = vm::setEnableInTuneSound,
+                            onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onAboutPressed = ::openAboutScreen,
+                            onBackPressed = ::finish
+                        )
+                        Screen.ABOUT -> AboutScreen(
+                            onLicencesPressed = ::openLicencesScreen,
+                            onBackPressed = ::dismissAboutScreen
+                        )
+                        Screen.LICENCES -> LicencesScreen(onBackPressed = ::dismissLicencesScreen)
+                    }
                 }
             }
         }
@@ -99,12 +113,23 @@ class SettingsActivity : AppCompatActivity() {
     /** Opens the about screen and enables custom back behaviour. */
     private fun openAboutScreen() {
         dismissAboutScreenOnBack.isEnabled = true
-        vm.openAboutScreen()
+        vm.setScreen(Screen.ABOUT)
     }
 
     private fun dismissAboutScreen() {
         dismissAboutScreenOnBack.isEnabled = false
-        vm.dismissAboutScreen()
+        vm.setScreen(Screen.SETTINGS)
+    }
+
+    /** Opens the licences screen and enables custom back behaviour. */
+    private fun openLicencesScreen() {
+        dismissLicencesScreenOnBack.isEnabled = true
+        vm.setScreen(Screen.LICENCES)
+    }
+
+    private fun dismissLicencesScreen() {
+        dismissLicencesScreenOnBack.isEnabled = false
+        vm.setScreen(Screen.ABOUT)
     }
 }
 
@@ -115,15 +140,15 @@ class SettingsActivity : AppCompatActivity() {
  *
  * @author Rohan Khayech
  */
-class SettingsActivityViewModel(
+private class SettingsActivityViewModel(
     private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
 
-    /** Mutable backing property for [showAboutScreen]. */
-    private val _showAboutScreen = MutableStateFlow(false)
+    /** Mutable backing property for [screen]. */
+    private val _screen = MutableStateFlow(Screen.SETTINGS)
 
-    /** Whether to show the about screen. */
-    val showAboutScreen = _showAboutScreen.asStateFlow()
+    /** The currently visible screen. */
+    val screen = _screen.asStateFlow()
 
     /** Flow containing the users preferences. */
     val prefs: Flow<TunerPreferences> = dataStore.data
@@ -164,14 +189,9 @@ class SettingsActivityViewModel(
         }
     }
 
-    /** Opens the about screen. */
-    fun openAboutScreen() {
-        _showAboutScreen.update { true }
-    }
-
-    /** Dismisses the about screen. */
-    fun dismissAboutScreen() {
-        _showAboutScreen.update { false }
+    /** Sets the visible [screen]. */
+    fun setScreen(screen: Screen) {
+        _screen.update { screen }
     }
 
     /**
@@ -193,4 +213,10 @@ class SettingsActivityViewModel(
             }
         }
     }
+}
+
+private enum class Screen {
+    SETTINGS,
+    ABOUT,
+    LICENCES
 }

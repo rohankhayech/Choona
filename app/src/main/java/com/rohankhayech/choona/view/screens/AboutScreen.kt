@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.view.components.SectionLabel
@@ -33,6 +34,7 @@ import com.rohankhayech.choona.view.theme.AppTheme
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AboutScreen(
+    onLicencesPressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     Scaffold(
@@ -73,7 +75,7 @@ fun AboutScreen(
             LinkListItem(text = stringResource(R.string.licence_terms), url = "https://github.com/rohankhayech/Choona/blob/main/LICENSE")
             LinkListItem(text = stringResource(R.string.source_code), url = "https://github.com/rohankhayech/Choona")
 
-            ListItem(Modifier.clickable{/*TODO*/}) {
+            ListItem(Modifier.clickable(onClick = onLicencesPressed)) {
                 Text(stringResource(R.string.third_party_licences))
             }
         }
@@ -85,7 +87,7 @@ fun AboutScreen(
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LinkListItem(text: String, url: String) {
+private fun LinkListItem(text: String, url: String) {
     val uriHandler = LocalUriHandler.current
     ListItem(Modifier.clickable(onClick = remember {{ uriHandler.openUri(url) }})) {
         Text(text)
@@ -93,9 +95,40 @@ fun LinkListItem(text: String, url: String) {
     Divider()
 }
 
+@Composable
+fun LicencesScreen(
+    onBackPressed: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.oss_licences)) },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        LibrariesContainer(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+        )
+    }
+}
+
 /** Preview */
 @Preview
 @Composable
 private fun Preview() {
-    AppTheme { AboutScreen {} }
+    AppTheme { AboutScreen({}) {} }
+}
+
+/** Preview */
+@Preview
+@Composable
+private fun LicensesPreview() {
+    AppTheme { LicencesScreen {} }
 }
