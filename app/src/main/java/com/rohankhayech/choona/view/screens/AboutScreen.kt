@@ -28,12 +28,14 @@ import com.rohankhayech.choona.view.theme.AppTheme
 
 /**
  * UI screen displaying version, copyright and license information about the app.
+ * @param fullBlack Whether the app is in full black mode.
  * @param onBackPressed Called when the back navigation button is pressed.
  * @author Rohan Khayech
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AboutScreen(
+    fullBlack: Boolean,
     onLicencesPressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -41,6 +43,8 @@ fun AboutScreen(
         topBar = {
             TopAppBar(
                 title = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
+                backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+                    else MaterialTheme.colors.primarySurface,
                 navigationIcon = { 
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
@@ -95,14 +99,22 @@ private fun LinkListItem(text: String, url: String) {
     Divider()
 }
 
+/**
+ * UI screen showing the licences of the apps dependencies.
+ * @param fullBlack Whether the app is in full black mode.
+ * @param onBackPressed Called when the back navigation button is pressed.
+ */
 @Composable
 fun LicencesScreen(
+    fullBlack: Boolean,
     onBackPressed: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.oss_licences)) },
+                backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+                    else MaterialTheme.colors.primarySurface,
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
@@ -123,12 +135,12 @@ fun LicencesScreen(
 @Preview
 @Composable
 private fun Preview() {
-    AppTheme { AboutScreen({}) {} }
+    AppTheme { AboutScreen(false, {}) {} }
 }
 
 /** Preview */
 @Preview
 @Composable
 private fun LicensesPreview() {
-    AppTheme { LicencesScreen {} }
+    AppTheme { LicencesScreen(false) {} }
 }

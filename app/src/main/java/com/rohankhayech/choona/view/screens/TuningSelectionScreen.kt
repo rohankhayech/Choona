@@ -29,6 +29,7 @@ import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
 import com.rohankhayech.music.Tuning
 
 /**
@@ -109,7 +110,7 @@ fun TuningSelectionScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
-                backgroundColor = MaterialTheme.colors.surface,
+                backgroundColor = MaterialTheme.colors.background,
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, stringResource(R.string.dismiss))
@@ -443,7 +444,7 @@ private fun SaveTuningDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, colors = secondaryTextButtonColors()) {
                 Text(text = stringResource(R.string.cancel).uppercase())
             }
         },

@@ -100,10 +100,11 @@ class SettingsActivity : AppCompatActivity() {
                             onBackPressed = ::finish
                         )
                         Screen.ABOUT -> AboutScreen(
+                            fullBlack = prefs.useBlackTheme,
                             onLicencesPressed = ::openLicencesScreen,
                             onBackPressed = ::dismissAboutScreen
                         )
-                        Screen.LICENCES -> LicencesScreen(onBackPressed = ::dismissLicencesScreen)
+                        Screen.LICENCES -> LicencesScreen(fullBlack = prefs.useBlackTheme, onBackPressed = ::dismissLicencesScreen)
                     }
                 }
             }

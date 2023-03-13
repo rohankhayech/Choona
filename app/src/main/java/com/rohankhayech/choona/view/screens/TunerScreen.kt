@@ -96,7 +96,7 @@ fun TunerScreen(
     onSettingsPressed: () -> Unit
 ) {
     Scaffold (
-        topBar = { AppBar(onSettingsPressed) }
+        topBar = { AppBar(prefs.useBlackTheme, onSettingsPressed) }
     ) { padding ->
         // Check window orientation/size.
         if (windowSizeClass.heightSizeClass != WindowHeightSizeClass.Compact) {
@@ -342,6 +342,7 @@ private fun LandscapeTunerBody(
  * UI screen shown to the user when the audio permission is not granted.
  *
  * @param requestAgain Whether the permission should be requested again.
+ * @param fullBlack Whether the app is in full black mode.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -349,12 +350,13 @@ private fun LandscapeTunerBody(
 @Composable
 fun TunerPermissionScreen(
     requestAgain: Boolean,
+    fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(onSettingsPressed) }
+        topBar = { AppBar(fullBlack, onSettingsPressed) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -399,14 +401,18 @@ fun TunerPermissionScreen(
 
 /**
  * App bar for the tuning screen.
+ * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun AppBar(
+    fullBlack: Boolean,
     onSettingsPressed: () -> Unit
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
+        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+            else MaterialTheme.colors.primarySurface,
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -911,7 +917,10 @@ private fun TuningSelector(
                         TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
                     }
                 }
-                DropdownMenuItem(onClick = onOpenTuningSelector) {
+                DropdownMenuItem(onClick = {
+                    onOpenTuningSelector()
+                    expanded = false
+                }) {
                     Text(stringResource(R.string.open_tuning_selector))
                 }
             }
@@ -944,6 +953,7 @@ private fun CurrentTuningField(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = TextFieldDefaults.OutlinedTextFieldShape,
+        color = MaterialTheme.colors.background,
         border = BorderStroke(
             width = if (expanded) TextFieldDefaults.FocusedBorderThickness
             else TextFieldDefaults.UnfocusedBorderThickness,
@@ -1116,6 +1126,7 @@ private fun RedPreview() {
 private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
+            fullBlack = false,
             requestAgain = true,
             onSettingsPressed = {},
             onRequestPermission = {},
@@ -1129,6 +1140,7 @@ private fun PermissionRequestPreview() {
 private fun PermissionDeniedPreview() {
     AppTheme {
         TunerPermissionScreen(
+            fullBlack = false,
             requestAgain = false,
             onSettingsPressed = {},
             onRequestPermission = {},

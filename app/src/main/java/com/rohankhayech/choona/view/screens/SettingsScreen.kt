@@ -57,6 +57,8 @@ fun SettingsScreen(
                     Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
                 }
             },
+            backgroundColor = if (prefs.useBlackTheme && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+                else MaterialTheme.colors.primarySurface,
             title = { Text(stringResource(R.string.tuner_settings)) }
         )}
     ) { padding ->
