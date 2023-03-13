@@ -35,21 +35,33 @@ public final class MidiController {
 
     private void init(int numStrings) {
         midiDriver = MidiDriver.getInstance();
-        midiDriver.start();
 
         // Setup string thread array.
         stringThread = new Thread[numStrings];
         stringMutex = new Object[numStrings];
 
         for (int i=0; i<numStrings; i++) {
-            // Setup channels
-            // Set channel instrument.
-            setInstrument(i, GeneralMidiConstants.ELECTRIC_GUITAR_CLEAN);
-
             // Setup string thread.
             stringThread[i] = null;
             stringMutex[i] = new Object();
         }
+    }
+
+    /**
+     * Starts the midi controller and system driver.
+     */
+    public void start() {
+        midiDriver.start();
+    }
+
+    /**
+     * Stops all playing notes and then stops the midi controller and system driver.
+     */
+    public void stop() {
+        for (int i=0; i<stringThread.length; i++) {
+            stopNote(i);
+        }
+        midiDriver.stop();
     }
 
     /**

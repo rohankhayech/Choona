@@ -38,7 +38,6 @@ import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.billthefarmer.mididriver.GeneralMidiConstants
-import org.billthefarmer.mididriver.MidiDriver
 
 /**
  * Activity that allows the user to select a tuning and tune their guitar, displaying a comparison of played notes
@@ -194,7 +193,7 @@ class TunerActivity : AppCompatActivity() {
         super.onResume()
 
         // Start midi driver.
-        MidiDriver.getInstance().start()
+        midi.start()
 
         checkPermission()
         // Start the tuner.
@@ -212,7 +211,7 @@ class TunerActivity : AppCompatActivity() {
         vm.tuner.stop()
 
         // Stop midi driver.
-        MidiDriver.getInstance().stop()
+        midi.stop()
 
         // Save tunings.
         vm.tuningList.saveTunings(this)
