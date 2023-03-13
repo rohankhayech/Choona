@@ -666,45 +666,6 @@ private fun StringControls(
 }
 
 /**
- * Component displaying the specified [strings] inline and allowing selection of a string for tuning.
- * @param tuning Current guitar tuning used for comparison.
- * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
- * @param selectedString Index of the selected string in the tuning.
- * @param tuned Whether each string has been tuned.
- * @param onSelect Called when a string is selected.
- * @param onTuneDown Called when a string is tuned down.
- * @param onTuneUp Called when a string is tuned up.
- */
-@Composable
-private fun InlineStringControls(
-    tuning: Tuning,
-    strings: List<Pair<Int, GuitarString>> = tuning.mapIndexed { n, gs -> Pair(n, gs) },
-    selectedString: Int,
-    tuned: BooleanArray,
-    onSelect: (Int) -> Unit,
-    onTuneDown: (Int) -> Unit,
-    onTuneUp: (Int) -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        strings.forEach {
-            val (index, string) = it
-            StringControl(
-                index = index,
-                stringName = string.toFullString(),
-                selected = selectedString == index,
-                tuned = tuned[index],
-                onSelect = onSelect,
-                onTuneDown = onTuneDown,
-                onTuneUp = onTuneUp,
-            )
-        }
-    }
-}
-
-/**
  * Component displaying each string in the current [tuning] side-by-side and allowing selection of a string for tuning.
  * @param tuning Current guitar tuning used for comparison.
  * @param selectedString Index of the selected string in the tuning.
@@ -754,10 +715,49 @@ private fun SideBySideStringControls(
 }
 
 /**
+ * Component displaying the specified [strings] inline and allowing selection of a string for tuning.
+ * @param tuning Current guitar tuning used for comparison.
+ * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
+ * @param selectedString Index of the selected string in the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param onSelect Called when a string is selected.
+ * @param onTuneDown Called when a string is tuned down.
+ * @param onTuneUp Called when a string is tuned up.
+ */
+@Composable
+private fun InlineStringControls(
+    tuning: Tuning,
+    strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
+    selectedString: Int,
+    tuned: BooleanArray,
+    onSelect: (Int) -> Unit,
+    onTuneDown: (Int) -> Unit,
+    onTuneUp: (Int) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        strings.forEach {
+            val (index, string) = it
+            StringControl(
+                index = index,
+                string = string,
+                selected = selectedString == index,
+                tuned = tuned[index],
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp,
+            )
+        }
+    }
+}
+
+/**
  * Row of buttons allowing selection and retuning of the specified string.
  *
  * @param index Index of the string within the tuning.
- * @param stringName The full name of the string.
+ * @param string The guitar string.
  * @param selected Whether the string is currently selected for tuning.
  * @param onSelect Called when the string is selected.
  * @param onTuneDown Called when the string is tuned down.
@@ -766,7 +766,7 @@ private fun SideBySideStringControls(
 @Composable
 private fun StringControl(
     index: Int,
-    stringName: String,
+    string: GuitarString,
     selected: Boolean,
     tuned: Boolean,
     onSelect: (Int) -> Unit,
@@ -775,7 +775,10 @@ private fun StringControl(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         // Tune Down Button
-        IconButton(onClick = remember(onTuneDown, index) { { onTuneDown(index) } }) {
+        IconButton(
+            onClick = remember(onTuneDown, index) { { onTuneDown(index) } },
+            enabled = remember(string) { derivedStateOf { string.rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
@@ -804,11 +807,14 @@ private fun StringControl(
             shape = RoundedCornerShape(100),
             onClick = remember(onSelect, index) { { onSelect(index) } }
         ) {
-            Text(stringName, modifier = Modifier.padding(4.dp))
+            Text(string.toFullString(), modifier = Modifier.padding(4.dp))
         }
 
         // Tune Up Button
-        IconButton(onClick = remember(onTuneUp, index) { { onTuneUp(index) } }) {
+        IconButton(
+            onClick = remember(onTuneUp, index) { { onTuneUp(index) } },
+            enabled = remember(string) { derivedStateOf { string.rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Add, stringResource(R.string.tune_up))
         }
     }
@@ -861,12 +867,17 @@ private fun TuningSelector(
     onOpenTuningSelector: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = 8.dp).animateContentSize(),
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         // Tune Down Button
-        IconButton(onClick = onTuneDown) {
+        IconButton(
+            onClick = onTuneDown,
+            enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
@@ -907,7 +918,10 @@ private fun TuningSelector(
         }
 
         // Tune Up Button
-        IconButton(onClick = onTuneUp) {
+        IconButton(
+            onClick = onTuneUp,
+            enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Add, stringResource(R.string.tune_up))
         }
     }

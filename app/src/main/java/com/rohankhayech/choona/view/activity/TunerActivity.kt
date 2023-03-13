@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
@@ -25,7 +24,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.Tuner
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -36,7 +34,6 @@ import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.screens.TunerScreen
 import com.rohankhayech.choona.view.screens.TuningSelectionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
-import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -148,10 +145,10 @@ class TunerActivity : AppCompatActivity() {
                                 }
                             },
                             onSelectTuning = vm.tuner::setTuning,
-                            onTuneUpString = { if (!vm.tuner.tuneStringUp(it)) showHighestTuningToast() },
-                            onTuneDownString = { if (!vm.tuner.tuneStringDown(it)) showLowestTuningToast() },
-                            onTuneUpTuning = { if (!vm.tuner.tuneUp()) showHighestTuningToast() },
-                            onTuneDownTuning = { if (!vm.tuner.tuneDown()) showLowestTuningToast() },
+                            onTuneUpString = vm.tuner::tuneStringUp,
+                            onTuneDownString = vm.tuner::tuneStringDown,
+                            onTuneUpTuning = vm.tuner::tuneUp,
+                            onTuneDownTuning = vm.tuner::tuneDown,
                             onAutoChanged = vm.tuner::setAutoDetect,
                             onTuned = remember(prefs.enableInTuneSound) {
                                 {
@@ -307,24 +304,6 @@ class TunerActivity : AppCompatActivity() {
                 Uri.fromParts("package", packageName, null)
             )
         )
-    }
-
-    private fun showLowestTuningToast() {
-        showToast("${getString(R.string.warning_lowest_tuning)} ${Notes.getSymbol(Tuner.LOWEST_NOTE)}.")
-    }
-
-    private fun showHighestTuningToast() {
-        showToast("${getString(R.string.warning_highest_tuning)} ${Notes.getSymbol(Tuner.HIGHEST_NOTE)}.")
-    }
-
-    /**
-     * Shows a toast with the specified [message][msg].
-     */
-    private fun showToast(msg: String) {
-        Toast(this, ).apply {
-            setText(msg)
-            duration = Toast.LENGTH_SHORT
-        }.show()
     }
 }
 

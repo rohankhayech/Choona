@@ -62,6 +62,4 @@
     <string name="licence_terms">Licence terms</string>
     <string name="source_code">Source code</string>
     <string name="third_party_licences">Third-party licences</string>
-    <string name="warning_lowest_tuning">Cannot tune string lower than</string>
-    <string name="warning_highest_tuning">Cannot tune string higher than</string>
 </resources>
