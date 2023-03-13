@@ -22,7 +22,7 @@
  */
 
 
-package com.rohankhayech.choona.controller;
+package com.rohankhayech.choona.controller.tuner;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;

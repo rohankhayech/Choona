@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Rohan Khayech
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.tuner
 
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.music.GuitarString

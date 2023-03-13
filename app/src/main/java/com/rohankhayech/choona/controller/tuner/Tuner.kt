@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Rohan Khayech
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.tuner
 
 import kotlin.math.abs
 import be.tarsos.dsp.AudioDispatcher

@@ -24,8 +24,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.rohankhayech.choona.controller.Tuner
 import com.rohankhayech.choona.controller.midi.MidiController
+import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
@@ -174,6 +174,7 @@ class TunerActivity : AppCompatActivity() {
                 } else {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(
+                        fullBlack = prefs.useBlackTheme,
                         requestAgain = !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
                         onSettingsPressed = ::openSettings,
                         onRequestPermission = ::requestPermission,
