@@ -2,10 +2,11 @@
  * Copyright (c) 2023 Rohan Khayech
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.tuner
 
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.music.GuitarString
+import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
 import org.junit.Assert.*
 import org.junit.Test
@@ -52,6 +53,12 @@ class TunerTest {
         for (i in 0..5) {
             assertFalse(tuner.tuned.value[i])
         }
+
+        // Test highest.
+        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        assertTrue(tuner.tuneUp())
+        assertFalse(tuner.tuneUp())
+
     }
 
     @Test
@@ -65,6 +72,11 @@ class TunerTest {
         for (i in 0..5) {
             assertFalse(tuner.tuned.value[i])
         }
+
+        // Test lowest.
+        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        assertTrue(tuner.tuneDown())
+        assertFalse(tuner.tuneDown())
     }
 
     @Test
@@ -78,6 +90,11 @@ class TunerTest {
         // Test invalid
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringUp(-1) }
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringUp(6) }
+
+        // Test highest.
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        assertTrue(tuner.tuneStringUp(0))
+        assertFalse(tuner.tuneStringUp(0))
     }
 
     @Test
@@ -91,6 +108,11 @@ class TunerTest {
         // Test invalid
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringDown(-1) }
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringDown(6) }
+
+        // Test lowest.
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        assertTrue(tuner.tuneStringDown(0))
+        assertFalse(tuner.tuneStringDown(0))
     }
 
     @Test

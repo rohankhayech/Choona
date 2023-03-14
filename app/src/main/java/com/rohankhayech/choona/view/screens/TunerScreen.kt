@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.Tuner
+import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
@@ -69,7 +69,6 @@ import com.rohankhayech.music.Tuning
  * @param onAutoChanged Called when the auto detect switch is toggled.
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
- * @param onBackPressed Called when the back navigation button is pressed.
  * @param onSettingsPressed Called when the settings button is pressed.
  *
  * @author Rohan Khayech
@@ -94,11 +93,10 @@ fun TunerScreen(
     onAutoChanged: (Boolean) -> Unit,
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
-    onBackPressed: () -> Unit,
     onSettingsPressed: () -> Unit
 ) {
     Scaffold (
-        topBar = { AppBar(onBackPressed, onSettingsPressed) }
+        topBar = { AppBar(prefs.useBlackTheme, onSettingsPressed) }
     ) { padding ->
         // Check window orientation/size.
         if (windowSizeClass.heightSizeClass != WindowHeightSizeClass.Compact) {
@@ -344,7 +342,7 @@ private fun LandscapeTunerBody(
  * UI screen shown to the user when the audio permission is not granted.
  *
  * @param requestAgain Whether the permission should be requested again.
- * @param onBackPressed Called when the back navigation button is pressed.
+ * @param fullBlack Whether the app is in full black mode.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -352,13 +350,13 @@ private fun LandscapeTunerBody(
 @Composable
 fun TunerPermissionScreen(
     requestAgain: Boolean,
-    onBackPressed: () -> Unit,
+    fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(onBackPressed, onSettingsPressed) }
+        topBar = { AppBar(fullBlack, onSettingsPressed) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -403,22 +401,18 @@ fun TunerPermissionScreen(
 
 /**
  * App bar for the tuning screen.
- * @param onBackPressed Called when the back navigation button is pressed.
+ * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun AppBar(
-    onBackPressed: () -> Unit,
+    fullBlack: Boolean,
     onSettingsPressed: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(stringResource(R.string.tuner)) },
-        // Back navigation button
-        navigationIcon = {
-            IconButton(onClick = onBackPressed) {
-                Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
-            }
-        },
+        title = { Text(stringResource(R.string.app_name)) },
+        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+            else MaterialTheme.colors.primarySurface,
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -678,45 +672,6 @@ private fun StringControls(
 }
 
 /**
- * Component displaying the specified [strings] inline and allowing selection of a string for tuning.
- * @param tuning Current guitar tuning used for comparison.
- * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
- * @param selectedString Index of the selected string in the tuning.
- * @param tuned Whether each string has been tuned.
- * @param onSelect Called when a string is selected.
- * @param onTuneDown Called when a string is tuned down.
- * @param onTuneUp Called when a string is tuned up.
- */
-@Composable
-private fun InlineStringControls(
-    tuning: Tuning,
-    strings: List<Pair<Int, GuitarString>> = tuning.mapIndexed { n, gs -> Pair(n, gs) },
-    selectedString: Int,
-    tuned: BooleanArray,
-    onSelect: (Int) -> Unit,
-    onTuneDown: (Int) -> Unit,
-    onTuneUp: (Int) -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        strings.forEach {
-            val (index, string) = it
-            StringControl(
-                index = index,
-                stringName = string.toFullString(),
-                selected = selectedString == index,
-                tuned = tuned[index],
-                onSelect = onSelect,
-                onTuneDown = onTuneDown,
-                onTuneUp = onTuneUp,
-            )
-        }
-    }
-}
-
-/**
  * Component displaying each string in the current [tuning] side-by-side and allowing selection of a string for tuning.
  * @param tuning Current guitar tuning used for comparison.
  * @param selectedString Index of the selected string in the tuning.
@@ -766,10 +721,49 @@ private fun SideBySideStringControls(
 }
 
 /**
+ * Component displaying the specified [strings] inline and allowing selection of a string for tuning.
+ * @param tuning Current guitar tuning used for comparison.
+ * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
+ * @param selectedString Index of the selected string in the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param onSelect Called when a string is selected.
+ * @param onTuneDown Called when a string is tuned down.
+ * @param onTuneUp Called when a string is tuned up.
+ */
+@Composable
+private fun InlineStringControls(
+    tuning: Tuning,
+    strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
+    selectedString: Int,
+    tuned: BooleanArray,
+    onSelect: (Int) -> Unit,
+    onTuneDown: (Int) -> Unit,
+    onTuneUp: (Int) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        strings.forEach {
+            val (index, string) = it
+            StringControl(
+                index = index,
+                string = string,
+                selected = selectedString == index,
+                tuned = tuned[index],
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp,
+            )
+        }
+    }
+}
+
+/**
  * Row of buttons allowing selection and retuning of the specified string.
  *
  * @param index Index of the string within the tuning.
- * @param stringName The full name of the string.
+ * @param string The guitar string.
  * @param selected Whether the string is currently selected for tuning.
  * @param onSelect Called when the string is selected.
  * @param onTuneDown Called when the string is tuned down.
@@ -778,7 +772,7 @@ private fun SideBySideStringControls(
 @Composable
 private fun StringControl(
     index: Int,
-    stringName: String,
+    string: GuitarString,
     selected: Boolean,
     tuned: Boolean,
     onSelect: (Int) -> Unit,
@@ -787,7 +781,10 @@ private fun StringControl(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         // Tune Down Button
-        IconButton(onClick = remember(onTuneDown, index) { { onTuneDown(index) } }) {
+        IconButton(
+            onClick = remember(onTuneDown, index) { { onTuneDown(index) } },
+            enabled = remember(string) { derivedStateOf { string.rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
@@ -816,11 +813,14 @@ private fun StringControl(
             shape = RoundedCornerShape(100),
             onClick = remember(onSelect, index) { { onSelect(index) } }
         ) {
-            Text(stringName, modifier = Modifier.padding(4.dp))
+            Text(string.toFullString(), modifier = Modifier.padding(4.dp))
         }
 
         // Tune Up Button
-        IconButton(onClick = remember(onTuneUp, index) { { onTuneUp(index) } }) {
+        IconButton(
+            onClick = remember(onTuneUp, index) { { onTuneUp(index) } },
+            enabled = remember(string) { derivedStateOf { string.rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Add, stringResource(R.string.tune_up))
         }
     }
@@ -873,12 +873,17 @@ private fun TuningSelector(
     onOpenTuningSelector: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = 8.dp).animateContentSize(),
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         // Tune Down Button
-        IconButton(onClick = onTuneDown) {
+        IconButton(
+            onClick = onTuneDown,
+            enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
@@ -912,14 +917,20 @@ private fun TuningSelector(
                         TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
                     }
                 }
-                DropdownMenuItem(onClick = onOpenTuningSelector) {
+                DropdownMenuItem(onClick = {
+                    onOpenTuningSelector()
+                    expanded = false
+                }) {
                     Text(stringResource(R.string.open_tuning_selector))
                 }
             }
         }
 
         // Tune Up Button
-        IconButton(onClick = onTuneUp) {
+        IconButton(
+            onClick = onTuneUp,
+            enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+        ) {
             Icon(Icons.Default.Add, stringResource(R.string.tune_up))
         }
     }
@@ -942,6 +953,7 @@ private fun CurrentTuningField(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = TextFieldDefaults.OutlinedTextFieldShape,
+        color = MaterialTheme.colors.background,
         border = BorderStroke(
             width = if (expanded) TextFieldDefaults.FocusedBorderThickness
             else TextFieldDefaults.UnfocusedBorderThickness,
@@ -1039,7 +1051,6 @@ private fun TunerPreview() {
             onAutoChanged = {},
             onTuned = {},
             onOpenTuningSelector = {},
-            onBackPressed = {},
             onSettingsPressed = {}
         )
     }
@@ -1069,7 +1080,6 @@ private fun LandscapePreview() {
             onAutoChanged = {},
             onTuned = {},
             onOpenTuningSelector = {},
-            onBackPressed = {},
             onSettingsPressed = {}
         )
     }
@@ -1116,8 +1126,8 @@ private fun RedPreview() {
 private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
+            fullBlack = false,
             requestAgain = true,
-            onBackPressed = {},
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
@@ -1130,9 +1140,9 @@ private fun PermissionRequestPreview() {
 private fun PermissionDeniedPreview() {
     AppTheme {
         TunerPermissionScreen(
+            fullBlack = false,
             requestAgain = false,
             onSettingsPressed = {},
-            onBackPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
         )

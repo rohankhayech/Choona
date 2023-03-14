@@ -58,7 +58,7 @@ public class TuningFileIO {
         }
     }
 
-    private static Set<Tuning> parseTunings(String tuningsJSON) {
+    static Set<Tuning> parseTunings(String tuningsJSON) {
         Set<Tuning> tunings = new HashSet<>();
 
         try {
@@ -72,12 +72,7 @@ public class TuningFileIO {
                 JSONObject tuningObj = tuningsArr.getJSONObject(i);
 
                 // Retrieve tuning data
-                String name;
-                try {
-                    name = tuningObj.getString("name");
-                } catch (JSONException e) {
-                    name = null;
-                }
+                String name = tuningObj.optString("name", null); // Name should be null if absent.
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
@@ -93,7 +88,7 @@ public class TuningFileIO {
         }
     }
 
-    private static String encodeTunings(Set<Tuning> tunings) {
+    static String encodeTunings(Set<Tuning> tunings) {
         Objects.requireNonNull(tunings);
 
         JSONArray tuningsArr = new JSONArray();

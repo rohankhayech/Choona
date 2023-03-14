@@ -39,7 +39,6 @@ val BlackColors = DarkColors.copy(
     primary = Green700,
     secondary = Blue700,
     background = Color.Black,
-    surface = Color.Black,
     onBackground = Color.LightGray,
     onSecondary = Color.LightGray,
     error = Red500,

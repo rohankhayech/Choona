@@ -4,6 +4,8 @@
 
 package com.rohankhayech.music;
 
+import androidx.compose.runtime.Immutable;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
  *
  * @author Rohan Khayech
  */
+@Immutable
 public final class GuitarString implements Iterable<Double>, Comparable<GuitarString> {
 
     /** Cache used to store already constructed guitar string objects. */
