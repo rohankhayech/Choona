@@ -175,7 +175,7 @@ class TunerActivity : AppCompatActivity() {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(
                         fullBlack = prefs.useBlackTheme,
-                        requestAgain = !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
+                        requestAgain = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
                         onSettingsPressed = ::openSettings,
                         onRequestPermission = ::requestPermission,
                         onOpenPermissionSettings = ::openPermissionSettings,
