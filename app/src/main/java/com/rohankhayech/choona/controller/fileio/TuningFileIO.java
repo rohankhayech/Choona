@@ -72,12 +72,7 @@ public class TuningFileIO {
                 JSONObject tuningObj = tuningsArr.getJSONObject(i);
 
                 // Retrieve tuning data
-                String name;
-                try {
-                    name = tuningObj.getString("name");
-                } catch (JSONException e) {
-                    name = null;
-                }
+                String name = tuningObj.optString("name", null); // Name should be null if absent.
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
