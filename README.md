@@ -15,7 +15,7 @@ Guitar tuner application for Android with support for custom tunings.
 
 ## Screenshots
 
-<img src="assets/screenshots/01-tuner.jpg" width=20%> 
+<img src="assets/screenshots/01-tuner.jpg" width=30%> 
 
 <details>
   <summary>
