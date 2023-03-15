@@ -1,4 +1,4 @@
-name: build
+name: Submit Gradle Dependencies
 on:
   push:
     branches:
