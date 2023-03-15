@@ -29,6 +29,14 @@ Guitar tuner application for Android with support for custom tunings.
   <img src="assets/screenshots/08-dark_theme.jpg" width=20%> <img src="assets/screenshots/09-black_theme.jpg" width=20%>
 </details>
 
+## Installation
+Choona is available for Android devices running Android 7.0 Nougat and above.
+
+1. Find the latest release [here](https://github.com/rohankhayech/Choona/releases/latest).
+2. Download the `.apk` file onto your Android device to install it.
+
+> Depending on your device, you may have to enable installing apps from unknown sources for your device or browser app in your phone's settings.
+
 ## License and Copyright
 Copyright © 2023 Rohan Khayech
 
