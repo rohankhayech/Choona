@@ -1,5 +1,19 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.rohankhayech.choona.view.screens
@@ -16,13 +30,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 
 /**
@@ -47,6 +60,7 @@ fun SettingsScreen(
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
+    onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     Scaffold(
@@ -57,6 +71,8 @@ fun SettingsScreen(
                     Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
                 }
             },
+            backgroundColor = if (prefs.useBlackTheme && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+                else MaterialTheme.colors.primarySurface,
             title = { Text(stringResource(R.string.tuner_settings)) }
         )}
     ) { padding ->
@@ -183,20 +199,16 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable { onSetUseBlackTheme(!prefs.useBlackTheme) }
             )
+            Divider()
+
+            // About
+            SectionLabel(stringResource(R.string.about))
+            ListItem(
+                text = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
+                modifier = Modifier.clickable(onClick = onAboutPressed)
+            )
         }
     }
-}
-
-/** UI component displaying a preferences section label with [title] text. */
-@Composable
-private fun SectionLabel(title: String) {
-    Text(
-        text = title,
-        fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.caption,
-        color = MaterialTheme.colors.primaryVariant,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-    )
 }
 
 // Preview
@@ -212,6 +224,7 @@ private fun Preview() {
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
+            onAboutPressed = {},
             onBackPressed = {},
         )
     }

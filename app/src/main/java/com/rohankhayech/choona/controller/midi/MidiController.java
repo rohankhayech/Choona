@@ -1,5 +1,19 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.rohankhayech.choona.controller.midi;
@@ -35,21 +49,33 @@ public final class MidiController {
 
     private void init(int numStrings) {
         midiDriver = MidiDriver.getInstance();
-        midiDriver.start();
 
         // Setup string thread array.
         stringThread = new Thread[numStrings];
         stringMutex = new Object[numStrings];
 
         for (int i=0; i<numStrings; i++) {
-            // Setup channels
-            // Set channel instrument.
-            setInstrument(i, GeneralMidiConstants.ELECTRIC_GUITAR_CLEAN);
-
             // Setup string thread.
             stringThread[i] = null;
             stringMutex[i] = new Object();
         }
+    }
+
+    /**
+     * Starts the midi controller and system driver.
+     */
+    public void start() {
+        midiDriver.start();
+    }
+
+    /**
+     * Stops all playing notes and then stops the midi controller and system driver.
+     */
+    public void stop() {
+        for (int i=0; i<stringThread.length; i++) {
+            stopNote(i);
+        }
+        midiDriver.stop();
     }
 
     /**

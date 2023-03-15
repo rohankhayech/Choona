@@ -1,10 +1,25 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.rohankhayech.choona.model.preferences
 
 import android.content.Context
+import androidx.compose.runtime.Immutable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -21,6 +36,7 @@ import androidx.datastore.preferences.preferencesDataStore
  *
  * @author Rohan Khayech
  */
+@Immutable
 data class TunerPreferences(
     val enableStringSelectSound: Boolean = DEFAULT_ENABLE_STRING_SELECT_SOUND,
     val enableInTuneSound: Boolean = DEFAULT_IN_TUNE_SOUND,
@@ -59,6 +75,7 @@ data class TunerPreferences(
 }
 
 /** Enum representing the available options for displaying tuning offset. */
+@Immutable
 enum class TuningDisplayType(val multiplier: Int) {
     /** Displays a simple offset value and whether to tune up or down. */
     SIMPLE(10),
@@ -69,6 +86,7 @@ enum class TuningDisplayType(val multiplier: Int) {
 }
 
 /** Enum representing the available layouts to display string controls. */
+@Immutable
 enum class StringLayout {
     /** Displays string controls in-line (for electric guitars). */
     INLINE,

@@ -1,8 +1,22 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.tuner
 
 import kotlin.math.abs
 import be.tarsos.dsp.AudioDispatcher
@@ -44,6 +58,12 @@ class Tuner(
 
         /** Audio buffer size. */
         private const val AUDIO_BUFFER_SIZE = 1024
+
+        /** Index of the lowest detectable note. */
+        val LOWEST_NOTE = Notes.getIndex("D1")
+
+        /** Index of the highest detectable note. */
+        val HIGHEST_NOTE = Notes.getIndex("B4")
     }
 
     /** Mutable backing property for [tuning]. */
@@ -92,8 +112,8 @@ class Tuner(
             AMDF(
                 SAMPLE_RATE.toFloat(),
                 AUDIO_BUFFER_SIZE,
-                Notes.getPitch(-38),
-                Notes.getPitch(8)
+                Notes.getPitch(LOWEST_NOTE),
+                Notes.getPitch(HIGHEST_NOTE)
             ),
             pdh
         )
@@ -115,36 +135,54 @@ class Tuner(
     }
 
     /** Tunes all strings in the tuning up by one semitone */
-    fun tuneUp() {
-        _tuning.update {
-            it.higherTuning()
-        }
-        _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
+    fun tuneUp(): Boolean {
+        return if (tuning.value.max().rootNoteIndex < HIGHEST_NOTE) {
+            _tuning.update { it.higherTuning() }
+            _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
+            true
+        } else false
     }
 
     /** Tunes all strings in the tuning down by one semitone */
-    fun tuneDown() {
-        _tuning.update { it.lowerTuning() }
-        _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
+    fun tuneDown(): Boolean {
+        return if (tuning.value.min().rootNoteIndex > LOWEST_NOTE) {
+            _tuning.update { it.lowerTuning() }
+            _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
+            true
+        } else false
     }
 
-    /** Tunes the [nth][n] string in the tuning up by one semitone. */
-    fun tuneStringUp(n: Int) {
+    /** Tunes the [nth][n] string in the tuning up by one semitone.
+     * @return False if the string could not be tuned any lower, true otherwise.
+     */
+    fun tuneStringUp(n: Int): Boolean {
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
-        _tuning.update { tuning ->
-            tuning.withString(n, tuning.getString(n).higherString())
-        }
-        setTuned(n, false)
+
+        return if (tuning.value.getString(n).rootNoteIndex < HIGHEST_NOTE) {
+            _tuning.update { tuning ->
+                tuning.withString(n, tuning.getString(n).higherString())
+            }
+            setTuned(n, false)
+            true
+        } else false
     }
 
-    /** Tunes the [nth][n] string in the tuning down by one semitone. */
-    fun tuneStringDown(n: Int) {
+    /**
+     * Tunes the [nth][n] string in the tuning down by one semitone.
+     * @return False if the string could not be tuned any lower, true otherwise.
+     */
+    fun tuneStringDown(n: Int): Boolean {
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
-        _tuning.update { tuning ->
-            tuning.withString(n, tuning.getString(n).lowerString())
-        }
-       setTuned(n, false)
+
+        return if (tuning.value.getString(n).rootNoteIndex > LOWEST_NOTE) {
+            _tuning.update { tuning ->
+                tuning.withString(n, tuning.getString(n).lowerString())
+            }
+            setTuned(n, false)
+            true
+        } else false
     }
+
 
     /**
      * Sets the [tuned] value of the [nth][n] string.

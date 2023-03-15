@@ -1,13 +1,30 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.*
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -21,11 +38,11 @@ import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.view.screens.AboutScreen
+import com.rohankhayech.choona.view.screens.LicencesScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.theme.AppTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -38,7 +55,14 @@ class SettingsActivity : AppCompatActivity() {
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
 
+    /** Callback used to dismiss about screen when the back button is pressed. */
+    private lateinit var dismissAboutScreenOnBack: OnBackPressedCallback
+
+    /** Callback used to dismiss licences screen when the back button is pressed. */
+    private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
+
     /** Called when the activity is created. */
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,22 +72,79 @@ class SettingsActivity : AppCompatActivity() {
             SettingsActivityViewModel.Factory(tunerPreferenceDataStore)
         )[SettingsActivityViewModel::class.java]
 
+        // Setup custom back navigation.
+        dismissAboutScreenOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.screen.value >= Screen.ABOUT
+        ) {
+            dismissAboutScreen()
+        }
+        dismissLicencesScreenOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.screen.value >= Screen.LICENCES
+        ) {
+            dismissLicencesScreen()
+        }
+
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            
+            val screen by vm.screen.collectAsStateWithLifecycle()
+
             AppTheme(fullBlack = prefs.useBlackTheme) {
-                SettingsScreen(
-                    prefs = prefs,
-                    onSelectDisplayType = vm::setDisplayType,
-                    onSelectStringLayout = vm::setStringLayout,
-                    onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                    onEnableInTuneSound = vm::setEnableInTuneSound,
-                    onSetUseBlackTheme = vm::setUseBlackTheme,
-                    onBackPressed = ::finish
-                )
+                AnimatedContent(
+                    targetState = screen,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.Start) with
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Start)
+                        } else {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
+                        }
+                    }
+                ) {
+                    when (it) {
+                        Screen.SETTINGS -> SettingsScreen(
+                            prefs = prefs,
+                            onSelectDisplayType = vm::setDisplayType,
+                            onSelectStringLayout = vm::setStringLayout,
+                            onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                            onEnableInTuneSound = vm::setEnableInTuneSound,
+                            onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onAboutPressed = ::openAboutScreen,
+                            onBackPressed = ::finish
+                        )
+                        Screen.ABOUT -> AboutScreen(
+                            fullBlack = prefs.useBlackTheme,
+                            onLicencesPressed = ::openLicencesScreen,
+                            onBackPressed = ::dismissAboutScreen
+                        )
+                        Screen.LICENCES -> LicencesScreen(fullBlack = prefs.useBlackTheme, onBackPressed = ::dismissLicencesScreen)
+                    }
+                }
             }
         }
+    }
+
+    /** Opens the about screen and enables custom back behaviour. */
+    private fun openAboutScreen() {
+        dismissAboutScreenOnBack.isEnabled = true
+        vm.setScreen(Screen.ABOUT)
+    }
+
+    private fun dismissAboutScreen() {
+        dismissAboutScreenOnBack.isEnabled = false
+        vm.setScreen(Screen.SETTINGS)
+    }
+
+    /** Opens the licences screen and enables custom back behaviour. */
+    private fun openLicencesScreen() {
+        dismissLicencesScreenOnBack.isEnabled = true
+        vm.setScreen(Screen.LICENCES)
+    }
+
+    private fun dismissLicencesScreen() {
+        dismissLicencesScreenOnBack.isEnabled = false
+        vm.setScreen(Screen.ABOUT)
     }
 }
 
@@ -74,9 +155,15 @@ class SettingsActivity : AppCompatActivity() {
  *
  * @author Rohan Khayech
  */
-class SettingsActivityViewModel(
+private class SettingsActivityViewModel(
     private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
+
+    /** Mutable backing property for [screen]. */
+    private val _screen = MutableStateFlow(Screen.SETTINGS)
+
+    /** The currently visible screen. */
+    val screen = _screen.asStateFlow()
 
     /** Flow containing the users preferences. */
     val prefs: Flow<TunerPreferences> = dataStore.data
@@ -117,6 +204,11 @@ class SettingsActivityViewModel(
         }
     }
 
+    /** Sets the visible [screen]. */
+    fun setScreen(screen: Screen) {
+        _screen.update { screen }
+    }
+
     /**
      * Factory class used to instantiate the view model with a reference to the data store.
      *
@@ -136,4 +228,10 @@ class SettingsActivityViewModel(
             }
         }
     }
+}
+
+private enum class Screen {
+    SETTINGS,
+    ABOUT,
+    LICENCES
 }

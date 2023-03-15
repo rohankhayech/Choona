@@ -1,11 +1,26 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.tuner
 
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.music.GuitarString
+import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
 import org.junit.Assert.*
 import org.junit.Test
@@ -52,6 +67,12 @@ class TunerTest {
         for (i in 0..5) {
             assertFalse(tuner.tuned.value[i])
         }
+
+        // Test highest.
+        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        assertTrue(tuner.tuneUp())
+        assertFalse(tuner.tuneUp())
+
     }
 
     @Test
@@ -65,6 +86,11 @@ class TunerTest {
         for (i in 0..5) {
             assertFalse(tuner.tuned.value[i])
         }
+
+        // Test lowest.
+        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        assertTrue(tuner.tuneDown())
+        assertFalse(tuner.tuneDown())
     }
 
     @Test
@@ -78,6 +104,11 @@ class TunerTest {
         // Test invalid
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringUp(-1) }
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringUp(6) }
+
+        // Test highest.
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        assertTrue(tuner.tuneStringUp(0))
+        assertFalse(tuner.tuneStringUp(0))
     }
 
     @Test
@@ -91,6 +122,11 @@ class TunerTest {
         // Test invalid
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringDown(-1) }
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringDown(6) }
+
+        // Test lowest.
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        assertTrue(tuner.tuneStringDown(0))
+        assertFalse(tuner.tuneStringDown(0))
     }
 
     @Test

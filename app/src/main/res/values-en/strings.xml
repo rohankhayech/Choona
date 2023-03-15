@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Choona - Guitar Tuner
   ~ Copyright (C) 2023 Rohan Khayech
   ~
@@ -17,7 +17,6 @@
   -->
 
 <resources>
-    <string name="app_name" translatable="false">Choona</string>
     <string name="cancel">Cancel</string>
     <string name="tuning">Tuning</string>
     <string name="permission_denied">Permission Denied</string>

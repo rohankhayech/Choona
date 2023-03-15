@@ -17,11 +17,12 @@
   -->
 
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:statusBarColor">#000000</item>
-    </style>
+    <string name="pref_use_black_theme_desc">Optimized for AMOLED displays.</string>
+    <string name="tuning_list_favourites">Favorites</string>
+    <string name="unfavourite">Unfavorite</string>
+    <string name="favourite">Favorite</string>
+    <string name="third_party_licences">Third-party licenses</string>
+    <string name="licence">License</string>
+    <string name="licence_terms">License terms</string>
+    <string name="oss_licences">Open Source Licenses</string>
 </resources>

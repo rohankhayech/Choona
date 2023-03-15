@@ -1,5 +1,19 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.rohankhayech.choona.controller.fileio;
@@ -58,7 +72,7 @@ public class TuningFileIO {
         }
     }
 
-    private static Set<Tuning> parseTunings(String tuningsJSON) {
+    static Set<Tuning> parseTunings(String tuningsJSON) {
         Set<Tuning> tunings = new HashSet<>();
 
         try {
@@ -72,12 +86,7 @@ public class TuningFileIO {
                 JSONObject tuningObj = tuningsArr.getJSONObject(i);
 
                 // Retrieve tuning data
-                String name;
-                try {
-                    name = tuningObj.getString("name");
-                } catch (JSONException e) {
-                    name = null;
-                }
+                String name = tuningObj.optString("name", null); // Name should be null if absent.
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
@@ -93,7 +102,7 @@ public class TuningFileIO {
         }
     }
 
-    private static String encodeTunings(Set<Tuning> tunings) {
+    static String encodeTunings(Set<Tuning> tunings) {
         Objects.requireNonNull(tunings);
 
         JSONArray tuningsArr = new JSONArray();

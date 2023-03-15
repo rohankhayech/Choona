@@ -16,29 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.view.theme
+package com.rohankhayech.choona.view.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 
-/**
- * Theme for the app.
- *
- * @param darkTheme Whether to use the dark variant of this theme.
- * @param fullBlack Whether to use full black colors when [darkTheme] is enabled.
- * @param content Content to display with this theme.
- */
+/** UI component displaying a list section label with [title] text. */
 @Composable
-fun AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    fullBlack: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    MaterialTheme(
-        colors = if (darkTheme) {
-            if (fullBlack) BlackColors else DarkColors
-        } else LightColors,
-        content = content
+fun SectionLabel(title: String, modifier: Modifier = Modifier) {
+    Text(
+        text = title,
+        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.caption,
+        color = MaterialTheme.colors.primaryVariant,
+        modifier = modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
     )
 }

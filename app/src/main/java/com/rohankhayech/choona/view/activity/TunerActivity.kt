@@ -1,6 +1,21 @@
 /*
- * Copyright (c) 2023 Rohan Khayech
+ * Choona - Guitar Tuner
+ * Copyright (C) 2023 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
@@ -24,8 +39,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.rohankhayech.choona.controller.Tuner
 import com.rohankhayech.choona.controller.midi.MidiController
+import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
@@ -38,7 +53,6 @@ import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.billthefarmer.mididriver.GeneralMidiConstants
-import org.billthefarmer.mididriver.MidiDriver
 
 /**
  * Activity that allows the user to select a tuning and tune their guitar, displaying a comparison of played notes
@@ -158,7 +172,6 @@ class TunerActivity : AppCompatActivity() {
                                 }
                             },
                             onOpenTuningSelector = ::openTuningSelector,
-                            onBackPressed = ::finish,
                             onSettingsPressed = ::openSettings
                         )
 
@@ -176,8 +189,8 @@ class TunerActivity : AppCompatActivity() {
                 } else {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(
-                        requestAgain = !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
-                        onBackPressed = {},
+                        fullBlack = prefs.useBlackTheme,
+                        requestAgain = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
                         onSettingsPressed = ::openSettings,
                         onRequestPermission = ::requestPermission,
                         onOpenPermissionSettings = ::openPermissionSettings,
@@ -195,6 +208,9 @@ class TunerActivity : AppCompatActivity() {
         // Call superclass.
         super.onResume()
 
+        // Start midi driver.
+        midi.start()
+
         checkPermission()
         // Start the tuner.
         if (!vm.tuningSelectorOpen.value) {
@@ -210,20 +226,14 @@ class TunerActivity : AppCompatActivity() {
         // Stop the tuner.
         vm.tuner.stop()
 
+        // Stop midi driver.
+        midi.stop()
+
         // Save tunings.
         vm.tuningList.saveTunings(this)
 
         // Call superclass.
         super.onPause()
-    }
-
-    /** Called before the activity is destroyed. */
-    override fun onDestroy() {
-        // Close midi driver.
-        MidiDriver.getInstance().stop()
-
-        // Call superclass
-        super.onDestroy()
     }
 
     /** Plays the string selection sound for the specified [string]. */
