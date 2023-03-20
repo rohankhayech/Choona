@@ -183,6 +183,7 @@ class TunerActivity : AppCompatActivity() {
                         TuningSelectionScreen(
                             tuningList = vm.tuningList,
                             onSelect = ::selectTuning,
+                            onDelete = vm::onDeleteCustomTuning,
                             onDismiss = ::dismissTuningSelector,
                         )
                     }
@@ -337,6 +338,14 @@ class TunerActivityViewModel : ViewModel() {
     fun openTuningSelector() {
         tuningList.setCurrent(tuner.tuning.value)
         _tuningSelectorOpen.update { true }
+    }
+
+    /** Called when the specified [tuning] is deleted. */
+    fun onDeleteCustomTuning(tuning: Tuning) {
+        // Reset the name of the current tuning if it is equivalent to the custom tuning.
+        if (tuner.tuning.value.equivalentTo(tuning)) {
+            tuner.setTuning(Tuning(null, tuning))
+        }
     }
 
     /** Dismisses the tuning selection screen. */
