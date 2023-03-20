@@ -387,12 +387,12 @@ fun TunerPermissionScreen(
             if (requestAgain) {
                 title = stringResource(R.string.permission_needed)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale)
-                buttonLabel = stringResource(R.string.request_permission)
+                buttonLabel = stringResource(R.string.request_permission).uppercase()
                 buttonAction = onRequestPermission
             } else {
                 title = stringResource(R.string.permission_denied)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
-                buttonLabel = stringResource(R.string.open_permission_settings)
+                buttonLabel = stringResource(R.string.open_permission_settings).uppercase()
                 buttonAction = onOpenPermissionSettings
             }
 
