@@ -30,6 +30,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
@@ -51,7 +52,10 @@ import com.rohankhayech.music.Tuning
  * as well as managing favourite and custom tunings.
  *
  * @param tuningList State holder for the tuning list.
+ * @param onSave Called when a custom tuning is saved with the specified name.
+ * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
+ * @param onDelete Called when a custom tuning is deleted.
  * @param onDismiss Called when the screen is dismissed.
  *
  * @author Rohan Khayech
@@ -59,7 +63,10 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelectionScreen(
     tuningList: TuningList,
+    onSave: (String?, Tuning) -> Unit = {_,_->},
+    onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
+    onDelete: (Tuning) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
@@ -72,10 +79,19 @@ fun TuningSelectionScreen(
         common = Tunings.COMMON,
         favourites = favourites,
         custom = custom,
-        onSave = tuningList::addCustom,
-        onFavouriteSet = tuningList::setFavourited,
+        onSave = { name, tuning ->
+            tuningList.addCustom(name, tuning)
+            onSave(name, tuning)
+        },
+        onFavouriteSet = { tuning, fav ->
+            tuningList.setFavourited(tuning, fav)
+            onFavouriteSet(tuning, fav)
+        },
         onSelect = onSelect,
-        onDelete = tuningList::removeCustom,
+        onDelete = {
+            tuningList.removeCustom(it)
+            onDelete(it)
+        },
         onDismiss = onDismiss
     )
 }
@@ -118,7 +134,7 @@ fun TuningSelectionScreen(
         }}.value
     )
 
-    var showSaveDialog by remember { mutableStateOf(false) }
+    var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -433,7 +449,7 @@ private fun SaveTuningDialog(
     onSave: (String?, Tuning) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
         text = {
@@ -445,6 +461,7 @@ private fun SaveTuningDialog(
                 )
                 Spacer(Modifier.height(16.dp))
                 TextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = name,
                     placeholder = { Text(tuning.toString()) },
                     singleLine = true,
