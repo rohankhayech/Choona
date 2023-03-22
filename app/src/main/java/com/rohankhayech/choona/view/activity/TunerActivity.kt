@@ -45,9 +45,8 @@ import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
+import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
-import com.rohankhayech.choona.view.screens.TunerScreen
-import com.rohankhayech.choona.view.screens.TuningSelectionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.*
@@ -137,56 +136,44 @@ class TunerActivity : AppCompatActivity() {
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
 
                     // Display UI content.
-                    AnimatedVisibility(!tuningSelectorOpen,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        TunerScreen(
-                            windowSizeClass = calculateWindowSizeClass(this@TunerActivity),
-                            tuning = tuning,
-                            noteOffset = noteOffset,
-                            selectedString = selectedString,
-                            tuned = tuned,
-                            autoDetect = autoDetect,
-                            favTunings = favTunings,
-                            customTunings = customTunings,
-                            prefs = prefs,
-                            onSelectString = remember(prefs.enableStringSelectSound) {
-                                {
-                                    vm.tuner.selectString(it)
-                                    // Play sound on string selection.
-                                    if (prefs.enableStringSelectSound) playStringSelectSound(it)
-                                }
-                            },
-                            onSelectTuning = vm.tuner::setTuning,
-                            onTuneUpString = vm.tuner::tuneStringUp,
-                            onTuneDownString = vm.tuner::tuneStringDown,
-                            onTuneUpTuning = vm.tuner::tuneUp,
-                            onTuneDownTuning = vm.tuner::tuneDown,
-                            onAutoChanged = vm.tuner::setAutoDetect,
-                            onTuned = remember(prefs.enableInTuneSound) {
-                                {
-                                    vm.tuner.setTuned()
-                                    // Play sound when string tuned.
-                                    if (prefs.enableInTuneSound) playInTuneSound()
-                                }
-                            },
-                            onOpenTuningSelector = ::openTuningSelector,
-                            onSettingsPressed = ::openSettings
-                        )
-
-                    }
-                    AnimatedVisibility(tuningSelectorOpen,
-                        enter = slideInVertically { it/2 },
-                        exit = slideOutVertically { it }
-                    ) {
-                        TuningSelectionScreen(
-                            tuningList = vm.tuningList,
-                            onSelect = ::selectTuning,
-                            onDelete = vm::onDeleteCustomTuning,
-                            onDismiss = ::dismissTuningSelector,
-                        )
-                    }
+                    MainLayout(
+                        windowSizeClass = calculateWindowSizeClass(this@TunerActivity),
+                        tuning = tuning,
+                        noteOffset = noteOffset,
+                        selectedString = selectedString,
+                        tuned = tuned,
+                        autoDetect = autoDetect,
+                        favTunings = favTunings,
+                        customTunings = customTunings,
+                        prefs = prefs,
+                        tuningList = vm.tuningList,
+                        tuningSelectorOpen = tuningSelectorOpen,
+                        onSelectString = remember(prefs.enableStringSelectSound) {
+                            {
+                                vm.tuner.selectString(it)
+                                // Play sound on string selection.
+                                if (prefs.enableStringSelectSound) playStringSelectSound(it)
+                            }
+                        },
+                        onSelectTuning = vm.tuner::setTuning,
+                        onTuneUpString = vm.tuner::tuneStringUp,
+                        onTuneDownString = vm.tuner::tuneStringDown,
+                        onTuneUpTuning = vm.tuner::tuneUp,
+                        onTuneDownTuning = vm.tuner::tuneDown,
+                        onAutoChanged = vm.tuner::setAutoDetect,
+                        onTuned = remember(prefs.enableInTuneSound) {
+                            {
+                                vm.tuner.setTuned()
+                                // Play sound when string tuned.
+                                if (prefs.enableInTuneSound) playInTuneSound()
+                            }
+                        },
+                        onOpenTuningSelector = ::openTuningSelector,
+                        onSettingsPressed = ::openSettings,
+                        onSelectTuningFromList = ::selectTuning,
+                        onDeleteTuning = vm::onDeleteCustomTuning,
+                        onDismissTuningSelector = ::dismissTuningSelector,
+                    )
                 } else {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(

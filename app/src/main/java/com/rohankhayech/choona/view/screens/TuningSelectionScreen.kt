@@ -63,6 +63,7 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelectionScreen(
     tuningList: TuningList,
+    showBackButton: Boolean = true,
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
@@ -79,6 +80,7 @@ fun TuningSelectionScreen(
         common = Tunings.COMMON,
         favourites = favourites,
         custom = custom,
+        showBackButton = showBackButton,
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -118,6 +120,7 @@ fun TuningSelectionScreen(
     common: Set<Tuning>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
+    showBackButton: Boolean,
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -141,11 +144,11 @@ fun TuningSelectionScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
                 backgroundColor = MaterialTheme.colors.background,
-                navigationIcon = {
+                navigationIcon = if (showBackButton) {{
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, stringResource(R.string.dismiss))
                     }
-                },
+                }} else null,
                 elevation = appBarElevation
             )
         }
@@ -500,6 +503,7 @@ private fun Preview() {
                 common = Tunings.COMMON,
                 favourites = setOf(Tuning.STANDARD, favCustomTuning),
                 custom = setOf(customTuning, favCustomTuning),
+                showBackButton = true,
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},
                 onSelect = {},
