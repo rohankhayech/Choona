@@ -2,7 +2,24 @@
 
 This file contains the relevant notices and licenses for the following 3rd party software used or included in this project:
 
-## TarsosDSP by Joren Six (GNU General Public License v3.0)
+## Android Open Source Project ([Apache License, Version 2.0](#apache-license-version-20))
+This project uses various libraries part of the Android Open Source Project.
+
+    Copyright 2023 The Android Open Source Project
+ 
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+## TarsosDSP by Joren Six ([GNU General Public License v3.0](#gnu-general-public-license-v30))
          _______                       _____   _____ _____        
         |__   __|                     |  __ \ / ____|  __ \       
            | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |      
@@ -26,10 +43,10 @@ This file contains the relevant notices and licenses for the following 3rd party
 ### Changes 
 - Includes modified copy of the PitchProcessor class allowing a pitch detector object to be passed in.
     
-## Midi Driver by Bill Farmer (Apache License, Version 2.0)
+## Midi Driver by Bill Farmer ([Apache License, Version 2.0](#apache-license-version-20))
     Copyright (C) 2023 Bill Farmer
 
-## AboutLibraries by Mike Penz (Apache License, Version 2.0)
+## AboutLibraries by Mike Penz ([Apache License, Version 2.0](#apache-license-version-20))
     Copyright 2021 Mike Penz
 
     Licensed under the Apache License, Version 2.0 (the "License");
