@@ -461,6 +461,7 @@ private fun SaveTuningDialog(
                 )
                 Spacer(Modifier.height(16.dp))
                 TextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = name,
                     placeholder = { Text(tuning.toString()) },
                     singleLine = true,
