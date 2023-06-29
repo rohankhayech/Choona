@@ -40,6 +40,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -526,26 +527,19 @@ private fun TuningMeter(
     labelContent: @Composable () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.size(210.dp, 116.dp)
+        modifier = Modifier
+            .size(210.dp, 116.dp)
+            .drawBehind {
+                drawMeter(
+                    indicatorColor = color,
+                    indicatorPosition = indicatorPosition,
+                    indicatorSize = indicatorSize
+                )
+            },
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .offset(y = 48.dp)
-                .requiredSize(192.dp)
-                .drawBehind {
-                    drawMeter(
-                        indicatorColor = color,
-                        indicatorPosition = indicatorPosition,
-                        indicatorSize = indicatorSize
-                    )
-                },
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            labelContent()
-            Spacer(Modifier.height(85.dp))
-        }
+        labelContent()
     }
 }
 
@@ -563,29 +557,37 @@ private fun DrawScope.drawMeter(
     indicatorPosition: Float,
     indicatorSize: Float,
 ) {
-    val startAngle = -90f
-    val indicatorSpan = indicatorSize * 180f
-    val indicatorAngle = indicatorPosition * (90f - (indicatorSpan/2)) - (indicatorSpan/2)
+    // Arc size
+    val strokeWidth = (size.width.toDp().value/4)
+    val arcSize = size.copy(height = size.height*2 - strokeWidth*2, width = size.width - strokeWidth)
+    val offset = Offset(strokeWidth/2, strokeWidth/2)
 
     // Background Track
     drawArc(
         color = trackColor,
         startAngle = -180f,
         sweepAngle = 180f,
+        size = arcSize,
+        topLeft = offset,
         style = Stroke(
-            width = 50f,
+            width = strokeWidth,
             cap = StrokeCap.Round
         ),
         useCenter = false
     )
 
     // Indicator
+    val startAngle = -90f
+    val indicatorSpan = indicatorSize * 180f
+    val indicatorAngle = indicatorPosition * (90f - (indicatorSpan/2)) - (indicatorSpan/2)
     drawArc(
         color = indicatorColor,
         startAngle = startAngle + indicatorAngle,
         sweepAngle = indicatorSpan,
+        size = arcSize,
+        topLeft = offset,
         style = Stroke(
-            width = 50f,
+            width = strokeWidth,
             cap = StrokeCap.Round
         ),
         useCenter = false
@@ -602,6 +604,8 @@ private fun TuningMeterLabel(
     displayType: TuningDisplayType,
     color: Color
 ) {
+    Spacer(modifier = Modifier.height(24.dp))
+
     // Listening
     if (noteOffset == null) {
         Icon(
