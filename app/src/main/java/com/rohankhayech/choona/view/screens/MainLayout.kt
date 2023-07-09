@@ -26,6 +26,9 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -96,7 +99,7 @@ fun MainLayout(
             Column(Modifier.weight(0.3f)) {
                 TuningSelectionScreen(
                     tuningList = tuningList,
-                    showBackButton = false,
+                    backIcon = null,
                     onSelect = onSelectTuningFromList,
                     onDelete = onDeleteTuning,
                     onDismiss = {}
@@ -158,6 +161,7 @@ fun MainLayout(
         ) {
             TuningSelectionScreen(
                 tuningList = tuningList,
+                backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
                 onSelect = onSelectTuningFromList,
                 onDelete = onDeleteTuning,
                 onDismiss = onDismissTuningSelector,

@@ -34,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,7 +64,7 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelectionScreen(
     tuningList: TuningList,
-    showBackButton: Boolean = true,
+    backIcon: ImageVector?,
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
@@ -80,7 +81,7 @@ fun TuningSelectionScreen(
         common = Tunings.COMMON,
         favourites = favourites,
         custom = custom,
-        showBackButton = showBackButton,
+        backIcon = backIcon,
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -120,7 +121,7 @@ fun TuningSelectionScreen(
     common: Set<Tuning>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
-    showBackButton: Boolean,
+    backIcon: ImageVector?,
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -144,11 +145,11 @@ fun TuningSelectionScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
                 backgroundColor = MaterialTheme.colors.background,
-                navigationIcon = if (showBackButton) {{
+                navigationIcon = backIcon?.let {{
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, stringResource(R.string.dismiss))
+                        Icon(it, stringResource(R.string.dismiss))
                     }
-                }} else null,
+                }},
                 elevation = appBarElevation
             )
         }
@@ -503,7 +504,7 @@ private fun Preview() {
                 common = Tunings.COMMON,
                 favourites = setOf(Tuning.STANDARD, favCustomTuning),
                 custom = setOf(customTuning, favCustomTuning),
-                showBackButton = true,
+                backIcon = Icons.Default.Close,
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},
                 onSelect = {},
