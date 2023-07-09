@@ -67,7 +67,6 @@ fun MainLayout(
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
-    onDeleteTuning: (Tuning) -> Unit = {},
     onDismissTuningSelector: () -> Unit,
     onDismissConfigurePanel: () -> Unit,
 ) {
@@ -104,7 +103,6 @@ fun MainLayout(
                         tuningList = tuningList,
                         backIcon = null,
                         onSelect = onSelectTuningFromList,
-                        onDelete = onDeleteTuning,
                         onDismiss = {}
                     )
                 }
@@ -167,7 +165,6 @@ fun MainLayout(
                 tuningList = tuningList,
                 backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
                 onSelect = onSelectTuningFromList,
-                onDelete = onDeleteTuning,
                 onDismiss = onDismissTuningSelector,
             )
         }

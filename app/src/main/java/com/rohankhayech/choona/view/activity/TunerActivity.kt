@@ -42,6 +42,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -211,7 +212,6 @@ class TunerActivity : AppCompatActivity() {
                         onSettingsPressed = ::openSettings,
                         onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
-                        onDeleteTuning = vm::onDeleteCustomTuning,
                         onDismissTuningSelector = ::dismissTuningSelector,
                         onDismissConfigurePanel = ::dismissConfigurePanel
                     )
@@ -395,9 +395,24 @@ class TunerActivityViewModel : ViewModel() {
      */
     val configurePanelOpen = _configurePanelOpen.asStateFlow()
 
+    /** Runs when the view model is instantiated. */
+    init {
+        // Update tuner when the current selection in the tuning list is updated.
+        viewModelScope.launch {
+            tuner.tuning.collect {
+                tuningList.setCurrent(it)
+            }
+        }
+        // Update the tuning list when the tuner's tuning is updated.
+        viewModelScope.launch {
+            tuningList.current.collect {
+                it?.let { tuner.setTuning(it) }
+            }
+        }
+    }
+
     /** Opens the tuning selection screen. */
     fun openTuningSelector() {
-        tuningList.setCurrent(tuner.tuning.value)
         _tuningSelectorOpen.update { true }
     }
 
@@ -406,14 +421,6 @@ class TunerActivityViewModel : ViewModel() {
      */
     fun openConfigurePanel() {
         _configurePanelOpen.update { true }
-    }
-
-    /** Called when the specified [tuning] is deleted. */
-    fun onDeleteCustomTuning(tuning: Tuning) {
-        // Reset the name of the current tuning if it is equivalent to the custom tuning.
-        if (tuner.tuning.value.equivalentTo(tuning)) {
-            tuner.setTuning(Tuning(null, tuning))
-        }
     }
 
     /** Dismisses the tuning selection screen. */

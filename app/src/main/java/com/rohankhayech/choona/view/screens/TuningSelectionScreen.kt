@@ -56,7 +56,6 @@ import com.rohankhayech.music.Tuning
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
- * @param onDelete Called when a custom tuning is deleted.
  * @param onDismiss Called when the screen is dismissed.
  *
  * @author Rohan Khayech
@@ -68,7 +67,6 @@ fun TuningSelectionScreen(
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
-    onDelete: (Tuning) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
@@ -93,7 +91,6 @@ fun TuningSelectionScreen(
         onSelect = onSelect,
         onDelete = {
             tuningList.removeCustom(it)
-            onDelete(it)
         },
         onDismiss = onDismiss
     )
