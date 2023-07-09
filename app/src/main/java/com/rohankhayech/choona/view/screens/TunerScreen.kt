@@ -688,7 +688,7 @@ private fun DrawScope.drawMeter(
     indicatorSize: Float,
 ) {
     // Arc size
-    val strokeWidth = (size.width.toDp().value/4)
+    val strokeWidth = 20.dp.toPx()
     val arcSize = size.copy(height = size.height*2 - strokeWidth*2, width = size.width - strokeWidth)
     val offset = Offset(strokeWidth/2, strokeWidth/2)
 
