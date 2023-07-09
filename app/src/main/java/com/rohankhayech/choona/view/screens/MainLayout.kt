@@ -106,8 +106,8 @@ fun MainLayout(
     } else {
         AnimatedVisibility(
             visible = !tuningSelectorOpen && !configurePanelOpen,
-            enter = slideInVertically { it/2 },
-            exit = slideOutVertically { it }
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
             TunerScreen(
                 compact,
@@ -135,8 +135,8 @@ fun MainLayout(
         }
         AnimatedVisibility(
             visible = configurePanelOpen && !tuningSelectorOpen,
-            enter = fadeIn(),
-            exit = fadeOut()
+            enter = slideInVertically { it/2 },
+            exit = slideOutVertically { it }
         ) {
             ConfigureTuningScreen(
                 tuning = tuning,
