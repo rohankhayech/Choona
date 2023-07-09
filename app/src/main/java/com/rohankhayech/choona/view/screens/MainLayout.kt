@@ -26,6 +26,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -33,6 +34,7 @@ import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
@@ -97,13 +99,15 @@ fun MainLayout(
                 )
             }
             Column(Modifier.weight(0.3f)) {
-                TuningSelectionScreen(
-                    tuningList = tuningList,
-                    backIcon = null,
-                    onSelect = onSelectTuningFromList,
-                    onDelete = onDeleteTuning,
-                    onDismiss = {}
-                )
+                Surface(elevation = 8.dp) {
+                    TuningSelectionScreen(
+                        tuningList = tuningList,
+                        backIcon = null,
+                        onSelect = onSelectTuningFromList,
+                        onDelete = onDeleteTuning,
+                        onDismiss = {}
+                    )
+                }
             }
         }
     } else {
