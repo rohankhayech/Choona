@@ -240,7 +240,7 @@ private fun CompactTunerBody(
                 Modifier
                     .width((1f / LocalDensity.current.density).dp)
                     .fillMaxHeight())
-            Surface(Modifier.padding(horizontal = 16.dp)) {
+            Box(Modifier.padding(horizontal = 16.dp)) {
                 AutoDetectSwitch(
                     modifier = Modifier.fillMaxHeight(),
                     autoDetect = autoDetect,
@@ -298,7 +298,8 @@ private fun PortraitTunerBody(
         modifier = Modifier
             .padding(padding)
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -321,6 +322,7 @@ private fun PortraitTunerBody(
             onAutoChanged = onAutoChanged
         )
         TuningSelector(
+            Modifier.padding(vertical = 8.dp),
             tuning = tuning,
             favTunings = favTunings,
             customTunings = customTunings,
@@ -625,6 +627,7 @@ private fun TuningDisplay(
 
     // Content
     Row(
+        modifier = Modifier.padding(16.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -795,24 +798,26 @@ fun StringControls(
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
 ) {
-    if (inline) {
-        InlineStringControls(
-            tuning = tuning,
-            selectedString = selectedString,
-            tuned = tuned,
-            onSelect = onSelect,
-            onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
-        )
-    } else {
-        SideBySideStringControls(
-            tuning = tuning,
-            selectedString = selectedString,
-            tuned = tuned,
-            onSelect = onSelect,
-            onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
-        )
+    Box(Modifier.padding(8.dp)) {
+        if (inline) {
+            InlineStringControls(
+                tuning = tuning,
+                selectedString = selectedString,
+                tuned = tuned,
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp
+            )
+        } else {
+            SideBySideStringControls(
+                tuning = tuning,
+                selectedString = selectedString,
+                tuned = tuned,
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp
+            )
+        }
     }
 }
 
@@ -1078,6 +1083,7 @@ private fun AutoDetectSwitch(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TuningSelector(
+    modifier: Modifier = Modifier,
     tuning: Tuning,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
@@ -1087,7 +1093,7 @@ fun TuningSelector(
     onOpenTuningSelector: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 8.dp)
             .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
