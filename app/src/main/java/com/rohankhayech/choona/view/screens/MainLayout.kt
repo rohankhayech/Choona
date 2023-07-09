@@ -18,12 +18,15 @@
 
 package com.rohankhayech.choona.view.screens
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
@@ -33,7 +36,9 @@ import com.rohankhayech.music.Tuning
 
 @Composable
 fun MainLayout(
-    windowSizeClass: WindowSizeClass,
+    windowHeightSizeClass: WindowHeightSizeClass,
+    compact: Boolean,
+    expanded: Boolean,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -44,6 +49,7 @@ fun MainLayout(
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
+    configurePanelOpen: Boolean,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -54,15 +60,18 @@ fun MainLayout(
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onSettingsPressed: () -> Unit,
+    onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
     onDeleteTuning: (Tuning) -> Unit = {},
-    onDismissTuningSelector: () -> Unit
+    onDismissTuningSelector: () -> Unit,
+    onDismissConfigurePanel: () -> Unit,
 ) {
-    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+    if (expanded) {
         Row(Modifier.fillMaxSize()) {
             Column(Modifier.weight(0.7f)) {
                 TunerScreen(
-                    windowSizeClass,
+                    compact = false,
+                    windowHeightSizeClass,
                     tuning,
                     noteOffset,
                     selectedString,
@@ -80,7 +89,8 @@ fun MainLayout(
                     onAutoChanged,
                     onTuned,
                     onOpenTuningSelector = {},
-                    onSettingsPressed
+                    onSettingsPressed,
+                    onConfigurePressed = {}
                 )
             }
             Column(Modifier.weight(0.3f)) {
@@ -94,12 +104,14 @@ fun MainLayout(
             }
         }
     } else {
-        AnimatedVisibility(!tuningSelectorOpen,
-            enter = fadeIn(),
-            exit = fadeOut()
+        AnimatedVisibility(
+            visible = !tuningSelectorOpen && !configurePanelOpen,
+            enter = slideInVertically { it/2 },
+            exit = slideOutVertically { it }
         ) {
             TunerScreen(
-                windowSizeClass,
+                compact,
+                windowHeightSizeClass,
                 tuning,
                 noteOffset,
                 selectedString,
@@ -117,10 +129,30 @@ fun MainLayout(
                 onAutoChanged,
                 onTuned,
                 onOpenTuningSelector,
-                onSettingsPressed
+                onSettingsPressed,
+                onConfigurePressed
             )
         }
-        AnimatedVisibility(tuningSelectorOpen,
+        AnimatedVisibility(
+            visible = configurePanelOpen && !tuningSelectorOpen,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            ConfigureTuningScreen(
+                tuning = tuning,
+                favTunings = favTunings,
+                customTunings = customTunings,
+                onSelectTuning = onSelectTuning,
+                onTuneUpString = onTuneUpString,
+                onTuneDownString = onTuneDownString,
+                onTuneUpTuning = onTuneUpTuning,
+                onTuneDownTuning = onTuneDownTuning,
+                onOpenTuningSelector = onOpenTuningSelector,
+                onDismiss = onDismissConfigurePanel
+            )
+        }
+        AnimatedVisibility(
+            visible = tuningSelectorOpen,
             enter = slideInVertically { it/2 },
             exit = slideOutVertically { it }
         ) {

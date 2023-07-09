@@ -32,7 +32,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.emptyPreferences
@@ -79,6 +82,9 @@ class TunerActivity : AppCompatActivity() {
     /** Callback used to dismiss tuning selection screen when the back button is pressed. */
     private lateinit var dismissTuningSelectorOnBack: OnBackPressedCallback
 
+    /** Callback used to dismiss configure tuning panel when the back button is pressed. */
+    private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
+
     /**
      * Called when activity is created.
      */
@@ -112,6 +118,12 @@ class TunerActivity : AppCompatActivity() {
         }
 
         // Setup custom back navigation.
+        dismissConfigurePanelOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.configurePanelOpen.value,
+        ) {
+            dismissConfigurePanel()
+        }
+
         dismissTuningSelectorOnBack = onBackPressedDispatcher.addCallback(this,
             enabled = vm.tuningSelectorOpen.value
         ) {
@@ -132,12 +144,15 @@ class TunerActivity : AppCompatActivity() {
                     val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
                     val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
                     val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
+                    val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
 
                     // Display UI content.
                     MainLayout(
-                        windowSizeClass = calculateWindowSizeClass(this@TunerActivity),
+                        windowHeightSizeClass = windowSizeClass.heightSizeClass,
+                        compact = compact,
+                        expanded = expanded,
                         tuning = tuning,
                         noteOffset = noteOffset,
                         selectedString = selectedString,
@@ -148,6 +163,7 @@ class TunerActivity : AppCompatActivity() {
                         prefs = prefs,
                         tuningList = vm.tuningList,
                         tuningSelectorOpen = tuningSelectorOpen,
+                        configurePanelOpen = configurePanelOpen,
                         onSelectString = remember(prefs.enableStringSelectSound) {
                             {
                                 vm.tuner.selectString(it)
@@ -170,9 +186,11 @@ class TunerActivity : AppCompatActivity() {
                         },
                         onOpenTuningSelector = ::openTuningSelector,
                         onSettingsPressed = ::openSettings,
+                        onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
                         onDeleteTuning = vm::onDeleteCustomTuning,
                         onDismissTuningSelector = ::dismissTuningSelector,
+                        onDismissConfigurePanel = ::dismissConfigurePanel
                     )
                 } else {
                     // Audio permission not granted, show permission rationale.
@@ -200,8 +218,8 @@ class TunerActivity : AppCompatActivity() {
         midi.start()
 
         checkPermission()
-        // Start the tuner.
-        if (!vm.tuningSelectorOpen.value) {
+        // Start the tuner if no panels are open.
+        if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
             } catch (_: IllegalStateException) {
@@ -245,6 +263,15 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
+     * Opens the configure tuning panel, and stops the tuner.
+     */
+    private fun openConfigurePanel() {
+        dismissConfigurePanelOnBack.isEnabled = true
+        vm.openConfigurePanel()
+        vm.tuner.stop()
+    }
+
+    /**
      * Opens the tuning selection screen, and stops the tuner.
      */
     private fun openTuningSelector() {
@@ -254,25 +281,41 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
-     * Dismisses the tuning selection screen and restarts the tuner.
+     * Dismisses the tuning selection screen and restarts the tuner if no other panel is open.
      */
     private fun dismissTuningSelector() {
         dismissTuningSelectorOnBack.isEnabled = false
         vm.dismissTuningSelector()
-        try {
-            vm.tuner.start(ph)
-        } catch(_: IllegalStateException) {}
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: IllegalStateException) {}
+        }
+    }
+
+    /** Dismisses the configure panel and restarts the tuner if no other panel is open. */
+    private fun dismissConfigurePanel() {
+        dismissConfigurePanelOnBack.isEnabled = false
+        vm.dismissConfigurePanel()
+        if (!vm.tuningSelectorOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch (_: IllegalStateException) {}
+        }
     }
 
     /**
-     * Sets the current tuning to the tuning selected on the tuning selection screen and restarts the tuner.
+     * Sets the current tuning to the tuning selected on the tuning
+     * selection screen and restarts the tuner if no other panel is open.
      */
     private fun selectTuning(tuning: Tuning) {
         dismissTuningSelectorOnBack.isEnabled = false
         vm.selectTuning(tuning)
-        try {
-            vm.tuner.start(ph)
-        } catch (_: IllegalStateException) {}
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: IllegalStateException) {}
+        }
     }
 
     /** Opens the tuner settings activity. */
@@ -321,10 +364,25 @@ class TunerActivityViewModel : ViewModel() {
     /** Whether the tuning selection screen is currently open. */
     val tuningSelectorOpen = _tuningSelectorOpen.asStateFlow()
 
+    /** Mutable backing property for [configurePanelOpen]. */
+    private val _configurePanelOpen = MutableStateFlow(false)
+
+    /**
+     * Whether the configure tuning panel is currently open.
+     */
+    val configurePanelOpen = _configurePanelOpen.asStateFlow()
+
     /** Opens the tuning selection screen. */
     fun openTuningSelector() {
         tuningList.setCurrent(tuner.tuning.value)
         _tuningSelectorOpen.update { true }
+    }
+
+    /**
+     * Opens the configure tuning panel.
+     */
+    fun openConfigurePanel() {
+        _configurePanelOpen.update { true }
     }
 
     /** Called when the specified [tuning] is deleted. */
@@ -338,6 +396,13 @@ class TunerActivityViewModel : ViewModel() {
     /** Dismisses the tuning selection screen. */
     fun dismissTuningSelector() {
         _tuningSelectorOpen.update { false }
+    }
+
+    /**
+     * Dismisses the configure tuning panel.
+     */
+    fun dismissConfigurePanel() {
+        _configurePanelOpen.update { false }
     }
 
     /** Sets the current tuning to that selected in the tuning selection screen and dismisses it. */
