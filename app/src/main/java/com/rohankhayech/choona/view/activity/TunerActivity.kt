@@ -148,6 +148,29 @@ class TunerActivity : AppCompatActivity() {
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
 
+                    // Calculate window size/orientation
+                    val windowSizeClass = calculateWindowSizeClass(this)
+
+                    val compact = remember(windowSizeClass) {
+                        windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact &&
+                            windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+                    }
+
+                    val expanded = remember(windowSizeClass) {
+                        windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                    }
+
+                    // Dismiss configure panel if no longer compact.
+                    LaunchedEffect(compact, configurePanelOpen) {
+                        if (configurePanelOpen && !compact) dismissConfigurePanel()
+                    }
+
+                    // Dismiss tuning selector when switching to expanded view.
+                    LaunchedEffect(expanded, tuningSelectorOpen) {
+                        if (tuningSelectorOpen && expanded) dismissTuningSelector()
+                    }
+
                     // Display UI content.
                     MainLayout(
                         windowHeightSizeClass = windowSizeClass.heightSizeClass,
