@@ -245,6 +245,8 @@ private fun PortraitTunerBody(
  * Body of the tuning screen in landscape orientation.
  *
  * @param padding Padding values passed from the parent scaffold.
+ * @param windowHeightSizeClass Height class of the window.
+ * @param prefs User preferences for the tuner.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -252,7 +254,6 @@ private fun PortraitTunerBody(
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
- * @param displayType Type of tuning offset value to display.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
  * @param onTuneUpString Called when a string is tuned up.
@@ -266,6 +267,8 @@ private fun PortraitTunerBody(
 @Composable
 private fun LandscapeTunerBody(
     padding: PaddingValues,
+    windowHeightSizeClass: WindowHeightSizeClass,
+    prefs: TunerPreferences,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -273,7 +276,6 @@ private fun LandscapeTunerBody(
     autoDetect: Boolean,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
-    displayType: TuningDisplayType,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -300,7 +302,7 @@ private fun LandscapeTunerBody(
         }) {
             TuningDisplay(
                 noteOffset = noteOffset,
-                displayType = displayType,
+                displayType = prefs.displayType,
                 onTuned = onTuned
             )
         }
@@ -329,7 +331,8 @@ private fun LandscapeTunerBody(
             end.linkTo(parent.end)
         }) {
             StringControls(
-                inline = false,
+                inline = windowHeightSizeClass > WindowHeightSizeClass.Compact
+                    && prefs.stringLayout == StringLayout.INLINE,
                 tuning = tuning,
                 selectedString = selectedString,
                 tuned = tuned,
