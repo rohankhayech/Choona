@@ -19,6 +19,10 @@
 package com.rohankhayech.choona.view.activity
 
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -34,21 +38,32 @@ class TunerActivityViewModelTest {
 
     private lateinit var vm: TunerActivityViewModel
 
+    private var testDispatcher = StandardTestDispatcher()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
         vm = TunerActivityViewModel()
     }
 
     @Test
     fun testInitial() {
+        assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
         assertFalse(vm.tuningSelectorOpen.value)
+        assertFalse(vm.configurePanelOpen.value)
     }
 
     @Test
     fun testOpenTuningSelector() {
         vm.openTuningSelector()
         assertTrue(vm.tuningSelectorOpen.value)
-        assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
+    }
+
+    @Test
+    fun testOpenConfigurePanel() {
+        vm.openConfigurePanel()
+        assertTrue(vm.configurePanelOpen.value)
     }
 
     @Test
@@ -59,10 +74,29 @@ class TunerActivityViewModelTest {
     }
 
     @Test
+    fun testDismissConfigurePanel() {
+        vm.openConfigurePanel()
+        vm.dismissConfigurePanel()
+        assertFalse(vm.configurePanelOpen.value)
+    }
+
+    @Test
     fun testSelectTuning() {
         vm.openTuningSelector()
         vm.selectTuning(Tuning.DROP_D)
+        testDispatcher.scheduler.runCurrent()
         assertFalse(vm.tuningSelectorOpen.value)
         assertEquals(Tuning.DROP_D, vm.tuner.tuning.value)
+        assertEquals(Tuning.DROP_D, vm.tuningList.current.value)
+    }
+
+    @Test
+    fun testTuningSync() {
+        vm.tuner.setTuning(Tuning.DROP_D)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(Tuning.DROP_D, vm.tuningList.current.value)
+        vm.tuningList.setCurrent(Tuning.STANDARD)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
     }
 }

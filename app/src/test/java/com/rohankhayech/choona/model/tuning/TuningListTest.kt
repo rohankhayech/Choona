@@ -38,6 +38,12 @@ class TuningListTest {
     }
 
     @Test
+    fun testConstructor() {
+        val tl = TuningList(Tuning.STANDARD)
+        Assert.assertSame(Tuning.STANDARD, tl.current.value)
+    }
+
+    @Test
     fun testCurrent() {
         // Test default value.
         Assert.assertNull(tuningList.current.value)
