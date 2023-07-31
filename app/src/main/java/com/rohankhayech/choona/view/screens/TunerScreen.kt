@@ -76,7 +76,7 @@ import com.rohankhayech.music.Tuning
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
- * @param tuned: Whether each string has been tuned.
+ * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
@@ -91,6 +91,7 @@ import com.rohankhayech.music.Tuning
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param onConfigurePressed Called when the configure tuning button is pressed.
  *
  * @author Rohan Khayech
  */
@@ -1252,13 +1253,14 @@ private fun TuningItem(
 
 // PREVIEWS
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun TunerPreview() {
     AppTheme {
         TunerScreen(
-            windowHeightSizeClass = WindowHeightSizeClass.Medium,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -1281,6 +1283,7 @@ private fun TunerPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = "spec:width=411dp,height=320dp")
 @Preview(device = "spec:width=320dp,height=411dp")
 @Preview(device = "spec:width=411dp,height=320dp", uiMode = UI_MODE_NIGHT_YES)
@@ -1290,7 +1293,7 @@ private fun CompactPreview() {
     AppTheme {
         TunerScreen(
             compact = true,
-            windowHeightSizeClass = WindowHeightSizeClass.Compact,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp)),
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -1313,12 +1316,13 @@ private fun CompactPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = "spec:width=891dp,height=411dp")
 @Composable
 private fun LandscapePreview() {
     AppTheme {
         TunerScreen(
-            windowHeightSizeClass = WindowHeightSizeClass.Compact,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
             tuning = Tuning.STANDARD,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,

@@ -39,6 +39,41 @@ import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
 
+/**
+ * Layout composable for the main tuning screen.
+ * Handles layout of screens on different form factors.
+ *
+ * @param windowSizeClass Size class of the activity window.
+ * @param compact Whether to use compact layout.
+ * @param expanded Whether to use expanded layout.
+ * @param tuning Guitar tuning used for comparison.
+ * @param noteOffset The offset between the currently playing note and the selected string.
+ * @param selectedString Index of the currently selected string within the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param favTunings Set of tunings marked as favourite by the user.
+ * @param customTunings Set of custom tunings added by the user.
+ * @param prefs User preferences for the tuner.
+ * @param tuningList State holder for the tuning list.
+ * @param tuningSelectorOpen Whether the tuning selection panel is open.
+ * @param configurePanelOpen Whether the configure tuning panel is open.
+ * @param onSelectString Called when a string is selected.
+ * @param onSelectTuning Called when a tuning is selected.
+ * @param onTuneUpString Called when a string is tuned up.
+ * @param onTuneDownString Called when a string is tuned down.
+ * @param onTuneUpTuning Called when the tuning is tuned up.
+ * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onAutoChanged Called when the auto detect switch is toggled.
+ * @param onTuned Called when the detected note is held in tune.
+ * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
+ * @param onSettingsPressed Called when the settings button is pressed.
+ * @param onConfigurePressed Called when the configure tuning button is pressed.
+ * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
+ * @param onDismissTuningSelector Called when the tuning selection screen is dismissed.
+ * @param onDismissConfigurePanel Called when the screen is dismissed.
+ *
+ * @author Rohan Khayech
+ */
 @Composable
 fun MainLayout(
     windowSizeClass: WindowSizeClass,
