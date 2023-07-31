@@ -36,7 +36,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rohankhayech.choona.R
@@ -67,7 +71,8 @@ import com.rohankhayech.music.Tuning
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
  *
- * @param windowHeightSizeClass Height size class of the activity window.
+ * @param compact Whether to use compact layout.
+ * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -92,7 +97,7 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TunerScreen(
     compact: Boolean = false,
-    windowHeightSizeClass: WindowHeightSizeClass,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -130,7 +135,8 @@ fun TunerScreen(
     ) { padding ->
         // Check window orientation/size.
         if (!compact) {
-            if (windowHeightSizeClass != WindowHeightSizeClass.Compact) {
+            if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
+                || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
                 PortraitTunerBody(
                     padding,
                     tuning,
@@ -154,7 +160,7 @@ fun TunerScreen(
             } else {
                 LandscapeTunerBody(
                     padding,
-                    windowHeightSizeClass,
+                    windowHeightSizeClass = windowSizeClass.heightSizeClass,
                     prefs,
                     tuning,
                     noteOffset,

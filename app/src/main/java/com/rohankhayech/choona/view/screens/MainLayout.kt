@@ -30,7 +30,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
@@ -41,7 +41,7 @@ import com.rohankhayech.music.Tuning
 
 @Composable
 fun MainLayout(
-    windowHeightSizeClass: WindowHeightSizeClass,
+    windowSizeClass: WindowSizeClass,
     compact: Boolean,
     expanded: Boolean,
     tuning: Tuning,
@@ -75,7 +75,7 @@ fun MainLayout(
             Column(Modifier.weight(0.7f)) {
                 TunerScreen(
                     compact = false,
-                    windowHeightSizeClass,
+                    windowSizeClass,
                     tuning,
                     noteOffset,
                     selectedString,
@@ -116,7 +116,7 @@ fun MainLayout(
         ) {
             TunerScreen(
                 compact,
-                windowHeightSizeClass,
+                windowSizeClass,
                 tuning,
                 noteOffset,
                 selectedString,
