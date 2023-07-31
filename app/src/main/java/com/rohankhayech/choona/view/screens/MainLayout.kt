@@ -140,8 +140,8 @@ fun MainLayout(
         }
         AnimatedVisibility(
             visible = configurePanelOpen && !tuningSelectorOpen,
-            enter = slideInVertically { it/2 },
-            exit = slideOutVertically { it }
+            enter = slideInVertically { -it/2 },
+            exit = slideOutVertically { -it }
         ) {
             ConfigureTuningScreen(
                 tuning = tuning,
