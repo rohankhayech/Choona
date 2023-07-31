@@ -99,7 +99,8 @@ fun ConfigureTuningScreen(
             if (scrollState.value == 0) {
                 0.dp
             } else AppBarDefaults.TopAppBarElevation
-        }}.value
+        }}.value,
+        label = "App Bar Elevation"
     )
 
     Scaffold (
