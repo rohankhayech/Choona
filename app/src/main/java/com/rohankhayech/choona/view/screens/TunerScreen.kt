@@ -140,6 +140,7 @@ fun TunerScreen(
                 || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
                 PortraitTunerBody(
                     padding,
+                    windowSizeClass,
                     tuning,
                     noteOffset,
                     selectedString,
@@ -161,7 +162,7 @@ fun TunerScreen(
             } else {
                 LandscapeTunerBody(
                     padding,
-                    windowHeightSizeClass = windowSizeClass.heightSizeClass,
+                    windowSizeClass,
                     prefs,
                     tuning,
                     noteOffset,
@@ -262,6 +263,7 @@ private fun CompactTunerBody(
  * Body of the tuning screen in portrait orientation.
  *
  * @param padding Padding values passed from the parent scaffold.
+ * @param windowSizeClass Size class of the window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -283,6 +285,7 @@ private fun CompactTunerBody(
 @Composable
 private fun PortraitTunerBody(
     padding: PaddingValues,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -337,6 +340,8 @@ private fun PortraitTunerBody(
             onTuneDown = onTuneDownTuning,
             onTuneUp = onTuneUpTuning,
             onOpenTuningSelector = onOpenTuningSelector,
+            enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
         )
     }
 }
@@ -345,7 +350,7 @@ private fun PortraitTunerBody(
  * Body of the tuning screen in landscape orientation.
  *
  * @param padding Padding values passed from the parent scaffold.
- * @param windowHeightSizeClass Height class of the window.
+ * @param windowSizeClass Size class of the window.
  * @param prefs User preferences for the tuner.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
@@ -367,7 +372,7 @@ private fun PortraitTunerBody(
 @Composable
 private fun LandscapeTunerBody(
     padding: PaddingValues,
-    windowHeightSizeClass: WindowHeightSizeClass,
+    windowSizeClass: WindowSizeClass,
     prefs: TunerPreferences,
     tuning: Tuning,
     noteOffset: State<Double?>,
@@ -420,7 +425,9 @@ private fun LandscapeTunerBody(
                 onSelect = onSelectTuning,
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
-                onOpenTuningSelector = onOpenTuningSelector
+                onOpenTuningSelector = onOpenTuningSelector,
+                enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                    windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
             )
         }
 
@@ -431,7 +438,7 @@ private fun LandscapeTunerBody(
             end.linkTo(parent.end)
         }) {
             StringControls(
-                inline = windowHeightSizeClass > WindowHeightSizeClass.Compact
+                inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                     && prefs.stringLayout == StringLayout.INLINE,
                 tuning = tuning,
                 selectedString = selectedString,
@@ -1089,6 +1096,7 @@ private fun AutoDetectSwitch(
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
+ * @param enabled Whether the selector is enabled. Defaults to true.
  * @param onSelect Called when a tuning is selected.
  * @param onTuneDown Called when the tuning is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
@@ -1101,6 +1109,7 @@ fun TuningSelector(
     tuning: Tuning,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
+    enabled: Boolean = true,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
@@ -1125,7 +1134,7 @@ fun TuningSelector(
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             modifier = Modifier.weight(1f),
-            expanded = expanded,
+            expanded = expanded && enabled,
             onExpandedChange = { expanded = !expanded }
         ) {
 
@@ -1133,12 +1142,13 @@ fun TuningSelector(
             CurrentTuningField(
                 tuning = tuning,
                 customTunings = customTunings,
-                expanded = expanded
+                expanded = expanded,
+                showExpanded = enabled
             )
 
             // Dropdown Menu
             ExposedDropdownMenu(
-                expanded = expanded,
+                expanded = expanded && enabled,
                 onDismissRequest = { expanded = false }
             ) {
                 for (tuningOption in favTunings.value) {
@@ -1176,22 +1186,24 @@ fun TuningSelector(
  * @param tuning The current guitar tuning.
  * @param customTunings Set of custom tunings added by the user.
  * @param expanded Whether the dropdown box is expanded.
+ * @param showExpanded Whether to show the expanded state.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun CurrentTuningField(
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
-    expanded: Boolean
+    expanded: Boolean,
+    showExpanded: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = TextFieldDefaults.OutlinedTextFieldShape,
         color = MaterialTheme.colors.background,
         border = BorderStroke(
-            width = if (expanded) TextFieldDefaults.FocusedBorderThickness
+            width = if (expanded && showExpanded) TextFieldDefaults.FocusedBorderThickness
             else TextFieldDefaults.UnfocusedBorderThickness,
-            color = if (expanded) MaterialTheme.colors.primary
+            color = if (expanded && showExpanded) MaterialTheme.colors.primary
             else MaterialTheme.colors.onBackground.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
         ),
     ) {
@@ -1200,7 +1212,7 @@ private fun CurrentTuningField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TuningItem(modifier = Modifier.weight(1f), tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
 }
