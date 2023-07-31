@@ -396,6 +396,7 @@ private fun LandscapeTunerBody(
             .padding(padding)
             .fillMaxHeight()
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         val (display, tuningSelector, stringsSelector, autoSwitch) = createRefs()
 
@@ -859,8 +860,9 @@ private fun SideBySideStringControls(
     onTuneUp: (Int) -> Unit
 ) {
     Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = spacedBy(16.dp)
+        horizontalArrangement = spacedBy(8.dp)
     ) {
         val splitTuning = remember(tuning) {
             tuning.mapIndexed { n, gs -> Pair(n, gs) }
