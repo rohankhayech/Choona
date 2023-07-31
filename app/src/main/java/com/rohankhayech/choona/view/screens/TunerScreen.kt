@@ -596,31 +596,35 @@ private fun TuningDisplay(
             } else {
                 0f
             }
-        }}.value
+        }}.value,
+        label = "Tuning Meter Position"
     )
     val absPosition = abs(meterPosition)
 
     // Calculate colour of meter and label.
-    val color by animateColorAsState(run {
-        val pri = MaterialTheme.colors.primary
-        val err = MaterialTheme.colors.error
-        val onBack = MaterialTheme.colors.onBackground
-        val back = MaterialTheme.colors.background
+    val color by animateColorAsState(
+        run {
+            val pri = MaterialTheme.colors.primary
+            val err = MaterialTheme.colors.error
+            val onBack = MaterialTheme.colors.onBackground
+            val back = MaterialTheme.colors.background
 
-        remember(absPosition) { derivedStateOf {
-            if (absPosition != 0f) {
-                // Gradient from green to red based on offset.
-                if (absPosition < 0.5) {
-                    lerp(pri, Yellow500, absPosition * 2f)
+            remember(absPosition) { derivedStateOf {
+                if (absPosition != 0f) {
+                    // Gradient from green to red based on offset.
+                    if (absPosition < 0.5) {
+                        lerp(pri, Yellow500, absPosition * 2f)
+                    } else {
+                        lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                    }
                 } else {
-                    lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                    // Listening color.
+                    onBack.copy(alpha = 0.2f).compositeOver(back)
                 }
-            } else {
-                // Listening color.
-                onBack.copy(alpha = 0.2f).compositeOver(back)
-            }
-        }}.value
-    })
+            }}.value
+        },
+        label = "Tuning Meter Color"
+    )
 
     val inTune = offset != null && abs(offset) < Tuner.TUNED_OFFSET_THRESHOLD
 
@@ -629,7 +633,8 @@ private fun TuningDisplay(
         animationSpec = if (inTune) tween(Tuner.TUNED_SUSTAIN_TIME-50, 50) else spring(),
         finishedListener = {
             if(it == 1f) { onTuned() }
-        }
+        },
+        label = "Tuning Indicator Size"
     )
 
     // Content
@@ -1025,7 +1030,8 @@ private fun StringSelectionButton(
     val contentColor by animateColorAsState(
         if (tuned) MaterialTheme.colors.primary
         else if (selected) MaterialTheme.colors.secondaryVariant
-        else LocalContentColor.current
+        else LocalContentColor.current,
+        label = "String Button Content Color"
     )
 
     // Animate background color by selected state.
@@ -1033,7 +1039,8 @@ private fun StringSelectionButton(
         if (selected) {
             contentColor.copy(alpha = 0.12f)
                 .compositeOver(MaterialTheme.colors.background)
-        } else MaterialTheme.colors.background
+        } else MaterialTheme.colors.background,
+        label = "String Button Background Color"
     )
 
     // Selection Button
@@ -1293,7 +1300,7 @@ private fun CompactPreview() {
     AppTheme {
         TunerScreen(
             compact = true,
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp)),
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -1322,7 +1329,7 @@ private fun CompactPreview() {
 private fun LandscapePreview() {
     AppTheme {
         TunerScreen(
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp)),
             tuning = Tuning.STANDARD,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
