@@ -7,14 +7,14 @@ plugins {
 android {
     namespace 'com.rohankhayech.choona'
 
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.rohankhayech.choona"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.1.0-dev"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,12 +50,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation "androidx.core:core-ktx:1.10.1"
     implementation 'androidx.activity:activity-compose:1.7.2'
-    implementation 'androidx.compose.material:material:1.4.3'
+    //noinspection GradleDependency (Unnecessary recomposition on >1.4.0-alpha03)
+    implementation 'androidx.compose.material:material:1.3.1'
     implementation 'androidx.compose.animation:animation:1.4.3'
-    implementation 'androidx.compose.ui:ui-tooling:1.4.3'
+    //noinspection GradleDependency (Unnecessary recomposition on >1.4.0-alpha03)
+    implementation 'androidx.compose.ui:ui-tooling:1.3.3'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.1'
-    implementation 'androidx.compose.material:material-icons-extended:1.4.3'
+    implementation 'com.github.billthefarmer:mididriver:v1.24'
+    //noinspection GradleDependency (Unnecessary recomposition on >1.4.0-alpha03)
+    implementation 'androidx.compose.material:material-icons-extended:1.3.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.1"
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"

@@ -100,7 +100,8 @@ class SettingsActivity : AppCompatActivity() {
                             slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
                                 slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
                         }
-                    }
+                    },
+                    label = "Screen"
                 ) {
                     when (it) {
                         Screen.SETTINGS -> SettingsScreen(

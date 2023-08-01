@@ -84,10 +84,10 @@ fun TuningSelectionScreen(
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
         },
-        onFavouriteSet = { tuning, fav ->
+        onFavouriteSet = remember (tuningList, onFavouriteSet) {{ tuning, fav ->
             tuningList.setFavourited(tuning, fav)
             onFavouriteSet(tuning, fav)
-        },
+        }},
         onSelect = onSelect,
         onDelete = {
             tuningList.removeCustom(it)
@@ -132,7 +132,8 @@ fun TuningSelectionScreen(
             if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
                 0.dp
             } else AppBarDefaults.TopAppBarElevation
-        }}.value
+        }}.value,
+        label = "App Bar Elevation"
     )
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
@@ -326,7 +327,8 @@ private fun LazyItemScope.CustomTuningItem(
                     else -> MaterialTheme.colors.onSurface
                         .copy(alpha = 0.05f)
                         .compositeOver(MaterialTheme.colors.surface)
-                }
+                },
+                label = "Tuning Item Background Color"
             )
 
             Row (

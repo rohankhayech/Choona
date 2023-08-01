@@ -174,7 +174,7 @@ class TunerActivity : AppCompatActivity() {
 
                     // Display UI content.
                     MainLayout(
-                        windowHeightSizeClass = windowSizeClass.heightSizeClass,
+                        windowSizeClass = windowSizeClass,
                         compact = compact,
                         expanded = expanded,
                         tuning = tuning,

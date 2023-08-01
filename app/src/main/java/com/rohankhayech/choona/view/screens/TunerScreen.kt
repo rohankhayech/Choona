@@ -36,7 +36,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rohankhayech.choona.R
@@ -67,11 +71,12 @@ import com.rohankhayech.music.Tuning
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
  *
- * @param windowHeightSizeClass Height size class of the activity window.
+ * @param compact Whether to use compact layout.
+ * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
- * @param tuned: Whether each string has been tuned.
+ * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
@@ -86,13 +91,14 @@ import com.rohankhayech.music.Tuning
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param onConfigurePressed Called when the configure tuning button is pressed.
  *
  * @author Rohan Khayech
  */
 @Composable
 fun TunerScreen(
     compact: Boolean = false,
-    windowHeightSizeClass: WindowHeightSizeClass,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -131,7 +137,7 @@ fun TunerScreen(
         TunerBodyScaffold(
             padding,
             compact,
-            windowHeightSizeClass,
+            windowSizeClass,
             tuning,
             noteOffset,
             selectedString,
@@ -175,6 +181,7 @@ fun TunerScreen(
                         .padding(padd)
                         .fillMaxHeight()
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                 ) {
                     val (display, tuningSelectorBox, stringsSelector, autoSwitch) = createRefs()
 
@@ -203,7 +210,7 @@ fun TunerScreen(
                         end.linkTo(parent.end)
                     }) {
                         stringControls(
-                            inline = windowHeightSizeClass > WindowHeightSizeClass.Compact
+                            inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                                 && prefs.stringLayout == StringLayout.INLINE,
                         )
                     }
@@ -223,7 +230,7 @@ fun TunerScreen(
             compactLayout = { padd, tuningDisplay, _, autoDetectSwitch, _ ->
                 Column(
                     modifier = Modifier
-                        .padding(padding)
+                        .padding(padd)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly
@@ -275,7 +282,7 @@ private typealias TunerBodyLayout = @Composable (
 private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
-    windowHeightSizeClass: WindowHeightSizeClass,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -298,7 +305,8 @@ private fun TunerBodyScaffold(
     compactLayout: TunerBodyLayout
 ) {
     val layout = if (!compact) {
-        if (windowHeightSizeClass != WindowHeightSizeClass.Compact) {
+        if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
+            || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
             portrait
         } else {
             landscape
@@ -344,6 +352,8 @@ private fun TunerBodyScaffold(
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
+                enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                    windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
             )
         }
     )
@@ -489,31 +499,35 @@ private fun TuningDisplay(
             } else {
                 0f
             }
-        }}.value
+        }}.value,
+        label = "Tuning Meter Position"
     )
     val absPosition = abs(meterPosition)
 
     // Calculate colour of meter and label.
-    val color by animateColorAsState(run {
-        val pri = MaterialTheme.colors.primary
-        val err = MaterialTheme.colors.error
-        val onBack = MaterialTheme.colors.onBackground
-        val back = MaterialTheme.colors.background
+    val color by animateColorAsState(
+        run {
+            val pri = MaterialTheme.colors.primary
+            val err = MaterialTheme.colors.error
+            val onBack = MaterialTheme.colors.onBackground
+            val back = MaterialTheme.colors.background
 
-        remember(absPosition) { derivedStateOf {
-            if (absPosition != 0f) {
-                // Gradient from green to red based on offset.
-                if (absPosition < 0.5) {
-                    lerp(pri, Yellow500, absPosition * 2f)
+            remember(absPosition) { derivedStateOf {
+                if (absPosition != 0f) {
+                    // Gradient from green to red based on offset.
+                    if (absPosition < 0.5) {
+                        lerp(pri, Yellow500, absPosition * 2f)
+                    } else {
+                        lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                    }
                 } else {
-                    lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                    // Listening color.
+                    onBack.copy(alpha = 0.2f).compositeOver(back)
                 }
-            } else {
-                // Listening color.
-                onBack.copy(alpha = 0.2f).compositeOver(back)
-            }
-        }}.value
-    })
+            }}.value
+        },
+        label = "Tuning Meter Color"
+    )
 
     val inTune = offset != null && abs(offset) < Tuner.TUNED_OFFSET_THRESHOLD
 
@@ -522,7 +536,8 @@ private fun TuningDisplay(
         animationSpec = if (inTune) tween(Tuner.TUNED_SUSTAIN_TIME-50, 50) else spring(),
         finishedListener = {
             if(it == 1f) { onTuned() }
-        }
+        },
+        label = "Tuning Indicator Size"
     )
 
     // Content
@@ -740,8 +755,9 @@ private fun SideBySideStringControls(
     onTuneUp: (Int) -> Unit
 ) {
     Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = spacedBy(16.dp)
+        horizontalArrangement = spacedBy(8.dp)
     ) {
         val splitTuning = remember(tuning) {
             tuning.mapIndexed { n, gs -> Pair(n, gs) }
@@ -918,7 +934,8 @@ private fun StringSelectionButton(
     val contentColor by animateColorAsState(
         if (tuned) MaterialTheme.colors.primary
         else if (selected) MaterialTheme.colors.secondaryVariant
-        else LocalContentColor.current
+        else LocalContentColor.current,
+        label = "String Button Content Color"
     )
 
     // Animate background color by selected state.
@@ -926,7 +943,8 @@ private fun StringSelectionButton(
         if (selected) {
             contentColor.copy(alpha = 0.12f)
                 .compositeOver(MaterialTheme.colors.background)
-        } else MaterialTheme.colors.background
+        } else MaterialTheme.colors.background,
+        label = "String Button Background Color"
     )
 
     // Selection Button
@@ -975,6 +993,7 @@ private fun AutoDetectSwitch(
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
+ * @param enabled Whether the selector is enabled. Defaults to true.
  * @param onSelect Called when a tuning is selected.
  * @param onTuneDown Called when the tuning is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
@@ -987,6 +1006,7 @@ fun TuningSelector(
     tuning: Tuning,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
+    enabled: Boolean = true,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
@@ -1011,7 +1031,7 @@ fun TuningSelector(
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             modifier = Modifier.weight(1f),
-            expanded = expanded,
+            expanded = expanded && enabled,
             onExpandedChange = { expanded = !expanded }
         ) {
 
@@ -1019,12 +1039,13 @@ fun TuningSelector(
             CurrentTuningField(
                 tuning = tuning,
                 customTunings = customTunings,
-                expanded = expanded
+                expanded = expanded,
+                showExpanded = enabled
             )
 
             // Dropdown Menu
             ExposedDropdownMenu(
-                expanded = expanded,
+                expanded = expanded && enabled,
                 onDismissRequest = { expanded = false }
             ) {
                 for (tuningOption in favTunings.value) {
@@ -1062,22 +1083,24 @@ fun TuningSelector(
  * @param tuning The current guitar tuning.
  * @param customTunings Set of custom tunings added by the user.
  * @param expanded Whether the dropdown box is expanded.
+ * @param showExpanded Whether to show the expanded state.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun CurrentTuningField(
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
-    expanded: Boolean
+    expanded: Boolean,
+    showExpanded: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = TextFieldDefaults.OutlinedTextFieldShape,
         color = MaterialTheme.colors.background,
         border = BorderStroke(
-            width = if (expanded) TextFieldDefaults.FocusedBorderThickness
+            width = if (expanded && showExpanded) TextFieldDefaults.FocusedBorderThickness
             else TextFieldDefaults.UnfocusedBorderThickness,
-            color = if (expanded) MaterialTheme.colors.primary
+            color = if (expanded && showExpanded) MaterialTheme.colors.primary
             else MaterialTheme.colors.onBackground.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
         ),
     ) {
@@ -1086,7 +1109,7 @@ private fun CurrentTuningField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TuningItem(modifier = Modifier.weight(1f), tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
 }
@@ -1146,13 +1169,14 @@ private fun TuningItem(
 
 // PREVIEWS
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun TunerPreview() {
     AppTheme {
         TunerScreen(
-            windowHeightSizeClass = WindowHeightSizeClass.Medium,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -1175,6 +1199,7 @@ private fun TunerPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = "spec:width=411dp,height=320dp")
 @Preview(device = "spec:width=320dp,height=411dp")
 @Preview(device = "spec:width=411dp,height=320dp", uiMode = UI_MODE_NIGHT_YES)
@@ -1184,7 +1209,7 @@ private fun CompactPreview() {
     AppTheme {
         TunerScreen(
             compact = true,
-            windowHeightSizeClass = WindowHeightSizeClass.Compact,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -1207,12 +1232,13 @@ private fun CompactPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = "spec:width=891dp,height=411dp")
 @Composable
 private fun LandscapePreview() {
     AppTheme {
         TunerScreen(
-            windowHeightSizeClass = WindowHeightSizeClass.Compact,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp)),
             tuning = Tuning.STANDARD,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
