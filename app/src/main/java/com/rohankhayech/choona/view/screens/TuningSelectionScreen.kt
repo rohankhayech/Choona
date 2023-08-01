@@ -84,10 +84,10 @@ fun TuningSelectionScreen(
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
         },
-        onFavouriteSet = { tuning, fav ->
+        onFavouriteSet = remember (tuningList, onFavouriteSet) {{ tuning, fav ->
             tuningList.setFavourited(tuning, fav)
             onFavouriteSet(tuning, fav)
-        },
+        }},
         onSelect = onSelect,
         onDelete = {
             tuningList.removeCustom(it)
