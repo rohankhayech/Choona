@@ -7,7 +7,7 @@ plugins {
 android {
     namespace 'com.rohankhayech.choona'
 
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.rohankhayech.choona"
