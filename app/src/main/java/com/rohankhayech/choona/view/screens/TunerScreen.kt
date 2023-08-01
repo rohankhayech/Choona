@@ -270,6 +270,11 @@ fun TunerScreen(
     }
 }
 
+/**
+ * Type of layout for the tuner screen body.
+ * Should place all appropriate components provided,
+ * and must use the provided padding for the root composable.
+ */
 private typealias TunerBodyLayout = @Composable (
     padding: PaddingValues,
     tuningDisplay: @Composable () -> Unit,
@@ -278,6 +283,33 @@ private typealias TunerBodyLayout = @Composable (
     tuningSelector: @Composable (modifier: Modifier) -> Unit
 ) -> Unit
 
+/**
+ * Scaffold containing the main UI components of the tuner screen body.
+ * The scaffold places these components in the appropriate layout.
+ *
+ * [Portrait][portrait], [landscape] and [compact][compactLayout] layouts
+ * must be defined to determine the placement of the UI components.
+ *
+ * @param compact Whether to use compact layout.
+ * @param windowSizeClass Size class of the activity window.
+ * @param tuning Guitar tuning used for comparison.
+ * @param noteOffset The offset between the currently playing note and the selected string.
+ * @param selectedString Index of the currently selected string within the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param favTunings Set of tunings marked as favourite by the user.
+ * @param customTunings Set of custom tunings added by the user.
+ * @param prefs User preferences for the tuner.
+ * @param onSelectString Called when a string is selected.
+ * @param onSelectTuning Called when a tuning is selected.
+ * @param onTuneUpString Called when a string is tuned up.
+ * @param onTuneDownString Called when a string is tuned down.
+ * @param onTuneUpTuning Called when the tuning is tuned up.
+ * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onAutoChanged Called when the auto detect switch is toggled.
+ * @param onTuned Called when the detected note is held in tune.
+ * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
+ */
 @Composable
 private fun TunerBodyScaffold(
     padding: PaddingValues,
