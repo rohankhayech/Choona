@@ -32,22 +32,25 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
+import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
-import com.rohankhayech.choona.view.screens.TunerScreen
-import com.rohankhayech.choona.view.screens.TuningSelectionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.*
@@ -79,6 +82,9 @@ class TunerActivity : AppCompatActivity() {
 
     /** Callback used to dismiss tuning selection screen when the back button is pressed. */
     private lateinit var dismissTuningSelectorOnBack: OnBackPressedCallback
+
+    /** Callback used to dismiss configure tuning panel when the back button is pressed. */
+    private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
 
     /**
      * Called when activity is created.
@@ -113,6 +119,12 @@ class TunerActivity : AppCompatActivity() {
         }
 
         // Setup custom back navigation.
+        dismissConfigurePanelOnBack = onBackPressedDispatcher.addCallback(this,
+            enabled = vm.configurePanelOpen.value,
+        ) {
+            dismissConfigurePanel()
+        }
+
         dismissTuningSelectorOnBack = onBackPressedDispatcher.addCallback(this,
             enabled = vm.tuningSelectorOpen.value
         ) {
@@ -133,60 +145,76 @@ class TunerActivity : AppCompatActivity() {
                     val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
                     val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
                     val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
+                    val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
 
-                    // Display UI content.
-                    AnimatedVisibility(!tuningSelectorOpen,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        TunerScreen(
-                            windowSizeClass = calculateWindowSizeClass(this@TunerActivity),
-                            tuning = tuning,
-                            noteOffset = noteOffset,
-                            selectedString = selectedString,
-                            tuned = tuned,
-                            autoDetect = autoDetect,
-                            favTunings = favTunings,
-                            customTunings = customTunings,
-                            prefs = prefs,
-                            onSelectString = remember(prefs.enableStringSelectSound) {
-                                {
-                                    vm.tuner.selectString(it)
-                                    // Play sound on string selection.
-                                    if (prefs.enableStringSelectSound) playStringSelectSound(it)
-                                }
-                            },
-                            onSelectTuning = vm.tuner::setTuning,
-                            onTuneUpString = vm.tuner::tuneStringUp,
-                            onTuneDownString = vm.tuner::tuneStringDown,
-                            onTuneUpTuning = vm.tuner::tuneUp,
-                            onTuneDownTuning = vm.tuner::tuneDown,
-                            onAutoChanged = vm.tuner::setAutoDetect,
-                            onTuned = remember(prefs.enableInTuneSound) {
-                                {
-                                    vm.tuner.setTuned()
-                                    // Play sound when string tuned.
-                                    if (prefs.enableInTuneSound) playInTuneSound()
-                                }
-                            },
-                            onOpenTuningSelector = ::openTuningSelector,
-                            onSettingsPressed = ::openSettings
-                        )
+                    // Calculate window size/orientation
+                    val windowSizeClass = calculateWindowSizeClass(this)
 
+                    val compact = remember(windowSizeClass) {
+                        windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact &&
+                            windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
                     }
-                    AnimatedVisibility(tuningSelectorOpen,
-                        enter = slideInVertically { it/2 },
-                        exit = slideOutVertically { it }
-                    ) {
-                        TuningSelectionScreen(
-                            tuningList = vm.tuningList,
-                            onSelect = ::selectTuning,
-                            onDelete = vm::onDeleteCustomTuning,
-                            onDismiss = ::dismissTuningSelector,
-                        )
+
+                    val expanded = remember(windowSizeClass) {
+                        windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                     }
+
+                    // Dismiss configure panel if no longer compact.
+                    LaunchedEffect(compact, configurePanelOpen) {
+                        if (configurePanelOpen && !compact) dismissConfigurePanel()
+                    }
+
+                    // Dismiss tuning selector when switching to expanded view.
+                    LaunchedEffect(expanded, tuningSelectorOpen) {
+                        if (tuningSelectorOpen && expanded) dismissTuningSelector()
+                    }
+
+                    // Display UI content.
+                    MainLayout(
+                        windowSizeClass = windowSizeClass,
+                        compact = compact,
+                        expanded = expanded,
+                        tuning = tuning,
+                        noteOffset = noteOffset,
+                        selectedString = selectedString,
+                        tuned = tuned,
+                        autoDetect = autoDetect,
+                        favTunings = favTunings,
+                        customTunings = customTunings,
+                        prefs = prefs,
+                        tuningList = vm.tuningList,
+                        tuningSelectorOpen = tuningSelectorOpen,
+                        configurePanelOpen = configurePanelOpen,
+                        onSelectString = remember(prefs.enableStringSelectSound) {
+                            {
+                                vm.tuner.selectString(it)
+                                // Play sound on string selection.
+                                if (prefs.enableStringSelectSound) playStringSelectSound(it)
+                            }
+                        },
+                        onSelectTuning = vm.tuner::setTuning,
+                        onTuneUpString = vm.tuner::tuneStringUp,
+                        onTuneDownString = vm.tuner::tuneStringDown,
+                        onTuneUpTuning = vm.tuner::tuneUp,
+                        onTuneDownTuning = vm.tuner::tuneDown,
+                        onAutoChanged = vm.tuner::setAutoDetect,
+                        onTuned = remember(prefs.enableInTuneSound) {
+                            {
+                                vm.tuner.setTuned()
+                                // Play sound when string tuned.
+                                if (prefs.enableInTuneSound) playInTuneSound()
+                            }
+                        },
+                        onOpenTuningSelector = ::openTuningSelector,
+                        onSettingsPressed = ::openSettings,
+                        onConfigurePressed = ::openConfigurePanel,
+                        onSelectTuningFromList = ::selectTuning,
+                        onDismissTuningSelector = ::dismissTuningSelector,
+                        onDismissConfigurePanel = ::dismissConfigurePanel
+                    )
                 } else {
                     // Audio permission not granted, show permission rationale.
                     TunerPermissionScreen(
@@ -213,8 +241,8 @@ class TunerActivity : AppCompatActivity() {
         midi.start()
 
         checkPermission()
-        // Start the tuner.
-        if (!vm.tuningSelectorOpen.value) {
+        // Start the tuner if no panels are open.
+        if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
             } catch (_: IllegalStateException) {
@@ -258,6 +286,15 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
+     * Opens the configure tuning panel, and stops the tuner.
+     */
+    private fun openConfigurePanel() {
+        dismissConfigurePanelOnBack.isEnabled = true
+        vm.openConfigurePanel()
+        vm.tuner.stop()
+    }
+
+    /**
      * Opens the tuning selection screen, and stops the tuner.
      */
     private fun openTuningSelector() {
@@ -267,25 +304,41 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
-     * Dismisses the tuning selection screen and restarts the tuner.
+     * Dismisses the tuning selection screen and restarts the tuner if no other panel is open.
      */
     private fun dismissTuningSelector() {
         dismissTuningSelectorOnBack.isEnabled = false
         vm.dismissTuningSelector()
-        try {
-            vm.tuner.start(ph)
-        } catch(_: IllegalStateException) {}
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: IllegalStateException) {}
+        }
+    }
+
+    /** Dismisses the configure panel and restarts the tuner if no other panel is open. */
+    private fun dismissConfigurePanel() {
+        dismissConfigurePanelOnBack.isEnabled = false
+        vm.dismissConfigurePanel()
+        if (!vm.tuningSelectorOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch (_: IllegalStateException) {}
+        }
     }
 
     /**
-     * Sets the current tuning to the tuning selected on the tuning selection screen and restarts the tuner.
+     * Sets the current tuning to the tuning selected on the tuning
+     * selection screen and restarts the tuner if no other panel is open.
      */
     private fun selectTuning(tuning: Tuning) {
         dismissTuningSelectorOnBack.isEnabled = false
         vm.selectTuning(tuning)
-        try {
-            vm.tuner.start(ph)
-        } catch (_: IllegalStateException) {}
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: IllegalStateException) {}
+        }
     }
 
     /** Opens the tuner settings activity. */
@@ -326,7 +379,7 @@ class TunerActivityViewModel : ViewModel() {
     val tuner = Tuner()
 
     /** State holder containing the lists of favourite and custom tunings. */
-    val tuningList = TuningList()
+    val tuningList = TuningList(tuner.tuning.value)
 
     /** Mutable backing property for [tuningSelectorOpen]. */
     private val _tuningSelectorOpen = MutableStateFlow(false)
@@ -334,23 +387,52 @@ class TunerActivityViewModel : ViewModel() {
     /** Whether the tuning selection screen is currently open. */
     val tuningSelectorOpen = _tuningSelectorOpen.asStateFlow()
 
+    /** Mutable backing property for [configurePanelOpen]. */
+    private val _configurePanelOpen = MutableStateFlow(false)
+
+    /**
+     * Whether the configure tuning panel is currently open.
+     */
+    val configurePanelOpen = _configurePanelOpen.asStateFlow()
+
+    /** Runs when the view model is instantiated. */
+    init {
+        // Update tuner when the current selection in the tuning list is updated.
+        viewModelScope.launch {
+            tuner.tuning.collect {
+                tuningList.setCurrent(it)
+            }
+        }
+        // Update the tuning list when the tuner's tuning is updated.
+        viewModelScope.launch {
+            tuningList.current.collect {
+                it?.let { tuner.setTuning(it) }
+            }
+        }
+    }
+
     /** Opens the tuning selection screen. */
     fun openTuningSelector() {
-        tuningList.setCurrent(tuner.tuning.value)
         _tuningSelectorOpen.update { true }
     }
 
-    /** Called when the specified [tuning] is deleted. */
-    fun onDeleteCustomTuning(tuning: Tuning) {
-        // Reset the name of the current tuning if it is equivalent to the custom tuning.
-        if (tuner.tuning.value.equivalentTo(tuning)) {
-            tuner.setTuning(Tuning(null, tuning))
-        }
+    /**
+     * Opens the configure tuning panel.
+     */
+    fun openConfigurePanel() {
+        _configurePanelOpen.update { true }
     }
 
     /** Dismisses the tuning selection screen. */
     fun dismissTuningSelector() {
         _tuningSelectorOpen.update { false }
+    }
+
+    /**
+     * Dismisses the configure tuning panel.
+     */
+    fun dismissConfigurePanel() {
+        _configurePanelOpen.update { false }
     }
 
     /** Sets the current tuning to that selected in the tuning selection screen and dismisses it. */

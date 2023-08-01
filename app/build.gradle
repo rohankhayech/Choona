@@ -13,8 +13,8 @@ android {
         applicationId "com.rohankhayech.choona"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.1.0-dev"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -66,8 +66,10 @@ dependencies {
     implementation "com.mikepenz:aboutlibraries-core:10.6.1"
     implementation "com.mikepenz:aboutlibraries-compose:10.6.1"
     implementation 'com.github.billthefarmer:mididriver:v1.24'
+    implementation 'androidx.window:window:1.1.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20230227'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.4.3'

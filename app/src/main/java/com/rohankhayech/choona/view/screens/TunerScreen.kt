@@ -27,22 +27,28 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,11 +71,12 @@ import com.rohankhayech.music.Tuning
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
  *
+ * @param compact Whether to use compact layout.
  * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
- * @param tuned: Whether each string has been tuned.
+ * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
@@ -84,11 +91,13 @@ import com.rohankhayech.music.Tuning
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param onConfigurePressed Called when the configure tuning button is pressed.
  *
  * @author Rohan Khayech
  */
 @Composable
 fun TunerScreen(
+    compact: Boolean = false,
     windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
@@ -107,54 +116,145 @@ fun TunerScreen(
     onAutoChanged: (Boolean) -> Unit,
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
-    onSettingsPressed: () -> Unit
+    onSettingsPressed: () -> Unit,
+    onConfigurePressed: () -> Unit
 ) {
     Scaffold (
-        topBar = { AppBar(prefs.useBlackTheme, onSettingsPressed) }
+        topBar = {
+            if (!compact) {
+                AppBar(prefs.useBlackTheme, onSettingsPressed)
+            } else {
+                CompactAppBar(
+                    fullBlack = prefs.useBlackTheme,
+                    onSettingsPressed = onSettingsPressed,
+                    tuning = tuning,
+                    customTunings = customTunings,
+                    onConfigurePressed = onConfigurePressed
+                )
+            }
+        }
     ) { padding ->
         // Check window orientation/size.
-        if (windowSizeClass.heightSizeClass != WindowHeightSizeClass.Compact) {
-            PortraitTunerBody(
+        if (!compact) {
+            if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
+                || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
+                PortraitTunerBody(
+                    padding,
+                    windowSizeClass,
+                    tuning,
+                    noteOffset,
+                    selectedString,
+                    tuned,
+                    autoDetect,
+                    favTunings,
+                    customTunings,
+                    prefs,
+                    onSelectString,
+                    onSelectTuning,
+                    onTuneUpString,
+                    onTuneDownString,
+                    onTuneUpTuning,
+                    onTuneDownTuning,
+                    onAutoChanged,
+                    onTuned,
+                    onOpenTuningSelector,
+                )
+            } else {
+                LandscapeTunerBody(
+                    padding,
+                    windowSizeClass,
+                    prefs,
+                    tuning,
+                    noteOffset,
+                    selectedString,
+                    tuned,
+                    autoDetect,
+                    favTunings,
+                    customTunings,
+                    onSelectString,
+                    onSelectTuning,
+                    onTuneUpString,
+                    onTuneDownString,
+                    onTuneUpTuning,
+                    onTuneDownTuning,
+                    onAutoChanged,
+                    onTuned,
+                    onOpenTuningSelector,
+                )
+            }
+        } else {
+            CompactTunerBody(
                 padding,
                 tuning,
                 noteOffset,
                 selectedString,
                 tuned,
                 autoDetect,
-                favTunings,
-                customTunings,
                 prefs,
                 onSelectString,
-                onSelectTuning,
-                onTuneUpString,
-                onTuneDownString,
-                onTuneUpTuning,
-                onTuneDownTuning,
                 onAutoChanged,
-                onTuned,
-                onOpenTuningSelector,
+                onTuned
             )
-        } else {
-            LandscapeTunerBody(
-                padding,
-                tuning,
-                noteOffset,
-                selectedString,
-                tuned,
-                autoDetect,
-                favTunings,
-                customTunings,
-                prefs.displayType,
-                onSelectString,
-                onSelectTuning,
-                onTuneUpString,
-                onTuneDownString,
-                onTuneUpTuning,
-                onTuneDownTuning,
-                onAutoChanged,
-                onTuned,
-                onOpenTuningSelector,
+        }
+    }
+}
+
+@Composable
+private fun CompactTunerBody(
+    padding: PaddingValues,
+    tuning: Tuning,
+    noteOffset: State<Double?>,
+    selectedString: Int,
+    tuned: BooleanArray,
+    autoDetect: Boolean,
+    prefs: TunerPreferences,
+    onSelectString: (Int) -> Unit,
+    onAutoChanged: (Boolean) -> Unit,
+    onTuned: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(padding)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.Center,
+        ) {
+            TuningDisplay(
+                noteOffset = noteOffset,
+                displayType = prefs.displayType,
+                onTuned = onTuned
             )
+        }
+        Row(
+            Modifier
+                .height(IntrinsicSize.Min)
+                .padding(bottom = 8.dp)) {
+            CompactStringSelector(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
+                tuning = tuning,
+                selectedString = selectedString,
+                tuned = tuned,
+                onSelect = onSelectString,
+            )
+            Divider(
+                Modifier
+                    .width((1f / LocalDensity.current.density).dp)
+                    .fillMaxHeight())
+            Box(Modifier.padding(horizontal = 16.dp)) {
+                AutoDetectSwitch(
+                    modifier = Modifier.fillMaxHeight(),
+                    autoDetect = autoDetect,
+                    onAutoChanged = onAutoChanged
+                )
+            }
         }
     }
 }
@@ -163,6 +263,7 @@ fun TunerScreen(
  * Body of the tuning screen in portrait orientation.
  *
  * @param padding Padding values passed from the parent scaffold.
+ * @param windowSizeClass Size class of the window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -184,6 +285,7 @@ fun TunerScreen(
 @Composable
 private fun PortraitTunerBody(
     padding: PaddingValues,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -206,7 +308,8 @@ private fun PortraitTunerBody(
         modifier = Modifier
             .padding(padding)
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -229,6 +332,7 @@ private fun PortraitTunerBody(
             onAutoChanged = onAutoChanged
         )
         TuningSelector(
+            Modifier.padding(vertical = 8.dp),
             tuning = tuning,
             favTunings = favTunings,
             customTunings = customTunings,
@@ -236,6 +340,8 @@ private fun PortraitTunerBody(
             onTuneDown = onTuneDownTuning,
             onTuneUp = onTuneUpTuning,
             onOpenTuningSelector = onOpenTuningSelector,
+            enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
         )
     }
 }
@@ -244,6 +350,8 @@ private fun PortraitTunerBody(
  * Body of the tuning screen in landscape orientation.
  *
  * @param padding Padding values passed from the parent scaffold.
+ * @param windowSizeClass Size class of the window.
+ * @param prefs User preferences for the tuner.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -251,7 +359,6 @@ private fun PortraitTunerBody(
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
- * @param displayType Type of tuning offset value to display.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
  * @param onTuneUpString Called when a string is tuned up.
@@ -265,6 +372,8 @@ private fun PortraitTunerBody(
 @Composable
 private fun LandscapeTunerBody(
     padding: PaddingValues,
+    windowSizeClass: WindowSizeClass,
+    prefs: TunerPreferences,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -272,7 +381,6 @@ private fun LandscapeTunerBody(
     autoDetect: Boolean,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
-    displayType: TuningDisplayType,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -288,6 +396,7 @@ private fun LandscapeTunerBody(
             .padding(padding)
             .fillMaxHeight()
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         val (display, tuningSelector, stringsSelector, autoSwitch) = createRefs()
 
@@ -299,7 +408,7 @@ private fun LandscapeTunerBody(
         }) {
             TuningDisplay(
                 noteOffset = noteOffset,
-                displayType = displayType,
+                displayType = prefs.displayType,
                 onTuned = onTuned
             )
         }
@@ -317,7 +426,9 @@ private fun LandscapeTunerBody(
                 onSelect = onSelectTuning,
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
-                onOpenTuningSelector = onOpenTuningSelector
+                onOpenTuningSelector = onOpenTuningSelector,
+                enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                    windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
             )
         }
 
@@ -328,7 +439,8 @@ private fun LandscapeTunerBody(
             end.linkTo(parent.end)
         }) {
             StringControls(
-                inline = false,
+                inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                    && prefs.stringLayout == StringLayout.INLINE,
                 tuning = tuning,
                 selectedString = selectedString,
                 tuned = tuned,
@@ -437,6 +549,39 @@ private fun AppBar(
 }
 
 /**
+ * App bar for the tuning screen.
+ * @param fullBlack Whether the app bar should be displayed with a full black background.
+ * @param onSettingsPressed Called when the settings button is pressed.
+ */
+@Composable
+private fun CompactAppBar(
+    fullBlack: Boolean,
+    onSettingsPressed: () -> Unit,
+    onConfigurePressed: () -> Unit,
+    tuning: Tuning,
+    customTunings: State<Set<Tuning>>
+) {
+    TopAppBar(
+        title = {
+            TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+        },
+        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
+        else MaterialTheme.colors.primarySurface,
+        actions = {
+            // Configure tuning button.
+            IconButton(onClick = onConfigurePressed) {
+                Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.configure_tuning))
+            }
+
+            // Settings button
+            IconButton(onClick = onSettingsPressed) {
+                Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
+            }
+        }
+    )
+}
+
+/**
  * Visual meter and text label displaying the current [offset][noteOffset].
  *
  * @param noteOffset The offset between the currently playing note and the selected string.
@@ -502,6 +647,7 @@ private fun TuningDisplay(
 
     // Content
     Row(
+        modifier = Modifier.padding(16.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -531,26 +677,19 @@ private fun TuningMeter(
     labelContent: @Composable () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.size(210.dp, 116.dp)
+        modifier = Modifier
+            .size(210.dp, 116.dp)
+            .drawBehind {
+                drawMeter(
+                    indicatorColor = color,
+                    indicatorPosition = indicatorPosition,
+                    indicatorSize = indicatorSize
+                )
+            },
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .offset(y = 48.dp)
-                .requiredSize(192.dp)
-                .drawBehind {
-                    drawMeter(
-                        indicatorColor = color,
-                        indicatorPosition = indicatorPosition,
-                        indicatorSize = indicatorSize
-                    )
-                },
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            labelContent()
-            Spacer(Modifier.height(85.dp))
-        }
+        labelContent()
     }
 }
 
@@ -568,29 +707,37 @@ private fun DrawScope.drawMeter(
     indicatorPosition: Float,
     indicatorSize: Float,
 ) {
-    val startAngle = -90f
-    val indicatorSpan = indicatorSize * 180f
-    val indicatorAngle = indicatorPosition * (90f - (indicatorSpan/2)) - (indicatorSpan/2)
+    // Arc size
+    val strokeWidth = 20.dp.toPx()
+    val arcSize = size.copy(height = size.height*2 - strokeWidth*2, width = size.width - strokeWidth)
+    val offset = Offset(strokeWidth/2, strokeWidth/2)
 
     // Background Track
     drawArc(
         color = trackColor,
         startAngle = -180f,
         sweepAngle = 180f,
+        size = arcSize,
+        topLeft = offset,
         style = Stroke(
-            width = 50f,
+            width = strokeWidth,
             cap = StrokeCap.Round
         ),
         useCenter = false
     )
 
     // Indicator
+    val startAngle = -90f
+    val indicatorSpan = indicatorSize * 180f
+    val indicatorAngle = indicatorPosition * (90f - (indicatorSpan/2)) - (indicatorSpan/2)
     drawArc(
         color = indicatorColor,
         startAngle = startAngle + indicatorAngle,
         sweepAngle = indicatorSpan,
+        size = arcSize,
+        topLeft = offset,
         style = Stroke(
-            width = 50f,
+            width = strokeWidth,
             cap = StrokeCap.Round
         ),
         useCenter = false
@@ -607,6 +754,8 @@ private fun TuningMeterLabel(
     displayType: TuningDisplayType,
     color: Color
 ) {
+    Spacer(modifier = Modifier.height(24.dp))
+
     // Listening
     if (noteOffset == null) {
         Icon(
@@ -660,33 +809,35 @@ private fun TuningMeterLabel(
  * @param onTuneUp Called when a string is tuned up.
  */
 @Composable
-private fun StringControls(
+fun StringControls(
     inline: Boolean,
     tuning: Tuning,
-    selectedString: Int,
-    tuned: BooleanArray,
+    selectedString: Int?,
+    tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
 ) {
-    if (inline) {
-        InlineStringControls(
-            tuning = tuning,
-            selectedString = selectedString,
-            tuned = tuned,
-            onSelect = onSelect,
-            onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
-        )
-    } else {
-        SideBySideStringControls(
-            tuning = tuning,
-            selectedString = selectedString,
-            tuned = tuned,
-            onSelect = onSelect,
-            onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
-        )
+    Box(Modifier.padding(8.dp)) {
+        if (inline) {
+            InlineStringControls(
+                tuning = tuning,
+                selectedString = selectedString,
+                tuned = tuned,
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp
+            )
+        } else {
+            SideBySideStringControls(
+                tuning = tuning,
+                selectedString = selectedString,
+                tuned = tuned,
+                onSelect = onSelect,
+                onTuneDown = onTuneDown,
+                onTuneUp = onTuneUp
+            )
+        }
     }
 }
 
@@ -702,15 +853,16 @@ private fun StringControls(
 @Composable
 private fun SideBySideStringControls(
     tuning: Tuning,
-    selectedString: Int,
-    tuned: BooleanArray,
+    selectedString: Int?,
+    tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
 ) {
     Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = spacedBy(16.dp)
+        horizontalArrangement = spacedBy(8.dp)
     ) {
         val splitTuning = remember(tuning) {
             tuning.mapIndexed { n, gs -> Pair(n, gs) }
@@ -753,8 +905,8 @@ private fun SideBySideStringControls(
 private fun InlineStringControls(
     tuning: Tuning,
     strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
-    selectedString: Int,
-    tuned: BooleanArray,
+    selectedString: Int?,
+    tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
@@ -769,12 +921,60 @@ private fun InlineStringControls(
                 index = index,
                 string = string,
                 selected = selectedString == index,
-                tuned = tuned[index],
+                tuned = tuned?.get(index) ?: false,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,
             )
         }
+    }
+}
+
+/**
+ * Component displaying the specified [strings] inline horizontally and allowing selection of a string for tuning.
+ * @param tuning Current guitar tuning used for comparison.
+ * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
+ * @param selectedString Index of the selected string in the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param onSelect Called when a string is selected.
+ */
+@Composable
+private fun CompactStringSelector(
+    modifier: Modifier = Modifier,
+    tuning: Tuning,
+    strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) }.reversed() },
+    selectedString: Int,
+    tuned: BooleanArray,
+    onSelect: (Int) -> Unit,
+) {
+    val scrollState = rememberScrollState()
+
+    val selectedStringButtonPosition = with(LocalDensity.current) {
+        remember(tuning, selectedString) {
+            (72.dp * (strings.size -1 - selectedString)).toPx()
+        }
+    }
+    LaunchedEffect(key1 = selectedString) {
+        scrollState.animateScrollTo(selectedStringButtonPosition.toInt())
+    }
+
+    Row(
+        modifier = modifier.horizontalScroll(scrollState),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(8.dp))
+        strings.forEach {
+            val (index, string) = it
+            StringSelectionButton(
+                index = index,
+                string = string,
+                selected = selectedString == index,
+                tuned = tuned[index],
+                onSelect = onSelect
+            )
+        }
+        Spacer(Modifier.width(8.dp))
     }
 }
 
@@ -807,35 +1007,7 @@ private fun StringControl(
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
-        // Animate content color by selected and tuned state.
-        val contentColor by animateColorAsState(
-            if (tuned) MaterialTheme.colors.primary
-            else if (selected) MaterialTheme.colors.secondaryVariant
-            else LocalContentColor.current,
-            label = "String Button Content Color"
-        )
-
-        // Animate background color by selected state.
-        val backgroundColor by animateColorAsState(
-            if (selected) {
-                contentColor.copy(alpha = 0.12f)
-                    .compositeOver(MaterialTheme.colors.background)
-            } else MaterialTheme.colors.background,
-            label = "String Button Background Color"
-        )
-
-        // Selection Button
-        OutlinedButton(
-            modifier = Modifier.size(72.dp,48.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = backgroundColor,
-                contentColor = contentColor,
-            ),
-            shape = RoundedCornerShape(100),
-            onClick = remember(onSelect, index) { { onSelect(index) } }
-        ) {
-            Text(string.toFullString(), modifier = Modifier.padding(4.dp))
-        }
+        StringSelectionButton(tuned, selected, onSelect, index, string)
 
         // Tune Up Button
         IconButton(
@@ -848,6 +1020,53 @@ private fun StringControl(
 }
 
 /**
+ * Buttons displaying and allowing user selection of the specified string.
+ *
+ * @param index Index of the string within the tuning.
+ * @param string The guitar string.
+ * @param selected Whether the string is currently selected for tuning.
+ * @param onSelect Called when the string is selected.
+ */
+@Composable
+private fun StringSelectionButton(
+    tuned: Boolean,
+    selected: Boolean,
+    onSelect: (Int) -> Unit,
+    index: Int,
+    string: GuitarString
+) {
+    // Animate content color by selected and tuned state.
+    val contentColor by animateColorAsState(
+        if (tuned) MaterialTheme.colors.primary
+        else if (selected) MaterialTheme.colors.secondaryVariant
+        else LocalContentColor.current,
+        label = "String Button Content Color"
+    )
+
+    // Animate background color by selected state.
+    val backgroundColor by animateColorAsState(
+        if (selected) {
+            contentColor.copy(alpha = 0.12f)
+                .compositeOver(MaterialTheme.colors.background)
+        } else MaterialTheme.colors.background,
+        label = "String Button Background Color"
+    )
+
+    // Selection Button
+    OutlinedButton(
+        modifier = Modifier.size(72.dp, 48.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+        ),
+        shape = RoundedCornerShape(100),
+        onClick = remember(onSelect, index) { { onSelect(index) } }
+    ) {
+        Text(string.toFullString(), modifier = Modifier.padding(4.dp))
+    }
+}
+
+/**
  * Switch control allowing auto detection of string to be enabled/disabled.
  *
  * @param autoDetect Whether auto detection is enabled.
@@ -855,10 +1074,12 @@ private fun StringControl(
  */
 @Composable
 private fun AutoDetectSwitch(
+    modifier: Modifier = Modifier,
     autoDetect: Boolean,
     onAutoChanged: (Boolean) -> Unit
 ) {
     Row(
+        modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -877,6 +1098,7 @@ private fun AutoDetectSwitch(
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
+ * @param enabled Whether the selector is enabled. Defaults to true.
  * @param onSelect Called when a tuning is selected.
  * @param onTuneDown Called when the tuning is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
@@ -884,17 +1106,19 @@ private fun AutoDetectSwitch(
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun TuningSelector(
+fun TuningSelector(
+    modifier: Modifier = Modifier,
     tuning: Tuning,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
+    enabled: Boolean = true,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 8.dp)
             .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
@@ -912,7 +1136,7 @@ private fun TuningSelector(
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             modifier = Modifier.weight(1f),
-            expanded = expanded,
+            expanded = expanded && enabled,
             onExpandedChange = { expanded = !expanded }
         ) {
 
@@ -920,12 +1144,13 @@ private fun TuningSelector(
             CurrentTuningField(
                 tuning = tuning,
                 customTunings = customTunings,
-                expanded = expanded
+                expanded = expanded,
+                showExpanded = enabled
             )
 
             // Dropdown Menu
             ExposedDropdownMenu(
-                expanded = expanded,
+                expanded = expanded && enabled,
                 onDismissRequest = { expanded = false }
             ) {
                 for (tuningOption in favTunings.value) {
@@ -963,22 +1188,24 @@ private fun TuningSelector(
  * @param tuning The current guitar tuning.
  * @param customTunings Set of custom tunings added by the user.
  * @param expanded Whether the dropdown box is expanded.
+ * @param showExpanded Whether to show the expanded state.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun CurrentTuningField(
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
-    expanded: Boolean
+    expanded: Boolean,
+    showExpanded: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = TextFieldDefaults.OutlinedTextFieldShape,
         color = MaterialTheme.colors.background,
         border = BorderStroke(
-            width = if (expanded) TextFieldDefaults.FocusedBorderThickness
+            width = if (expanded && showExpanded) TextFieldDefaults.FocusedBorderThickness
             else TextFieldDefaults.UnfocusedBorderThickness,
-            color = if (expanded) MaterialTheme.colors.primary
+            color = if (expanded && showExpanded) MaterialTheme.colors.primary
             else MaterialTheme.colors.onBackground.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
         ),
     ) {
@@ -987,7 +1214,7 @@ private fun CurrentTuningField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TuningItem(modifier = Modifier.weight(1f), tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
 }
@@ -1073,7 +1300,40 @@ private fun TunerPreview() {
             onTuned = {},
             onOpenTuningSelector = {},
             onSettingsPressed = {}
-        )
+        ) {}
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(device = "spec:width=411dp,height=320dp")
+@Preview(device = "spec:width=320dp,height=411dp")
+@Preview(device = "spec:width=411dp,height=320dp", uiMode = UI_MODE_NIGHT_YES)
+@Preview(device = "spec:width=320dp,height=411dp", uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun CompactPreview() {
+    AppTheme {
+        TunerScreen(
+            compact = true,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
+            tuning = Tunings.HALF_STEP_DOWN,
+            noteOffset = remember { mutableStateOf(1.3)},
+            selectedString = 1,
+            tuned = BooleanArray(6) { it==4 },
+            autoDetect = true,
+            favTunings = remember { mutableStateOf(emptySet()) },
+            customTunings = remember { mutableStateOf(emptySet()) },
+            prefs = TunerPreferences(),
+            onSelectString = {},
+            onSelectTuning = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {}
+        ) {}
     }
 }
 
@@ -1102,7 +1362,7 @@ private fun LandscapePreview() {
             onTuned = {},
             onOpenTuningSelector = {},
             onSettingsPressed = {}
-        )
+        ) {}
     }
 }
 

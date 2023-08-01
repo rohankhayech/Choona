@@ -34,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +56,6 @@ import com.rohankhayech.music.Tuning
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
- * @param onDelete Called when a custom tuning is deleted.
  * @param onDismiss Called when the screen is dismissed.
  *
  * @author Rohan Khayech
@@ -63,10 +63,10 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelectionScreen(
     tuningList: TuningList,
+    backIcon: ImageVector?,
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
-    onDelete: (Tuning) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
@@ -79,18 +79,18 @@ fun TuningSelectionScreen(
         common = Tunings.COMMON,
         favourites = favourites,
         custom = custom,
+        backIcon = backIcon,
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
         },
-        onFavouriteSet = { tuning, fav ->
+        onFavouriteSet = remember (tuningList, onFavouriteSet) {{ tuning, fav ->
             tuningList.setFavourited(tuning, fav)
             onFavouriteSet(tuning, fav)
-        },
+        }},
         onSelect = onSelect,
         onDelete = {
             tuningList.removeCustom(it)
-            onDelete(it)
         },
         onDismiss = onDismiss
     )
@@ -118,6 +118,7 @@ fun TuningSelectionScreen(
     common: Set<Tuning>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
+    backIcon: ImageVector?,
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -142,11 +143,11 @@ fun TuningSelectionScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
                 backgroundColor = MaterialTheme.colors.background,
-                navigationIcon = {
+                navigationIcon = backIcon?.let {{
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, stringResource(R.string.dismiss))
+                        Icon(it, stringResource(R.string.dismiss))
                     }
-                },
+                }},
                 elevation = appBarElevation
             )
         }
@@ -502,6 +503,7 @@ private fun Preview() {
                 common = Tunings.COMMON,
                 favourites = setOf(Tuning.STANDARD, favCustomTuning),
                 custom = setOf(customTuning, favCustomTuning),
+                backIcon = Icons.Default.Close,
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},
                 onSelect = {},
