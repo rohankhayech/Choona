@@ -20,7 +20,6 @@ package com.rohankhayech.choona.view.components
 
 import kotlin.math.abs
 import kotlin.math.sign
-import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -35,7 +34,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.SliderDefaults
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -57,12 +55,12 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.choona.view.LightDarkPreview
+import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.choona.view.theme.Yellow500
 
 /**
@@ -289,38 +287,34 @@ private fun TuningMeterLabel(
 
 // PREVIEWS
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@LightDarkPreview
 @Composable
 private fun ListeningPreview() {
-    AppTheme { Surface {
+    PreviewWrapper {
         TuningDisplay(noteOffset = remember { mutableStateOf(null) }, TuningDisplayType.SEMITONES) {}
-    }}
+    }
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@LightDarkPreview
 @Composable
 private fun InTunePreview() {
-    AppTheme { Surface {
+    PreviewWrapper {
         TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
-    }}
+    }
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@LightDarkPreview
 @Composable
 private fun YellowPreview() {
-    AppTheme { Surface {
+    PreviewWrapper {
         TuningDisplay(noteOffset = remember { mutableStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
-    }}
+    }
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@LightDarkPreview
 @Composable
 private fun RedPreview() {
-    AppTheme { Surface {
+    PreviewWrapper {
         TuningDisplay(noteOffset = remember { mutableStateOf(-27.0) }, TuningDisplayType.CENTS) {}
-    }}
+    }
 }

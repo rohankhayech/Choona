@@ -53,6 +53,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
+import com.rohankhayech.choona.view.LightDarkPreview
+import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning
 
@@ -269,7 +271,7 @@ private fun StringControl(
             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
         }
 
-        StringSelectionButton(tuned, selected, onSelect, index, string)
+        StringSelectionButton(index, string, tuned, selected, onSelect)
 
         // Tune Up Button
         IconButton(
@@ -286,16 +288,17 @@ private fun StringControl(
  *
  * @param index Index of the string within the tuning.
  * @param string The guitar string.
+ * @param tuned Whether the string is tuned.
  * @param selected Whether the string is currently selected for tuning.
  * @param onSelect Called when the string is selected.
  */
 @Composable
 private fun StringSelectionButton(
+    index: Int,
+    string: GuitarString,
     tuned: Boolean,
     selected: Boolean,
     onSelect: (Int) -> Unit,
-    index: Int,
-    string: GuitarString
 ) {
     // Animate content color by selected and tuned state.
     val contentColor by animateColorAsState(
@@ -325,5 +328,73 @@ private fun StringSelectionButton(
         onClick = remember(onSelect, index) { { onSelect(index) } }
     ) {
         Text(string.toFullString(), modifier = Modifier.padding(4.dp))
+    }
+}
+
+// Previews
+
+@LightDarkPreview
+@Composable
+fun InlinePreview() {
+    PreviewWrapper {
+        StringControls(
+            inline = true,
+            tuning = Tuning.STANDARD,
+            selectedString = 1,
+            tuned = BooleanArray(6) { it == 4 },
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun SideBySidePreview() {
+    PreviewWrapper {
+        StringControls(
+            inline = false,
+            tuning = Tuning.STANDARD,
+            selectedString = 1,
+            tuned = BooleanArray(6) { it == 4 },
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun CompactPreview() {
+    PreviewWrapper {
+        CompactStringSelector(
+            tuning = Tuning.STANDARD,
+            selectedString = 5,
+            tuned = BooleanArray(6) { it == 4 },
+            onSelect = {},
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun StringControlPreview() {
+    PreviewWrapper {
+        StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun ButtonStatesPreview() {
+    PreviewWrapper {
+        Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StringSelectionButton(tuned = false, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = false, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = true, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = true, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)
+        }
     }
 }

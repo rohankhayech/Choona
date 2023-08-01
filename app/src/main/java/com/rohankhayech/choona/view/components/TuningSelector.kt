@@ -54,6 +54,8 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.LightDarkPreview
+import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.music.Tuning
 
 /**
@@ -236,6 +238,38 @@ fun TuningItem(
             style = MaterialTheme.typography.body2,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+// Previews
+@LightDarkPreview
+@Composable
+private fun Preview() {
+    PreviewWrapper {
+        TuningSelector(
+            Modifier.padding(8.dp),
+            tuning = Tuning.STANDARD,
+            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
+            customTunings = remember { mutableStateOf(emptySet()) },
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            onOpenTuningSelector = {}
+        )
+    }
+}
+
+// Previews
+@LightDarkPreview
+@Composable
+private fun TuningItemPreview() {
+    PreviewWrapper {
+        TuningItem(
+            Modifier.padding(8.dp),
+            tuning = Tuning.STANDARD,
+            customTunings = remember { mutableStateOf(emptySet()) },
+            fontWeight = FontWeight.Bold
         )
     }
 }
