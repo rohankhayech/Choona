@@ -119,292 +119,249 @@ fun TunerScreen(
             }
         }
     ) { padding ->
-        // Check window orientation/size.
-        if (!compact) {
-            if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
-                || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
-                PortraitTunerBody(
-                    padding,
-                    windowSizeClass,
-                    tuning,
-                    noteOffset,
-                    selectedString,
-                    tuned,
-                    autoDetect,
-                    favTunings,
-                    customTunings,
-                    prefs,
-                    onSelectString,
-                    onSelectTuning,
-                    onTuneUpString,
-                    onTuneDownString,
-                    onTuneUpTuning,
-                    onTuneDownTuning,
-                    onAutoChanged,
-                    onTuned,
-                    onOpenTuningSelector,
-                )
-            } else {
-                LandscapeTunerBody(
-                    padding,
-                    windowSizeClass,
-                    prefs,
-                    tuning,
-                    noteOffset,
-                    selectedString,
-                    tuned,
-                    autoDetect,
-                    favTunings,
-                    customTunings,
-                    onSelectString,
-                    onSelectTuning,
-                    onTuneUpString,
-                    onTuneDownString,
-                    onTuneUpTuning,
-                    onTuneDownTuning,
-                    onAutoChanged,
-                    onTuned,
-                    onOpenTuningSelector,
-                )
+        TunerBodyScaffold(
+            padding,
+            compact,
+            windowSizeClass,
+            tuning,
+            noteOffset,
+            selectedString,
+            tuned,
+            autoDetect,
+            favTunings,
+            customTunings,
+            prefs,
+            onSelectString,
+            onSelectTuning,
+            onTuneUpString,
+            onTuneDownString,
+            onTuneUpTuning,
+            onTuneDownTuning,
+            onAutoChanged,
+            onTuned,
+            onOpenTuningSelector,
+
+            // Portrait layout
+            portrait = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
+                Column(
+                    modifier = Modifier
+                        .padding(padd)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    tuningDisplay()
+                    stringControls(inline = prefs.stringLayout == StringLayout.INLINE)
+                    autoDetectSwitch(Modifier)
+                    tuningSelector(Modifier.padding(vertical = 8.dp))
+                }
+            },
+
+            // Landscape layout
+            landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
+                ConstraintLayout(
+                    modifier = Modifier
+                        .padding(padd)
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    val (display, tuningSelectorBox, stringsSelector, autoSwitch) = createRefs()
+
+                    Box(Modifier.constrainAs(display) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(autoSwitch.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(stringsSelector.start)
+                    }) {
+                        tuningDisplay()
+                    }
+
+                    Box(Modifier.constrainAs(tuningSelectorBox) {
+                        top.linkTo(stringsSelector.bottom)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }) {
+                        tuningSelector(Modifier)
+                    }
+
+                    Box(Modifier.constrainAs(stringsSelector) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(tuningSelectorBox.top)
+                        start.linkTo(display.end)
+                        end.linkTo(parent.end)
+                    }) {
+                        stringControls(
+                            inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                                && prefs.stringLayout == StringLayout.INLINE,
+                        )
+                    }
+
+                    Box(Modifier.constrainAs(autoSwitch) {
+                        top.linkTo(display.bottom)
+                        bottom.linkTo(tuningSelectorBox.top)
+                        start.linkTo(tuningSelectorBox.start)
+                        end.linkTo(stringsSelector.start)
+                    }) {
+                        autoDetectSwitch(Modifier)
+                    }
+                }
+            },
+
+            // Compact layout
+            compactLayout = { padd, tuningDisplay, _, autoDetectSwitch, _ ->
+                Column(
+                    modifier = Modifier
+                        .padding(padd)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        tuningDisplay()
+                    }
+                    Row(
+                        Modifier
+                            .height(IntrinsicSize.Min)
+                            .padding(bottom = 8.dp)) {
+                        CompactStringSelector(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 8.dp),
+                            tuning = tuning,
+                            selectedString = selectedString,
+                            tuned = tuned,
+                            onSelect = onSelectString,
+                        )
+                        Divider(
+                            Modifier
+                                .width((1f / LocalDensity.current.density).dp)
+                                .fillMaxHeight())
+                        Box(Modifier.padding(horizontal = 16.dp)) {
+                            autoDetectSwitch(Modifier.fillMaxHeight())
+                        }
+                    }
+                }
             }
-        } else {
-            CompactTunerBody(
-                padding,
-                tuning,
-                noteOffset,
-                selectedString,
-                tuned,
-                autoDetect,
-                prefs,
-                onSelectString,
-                onAutoChanged,
-                onTuned
-            )
-        }
+        )
     }
 }
 
-@Composable
-private fun CompactTunerBody(
+/**
+ * Type of layout for the tuner screen body.
+ * Should place all appropriate components provided,
+ * and must use the provided padding for the root composable.
+ */
+private typealias TunerBodyLayout = @Composable (
     padding: PaddingValues,
+    tuningDisplay: @Composable () -> Unit,
+    stringControls: @Composable (inline: Boolean) -> Unit,
+    autoDetectSwitch: @Composable (modifier: Modifier) -> Unit,
+    tuningSelector: @Composable (modifier: Modifier) -> Unit
+) -> Unit
+
+/**
+ * Scaffold containing the main UI components of the tuner screen body.
+ * The scaffold places these components in the appropriate layout.
+ *
+ * [Portrait][portrait], [landscape] and [compact][compactLayout] layouts
+ * must be defined to determine the placement of the UI components.
+ *
+ * @param compact Whether to use compact layout.
+ * @param windowSizeClass Size class of the activity window.
+ * @param tuning Guitar tuning used for comparison.
+ * @param noteOffset The offset between the currently playing note and the selected string.
+ * @param selectedString Index of the currently selected string within the tuning.
+ * @param tuned Whether each string has been tuned.
+ * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param favTunings Set of tunings marked as favourite by the user.
+ * @param customTunings Set of custom tunings added by the user.
+ * @param prefs User preferences for the tuner.
+ * @param onSelectString Called when a string is selected.
+ * @param onSelectTuning Called when a tuning is selected.
+ * @param onTuneUpString Called when a string is tuned up.
+ * @param onTuneDownString Called when a string is tuned down.
+ * @param onTuneUpTuning Called when the tuning is tuned up.
+ * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onAutoChanged Called when the auto detect switch is toggled.
+ * @param onTuned Called when the detected note is held in tune.
+ * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
+ */
+@Composable
+private fun TunerBodyScaffold(
+    padding: PaddingValues,
+    compact: Boolean = false,
+    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
     tuned: BooleanArray,
     autoDetect: Boolean,
+    favTunings: State<Set<Tuning>>,
+    customTunings: State<Set<Tuning>>,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
+    onSelectTuning: (Tuning) -> Unit,
+    onTuneUpString: (Int) -> Unit,
+    onTuneDownString: (Int) -> Unit,
+    onTuneUpTuning: () -> Unit,
+    onTuneDownTuning: () -> Unit,
     onAutoChanged: (Boolean) -> Unit,
     onTuned: () -> Unit,
+    onOpenTuningSelector: () -> Unit,
+    portrait: TunerBodyLayout,
+    landscape: TunerBodyLayout,
+    compactLayout: TunerBodyLayout
 ) {
-    Column(
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
-            contentAlignment = Alignment.Center,
-        ) {
+    val layout = if (!compact) {
+        if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
+            || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
+            portrait
+        } else {
+            landscape
+        }
+    } else {
+        compactLayout
+    }
+
+    layout(
+        padding = padding,
+        tuningDisplay = {
             TuningDisplay(
                 noteOffset = noteOffset,
                 displayType = prefs.displayType,
                 onTuned = onTuned
             )
-        }
-        Row(
-            Modifier
-                .height(IntrinsicSize.Min)
-                .padding(bottom = 8.dp)) {
-            CompactStringSelector(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 8.dp),
+        },
+        stringControls = { inline ->
+            StringControls(
+                inline = inline,
                 tuning = tuning,
                 selectedString = selectedString,
                 tuned = tuned,
                 onSelect = onSelectString,
+                onTuneDown = onTuneDownString,
+                onTuneUp = onTuneUpString
             )
-            Divider(
-                Modifier
-                    .width((1f / LocalDensity.current.density).dp)
-                    .fillMaxHeight())
-            Box(Modifier.padding(horizontal = 16.dp)) {
-                AutoDetectSwitch(
-                    modifier = Modifier.fillMaxHeight(),
-                    autoDetect = autoDetect,
-                    onAutoChanged = onAutoChanged
-                )
-            }
-        }
-    }
-}
-
-/**
- * Body of the tuning screen in portrait orientation.
- *
- * @param padding Padding values passed from the parent scaffold.
- * @param windowSizeClass Size class of the window.
- * @param tuning Guitar tuning used for comparison.
- * @param noteOffset The offset between the currently playing note and the selected string.
- * @param selectedString Index of the currently selected string within the tuning.
- * @param tuned: Whether each string has been tuned.
- * @param autoDetect Whether the tuner will automatically detect the currently playing string.
- * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
- * @param prefs User preferences for the tuner.
- * @param onSelectString Called when a string is selected.
- * @param onSelectTuning Called when a tuning is selected.
- * @param onTuneUpString Called when a string is tuned up.
- * @param onTuneDownString Called when a string is tuned down.
- * @param onTuneUpTuning Called when the tuning is tuned up.
- * @param onTuneDownTuning Called when the tuning is tuned down.
- * @param onAutoChanged Called when the auto detect switch is toggled.
- * @param onTuned Called when the detected note is held in tune.
- * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
- */
-@Composable
-private fun PortraitTunerBody(
-    padding: PaddingValues,
-    windowSizeClass: WindowSizeClass,
-    tuning: Tuning,
-    noteOffset: State<Double?>,
-    selectedString: Int,
-    tuned: BooleanArray,
-    autoDetect: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
-    prefs: TunerPreferences,
-    onSelectString: (Int) -> Unit,
-    onSelectTuning: (Tuning) -> Unit,
-    onTuneUpString: (Int) -> Unit,
-    onTuneDownString: (Int) -> Unit,
-    onTuneUpTuning: () -> Unit,
-    onTuneDownTuning: () -> Unit,
-    onAutoChanged: (Boolean) -> Unit,
-    onTuned: () -> Unit,
-    onOpenTuningSelector: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        TuningDisplay(
-            noteOffset = noteOffset,
-            displayType = prefs.displayType,
-            onTuned = onTuned
-        )
-        StringControls(
-            inline = prefs.stringLayout == StringLayout.INLINE,
-            tuning = tuning,
-            selectedString = selectedString,
-            tuned = tuned,
-            onSelect = onSelectString,
-            onTuneDown = onTuneDownString,
-            onTuneUp = onTuneUpString
-        )
-        AutoDetectSwitch(
-            autoDetect = autoDetect,
-            onAutoChanged = onAutoChanged
-        )
-        TuningSelector(
-            Modifier.padding(vertical = 8.dp),
-            tuning = tuning,
-            favTunings = favTunings,
-            customTunings = customTunings,
-            onSelect = onSelectTuning,
-            onTuneDown = onTuneDownTuning,
-            onTuneUp = onTuneUpTuning,
-            onOpenTuningSelector = onOpenTuningSelector,
-            enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
-                windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
-        )
-    }
-}
-
-/**
- * Body of the tuning screen in landscape orientation.
- *
- * @param padding Padding values passed from the parent scaffold.
- * @param windowSizeClass Size class of the window.
- * @param prefs User preferences for the tuner.
- * @param tuning Guitar tuning used for comparison.
- * @param noteOffset The offset between the currently playing note and the selected string.
- * @param selectedString Index of the currently selected string within the tuning.
- * @param tuned: Whether each string has been tuned.
- * @param autoDetect Whether the tuner will automatically detect the currently playing string.
- * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
- * @param onSelectString Called when a string is selected.
- * @param onSelectTuning Called when a tuning is selected.
- * @param onTuneUpString Called when a string is tuned up.
- * @param onTuneDownString Called when a string is tuned down.
- * @param onTuneUpTuning Called when the tuning is tuned up.
- * @param onTuneDownTuning Called when the tuning is tuned down.
- * @param onAutoChanged Called when the auto detect switch is toggled.
- * @param onTuned Called when the detected note is held in tune.
- * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
- */
-@Composable
-private fun LandscapeTunerBody(
-    padding: PaddingValues,
-    windowSizeClass: WindowSizeClass,
-    prefs: TunerPreferences,
-    tuning: Tuning,
-    noteOffset: State<Double?>,
-    selectedString: Int,
-    tuned: BooleanArray,
-    autoDetect: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
-    onSelectString: (Int) -> Unit,
-    onSelectTuning: (Tuning) -> Unit,
-    onTuneUpString: (Int) -> Unit,
-    onTuneDownString: (Int) -> Unit,
-    onTuneUpTuning: () -> Unit,
-    onTuneDownTuning: () -> Unit,
-    onAutoChanged: (Boolean) -> Unit,
-    onTuned: () -> Unit,
-    onOpenTuningSelector: () -> Unit
-) {
-    ConstraintLayout(
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
-        val (display, tuningSelector, stringsSelector, autoSwitch) = createRefs()
-
-        Box(Modifier.constrainAs(display) {
-            top.linkTo(parent.top)
-            bottom.linkTo(autoSwitch.top)
-            start.linkTo(parent.start)
-            end.linkTo(stringsSelector.start)
-        }) {
-            TuningDisplay(
-                noteOffset = noteOffset,
-                displayType = prefs.displayType,
-                onTuned = onTuned
+        },
+        autoDetectSwitch = { modifier ->
+            AutoDetectSwitch(
+                modifier = modifier,
+                autoDetect = autoDetect,
+                onAutoChanged = onAutoChanged
             )
-        }
-
-        Box(Modifier.constrainAs(tuningSelector) {
-            top.linkTo(stringsSelector.bottom)
-            bottom.linkTo(parent.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }) {
+        },
+        tuningSelector = { modifier ->
             TuningSelector(
+                modifier = modifier,
                 tuning = tuning,
                 favTunings = favTunings,
                 customTunings = customTunings,
@@ -416,37 +373,7 @@ private fun LandscapeTunerBody(
                     windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
             )
         }
-
-        Box(Modifier.constrainAs(stringsSelector) {
-            top.linkTo(parent.top)
-            bottom.linkTo(tuningSelector.top)
-            start.linkTo(display.end)
-            end.linkTo(parent.end)
-        }) {
-            StringControls(
-                inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
-                    && prefs.stringLayout == StringLayout.INLINE,
-                tuning = tuning,
-                selectedString = selectedString,
-                tuned = tuned,
-                onSelect = onSelectString,
-                onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString
-            )
-        }
-
-        Box(Modifier.constrainAs(autoSwitch) {
-            top.linkTo(display.bottom)
-            bottom.linkTo(tuningSelector.top)
-            start.linkTo(tuningSelector.start)
-            end.linkTo(stringsSelector.start)
-        }) {
-            AutoDetectSwitch(
-                autoDetect = autoDetect,
-                onAutoChanged = onAutoChanged
-            )
-        }
-    }
+    )
 }
 
 /**
