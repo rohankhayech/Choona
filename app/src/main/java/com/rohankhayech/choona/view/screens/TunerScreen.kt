@@ -523,14 +523,16 @@ private fun AutoDetectSwitch(
 
 // PREVIEWS
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun TunerPreview() {
+private fun BasePreview(
+    compact: Boolean = false,
+    windowSizeClass: WindowSizeClass,
+    prefs: TunerPreferences = TunerPreferences(),
+) {
     AppTheme {
         TunerScreen(
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
+            compact,
+            windowSizeClass,
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},
             selectedString = 1,
@@ -538,19 +540,20 @@ private fun TunerPreview() {
             autoDetect = true,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
-            prefs = TunerPreferences(),
-            onSelectString = {},
-            onSelectTuning = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
-            onAutoChanged = {},
-            onTuned = {},
-            onOpenTuningSelector = {},
-            onSettingsPressed = {}
-        ) {}
+            prefs,
+            {}, {},{},{},{}, {}, {}, {}, {}, {}, {}
+        )
     }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun TunerPreview() {
+    BasePreview(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
+    )
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -560,59 +563,19 @@ private fun TunerPreview() {
 @Preview(device = "spec:width=320dp,height=411dp", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun CompactPreview() {
-    AppTheme {
-        TunerScreen(
-            compact = true,
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
-            tuning = Tunings.HALF_STEP_DOWN,
-            noteOffset = remember { mutableStateOf(1.3)},
-            selectedString = 1,
-            tuned = BooleanArray(6) { it==4 },
-            autoDetect = true,
-            favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
-            prefs = TunerPreferences(),
-            onSelectString = {},
-            onSelectTuning = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
-            onAutoChanged = {},
-            onTuned = {},
-            onOpenTuningSelector = {},
-            onSettingsPressed = {}
-        ) {}
-    }
+    BasePreview(
+        compact = true,
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
+    )
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = "spec:width=891dp,height=411dp")
 @Composable
 private fun LandscapePreview() {
-    AppTheme {
-        TunerScreen(
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp)),
-            tuning = Tuning.STANDARD,
-            noteOffset = remember { mutableStateOf(1.3)},
-            selectedString = 1,
-            tuned = BooleanArray(6) { it==4 },
-            autoDetect = true,
-            favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
-            prefs = TunerPreferences(),
-            onSelectString = {},
-            onSelectTuning = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
-            onAutoChanged = {},
-            onTuned = {},
-            onOpenTuningSelector = {},
-            onSettingsPressed = {}
-        ) {}
-    }
+    BasePreview(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp))
+    )
 }
 
 @Preview
