@@ -493,8 +493,6 @@ private fun CompactAppBar(
     )
 }
 
-
-
 /**
  * Switch control allowing auto detection of string to be enabled/disabled.
  *
@@ -575,6 +573,15 @@ private fun CompactPreview() {
 private fun LandscapePreview() {
     BasePreview(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 411.dp))
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(fontScale = 1.3f)
+@Composable
+private fun LargeFontPreview() {
+    BasePreview(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
     )
 }
 

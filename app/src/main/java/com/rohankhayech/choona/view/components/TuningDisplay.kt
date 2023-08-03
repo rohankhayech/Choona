@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
@@ -165,7 +167,7 @@ private fun TuningMeter(
 ) {
     Column(
         modifier = Modifier
-            .size(210.dp, 116.dp)
+            .defaultMinSize(210.dp, 116.dp)
             .drawBehind {
                 drawMeter(
                     indicatorColor = color,
@@ -316,5 +318,21 @@ private fun YellowPreview() {
 private fun RedPreview() {
     PreviewWrapper {
         TuningDisplay(noteOffset = remember { mutableStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+    }
+}
+
+@Preview(fontScale = 1.3f)
+@Composable
+private fun LargeFontLabelPreview() {
+    PreviewWrapper {
+        TuningDisplay(noteOffset = remember { mutableStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
+    }
+}
+
+@Preview(fontScale = 1.3f)
+@Composable
+private fun LargeFontIconPreview() {
+    PreviewWrapper {
+        TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
     }
 }

@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
@@ -319,7 +320,7 @@ private fun StringSelectionButton(
 
     // Selection Button
     OutlinedButton(
-        modifier = Modifier.size(72.dp, 48.dp),
+        modifier = Modifier.defaultMinSize(72.dp, 48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
@@ -396,5 +397,14 @@ private fun ButtonStatesPreview() {
             StringSelectionButton(tuned = true, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
             StringSelectionButton(tuned = true, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)
         }
+    }
+}
+
+@Preview(fontScale = 3f)
+@Composable
+private fun LargeFontPreview() {
+    PreviewWrapper {
+        StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
+
     }
 }
