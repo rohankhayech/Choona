@@ -57,6 +57,7 @@ import com.rohankhayech.music.Tuning
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
  *
  * @param compact Whether to use compact layout.
+ * @param expanded Whether the current window is expanded width.
  * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
@@ -83,6 +84,7 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TunerScreen(
     compact: Boolean = false,
+    expanded: Boolean = false,
     windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
@@ -122,6 +124,7 @@ fun TunerScreen(
         TunerBodyScaffold(
             padding,
             compact,
+            expanded,
             windowSizeClass,
             tuning,
             noteOffset,
@@ -276,6 +279,7 @@ private typealias TunerBodyLayout = @Composable (
  * must be defined to determine the placement of the UI components.
  *
  * @param compact Whether to use compact layout.
+ * @param expanded Whether the current window is an expanded width.
  * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
@@ -299,6 +303,7 @@ private typealias TunerBodyLayout = @Composable (
 private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
+    expanded: Boolean,
     windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
@@ -370,8 +375,7 @@ private fun TunerBodyScaffold(
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                enabled = !(windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
-                    windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact) // TODO: use expanded from MainLayout
+                enabled = !expanded
             )
         }
     )
@@ -531,6 +535,7 @@ private fun BasePreview(
     AppTheme {
         TunerScreen(
             compact,
+            expanded = false,
             windowSizeClass,
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableStateOf(1.3)},

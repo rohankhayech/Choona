@@ -110,6 +110,7 @@ fun MainLayout(
             Column(Modifier.weight(0.7f)) {
                 TunerScreen(
                     compact = false,
+                    expanded = true,
                     windowSizeClass,
                     tuning,
                     noteOffset,
@@ -151,6 +152,7 @@ fun MainLayout(
         ) {
             TunerScreen(
                 compact,
+                expanded = false,
                 windowSizeClass,
                 tuning,
                 noteOffset,
