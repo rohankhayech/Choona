@@ -134,6 +134,7 @@ fun ConfigureTuningScreen(
                             tuning = tuning,
                             favTunings = favTunings,
                             customTunings = customTunings,
+                            openDirect = true,
                             onSelect = onSelectTuning,
                             onTuneDown = onTuneDownTuning,
                             onTuneUp = onTuneUpTuning,

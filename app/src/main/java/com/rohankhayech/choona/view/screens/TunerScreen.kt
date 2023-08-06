@@ -365,6 +365,7 @@ private fun TunerBodyScaffold(
                 tuning = tuning,
                 favTunings = favTunings,
                 customTunings = customTunings,
+                openDirect = false,
                 onSelect = onSelectTuning,
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,

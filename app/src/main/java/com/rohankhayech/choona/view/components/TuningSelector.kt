@@ -65,6 +65,7 @@ import com.rohankhayech.music.Tuning
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
  * @param enabled Whether the selector is enabled. Defaults to true.
+ * @param openDirect Whether to open the tuning selection screen directly instead of the favourites dropdown.
  * @param onSelect Called when a tuning is selected.
  * @param onTuneDown Called when the tuning is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
@@ -80,6 +81,7 @@ fun TuningSelector(
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
     enabled: Boolean = true,
+    openDirect: Boolean,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
@@ -105,7 +107,10 @@ fun TuningSelector(
         ExposedDropdownMenuBox(
             modifier = Modifier.weight(1f),
             expanded = expanded && enabled,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = {
+                if (openDirect) onOpenTuningSelector()
+                else expanded = !expanded
+            }
         ) {
 
             // Current Tuning
@@ -252,6 +257,7 @@ private fun Preview() {
             tuning = Tuning.STANDARD,
             favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
             customTunings = remember { mutableStateOf(emptySet()) },
+            openDirect = false,
             onSelect = {},
             onTuneDown = {},
             onTuneUp = {},
