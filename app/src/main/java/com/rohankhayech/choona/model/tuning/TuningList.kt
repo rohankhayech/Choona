@@ -18,7 +18,7 @@
 
 package com.rohankhayech.choona.model.tuning
 
-import java.util.*
+import java.util.Objects
 import android.content.Context
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.music.Tuning
@@ -31,10 +31,12 @@ import kotlinx.coroutines.flow.update
  *
  * @author Rohan Khayech
  */
-class TuningList {
+class TuningList(
+    initialCurrentTuning: Tuning? = null
+) {
 
     /** Mutable backing property for [current]. */
-    private val _current = MutableStateFlow<Tuning?>(null)
+    private val _current = MutableStateFlow(initialCurrentTuning)
 
     /** The current tuning, or null if N/A. */
     val current = _current.asStateFlow()
