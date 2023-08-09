@@ -28,6 +28,8 @@ Guitar tuner application for Android with support for custom tunings.
 
   <img src="assets/screenshots/06-cents.jpg" width=20%> <img src="assets/screenshots/07-settings.jpg" width=20%> 
   <img src="assets/screenshots/08-dark_theme.jpg" width=20%> <img src="assets/screenshots/09-black_theme.jpg" width=20%>
+  
+  <img src="assets/screenshots/10-splitscreen.jpg" width="40%"> <img src="assets/screenshots/11-tablet.jpg" width=40%>
 </details>
 
 ## Installation

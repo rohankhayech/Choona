@@ -15,6 +15,8 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
     
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
@@ -33,9 +35,10 @@ jobs:
         
     - name: Upload APK to Release
       uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: app/build/outputs/apk/release/app-release-signed.apk
+        asset_path: app/build/outputs/apk/release/app-release-unsigned-signed.apk
         asset_name: Choona-Android-${{ github.event.release.tag_name }}.apk
         asset_content_type: application/vnd.android.package-archive
-        github_token: ${{ secrets.GITHUB_TOKEN }}
