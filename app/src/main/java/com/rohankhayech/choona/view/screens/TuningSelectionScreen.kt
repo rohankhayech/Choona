@@ -40,12 +40,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.secondaryTextButtonColors
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
-import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
 import com.rohankhayech.music.Tuning
 
 /**

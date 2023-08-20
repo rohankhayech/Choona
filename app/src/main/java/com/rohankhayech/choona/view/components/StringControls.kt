@@ -52,10 +52,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.view.LightDarkPreview
-import com.rohankhayech.choona.view.PreviewWrapper
+import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning
 
@@ -334,7 +334,7 @@ private fun StringSelectionButton(
 
 // Previews
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 fun InlinePreview() {
     PreviewWrapper {
@@ -350,7 +350,7 @@ fun InlinePreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun SideBySidePreview() {
     PreviewWrapper {
@@ -366,7 +366,7 @@ private fun SideBySidePreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun CompactPreview() {
     PreviewWrapper {
@@ -379,7 +379,7 @@ private fun CompactPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
@@ -387,7 +387,7 @@ private fun StringControlPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun ButtonStatesPreview() {
     PreviewWrapper {

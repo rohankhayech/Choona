@@ -19,8 +19,9 @@
 package com.rohankhayech.choona.view.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import com.rohankhayech.android.util.ui.theme.AdaptableMaterialTheme
 
 /**
  * Theme for the app.
@@ -35,10 +36,19 @@ fun AppTheme(
     fullBlack: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colors = if (darkTheme) {
-            if (fullBlack) BlackColors else DarkColors
-        } else LightColors,
+    AdaptableMaterialTheme(
+        lightColors = LightColors,
+        darkColors = DarkColors,
+        trueDarkColors = BlackColors,
+        darkTheme = darkTheme,
+        trueDark = fullBlack,
         content = content
     )
+}
+
+@Composable
+fun PreviewWrapper(content: @Composable () -> Unit) {
+    AppTheme {
+        Surface(content = content)
+    }
 }

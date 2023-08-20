@@ -68,6 +68,7 @@ dependencies {
     implementation "com.mikepenz:aboutlibraries-compose:10.6.1"
     implementation 'com.github.billthefarmer:mididriver:v1.24'
     implementation 'androidx.window:window:1.1.0'
+    implementation "com.github.rohankhayech:AndroidUtils:main-SNAPSHOT"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20230227'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2'

@@ -58,11 +58,11 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.view.LightDarkPreview
-import com.rohankhayech.choona.view.PreviewWrapper
+import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.choona.view.theme.Yellow500
 
 /**
@@ -117,8 +117,7 @@ fun TuningDisplay(
                     // Listening color.
                     onBack.copy(alpha = 0.2f).compositeOver(back)
                 }
-            }
-            }.value
+            }}.value
         },
         label = "Tuning Meter Color"
     )
@@ -289,7 +288,7 @@ private fun TuningMeterLabel(
 
 // PREVIEWS
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun ListeningPreview() {
     PreviewWrapper {
@@ -297,7 +296,7 @@ private fun ListeningPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun InTunePreview() {
     PreviewWrapper {
@@ -305,7 +304,7 @@ private fun InTunePreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun YellowPreview() {
     PreviewWrapper {
@@ -313,7 +312,7 @@ private fun YellowPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun RedPreview() {
     PreviewWrapper {
