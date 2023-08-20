@@ -56,8 +56,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
@@ -320,7 +320,7 @@ private fun RedPreview() {
     }
 }
 
-@Preview(fontScale = 1.3f)
+@LargeFontPreview
 @Composable
 private fun LargeFontLabelPreview() {
     PreviewWrapper {
@@ -328,7 +328,7 @@ private fun LargeFontLabelPreview() {
     }
 }
 
-@Preview(fontScale = 1.3f)
+@LargeFontPreview
 @Composable
 private fun LargeFontIconPreview() {
     PreviewWrapper {

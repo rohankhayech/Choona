@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.ThemePreview
@@ -489,8 +487,7 @@ private fun SaveTuningDialog(
 
 // Previews
 
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun Preview() {
     val currentTuning = Tuning.fromString("G3 D3 A3 E4")
@@ -498,25 +495,22 @@ private fun Preview() {
     val favCustomTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
-        Surface {
-            TuningSelectionScreen(
-                current = currentTuning,
-                common = Tunings.COMMON,
-                favourites = setOf(Tuning.STANDARD, favCustomTuning),
-                custom = setOf(customTuning, favCustomTuning),
-                backIcon = Icons.Default.Close,
-                onSave = {_,_->},
-                onFavouriteSet = {_,_ ->},
-                onSelect = {},
-                onDelete = {},
-                onDismiss = {}
-            )
-        }
+        TuningSelectionScreen(
+            current = currentTuning,
+            common = Tunings.COMMON,
+            favourites = setOf(Tuning.STANDARD, favCustomTuning),
+            custom = setOf(customTuning, favCustomTuning),
+            backIcon = Icons.Default.Close,
+            onSave = {_,_->},
+            onFavouriteSet = {_,_ ->},
+            onSelect = {},
+            onDelete = {},
+            onDismiss = {}
+        )
     }
 }
 
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun SaveDialogPreview() {
     val customTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")

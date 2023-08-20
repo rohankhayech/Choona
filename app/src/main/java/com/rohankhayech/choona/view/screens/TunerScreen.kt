@@ -41,6 +41,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.rohankhayech.android.util.ui.preview.LandscapePreview
+import com.rohankhayech.android.util.ui.preview.LargeFontPreview
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -551,8 +554,7 @@ private fun BasePreview(
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun TunerPreview() {
     BasePreview(
@@ -574,7 +576,7 @@ private fun CompactPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(device = "spec:width=891dp,height=411dp")
+@LandscapePreview
 @Composable
 private fun LandscapePreview() {
     BasePreview(
@@ -583,7 +585,7 @@ private fun LandscapePreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(fontScale = 1.3f)
+@LargeFontPreview
 @Composable
 private fun LargeFontPreview() {
     BasePreview(

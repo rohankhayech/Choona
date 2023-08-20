@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -30,7 +29,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -212,8 +211,7 @@ fun SettingsScreen(
 }
 
 // Preview
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun Preview() {
     AppTheme {

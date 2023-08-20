@@ -405,6 +405,5 @@ private fun ButtonStatesPreview() {
 private fun LargeFontPreview() {
     PreviewWrapper {
         StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
-
     }
 }
