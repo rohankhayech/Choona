@@ -270,7 +270,8 @@ class TunerActivity : AppCompatActivity() {
         midi.playNote(
             string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150
+            150,
+            vm.tuner.tuning.value.instrument.midiInstrument
         )
     }
 
