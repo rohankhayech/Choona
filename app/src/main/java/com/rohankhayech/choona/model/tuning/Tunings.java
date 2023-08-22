@@ -43,7 +43,10 @@ public final class Tunings {
     public static final Tuning HALF_STEP_DOWN = add(Tuning.fromString("Half Step Down", Instrument.GUITAR, "D#4 A#3 F#3 C#3 G#2 D#2"));
     public static final Tuning WHOLE_STEP_DOWN = add(Tuning.fromString("Whole Step Down", Instrument.GUITAR, "D4 A3 F3 C3 G2 D2"));
     public static final Tuning DROP_D = add(Tuning.DROP_D);
-    public static final Tuning DOUBLE_DROP_D = add(Tuning.fromString("Double Drop-D", Instrument.GUITAR, "D4 B3 G3 D3 A2 D2"));
+    public static final Tuning DOUBLE_DROP_D = add(Tuning.fromString("Double Drop D", Instrument.GUITAR, "D4 B3 G3 D3 A2 D2"));
+    public static final Tuning BASS_STANDARD = add(Tuning.fromString("Standard", Instrument.BASS, "G2 D2 A1 E1"));
+    public static final Tuning BASS_DROP_D = add(Tuning.fromString("Drop D", Instrument.BASS, "G2 D2 A1 D1"));
+    public static final Tuning BASS_E_FLAT = add(Tuning.fromString("E Flat", Instrument.BASS, "F#2 C#2 G#1 D#1"));
     public static final Tuning D_MODAL = add(Tuning.fromString("D Modal", Instrument.GUITAR, "D4 A3 G3 D3 A2 D2"));
     public static final Tuning DOUBLE_DADDY = add(Tuning.fromString("Double Daddy", Instrument.GUITAR, "D4 A3 D3 D3 A2 D2"));
     public static final Tuning DROP_CS = add(Tuning.fromString("Drop C#", Instrument.GUITAR, "D#4 A#3 F#3 C#3 G#2 C#2"));
