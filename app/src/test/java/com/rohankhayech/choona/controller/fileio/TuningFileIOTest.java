@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.rohankhayech.music.Tuning;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -29,9 +31,11 @@ import java.util.Set;
 
 public class TuningFileIOTest {
 
+    private static final String TUNINGS_JSON = "{\"tunings\":[{\"strings\":\"E4 B3 G3 D3 A2 E2\",\"name\":\"Standard\",\"instrument\":\"GUITAR\"},{\"strings\":\"E4 B3 G3 D3 A2 D2\",\"name\":\"Drop D\",\"instrument\":\"GUITAR\"},{\"strings\":\"G3 D3 A2 E2\",\"instrument\":\"GUITAR\"}]}";
+
     @Test
     public void testParseTunings() {
-        Set<Tuning> tunings = TuningFileIO.parseTunings("{\"tunings\":[{\"name\":\"Standard\",\"strings\":\"E4 B3 G3 D3 A2 E2\"},{\"name\":\"Drop D\",\"strings\":\"E4 B3 G3 D3 A2 D2\"},{\"strings\":\"G3 D3 A2 E2\"}]}");
+        Set<Tuning> tunings = TuningFileIO.parseTunings(TUNINGS_JSON);
         Set<Tuning> expected = new HashSet<>();
         expected.add(Tuning.STANDARD);
         expected.add(Tuning.DROP_D);
@@ -40,12 +44,12 @@ public class TuningFileIOTest {
     }
 
     @Test
-    public void testEncodeTunings() {
+    public void testEncodeTunings() throws JSONException {
         Set<Tuning> tunings = new HashSet<>();
         tunings.add(Tuning.STANDARD);
         tunings.add(Tuning.DROP_D);
         tunings.add(Tuning.fromString("G3 D3 A2 E2"));
         String json = TuningFileIO.encodeTunings(tunings);
-        assertEquals("{\"tunings\":[{\"strings\":\"E4 B3 G3 D3 A2 E2\",\"name\":\"Standard\"},{\"strings\":\"E4 B3 G3 D3 A2 D2\",\"name\":\"Drop D\"},{\"strings\":\"G3 D3 A2 E2\"}]}", json);
+        assertEquals(new JSONObject(TUNINGS_JSON).toString(), new JSONObject(json).toString());
     }
 }

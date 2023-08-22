@@ -20,6 +20,7 @@ package com.rohankhayech.choona.controller.fileio;
 
 import android.content.Context;
 
+import com.rohankhayech.music.Instrument;
 import com.rohankhayech.music.Tuning;
 
 import org.json.JSONArray;
@@ -87,10 +88,11 @@ public class TuningFileIO {
 
                 // Retrieve tuning data
                 String name = tuningObj.optString("name", null); // Name should be null if absent.
+                Instrument instrument = Instrument.valueOf(tuningObj.optString("instrument", Tuning.DEFAULT_INSTRUMENT.toString()));
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
-                Tuning tuning = Tuning.fromString(name, strings);
+                Tuning tuning = Tuning.fromString(name, instrument, strings);
 
                 // Add the tuning to the list.
                 tunings.add(tuning);
@@ -113,6 +115,7 @@ public class TuningFileIO {
 
                 // Encode the tuning data to JSON.
                 if (tuning.hasName()) tuningObj.put("name", tuning.getName());
+                tuningObj.put("instrument", tuning.getInstrument().toString());
                 tuningObj.put("strings", tuning.toFullString());
 
                 // Add the tuning to the JSON array.
