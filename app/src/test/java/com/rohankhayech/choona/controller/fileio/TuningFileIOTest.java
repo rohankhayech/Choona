@@ -18,6 +18,8 @@
 
 package com.rohankhayech.choona.controller.fileio;
 
+import static com.rohankhayech.music.Instrument.GUITAR;
+
 import static org.junit.Assert.assertEquals;
 
 import com.rohankhayech.music.Tuning;
@@ -26,7 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class TuningFileIOTest {
@@ -36,16 +38,16 @@ public class TuningFileIOTest {
     @Test
     public void testParseTunings() {
         Set<Tuning> tunings = TuningFileIO.parseTunings(TUNINGS_JSON);
-        Set<Tuning> expected = new HashSet<>();
-        expected.add(Tuning.STANDARD);
-        expected.add(Tuning.DROP_D);
+        Set<Tuning> expected = new LinkedHashSet<>();
+        expected.add(Tuning.fromString(Tuning.STANDARD.getName(), GUITAR, null, Tuning.STANDARD.toFullString()));
+        expected.add(Tuning.fromString(Tuning.DROP_D.getName(), GUITAR, null, Tuning.DROP_D.toFullString()));
         expected.add(Tuning.fromString("G3 D3 A2 E2"));
         assertEquals(expected, tunings);
     }
 
     @Test
     public void testEncodeTunings() throws JSONException {
-        Set<Tuning> tunings = new HashSet<>();
+        Set<Tuning> tunings = new LinkedHashSet<>();
         tunings.add(Tuning.STANDARD);
         tunings.add(Tuning.DROP_D);
         tunings.add(Tuning.fromString("G3 D3 A2 E2"));

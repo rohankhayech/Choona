@@ -28,7 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -47,7 +47,7 @@ public class TuningFileIO {
             String json = FileIO.readFromFile(context, "tunings_custom"+FileIO.FILE_EXT);
             return parseTunings(json);
         } catch (IOException e) {
-            return new HashSet<>();
+            return new LinkedHashSet<>();
         }
     }
 
@@ -56,7 +56,7 @@ public class TuningFileIO {
             String json = FileIO.readFromFile(context, "tunings_favourite"+FileIO.FILE_EXT);
             return parseTunings(json);
         } catch (IOException e) {
-            Set<Tuning> defSet = new HashSet<>();
+            Set<Tuning> defSet = new LinkedHashSet<>();
             defSet.add(Tuning.STANDARD);
             return defSet;
         }
@@ -74,7 +74,7 @@ public class TuningFileIO {
     }
 
     static Set<Tuning> parseTunings(String tuningsJSON) {
-        Set<Tuning> tunings = new HashSet<>();
+        Set<Tuning> tunings = new LinkedHashSet<>();
 
         try {
             // Retrieve the JSON object from the JSON string.
@@ -92,7 +92,7 @@ public class TuningFileIO {
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
-                Tuning tuning = Tuning.fromString(name, instrument, strings);
+                Tuning tuning = Tuning.fromString(name, instrument, null, strings);
 
                 // Add the tuning to the list.
                 tunings.add(tuning);
