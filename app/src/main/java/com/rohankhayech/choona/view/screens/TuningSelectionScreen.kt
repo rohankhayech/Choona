@@ -502,9 +502,9 @@ private fun SaveTuningDialog(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun Preview() {
-    val currentTuning = Tuning.fromString(null, Instrument.BASS, "G3 D3 A3 E4")
+    val currentTuning = Tunings.BASS_STANDARD
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
-    val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, "C#4 B3 F#3 D3 A2 D2")
+    val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
         Surface {
@@ -528,7 +528,7 @@ private fun Preview() {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SaveDialogPreview() {
-    val customTuning = Tuning.fromString("Custom", Instrument.GUITAR, "C#4 B3 F#3 D3 A2 D2")
+    val customTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
         SaveTuningDialog(tuning = customTuning, onSave = {_,_->}) {}

@@ -83,7 +83,7 @@ class TuningListTest {
 
         // Test add custom.
         val new = Tuning.fromString("E2")
-        val named = Tuning.fromString("New", Tuning.DEFAULT_INSTRUMENT, "E2")
+        val named = Tuning.fromString("New", Tuning.DEFAULT_INSTRUMENT, null, "E2")
         tuningList.addCustom("New", new)
         Assert.assertEquals(setOf(named), tuningList.custom.value)
         Assert.assertEquals(Tuning.STANDARD, tuningList.current.value)
