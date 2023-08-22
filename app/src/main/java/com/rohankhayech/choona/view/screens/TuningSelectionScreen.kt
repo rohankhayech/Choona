@@ -219,7 +219,7 @@ fun TuningList(
         // Current Tuning
         current?.let {
             item("cur") { SectionLabel(stringResource(R.string.tuning_list_current)) }
-            item("cur-${current.name}") {
+            item("cur-[${current.toFullString()}]") {
                 val saved = remember(current, custom, common) { current.hasEquivalentIn(custom+common) }
                 CurrentTuningItem(tuning = current, saved = saved, onSave = onSave, onSelect = onSelect)
             }
@@ -228,7 +228,7 @@ fun TuningList(
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
             item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites)) }
-            items(favsList, key = { "fav-${it.name}" }) {
+            items(favsList, key = { "fav-[${it.toFullString()}]" }) {
                 FavouritableTuningItem(tuning = it, favourited = true, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
             }
         }
@@ -236,7 +236,7 @@ fun TuningList(
         // Custom Tunings
         if (custom.isNotEmpty()) {
             item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom)) }
-            items(customList, key = { it.name }) {
+            items(customList, key = { "[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 CustomTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onDelete = onDelete)
             }
@@ -244,7 +244,7 @@ fun TuningList(
 
         // Common Tunings
         item("com") { SectionLabel(stringResource(R.string.tuning_list_common)) }
-        items(commonList, key = { it.name }) {
+        items(commonList, key = { "[${it.toFullString()}]"  }) {
             val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
             FavouritableTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
         }
