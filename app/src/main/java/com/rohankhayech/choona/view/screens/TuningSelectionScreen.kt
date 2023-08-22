@@ -264,7 +264,7 @@ fun TuningList(
 @Composable
 private fun LazyItemScope.CurrentTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
     saved: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -300,7 +300,7 @@ private fun LazyItemScope.CurrentTuningItem(
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -376,7 +376,7 @@ private fun LazyItemScope.CustomTuningItem(
 @Composable
 private fun LazyItemScope.FavouritableTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -407,7 +407,7 @@ private fun LazyItemScope.FavouritableTuningItem(
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
     onSelect: (Tuning) -> Unit,
     trailing: (@Composable () -> Unit)? = null,
 
@@ -431,6 +431,15 @@ private fun LazyItemScope.TuningItem(
 
         Divider()
     }
+}
+
+@Composable
+fun getLocalisedInstrumentName(instrument: Instrument): String {
+    return stringResource(when (instrument) {
+        Instrument.GUITAR -> R.string.instr_guitar
+        Instrument.BASS -> R.string.instr_bass
+        else -> R.string.instr_other
+    })
 }
 
 /** UI component displaying a tuning category label with [title] text. */
