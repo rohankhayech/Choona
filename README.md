@@ -13,6 +13,7 @@ Guitar tuner application for Android with support for custom tunings.
 - Plays sounds to indicate how a string should sound and when it is in tune.
 - Keep track of your favourite tunings.
 - Support for dark mode and includes true dark theme.
+- Support for multi-window and large screen devices.
 
 ## Screenshots
 
