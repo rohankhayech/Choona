@@ -26,7 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class TuningFileIOTest {
@@ -36,7 +36,7 @@ public class TuningFileIOTest {
     @Test
     public void testParseTunings() {
         Set<Tuning> tunings = TuningFileIO.parseTunings(TUNINGS_JSON);
-        Set<Tuning> expected = new HashSet<>();
+        Set<Tuning> expected = new LinkedHashSet<>();
         expected.add(Tuning.STANDARD);
         expected.add(Tuning.DROP_D);
         expected.add(Tuning.fromString("G3 D3 A2 E2"));
@@ -45,7 +45,7 @@ public class TuningFileIOTest {
 
     @Test
     public void testEncodeTunings() throws JSONException {
-        Set<Tuning> tunings = new HashSet<>();
+        Set<Tuning> tunings = new LinkedHashSet<>();
         tunings.add(Tuning.STANDARD);
         tunings.add(Tuning.DROP_D);
         tunings.add(Tuning.fromString("G3 D3 A2 E2"));
