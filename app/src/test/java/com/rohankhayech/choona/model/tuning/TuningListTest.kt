@@ -20,7 +20,11 @@ package com.rohankhayech.choona.model.tuning
 
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.music.Tuning.Category
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
@@ -109,6 +113,49 @@ class TuningListTest {
         assertEquals(new, tuningList.current.value)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testFilteredTunings() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.filteredTunings.collect {}
+        }
+
+        // Test default value
+        val expectedDef = Tunings.COMMON.groupAndSort()
+        assertEquals(expectedDef, tuningList.filteredTunings.value)
+
+        // Test filtered by instrument
+        tuningList.filterBy(instrument = Instrument.BASS)
+        testScope.advanceUntilIdle()
+        var expectedInstr = mapOf(
+            Pair(Instrument.BASS, Category.COMMON) to listOf(
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
+            )
+        )
+        assertEquals(expectedInstr, tuningList.filteredTunings.value)
+
+        // Test filtered by category
+        tuningList.filterBy(instrument = null, category = Category.MISC)
+        testScope.advanceUntilIdle()
+        expectedInstr = mapOf(
+            Pair(Instrument.GUITAR, Category.MISC) to listOf(
+                Tunings.G_MODAL,
+                Tunings.ALL_4TH,
+                Tunings.NST
+            )
+        )
+        assertEquals(expectedInstr, tuningList.filteredTunings.value)
+
+        // Test filtered by both
+        tuningList.filterBy(instrument = Instrument.BASS, category = Category.MISC)
+        testScope.advanceUntilIdle()
+        expectedInstr = emptyMap()
+        assertEquals(expectedInstr, tuningList.filteredTunings.value)
+    }
+
     @Test
     fun testEquals() {
         val newList = TuningList(coroutineScope = testScope)
@@ -122,5 +169,27 @@ class TuningListTest {
     fun testHashCode() {
         val equal = TuningList(coroutineScope = testScope)
         assertEquals(equal.hashCode(), tuningList.hashCode())
+    }
+
+    @Test
+    fun testGroupAndSort() {
+        val guitarCommon = Tuning.fromString("", Instrument.GUITAR, Category.COMMON, "E2")
+        val guitarCommon2 = Tuning.fromString("", Instrument.GUITAR, Category.COMMON, "D2")
+        val guitarOpen = Tuning.fromString("", Instrument.GUITAR, Category.OPEN, "E2")
+        val bassCommon = Tuning.fromString("", Instrument.BASS, Category.COMMON, "E2")
+        val bassPower = Tuning.fromString("", Instrument.BASS, Category.POWER, "E2")
+
+        val tunings = listOf(bassPower, guitarCommon, guitarOpen, guitarCommon2, bassCommon)
+
+        val expectedGroups = mapOf<Pair<Instrument, Category?>, List<Tuning>>(
+            (Instrument.GUITAR to Category.COMMON) to listOf(guitarCommon, guitarCommon2),
+            (Instrument.GUITAR to Category.OPEN) to listOf(guitarOpen),
+            (Instrument.BASS to Category.COMMON) to listOf(bassCommon),
+            (Instrument.BASS to Category.POWER) to listOf(bassPower)
+        )
+
+        val grouped = tunings.groupAndSort()
+
+        assertEquals(expectedGroups, grouped)
     }
 }
