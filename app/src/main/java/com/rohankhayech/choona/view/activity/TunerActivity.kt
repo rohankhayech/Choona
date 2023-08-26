@@ -195,7 +195,7 @@ class TunerActivity : AppCompatActivity() {
                                 if (prefs.enableStringSelectSound) playStringSelectSound(it)
                             }
                         },
-                        onSelectTuning = vm.tuner::setTuning,
+                        onSelectTuning = ::setTuning,
                         onTuneUpString = vm.tuner::tuneStringUp,
                         onTuneDownString = vm.tuner::tuneStringDown,
                         onTuneUpTuning = vm.tuner::tuneUp,
@@ -270,7 +270,8 @@ class TunerActivity : AppCompatActivity() {
         midi.playNote(
             string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150
+            150,
+            vm.tuner.tuning.value.instrument.midiInstrument
         )
     }
 
@@ -328,16 +329,51 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
-     * Sets the current tuning to the tuning selected on the tuning
-     * selection screen and restarts the tuner if no other panel is open.
+     * Sets the current tuning to the [tuning] selected on the tuning
+     * selection screen, restarts the tuner if no other panel is open,
+     * and recreates the MIDI driver if necessary.
      */
     private fun selectTuning(tuning: Tuning) {
+        // Consume back stack entry.
         dismissTuningSelectorOnBack.isEnabled = false
+
+        // Recreate MIDI driver if number of strings different.
+        checkAndRecreateMidiDriver(tuning)
+
+        // Select the tuning.
         vm.selectTuning(tuning)
+
+        // Start tuner if no other panel is open.
         if (!vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
             } catch(_: IllegalStateException) {}
+        }
+    }
+
+    /**
+     * Sets the current tuning to the [tuning] specified,
+     * and recreates the MIDI driver if necessary.
+     */
+    private fun setTuning(tuning: Tuning) {
+        // Recreate MIDI driver if number of strings different.
+        checkAndRecreateMidiDriver(tuning)
+
+        // Select the tuning.
+        vm.tuner.setTuning(tuning)
+    }
+
+    /**
+     * Recreates the MIDI driver when the number of strings
+     * in the new tuning is different from the current tuning.
+     *
+     * @param newTuning The new selected tuning.
+     */
+    private fun checkAndRecreateMidiDriver(newTuning: Tuning) {
+        if (newTuning.numStrings() != vm.tuner.tuning.value.numStrings()) {
+            midi.stop()
+            midi = MidiController(newTuning.numStrings())
+            midi.start()
         }
     }
 

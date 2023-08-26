@@ -77,4 +77,6 @@
     <string name="third_party_licences">Third-party licences</string>
     <string name="oss_licences">Open Source Licences</string>
     <string name="configure_tuning">Configure Tuning</string>
+    <string name="instr_bass">Bass</string>
+    <string name="instr_other">Other</string>
 </resources>
