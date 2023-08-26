@@ -264,7 +264,7 @@ fun TuningList(
 @Composable
 private fun LazyItemScope.CurrentTuningItem(
     tuning: Tuning,
-    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     saved: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -300,7 +300,7 @@ private fun LazyItemScope.CurrentTuningItem(
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
-    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -376,7 +376,7 @@ private fun LazyItemScope.CustomTuningItem(
 @Composable
 private fun LazyItemScope.FavouritableTuningItem(
     tuning: Tuning,
-    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -407,7 +407,7 @@ private fun LazyItemScope.FavouritableTuningItem(
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
-    instrumentName: String = getLocalisedInstrumentName(tuning.instrument),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     onSelect: (Tuning) -> Unit,
     trailing: (@Composable () -> Unit)? = null,
 
@@ -433,9 +433,10 @@ private fun LazyItemScope.TuningItem(
     }
 }
 
+/** @return The localised name of this instrument. */
 @Composable
-fun getLocalisedInstrumentName(instrument: Instrument): String {
-    return stringResource(when (instrument) {
+fun Instrument.getLocalisedName(): String {
+    return stringResource(when (this) {
         Instrument.GUITAR -> R.string.instr_guitar
         Instrument.BASS -> R.string.instr_bass
         else -> R.string.instr_other
@@ -502,7 +503,7 @@ private fun SaveTuningDialog(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun Preview() {
-    val currentTuning = Tuning.fromString(null, Instrument.BASS, "G3 D3 A3 E4")
+    val currentTuning = Tunings.BASS_STANDARD.higherTuning()
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
     val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, "C#4 B3 F#3 D3 A2 D2")
 

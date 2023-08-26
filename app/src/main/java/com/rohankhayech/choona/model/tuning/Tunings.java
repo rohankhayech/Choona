@@ -30,6 +30,8 @@ import java.util.Set;
  * Static class defining common guitar tunings.
  * 
  * @author Rohan Khayech
+ *
+ * @noinspection unused
  */
 public final class Tunings {
 
