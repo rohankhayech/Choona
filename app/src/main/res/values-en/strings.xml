@@ -79,4 +79,9 @@
     <string name="configure_tuning">Configure Tuning</string>
     <string name="instr_bass">Bass</string>
     <string name="instr_other">Other</string>
+    <string name="tun_cat_common">Common</string>
+    <string name="tun_cat_power">Power</string>
+    <string name="tun_cat_open">Open</string>
+    <string name="tun_cat_misc">Misc</string>
+    <string name="all_tunings">All Tunings</string>
 </resources>
