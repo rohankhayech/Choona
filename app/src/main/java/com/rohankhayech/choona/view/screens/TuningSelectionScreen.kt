@@ -639,7 +639,7 @@ private fun SaveTuningDialog(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun Preview() {
-    val currentTuning = Tunings.BASS_STANDARD
+    val currentTuning = Tunings.BASS_STANDARD.higherTuning()
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
     val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
