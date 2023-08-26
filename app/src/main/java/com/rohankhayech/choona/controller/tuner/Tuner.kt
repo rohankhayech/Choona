@@ -132,6 +132,9 @@ class Tuner(
             updateTunedStatus(it, tuning)
             tuning
         }
+        if (selectedString.value >= tuning.numStrings()) {
+            _selectedString.update { tuning.numStrings() - 1 }
+        }
     }
 
     /** Tunes all strings in the tuning up by one semitone */

@@ -46,6 +46,7 @@ import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 
 /**
@@ -219,7 +220,7 @@ fun TuningList(
         // Current Tuning
         current?.let {
             item("cur") { SectionLabel(stringResource(R.string.tuning_list_current)) }
-            item("cur-[${current.toFullString()}]") {
+            item("cur-${current.instrument}-[${current.toFullString()}]") {
                 val saved = remember(current, custom, common) { current.hasEquivalentIn(custom+common) }
                 CurrentTuningItem(tuning = current, saved = saved, onSave = onSave, onSelect = onSelect)
             }
@@ -228,7 +229,7 @@ fun TuningList(
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
             item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites)) }
-            items(favsList, key = { "fav-[${it.toFullString()}]" }) {
+            items(favsList, key = { "fav-${it.instrument}-[${it.toFullString()}]" }) {
                 FavouritableTuningItem(tuning = it, favourited = true, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
             }
         }
@@ -236,7 +237,7 @@ fun TuningList(
         // Custom Tunings
         if (custom.isNotEmpty()) {
             item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom)) }
-            items(customList, key = { "[${it.toFullString()}]" }) {
+            items(customList, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 CustomTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onDelete = onDelete)
             }
@@ -244,7 +245,7 @@ fun TuningList(
 
         // Common Tunings
         item("com") { SectionLabel(stringResource(R.string.tuning_list_common)) }
-        items(commonList, key = { "[${it.toFullString()}]"  }) {
+        items(commonList, key = { "${it.instrument}-[${it.toFullString()}]" }) {
             val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
             FavouritableTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
         }
@@ -263,7 +264,7 @@ fun TuningList(
 @Composable
 private fun LazyItemScope.CurrentTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     saved: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -299,7 +300,7 @@ private fun LazyItemScope.CurrentTuningItem(
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -375,7 +376,7 @@ private fun LazyItemScope.CustomTuningItem(
 @Composable
 private fun LazyItemScope.FavouritableTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -406,7 +407,7 @@ private fun LazyItemScope.FavouritableTuningItem(
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     onSelect: (Tuning) -> Unit,
     trailing: (@Composable () -> Unit)? = null,
 
@@ -430,6 +431,16 @@ private fun LazyItemScope.TuningItem(
 
         Divider()
     }
+}
+
+/** @return The localised name of this instrument. */
+@Composable
+fun Instrument.getLocalisedName(): String {
+    return stringResource(when (this) {
+        Instrument.GUITAR -> R.string.instr_guitar
+        Instrument.BASS -> R.string.instr_bass
+        else -> R.string.instr_other
+    })
 }
 
 /** UI component displaying a tuning category label with [title] text. */
@@ -492,9 +503,9 @@ private fun SaveTuningDialog(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun Preview() {
-    val currentTuning = Tuning.fromString("G3 D3 A3 E4")
+    val currentTuning = Tunings.BASS_STANDARD.higherTuning()
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
-    val favCustomTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")
+    val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
         Surface {
@@ -518,7 +529,7 @@ private fun Preview() {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SaveDialogPreview() {
-    val customTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")
+    val customTuning = Tuning.fromString("Custom", Instrument.GUITAR, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
         SaveTuningDialog(tuning = customTuning, onSave = {_,_->}) {}
