@@ -415,7 +415,7 @@ class TunerActivityViewModel : ViewModel() {
     val tuner = Tuner()
 
     /** State holder containing the lists of favourite and custom tunings. */
-    val tuningList = TuningList(tuner.tuning.value)
+    val tuningList = TuningList(tuner.tuning.value, viewModelScope)
 
     /** Mutable backing property for [tuningSelectorOpen]. */
     private val _tuningSelectorOpen = MutableStateFlow(false)

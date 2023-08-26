@@ -18,8 +18,13 @@
 
 package com.rohankhayech.choona.model.tuning
 
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
-import org.junit.Assert
+import kotlinx.coroutines.test.TestScope
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 
@@ -32,51 +37,53 @@ class TuningListTest {
 
     private lateinit var tuningList: TuningList
 
+    private val testScope = TestScope()
+
     @Before
     fun setUp() {
-        tuningList = TuningList()
+        tuningList = TuningList(coroutineScope = testScope)
     }
 
     @Test
     fun testConstructor() {
-        val tl = TuningList(Tuning.STANDARD)
-        Assert.assertSame(Tuning.STANDARD, tl.current.value)
+        val tl = TuningList(Tuning.STANDARD, TestScope())
+        assertSame(Tuning.STANDARD, tl.current.value)
     }
 
     @Test
     fun testCurrent() {
         // Test default value.
-        Assert.assertNull(tuningList.current.value)
+        assertNull(tuningList.current.value)
 
         // Test not in list.
         var new = Tuning.fromString("E2")
         tuningList.setCurrent(new)
-        Assert.assertSame(new, tuningList.current.value)
+        assertSame(new, tuningList.current.value)
 
         // Test equiv in list.
         new = Tuning.fromString("E4 B3 G3 D3 A2 E2")
         tuningList.setCurrent(new)
-        Assert.assertSame(Tuning.STANDARD, tuningList.current.value)
+        assertSame(Tuning.STANDARD, tuningList.current.value)
     }
 
     @Test
     fun testFavourites() {
         // Test default value.
-        Assert.assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
+        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
 
         // Test set fav
         tuningList.setFavourited(Tuning.DROP_D, true)
-        Assert.assertEquals(setOf(Tuning.STANDARD, Tuning.DROP_D), tuningList.favourites.value)
+        assertEquals(setOf(Tuning.STANDARD, Tuning.DROP_D), tuningList.favourites.value)
 
         // Test set unfav
         tuningList.setFavourited(Tuning.DROP_D, false)
-        Assert.assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
+        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
     }
 
     @Test
     fun testCustom() {
         // Test default value.
-        Assert.assertEquals(emptySet<Tuning>(), tuningList.custom.value)
+        assertEquals(emptySet<Tuning>(), tuningList.custom.value)
 
         // Setup
         tuningList.setCurrent(Tuning.STANDARD)
@@ -85,35 +92,35 @@ class TuningListTest {
         val new = Tuning.fromString("E2")
         val named = Tuning.fromString("New", Tuning.DEFAULT_INSTRUMENT, null, "E2")
         tuningList.addCustom("New", new)
-        Assert.assertEquals(setOf(named), tuningList.custom.value)
-        Assert.assertEquals(Tuning.STANDARD, tuningList.current.value)
+        assertEquals(setOf(named), tuningList.custom.value)
+        assertEquals(Tuning.STANDARD, tuningList.current.value)
         tuningList.removeCustom(named)
 
         // Test add custom with equiv current
         tuningList.setCurrent(new)
         tuningList.addCustom("New", new)
-        Assert.assertEquals(named, tuningList.current.value)
+        assertEquals(named, tuningList.current.value)
 
         // Test remove custom
         tuningList.setFavourited(named, true)
         tuningList.removeCustom(named)
-        Assert.assertEquals(emptySet<Tuning>(), tuningList.custom.value)
-        Assert.assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
-        Assert.assertEquals(new, tuningList.current.value)
+        assertEquals(emptySet<Tuning>(), tuningList.custom.value)
+        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
+        assertEquals(new, tuningList.current.value)
     }
 
     @Test
     fun testEquals() {
-        val newList = TuningList()
-        Assert.assertEquals(tuningList, newList)
+        val newList = TuningList(coroutineScope = testScope)
+        assertEquals(tuningList, newList)
 
         newList.setCurrent(Tuning.STANDARD)
-        Assert.assertNotEquals(tuningList, newList)
+        assertNotEquals(tuningList, newList)
     }
 
     @Test
     fun testHashCode() {
-        val equal = TuningList()
-        Assert.assertEquals(equal.hashCode(), tuningList.hashCode())
+        val equal = TuningList(coroutineScope = testScope)
+        assertEquals(equal.hashCode(), tuningList.hashCode())
     }
 }

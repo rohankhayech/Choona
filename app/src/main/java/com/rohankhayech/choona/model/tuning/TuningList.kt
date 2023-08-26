@@ -19,20 +19,30 @@
 package com.rohankhayech.choona.model.tuning
 
 import java.util.Objects
+import java.util.SortedMap
 import android.content.Context
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 /**
  * State holder class which contains lists of favourite and custom tunings.
  *
+ * @param initialCurrentTuning Initial current tuning.
+ * @param coroutineScope Coroutine scope used to perform filtering actions.
+ *
  * @author Rohan Khayech
  */
 class TuningList(
-    initialCurrentTuning: Tuning? = null
+    initialCurrentTuning: Tuning? = null,
+    coroutineScope: CoroutineScope
 ) {
 
     /** Mutable backing property for [current]. */
@@ -54,11 +64,36 @@ class TuningList(
     /** Set of custom tunings added by the user. */
     val custom = _custom.asStateFlow()
 
+    /** Mutable backing property for [instrumentFilter]. */
+    private val _instrumentFilter = MutableStateFlow<Instrument?>(null)
+
+    /** Current filter for tuning instrument. */
+    val instrumentFilter = _instrumentFilter.asStateFlow()
+
+    /** Mutable backing property for [categoryFilter]. */
+    private val _categoryFilter = MutableStateFlow<Tuning.Category?>(null)
+
+    /** Current filter for tuning category. */
+    val categoryFilter = _categoryFilter.asStateFlow()
+
+    /**
+     * Current collection of included tunings, filtered by the current instrument and category filters,
+     * and grouped by instrument and category.
+     */
+    val filteredTunings = combine(instrumentFilter, categoryFilter) { instrument, category ->
+        Tunings.COMMON.filter {
+            (instrument == null || it.instrument == instrument)
+                && (category == null || it.category == category)
+        }.groupAndSort()
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.COMMON.groupAndSort())
+
     /** Whether tunings have been loaded from file. */
     private var loaded = false
 
     /**
      * Loads the custom and favourite tunings from file if not yet loaded.
+     *
+     * @param context Android system context used to access the file-system.
      */
     fun loadTunings(context: Context) {
         if (!loaded) {
@@ -72,6 +107,8 @@ class TuningList(
 
     /**
      * Saves the custom and favourite tunings to file.
+     *
+     * @param context Android system context used to access the file-system
      */
     fun saveTunings(context: Context) {
         TuningFileIO.saveTunings(context, favourites.value, custom.value)
@@ -121,6 +158,18 @@ class TuningList(
         }
     }
 
+    /**
+     * Filters the collection of tunings by the specified [instrument] and/or [category].
+     * If either is not specified the current filter will remain active.
+     */
+    fun filterBy(
+        instrument: Instrument? = instrumentFilter.value,
+        category: Tuning.Category? = categoryFilter.value
+    ) {
+        _instrumentFilter.update { instrument }
+        _categoryFilter.update { category }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -137,4 +186,18 @@ class TuningList(
     override fun hashCode(): Int {
         return Objects.hash(current.value, favourites.value, custom.value)
     }
+}
+
+/**
+ * Groups this collection of tunings by instrument - category pairs
+ * and sorts the groups by instrument then category.
+ *
+ * @return Map of tuning groups and their list of tunings.
+ */
+fun Collection<Tuning>.groupAndSort(): SortedMap<Pair<Instrument, Tuning.Category?>, List<Tuning>> {
+    return groupBy {
+        it.instrument to it.category
+    }.toSortedMap(
+        compareBy ({ it.first }, { it.second })
+    )
 }
