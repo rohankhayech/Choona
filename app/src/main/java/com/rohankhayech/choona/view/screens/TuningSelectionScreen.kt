@@ -299,8 +299,15 @@ fun TuningList(
             SectionLabel(stringResource(R.string.all_tunings))
         }
         stickyHeader("filter-bar") {
-            Surface(color = MaterialTheme.colors.background) {
-                FilterBar(instrumentFilter, categoryFilter, onSelectInstrument = onSelectInstrument, onSelectCategory = onSelectCategory)
+            var stuck by remember { mutableStateOf(false) }
+            Surface(
+                color = MaterialTheme.colors.background,
+                elevation = if (stuck) 2.dp else 0.dp,
+                modifier = Modifier.onGloballyPositioned {
+                    stuck = it.positionInParent().y == 0f
+                }
+            ) {
+                FilterBar(instrumentFilter, categoryFilter, instrumentFilters, categoryFilters, onSelectInstrument, onSelectCategory)
             }
         }
 
