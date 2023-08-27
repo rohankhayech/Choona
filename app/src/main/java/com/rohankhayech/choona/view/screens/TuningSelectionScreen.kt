@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,6 +56,7 @@ import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
 
+// TODO: Doc
 /**
  * UI screen that allows the user to select a tuning for use,
  * as well as managing favourite and custom tunings.
@@ -83,6 +86,8 @@ fun TuningSelectionScreen(
     val tunings by tuningList.filteredTunings.collectAsStateWithLifecycle()
     val instrumentFilter by tuningList.instrumentFilter.collectAsStateWithLifecycle()
     val categoryFilter by tuningList.categoryFilter.collectAsStateWithLifecycle()
+    val instrumentFilters = tuningList.instrumentFilters.collectAsStateWithLifecycle()
+    val categoryFilters = tuningList.categoryFilters.collectAsStateWithLifecycle()
 
     TuningSelectionScreen(
         current = current,
@@ -91,6 +96,8 @@ fun TuningSelectionScreen(
         custom = custom,
         instrumentFilter = instrumentFilter,
         categoryFilter = categoryFilter,
+        instrumentFilters = instrumentFilters,
+        categoryFilters = categoryFilters,
         backIcon = backIcon,
         onSelectInstrument = {
             tuningList.filterBy(instrument = it)
@@ -143,6 +150,8 @@ fun TuningSelectionScreen(
     custom: Set<Tuning>,
     instrumentFilter: Instrument?,
     categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
     backIcon: ImageVector?,
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit,
@@ -188,6 +197,8 @@ fun TuningSelectionScreen(
             custom = custom,
             instrumentFilter = instrumentFilter,
             categoryFilter = categoryFilter,
+            instrumentFilters = instrumentFilters,
+            categoryFilters = categoryFilters,
             onSelectInstrument = onSelectInstrument,
             onSelectCategory = onSelectCategory,
             onSave = { showSaveDialog = true },
@@ -243,6 +254,8 @@ fun TuningList(
     custom: Set<Tuning>,
     instrumentFilter: Instrument?,
     categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit,
     onSave: (Tuning) -> Unit,
@@ -303,6 +316,7 @@ fun TuningList(
     }
 }
 
+// TODO: Fix recomposition.
 /**
  * Chip bar containing filters for tuning instrument and category.
  *
@@ -315,24 +329,28 @@ fun TuningList(
 private fun FilterBar(
     instrumentFilter: Instrument?,
     categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit
 ) {
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Spacer(Modifier.width(8.dp))
-        Instrument.values().dropLast(1).forEach { instrument ->
+        instrumentFilters.value.forEach { filter ->
             TuningFilterChip(
-                filter = instrument,
+                filter = filter.key,
                 filterText = { it.getLocalisedName() },
-                selected = instrumentFilter == instrument,
+                enabled = filter.value,
+                selected = instrumentFilter == filter.key,
                 onSelect = onSelectInstrument
             )
         }
-        Category.values().forEach { category ->
+        categoryFilters.value.forEach { filter ->
             TuningFilterChip(
-                filter = category,
+                filter = filter.key,
                 filterText = { it.getLocalisedName() },
-                selected = categoryFilter == category,
+                enabled = filter.value,
+                selected = categoryFilter == filter.key,
                 onSelect = onSelectCategory
             )
         }
@@ -353,12 +371,14 @@ private fun FilterBar(
 private fun <T> TuningFilterChip(
     filter: T,
     filterText: @Composable (T) -> String,
+    enabled: Boolean,
     selected: Boolean,
     onSelect: (T?) -> Unit
 ) {
     FilterChip(
+        enabled = enabled,
         selected = selected,
-        onClick = { if (selected) onSelect(null) else onSelect(filter) },
+        onClick = { if (enabled) if (selected) onSelect(null) else onSelect(filter) },
         border = if (selected) null else ChipDefaults.outlinedBorder,
         colors = if (!selected) ChipDefaults.outlinedFilterChipColors()
         else ChipDefaults.filterChipColors(
@@ -651,6 +671,8 @@ private fun Preview() {
                 favourites = setOf(Tuning.STANDARD, favCustomTuning),
                 custom = setOf(customTuning, favCustomTuning),
                 Instrument.BASS, null,
+                instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
+                categoryFilters = remember { mutableStateOf(Category.values().drop(1).associateWith { true }) },
                 backIcon = Icons.Default.Close,
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},

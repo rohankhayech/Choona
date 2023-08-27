@@ -24,11 +24,13 @@ import android.content.Context
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.music.Tuning.Category
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
@@ -71,7 +73,7 @@ class TuningList(
     val instrumentFilter = _instrumentFilter.asStateFlow()
 
     /** Mutable backing property for [categoryFilter]. */
-    private val _categoryFilter = MutableStateFlow<Tuning.Category?>(null)
+    private val _categoryFilter = MutableStateFlow<Category?>(null)
 
     /** Current filter for tuning category. */
     val categoryFilter = _categoryFilter.asStateFlow()
@@ -86,6 +88,23 @@ class TuningList(
                 && (category == null || it.category == category)
         }.groupAndSort()
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.COMMON.groupAndSort())
+
+    // TODO: Doc and test.
+    /** Available category filters and their enabled state. */
+    val categoryFilters = instrumentFilter.map { instrument ->
+        Category.values().associateWith {
+            (instrument == null || GROUPED_TUNINGS.contains(instrument to it))
+        }
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.values().associateWith { true })
+
+    /** Available instrument filters and their enabled state. */
+    val instrumentFilters = categoryFilter.map { category ->
+        Instrument.values()
+            .dropLast(1)
+            .associateWith {
+                category == null || GROUPED_TUNINGS.contains(it to category)
+            }
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.values().dropLast(1).associateWith { true })
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
@@ -164,7 +183,7 @@ class TuningList(
      */
     fun filterBy(
         instrument: Instrument? = instrumentFilter.value,
-        category: Tuning.Category? = categoryFilter.value
+        category: Category? = categoryFilter.value
     ) {
         _instrumentFilter.update { instrument }
         _categoryFilter.update { category }
@@ -186,6 +205,10 @@ class TuningList(
     override fun hashCode(): Int {
         return Objects.hash(current.value, favourites.value, custom.value)
     }
+
+    companion object {
+        val GROUPED_TUNINGS = Tunings.COMMON.groupAndSort()
+    }
 }
 
 /**
@@ -194,7 +217,7 @@ class TuningList(
  *
  * @return Map of tuning groups and their list of tunings.
  */
-fun Collection<Tuning>.groupAndSort(): SortedMap<Pair<Instrument, Tuning.Category?>, List<Tuning>> {
+fun Collection<Tuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<Tuning>> {
     return groupBy {
         it.instrument to it.category
     }.toSortedMap(
