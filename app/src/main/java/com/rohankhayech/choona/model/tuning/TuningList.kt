@@ -89,15 +89,15 @@ class TuningList(
         }.groupAndSort()
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.COMMON.groupAndSort())
 
-    // TODO: Doc and test.
-    /** Available category filters and their enabled state. */
+    // TODO: Test
+    /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
         Category.values().associateWith {
             (instrument == null || GROUPED_TUNINGS.contains(instrument to it))
         }
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.values().associateWith { true })
 
-    /** Available instrument filters and their enabled state. */
+    /** Available instrument filters and their enabled states. */
     val instrumentFilters = categoryFilter.map { category ->
         Instrument.values()
             .dropLast(1)
@@ -207,6 +207,7 @@ class TuningList(
     }
 
     companion object {
+        /** Common tunings, grouped by instrument and category. */
         val GROUPED_TUNINGS = Tunings.COMMON.groupAndSort()
     }
 }

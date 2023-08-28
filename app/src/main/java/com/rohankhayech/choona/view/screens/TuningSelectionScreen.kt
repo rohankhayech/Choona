@@ -56,7 +56,6 @@ import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
 
-// TODO: Doc
 /**
  * UI screen that allows the user to select a tuning for use,
  * as well as managing favourite and custom tunings.
@@ -131,6 +130,8 @@ fun TuningSelectionScreen(
  * @param custom Set of custom tunings saved by the user.
  * @param instrumentFilter Current filter for tuning instrument.
  * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
  * @param backIcon Icon used for the back navigation button.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
@@ -236,6 +237,8 @@ fun TuningSelectionScreen(
  * @param custom Set of custom tunings saved by the user.
  * @param instrumentFilter Current filter for tuning instrument.
  * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
@@ -329,6 +332,8 @@ fun TuningList(
  *
  * @param instrumentFilter Current filter for tuning instrument.
  * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
  */
@@ -370,6 +375,7 @@ private fun FilterBar(
  *
  * @param filter The filter to display.
  * @param filterText Method to retrieve the localised filter name.
+ * @param enabled Whether the filter is enabled to be selected.
  * @param selected Whether the filter is currently selected.
  * @param onSelect Called when the filter is selected/unselected.
  */
