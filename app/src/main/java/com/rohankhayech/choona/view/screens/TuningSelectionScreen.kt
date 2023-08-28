@@ -306,9 +306,11 @@ fun TuningList(
             Surface(
                 color = MaterialTheme.colors.background,
                 elevation = if (stuck) 2.dp else 0.dp,
-                modifier = Modifier.onGloballyPositioned {
-                    stuck = it.positionInParent().y == 0f
-                }
+                modifier = Modifier
+                    .animateItemPlacement()
+                    .onGloballyPositioned {
+                        stuck = it.positionInParent().y == 0f
+                    }
             ) {
                 FilterBar(instrumentFilter, categoryFilter, instrumentFilters, categoryFilters, onSelectInstrument, onSelectCategory)
             }
@@ -346,12 +348,16 @@ private fun FilterBar(
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit
 ) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Spacer(Modifier.width(8.dp))
         instrumentFilters.value.forEach { filter ->
             TuningFilterChip(
                 filter = filter.key,
-                filterText = { it.getLocalisedName() },
+                filterText = filter.key.getLocalisedName(),
                 enabled = filter.value,
                 selected = instrumentFilter == filter.key,
                 onSelect = onSelectInstrument
@@ -360,7 +366,7 @@ private fun FilterBar(
         categoryFilters.value.forEach { filter ->
             TuningFilterChip(
                 filter = filter.key,
-                filterText = { it.getLocalisedName() },
+                filterText = filter.key.getLocalisedName(),
                 enabled = filter.value,
                 selected = categoryFilter == filter.key,
                 onSelect = onSelectCategory
@@ -374,7 +380,7 @@ private fun FilterBar(
  * Filter chip for tuning filters.
  *
  * @param filter The filter to display.
- * @param filterText Method to retrieve the localised filter name.
+ * @param filterText The localised filter name.
  * @param enabled Whether the filter is enabled to be selected.
  * @param selected Whether the filter is currently selected.
  * @param onSelect Called when the filter is selected/unselected.
@@ -383,7 +389,7 @@ private fun FilterBar(
 @Composable
 private fun <T> TuningFilterChip(
     filter: T,
-    filterText: @Composable (T) -> String,
+    filterText: String,
     enabled: Boolean,
     selected: Boolean,
     onSelect: (T?) -> Unit
@@ -407,7 +413,7 @@ private fun <T> TuningFilterChip(
         },
         modifier = Modifier.animateContentSize()
     ) {
-        Text(filterText(filter))
+        Text(filterText)
     }
 }
 
@@ -507,19 +513,13 @@ private fun LazyItemScope.CustomTuningItem(
             }
         }
     ) {
-        Surface(
-            color = MaterialTheme.colors.background
-        ) {
-            Column {
-                FavouritableTuningItem(
-                    tuning = tuning,
-                    instrumentName = instrumentName,
-                    favourited = favourited,
-                    onFavouriteSet = onFavouriteSet,
-                    onSelect = onSelect
-                )
-            }
-        }
+        FavouritableTuningItem(
+            tuning = tuning,
+            instrumentName = instrumentName,
+            favourited = favourited,
+            onFavouriteSet = onFavouriteSet,
+            onSelect = onSelect
+        )
     }
 }
 
@@ -578,16 +578,21 @@ private fun LazyItemScope.TuningItem(
             ) { it.toFullString() }
     }
 
-    Column(Modifier.animateItemPlacement()) {
-        ListItem(
-            text = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            secondaryText = { Text(strings) },
-            overlineText = { Text("$instrumentName ‧ ${tuning.numStrings()}"+stringResource(R.string.num_strings_suffix)) },
-            modifier = Modifier.clickable { onSelect(tuning) },
-            trailing = trailing
-        )
+    Surface(
+        color = MaterialTheme.colors.background,
+        modifier = Modifier.animateItemPlacement()
+    ) {
+        Column {
+            ListItem(
+                text = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                secondaryText = { Text(strings) },
+                overlineText = { Text("$instrumentName ‧ ${tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) },
+                modifier = Modifier.clickable { onSelect(tuning) },
+                trailing = trailing
+            )
 
-        Divider()
+            Divider()
+        }
     }
 }
 
