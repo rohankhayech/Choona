@@ -29,6 +29,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
@@ -138,22 +139,124 @@ class TuningListTest {
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
 
         // Test filtered by category
-        tuningList.filterBy(instrument = null, category = Category.MISC)
+        tuningList.filterBy(instrument = null, category = Category.COMMON)
         testScope.advanceUntilIdle()
         expectedInstr = mapOf(
-            Pair(Instrument.GUITAR, Category.MISC) to listOf(
-                Tunings.G_MODAL,
-                Tunings.ALL_4TH,
-                Tunings.NST
+            Pair(Instrument.GUITAR, Category.COMMON) to listOf(
+                Tuning.STANDARD,
+                Tunings.HALF_STEP_DOWN,
+                Tunings.WHOLE_STEP_DOWN,
+                Tunings.DROP_D
+            ),
+            Pair(Instrument.BASS, Category.COMMON) to listOf(
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
 
         // Test filtered by both
-        tuningList.filterBy(instrument = Instrument.BASS, category = Category.MISC)
+        tuningList.filterBy(instrument = Instrument.BASS, category = Category.COMMON)
         testScope.advanceUntilIdle()
-        expectedInstr = emptyMap()
+        expectedInstr = mapOf(
+            Pair(Instrument.BASS, Category.COMMON) to listOf(
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
+            )
+        )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
+    }
+
+    @Test
+    fun testFilterBy() {
+        // Test instrument
+        tuningList.filterBy(instrument = Instrument.GUITAR)
+        assertEquals(tuningList.instrumentFilter.value, Instrument.GUITAR)
+        tuningList.filterBy(instrument = null)
+        assertNull(tuningList.instrumentFilter.value)
+
+        // Test category
+        tuningList.filterBy(category = Category.COMMON)
+        assertEquals(tuningList.categoryFilter.value, Category.COMMON)
+        tuningList.filterBy(category = null)
+        assertNull(tuningList.categoryFilter.value)
+
+        // Test both null.
+        tuningList.filterBy()
+        assertNull(tuningList.categoryFilter.value)
+        assertNull(tuningList.instrumentFilter.value)
+
+        // Test compatible
+        tuningList.filterBy(instrument = Instrument.BASS, category = Category.COMMON)
+        assertEquals(tuningList.instrumentFilter.value, Instrument.BASS)
+        assertEquals(tuningList.categoryFilter.value, Category.COMMON)
+
+        // Test incompatible
+        assertThrows(IllegalArgumentException::class.java) {
+            tuningList.filterBy(category = Category.MISC)
+        }
+        tuningList.filterBy(instrument = null, category = Category.MISC)
+        assertThrows(IllegalArgumentException::class.java) {
+            tuningList.filterBy(instrument = Instrument.BASS)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testInstrumentFilters() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.instrumentFilters.collect {}
+        }
+
+        // Test initial
+        var expected = Instrument.values().dropLast(1).associateWith { true }
+        assertEquals(expected, tuningList.instrumentFilters.value)
+
+        // Test compatible filter.
+        tuningList.filterBy(category = Category.COMMON)
+        testScope.advanceUntilIdle()
+        assertEquals(expected, tuningList.instrumentFilters.value)
+
+        // Test incompatible filter.
+        expected = mapOf(
+            Instrument.GUITAR to true,
+            Instrument.BASS to false
+        )
+        tuningList.filterBy(category = Category.MISC)
+        testScope.advanceUntilIdle()
+        assertEquals(expected, tuningList.instrumentFilters.value)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testCategoryFilters() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.categoryFilters.collect {}
+        }
+
+        // Test initial
+        var expected = Category.values().associateWith { true }
+        assertEquals(expected, tuningList.categoryFilters.value)
+
+        // Test compatible filter.
+        tuningList.filterBy(instrument = Instrument.GUITAR)
+        testScope.advanceUntilIdle()
+        assertEquals(expected, tuningList.categoryFilters.value)
+
+        // Test incompatible filter.
+        expected = mapOf(
+            Category.COMMON to true,
+            Category.POWER to false,
+            Category.OPEN to false,
+            Category.MISC to false
+        )
+        tuningList.filterBy(instrument = Instrument.BASS)
+        testScope.advanceUntilIdle()
+        assertEquals(expected, tuningList.categoryFilters.value)
     }
 
     @Test
