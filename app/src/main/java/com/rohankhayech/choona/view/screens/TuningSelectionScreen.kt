@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.view.screens
 
+import java.util.Locale
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +50,9 @@ import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * UI screen that allows the user to select a tuning for use,
@@ -81,6 +86,7 @@ fun TuningSelectionScreen(
         favourites = favourites,
         custom = custom,
         backIcon = backIcon,
+        deletedTuning = tuningList.deletedTuning,
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -105,6 +111,7 @@ fun TuningSelectionScreen(
  * @param common Set of commonly used tunings.
  * @param favourites Set of tunings marked as favourites.
  * @param custom Set of custom tunings saved by the user.
+ * @param deletedTuning Event indicating the specified tuning was deleted.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
@@ -120,6 +127,7 @@ fun TuningSelectionScreen(
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
     backIcon: ImageVector?,
+    deletedTuning: SharedFlow<Tuning>,
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -139,7 +147,25 @@ fun TuningSelectionScreen(
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
+    val scaffoldState = rememberScaffoldState()
+
+    // Collect deleted tuning events and show snackbar.
+    val context = LocalContext.current
+    LaunchedEffect(deletedTuning, context, scaffoldState.snackbarHostState) {
+        deletedTuning.collectLatest {
+            // Show deleted tuning snackbar.
+            val result = scaffoldState.snackbarHostState.showSnackbar(
+                message = context.getString(R.string.deleted_tuning, it),
+                actionLabel = context.getString(R.string.undo).uppercase(Locale.getDefault()),
+                duration = SnackbarDuration.Long
+            )
+            // Undo action
+            if (result == SnackbarResult.ActionPerformed) onSave(it.name, it)
+        }
+    }
+
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
@@ -515,6 +541,7 @@ private fun Preview() {
                 favourites = setOf(Tuning.STANDARD, favCustomTuning),
                 custom = setOf(customTuning, favCustomTuning),
                 backIcon = Icons.Default.Close,
+                deletedTuning = MutableSharedFlow(),
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},
                 onSelect = {},
