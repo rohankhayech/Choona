@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.view.screens
 
+import java.util.Locale
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.stringResource
@@ -55,6 +57,9 @@ import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * UI screen that allows the user to select a tuning for use,
@@ -98,6 +103,7 @@ fun TuningSelectionScreen(
         instrumentFilters = instrumentFilters,
         categoryFilters = categoryFilters,
         backIcon = backIcon,
+        deletedTuning = tuningList.deletedTuning,
         onSelectInstrument = {
             tuningList.filterBy(instrument = it)
         },
@@ -133,6 +139,7 @@ fun TuningSelectionScreen(
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
  * @param backIcon Icon used for the back navigation button.
+ * @param deletedTuning Event indicating the specified tuning was deleted.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
@@ -154,6 +161,7 @@ fun TuningSelectionScreen(
     instrumentFilters: State<Map<Instrument, Boolean>>,
     categoryFilters: State<Map<Category, Boolean>>,
     backIcon: ImageVector?,
+    deletedTuning: SharedFlow<Tuning>,
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit,
     onSave: (String?, Tuning) -> Unit,
@@ -175,7 +183,25 @@ fun TuningSelectionScreen(
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
+    val scaffoldState = rememberScaffoldState()
+
+    // Collect deleted tuning events and show snackbar.
+    val context = LocalContext.current
+    LaunchedEffect(deletedTuning, context, scaffoldState.snackbarHostState) {
+        deletedTuning.collectLatest {
+            // Show deleted tuning snackbar.
+            val result = scaffoldState.snackbarHostState.showSnackbar(
+                message = context.getString(R.string.deleted_tuning, it),
+                actionLabel = context.getString(R.string.undo).uppercase(Locale.getDefault()),
+                duration = SnackbarDuration.Long
+            )
+            // Undo action
+            if (result == SnackbarResult.ActionPerformed) onSave(it.name, it)
+        }
+    }
+
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
@@ -692,13 +718,15 @@ private fun Preview() {
                 instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
                 categoryFilters = remember { mutableStateOf(Category.values().drop(1).associateWith { true }) },
                 backIcon = Icons.Default.Close,
+                deletedTuning = MutableSharedFlow(),
                 onSave = {_,_->},
                 onFavouriteSet = {_,_ ->},
                 onSelect = {},
                 onDelete = {},
                 onSelectInstrument = {},
-                onSelectCategory = {}
-            ) {}
+                onSelectCategory = {},
+                onDismiss = {}
+            )
         }
     }
 }
