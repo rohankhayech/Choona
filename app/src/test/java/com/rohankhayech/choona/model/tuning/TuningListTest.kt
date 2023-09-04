@@ -22,8 +22,10 @@ import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -257,6 +259,29 @@ class TuningListTest {
         tuningList.filterBy(instrument = Instrument.BASS)
         testScope.advanceUntilIdle()
         assertEquals(expected, tuningList.categoryFilters.value)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testDeletedTuning() {
+        // Add custom tunings.
+        val new = Tuning.fromString("E2")
+        val new2 = Tuning.fromString("E2")
+        tuningList.addCustom("New", new)
+
+        // Collect flow.
+        val deleted = mutableListOf<Tuning>()
+        testScope.backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {
+            tuningList.deletedTuning.toList(deleted)
+        }
+        assertEquals(deleted.size, 0)
+
+        // Delete tunings.
+        tuningList.removeCustom(new)
+        tuningList.removeCustom(new2)
+        assertEquals(deleted[0], new)
+        assertEquals(deleted[1], new2)
+        assertEquals(deleted.size, 2)
     }
 
     @Test
