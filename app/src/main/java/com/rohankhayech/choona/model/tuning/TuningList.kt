@@ -91,7 +91,6 @@ class TuningList(
         }.groupAndSort()
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.COMMON.groupAndSort())
 
-    // TODO: Test
     /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
         Category.values().associateWith {
