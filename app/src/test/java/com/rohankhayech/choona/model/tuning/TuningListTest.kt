@@ -19,6 +19,11 @@
 package com.rohankhayech.choona.model.tuning
 
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -31,6 +36,8 @@ import org.junit.Test
 class TuningListTest {
 
     private lateinit var tuningList: TuningList
+
+    private val testScope = TestScope()
 
     @Before
     fun setUp() {
@@ -100,6 +107,29 @@ class TuningListTest {
         Assert.assertEquals(emptySet<Tuning>(), tuningList.custom.value)
         Assert.assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
         Assert.assertEquals(new, tuningList.current.value)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testDeletedTuning() {
+        // Add custom tunings.
+        val new = Tuning.fromString("E2")
+        val new2 = Tuning.fromString("E2")
+        tuningList.addCustom("New", new)
+
+        // Collect flow.
+        val deleted = mutableListOf<Tuning>()
+        testScope.backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {
+            tuningList.deletedTuning.toList(deleted)
+        }
+        Assert.assertEquals(deleted.size, 0)
+
+        // Delete tunings.
+        tuningList.removeCustom(new)
+        tuningList.removeCustom(new2)
+        Assert.assertEquals(deleted[0], new)
+        Assert.assertEquals(deleted[1], new2)
+        Assert.assertEquals(deleted.size, 2)
     }
 
     @Test
