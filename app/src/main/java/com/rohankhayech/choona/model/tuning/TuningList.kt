@@ -22,7 +22,9 @@ import java.util.Objects
 import android.content.Context
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -56,6 +58,12 @@ class TuningList(
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
+
+    /** Event indicating the specified tuning was deleted. */
+    private val _deletedTuning = MutableSharedFlow<Tuning>(extraBufferCapacity = 1)
+
+    /** Event indicating the specified tuning was deleted. */
+    val deletedTuning = _deletedTuning.asSharedFlow()
 
     /**
      * Loads the custom and favourite tunings from file if not yet loaded.
@@ -119,6 +127,7 @@ class TuningList(
         if (current.value?.equivalentTo(tuning) == true) {
             _current.update { Tuning(null, tuning) }
         }
+        _deletedTuning.tryEmit(tuning)
     }
 
     override fun equals(other: Any?): Boolean {
