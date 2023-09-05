@@ -39,9 +39,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -354,7 +354,6 @@ fun TuningList(
     }
 }
 
-// TODO: Fix recomposition.
 /**
  * Chip bar containing filters for tuning instrument and category.
  *
@@ -365,6 +364,7 @@ fun TuningList(
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
  */
+// Note: Recomposition could be improved.
 @Composable
 private fun FilterBar(
     instrumentFilter: Instrument?,
