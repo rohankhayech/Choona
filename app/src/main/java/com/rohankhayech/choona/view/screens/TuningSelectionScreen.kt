@@ -333,6 +333,7 @@ fun TuningList(
                 color = MaterialTheme.colors.background,
                 elevation = if (stuck) 2.dp else 0.dp,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .animateItemPlacement()
                     .onGloballyPositioned {
                         stuck = it.positionInParent().y == 0f
