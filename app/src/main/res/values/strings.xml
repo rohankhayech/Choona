@@ -61,7 +61,6 @@
     <string name="tuning_list_current">Current</string>
     <string name="tuning_list_favourites">Favourites</string>
     <string name="tuning_list_custom">Custom</string>
-    <string name="tuning_list_common">Common</string>
     <string name="instr_guitar">Guitar</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
@@ -82,4 +81,9 @@
     <string name="instr_other">Other</string>
     <string name="deleted_tuning">Deleted tuning %1$s.</string>
     <string name="undo">Undo</string>
+    <string name="tun_cat_common">Common</string>
+    <string name="tun_cat_power">Power</string>
+    <string name="tun_cat_open">Open</string>
+    <string name="tun_cat_misc">Misc</string>
+    <string name="all_tunings">All Tunings</string>
 </resources>

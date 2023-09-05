@@ -52,6 +52,9 @@ public final class Tuning implements Iterable<GuitarString> {
     /** The default instrument for tunings. */
     public static final Instrument DEFAULT_INSTRUMENT = Instrument.GUITAR;
 
+    /** The category of tuning. */
+    private final Category category;
+
     /**
      * @return The number of strings in this tuning.
      */
@@ -75,18 +78,19 @@ public final class Tuning implements Iterable<GuitarString> {
      * @throws NullPointerException If the specified instrument, array of strings or any string is null.
      */
     public Tuning(Instrument instrument, GuitarString... strings) {
-        this(null, instrument, strings);
+        this(null, instrument, null, strings);
     }
 
     /**
      * Constructs a new guitar tuning.
      * @param name Name of the tuning. Can be null.
      * @param instrument The instrument the tuning is for.
+     * @param category The category of tuning.
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified instrument, array of strings or any string is null.
      */
-    public Tuning(String name, Instrument instrument, GuitarString... strings) {
-        this(name, instrument, Arrays.asList(
+    public Tuning(String name, Instrument instrument, Category category, GuitarString... strings) {
+        this(name, instrument, category, Arrays.asList(
             Objects.requireNonNull(strings, "Array of strings cannot be null.")
         ));
     }
@@ -98,7 +102,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @throws NullPointerException If the specified list of strings or any string is null.
      */
     public Tuning(Instrument instrument, List<GuitarString> strings) {
-        this(null, instrument, strings);
+        this(null, instrument, null, strings);
     }
 
     /**
@@ -111,16 +115,18 @@ public final class Tuning implements Iterable<GuitarString> {
         this.name = name;
         this.strings = o.strings;
         this.instrument = o.instrument;
+        this.category = o.category;
     }
 
     /**
      * Constructs a new guitar tuning.
      * @param name Name of the tuning. Can be null.
      * @param instrument The instrument the tuning is for.
+     * @param category The category of tuning.
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified list of strings or any string is null.
      */
-    public Tuning(String name, Instrument instrument, List<GuitarString> strings) {
+    public Tuning(String name, Instrument instrument, Category category, List<GuitarString> strings) {
         // Check list of strings is not null.
         Objects.requireNonNull(strings, "List of strings cannot be null.");
         Objects.requireNonNull(instrument, "Instrument cannot be null.");
@@ -134,6 +140,7 @@ public final class Tuning implements Iterable<GuitarString> {
         this.strings = new ArrayList<>(strings);
         this.name = name;
         this.instrument = instrument;
+        this.category = category;
     }
 
     /**
@@ -201,6 +208,14 @@ public final class Tuning implements Iterable<GuitarString> {
         return instrument;
     }
 
+    /** @return True if this tuning has a category, false otherwise. */
+    public boolean hasCategory() {
+        return category != null;
+    }
+
+    /** @return The category of tuning. */
+    public Category getCategory() { return category; }
+
     /**
      * @return A human-readable java string representation of the guitar strings in this tuning, excluding octaves.
      * Ordered from lowest to highest string.
@@ -257,7 +272,7 @@ public final class Tuning implements Iterable<GuitarString> {
         Objects.requireNonNull(string);
         List<GuitarString> newList = new ArrayList<>(strings);
         newList.set(n, string);
-        return new Tuning(null, instrument, newList);
+        return new Tuning(null, instrument, null, newList);
     }
 
     /**
@@ -270,7 +285,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @throws IllegalArgumentException If any of the root notes do not correspond to a defined standard string.
      */
     public static Tuning fromString(String tuningStr) {
-        return fromString(null, DEFAULT_INSTRUMENT, tuningStr);
+        return fromString(null, DEFAULT_INSTRUMENT, null, tuningStr);
     }
 
     /**
@@ -278,13 +293,14 @@ public final class Tuning implements Iterable<GuitarString> {
      * in the tuning.
      * @param name Name of the tuning. Can be null.
      * @param instrument The instrument the tuning is for.
+     * @param category The category of tuning.
      * @param tuningStr A java string containing the root notes of each guitar string
      *                  in the tuning, separated by spaces. This is the same format as
      *                  returned by {@code Tuning.toFullString()}.;
      * @return The corresponding guitar tuning.
      * @throws IllegalArgumentException If any of the root notes do not correspond to a defined standard string.
      */
-    public static Tuning fromString(String name, Instrument instrument, String tuningStr) {
+    public static Tuning fromString(String name, Instrument instrument, Category category, String tuningStr) {
         // Construct new tuning otherwise.
         String[] rootNotes = tuningStr.split(" ");
         GuitarString[] strings = new GuitarString[rootNotes.length];
@@ -292,7 +308,7 @@ public final class Tuning implements Iterable<GuitarString> {
             strings[i] = GuitarString.fromRootNote(rootNotes[i]);
         }
 
-        return new Tuning(name, instrument, strings);
+        return new Tuning(name, instrument, category, strings);
     }
 
     /**
@@ -313,7 +329,8 @@ public final class Tuning implements Iterable<GuitarString> {
         Tuning o = (Tuning)obj;
         return Objects.equals(name, o.name)
             && strings.equals(o.strings)
-            && Objects.equals(instrument, o.instrument);
+            && instrument == o.instrument
+            && category == o.category;
     }
 
     /**
@@ -354,7 +371,22 @@ public final class Tuning implements Iterable<GuitarString> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, strings, instrument);
+        return Objects.hash(name, strings, instrument, category);
+    }
+
+    /**
+     * Enum describing tuning categories.
+     */
+    public enum Category {
+        /** Common tuning. */
+        COMMON,
+        /** Power chord tuning. */
+        POWER,
+        /** Open chord tuning. */
+        OPEN,
+
+        /** Miscellaneous tuning. */
+        MISC
     }
 
 
@@ -366,6 +398,7 @@ public final class Tuning implements Iterable<GuitarString> {
     public static final Tuning STANDARD = new Tuning(
         "Standard",
         Instrument.GUITAR,
+        Category.COMMON,
         GuitarString.E4,
         GuitarString.B3,
         GuitarString.G3,
@@ -378,6 +411,7 @@ public final class Tuning implements Iterable<GuitarString> {
     public static final Tuning DROP_D = new Tuning(
         "Drop D",
         Instrument.GUITAR,
+        Category.COMMON,
         GuitarString.E4,
         GuitarString.B3,
         GuitarString.G3,
