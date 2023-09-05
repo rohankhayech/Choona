@@ -51,6 +51,7 @@ import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.model.tuning.groupAndSort
+import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
@@ -708,27 +709,25 @@ private fun Preview() {
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
     val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
-    AppTheme {
-        Surface {
-            TuningSelectionScreen(
-                current = currentTuning,
-                tunings = Tunings.COMMON.groupAndSort(),
-                favourites = setOf(Tuning.STANDARD, favCustomTuning),
-                custom = setOf(customTuning, favCustomTuning),
-                Instrument.BASS, null,
-                instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
-                categoryFilters = remember { mutableStateOf(Category.values().drop(1).associateWith { true }) },
-                backIcon = Icons.Default.Close,
-                deletedTuning = MutableSharedFlow(),
-                onSave = {_,_->},
-                onFavouriteSet = {_,_ ->},
-                onSelect = {},
-                onDelete = {},
-                onSelectInstrument = {},
-                onSelectCategory = {},
-                onDismiss = {}
-            )
-        }
+    PreviewWrapper {
+        TuningSelectionScreen(
+            current = currentTuning,
+            tunings = Tunings.COMMON.groupAndSort(),
+            favourites = setOf(Tuning.STANDARD, favCustomTuning),
+            custom = setOf(customTuning, favCustomTuning),
+            Instrument.BASS, null,
+            instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
+            categoryFilters = remember { mutableStateOf(Category.values().drop(1).associateWith { true }) },
+            backIcon = Icons.Default.Close,
+            deletedTuning = MutableSharedFlow(),
+            onSave = {_,_->},
+            onFavouriteSet = {_,_ ->},
+            onSelect = {},
+            onDelete = {},
+            onSelectInstrument = {},
+            onSelectCategory = {},
+            onDismiss = {}
+        )
     }
 }
 

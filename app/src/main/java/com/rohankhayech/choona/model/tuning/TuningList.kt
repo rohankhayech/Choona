@@ -26,6 +26,7 @@ import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,7 +47,7 @@ import kotlinx.coroutines.flow.update
  */
 class TuningList(
     initialCurrentTuning: Tuning? = null,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) {
 
     /** Mutable backing property for [current]. */

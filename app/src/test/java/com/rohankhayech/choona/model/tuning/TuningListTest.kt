@@ -53,7 +53,7 @@ class TuningListTest {
 
     @Test
     fun testConstructor() {
-        val tl = TuningList(Tuning.STANDARD, TestScope())
+        val tl = TuningList(Tuning.STANDARD)
         assertSame(Tuning.STANDARD, tl.current.value)
     }
 
@@ -286,7 +286,7 @@ class TuningListTest {
 
     @Test
     fun testEquals() {
-        val newList = TuningList(coroutineScope = testScope)
+        val newList = TuningList()
         assertEquals(tuningList, newList)
 
         newList.setCurrent(Tuning.STANDARD)
@@ -295,7 +295,7 @@ class TuningListTest {
 
     @Test
     fun testHashCode() {
-        val equal = TuningList(coroutineScope = testScope)
+        val equal = TuningList()
         assertEquals(equal.hashCode(), tuningList.hashCode())
     }
 
