@@ -384,7 +384,6 @@ public final class Tuning implements Iterable<GuitarString> {
         POWER,
         /** Open chord tuning. */
         OPEN,
-
         /** Miscellaneous tuning. */
         MISC
     }

@@ -50,7 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.model.tuning.groupAndSort
 import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
@@ -105,12 +104,8 @@ fun TuningSelectionScreen(
         categoryFilters = categoryFilters,
         backIcon = backIcon,
         deletedTuning = tuningList.deletedTuning,
-        onSelectInstrument = {
-            tuningList.filterBy(instrument = it)
-        },
-        onSelectCategory = {
-            tuningList.filterBy(category = it)
-        },
+        onSelectInstrument = { tuningList.filterBy(instrument = it) },
+        onSelectCategory = { tuningList.filterBy(category = it) },
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -120,9 +115,7 @@ fun TuningSelectionScreen(
             onFavouriteSet(tuning, fav)
         }},
         onSelect = onSelect,
-        onDelete = {
-            tuningList.removeCustom(it)
-        },
+        onDelete = { tuningList.removeCustom(it) },
         onDismiss = onDismiss
     )
 }
@@ -712,7 +705,7 @@ private fun Preview() {
     PreviewWrapper {
         TuningSelectionScreen(
             current = currentTuning,
-            tunings = Tunings.COMMON.groupAndSort(),
+            tunings = TuningList.GROUPED_TUNINGS,
             favourites = setOf(Tuning.STANDARD, favCustomTuning),
             custom = setOf(customTuning, favCustomTuning),
             Instrument.BASS, null,
