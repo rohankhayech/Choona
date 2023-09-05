@@ -50,7 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.model.tuning.groupAndSort
 import com.rohankhayech.choona.view.PreviewWrapper
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
@@ -712,7 +711,7 @@ private fun Preview() {
     PreviewWrapper {
         TuningSelectionScreen(
             current = currentTuning,
-            tunings = Tunings.COMMON.groupAndSort(),
+            tunings = TuningList.GROUPED_TUNINGS,
             favourites = setOf(Tuning.STANDARD, favCustomTuning),
             custom = setOf(customTuning, favCustomTuning),
             Instrument.BASS, null,

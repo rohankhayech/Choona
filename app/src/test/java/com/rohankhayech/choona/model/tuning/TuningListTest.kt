@@ -125,7 +125,7 @@ class TuningListTest {
         }
 
         // Test default value
-        val expectedDef = Tunings.COMMON.groupAndSort()
+        val expectedDef = TuningList.GROUPED_TUNINGS
         assertEquals(expectedDef, tuningList.filteredTunings.value)
 
         // Test filtered by instrument
@@ -316,7 +316,7 @@ class TuningListTest {
             (Instrument.BASS to Category.POWER) to listOf(bassPower)
         )
 
-        val grouped = tunings.groupAndSort()
+        val grouped = with (TuningList) { tunings.groupAndSort() }
 
         assertEquals(expectedGroups, grouped)
     }

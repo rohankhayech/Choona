@@ -204,16 +204,6 @@ class TuningList(
         _categoryFilter.update { category }
     }
 
-    /** @return True if this instrument filter is compatible with the specified category filter. */
-    private fun Instrument.isValidFilterWith(category: Category?): Boolean {
-        return category == null || GROUPED_TUNINGS.contains(this to category)
-    }
-
-    /** @return True if this category filter is compatible with the specified instrument filter. */
-    private fun Category.isValidFilterWith(instrument: Instrument?): Boolean {
-        return instrument == null || GROUPED_TUNINGS.contains(instrument to this)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -234,19 +224,29 @@ class TuningList(
     companion object {
         /** Common tunings, grouped by instrument and category. */
         val GROUPED_TUNINGS = Tunings.COMMON.groupAndSort()
-    }
-}
 
-/**
- * Groups this collection of tunings by instrument - category pairs
- * and sorts the groups by instrument then category.
- *
- * @return Map of tuning groups and their list of tunings.
- */
-fun Collection<Tuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<Tuning>> {
-    return groupBy {
-        it.instrument to it.category
-    }.toSortedMap(
-        compareBy ({ it.first }, { it.second })
-    )
+        /**
+         * Groups this collection of tunings by instrument - category pairs
+         * and sorts the groups by instrument then category.
+         *
+         * @return Map of tuning groups and their list of tunings.
+         */
+        fun Collection<Tuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<Tuning>> {
+            return groupBy {
+                it.instrument to it.category
+            }.toSortedMap(
+                compareBy ({ it.first }, { it.second })
+            )
+        }
+
+        /** @return True if this instrument filter is compatible with the specified category filter. */
+        private fun Instrument.isValidFilterWith(category: Category?): Boolean {
+            return category == null || GROUPED_TUNINGS.contains(this to category)
+        }
+
+        /** @return True if this category filter is compatible with the specified instrument filter. */
+        private fun Category.isValidFilterWith(instrument: Instrument?): Boolean {
+            return instrument == null || GROUPED_TUNINGS.contains(instrument to this)
+        }
+    }
 }
