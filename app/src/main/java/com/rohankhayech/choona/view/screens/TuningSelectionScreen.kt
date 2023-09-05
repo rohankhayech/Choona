@@ -104,12 +104,8 @@ fun TuningSelectionScreen(
         categoryFilters = categoryFilters,
         backIcon = backIcon,
         deletedTuning = tuningList.deletedTuning,
-        onSelectInstrument = {
-            tuningList.filterBy(instrument = it)
-        },
-        onSelectCategory = {
-            tuningList.filterBy(category = it)
-        },
+        onSelectInstrument = { tuningList.filterBy(instrument = it) },
+        onSelectCategory = { tuningList.filterBy(category = it) },
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -119,9 +115,7 @@ fun TuningSelectionScreen(
             onFavouriteSet(tuning, fav)
         }},
         onSelect = onSelect,
-        onDelete = {
-            tuningList.removeCustom(it)
-        },
+        onDelete = { tuningList.removeCustom(it) },
         onDismiss = onDismiss
     )
 }
