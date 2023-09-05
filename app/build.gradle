@@ -14,7 +14,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 33
         versionCode 5
-        versionName "1.2.0-dev"
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -24,6 +24,10 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
         }
     }
 

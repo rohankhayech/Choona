@@ -49,8 +49,10 @@ public final class TuningTest {
     public void testConstructor() {
         // Check input validation
         assertThrows(NullPointerException.class, ()->new Tuning(DEFAULT_INSTRUMENT, GuitarString.E2, null)); // Element is null.
-        assertThrows(NullPointerException.class, ()->new Tuning(DEFAULT_INSTRUMENT, (GuitarString[])null)); // Array is null
+        assertThrows(NullPointerException.class, ()->new Tuning(DEFAULT_INSTRUMENT, (GuitarString[])null)); // Array is null.
         assertThrows(NullPointerException.class, ()->new Tuning((Instrument)null, GuitarString.E2)); // Instrument is null.
+        assertFalse(new Tuning(null, DEFAULT_INSTRUMENT, Tuning.Category.COMMON, GuitarString.E2).hasName()); // Name is null.
+        assertNull(new Tuning(null, DEFAULT_INSTRUMENT, null, GuitarString.E2).getCategory()); // Category is null.
 
         // Test copy
         assertEquals(tuning, new Tuning("Standard", tuning));
@@ -63,6 +65,7 @@ public final class TuningTest {
         assertEquals("Returns incorrect num of strings.", 6, tuning.numStrings());
     }
 
+    // @noinspection ResultOfMethodCallIgnored
     @Test
     public void testGetString() {
         // Test valid index
@@ -116,11 +119,19 @@ public final class TuningTest {
     }
 
     @Test
-    public void hasName() {
+    public void testHasName() {
         assertTrue("Returned false with name.", tuning.hasName());
 
         Tuning t = new Tuning(GuitarString.E2);
         assertFalse("Returned true without name.", t.hasName());
+    }
+
+    @Test
+    public void testHasCategory() {
+        assertTrue("Returned false with category.", tuning.hasCategory());
+
+        Tuning t = new Tuning(GuitarString.E2);
+        assertFalse("Returned true without category.", t.hasCategory());
     }
 
     @Test
@@ -144,8 +155,13 @@ public final class TuningTest {
     }
 
     @Test
-    public void getInstrument() {
+    public void testGetInstrument() {
         assertEquals(Instrument.GUITAR, tuning.getInstrument());
+    }
+
+    @Test
+    public void testGetCategory() {
+        assertEquals(Tuning.Category.COMMON, tuning.getCategory());
     }
 
     @Test
@@ -158,11 +174,11 @@ public final class TuningTest {
         Tuning newTuning = Tuning.fromString("E2 E2 E2 E2 E2 E2");
         assertEquals("Did not return correct tuning.", new Tuning(expectedStrings), newTuning);
         assertEquals("Set name.", "EEEEEE", newTuning.getName());
+        assertNull("Set category.", newTuning.getCategory());
 
-        // Check named.
-        newTuning = Tuning.fromString("Tuning", Instrument.GUITAR, "E2 E2 E2 E2 E2 E2");
-        assertEquals("Did not return correct tuning.", new Tuning("Tuning", Instrument.GUITAR, expectedStrings), newTuning);
-        assertEquals("Did not set name.", "Tuning", newTuning.getName());
+        // Check named and categorised.
+        newTuning = Tuning.fromString("Tuning", Instrument.GUITAR, Tuning.Category.COMMON, "E2 E2 E2 E2 E2 E2");
+        assertEquals("Did not return correct tuning.", new Tuning("Tuning", Instrument.GUITAR, Tuning.Category.COMMON, expectedStrings), newTuning);
 
         // Check invalid format.
         assertThrows("Created tuning from invalid tuning string.", IllegalArgumentException.class, ()->Tuning.fromString("E4B4G3D3A2E2"));
@@ -248,12 +264,14 @@ public final class TuningTest {
         assertEquals("Same objects are not equal.", Tuning.STANDARD, tuning);
 
         // Check equality.
-        Tuning standard = new Tuning("Standard", Instrument.GUITAR, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
+        Tuning standard = new Tuning("Standard", Instrument.GUITAR, Tuning.Category.COMMON, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
         assertEquals("Tunings were not equal.", Tuning.STANDARD, standard);
         Tuning eadgbe = new Tuning(Instrument.GUITAR, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
         assertNotEquals("", eadgbe, Tuning.STANDARD);
-        Tuning bass = new Tuning("Standard", Instrument.BASS, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
+        Tuning bass = new Tuning("Standard", Instrument.BASS, Tuning.Category.COMMON, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
         assertNotEquals("", bass, Tuning.STANDARD);
+        Tuning diffCat = new Tuning("Standard", Instrument.GUITAR, null, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
+        assertNotEquals("", diffCat, Tuning.STANDARD);
     }
 
     @Test
