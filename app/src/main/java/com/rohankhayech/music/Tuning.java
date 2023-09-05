@@ -208,6 +208,11 @@ public final class Tuning implements Iterable<GuitarString> {
         return instrument;
     }
 
+    /** @return True if this tuning has a category, false otherwise. */
+    public boolean hasCategory() {
+        return category != null;
+    }
+
     /** @return The category of tuning. */
     public Category getCategory() { return category; }
 

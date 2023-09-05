@@ -127,6 +127,14 @@ public final class TuningTest {
     }
 
     @Test
+    public void testHasCategory() {
+        assertTrue("Returned false with category.", tuning.hasCategory());
+
+        Tuning t = new Tuning(GuitarString.E2);
+        assertFalse("Returned true without category.", t.hasCategory());
+    }
+
+    @Test
     public void testGetName() {
         assertEquals("Standard", tuning.getName());
 

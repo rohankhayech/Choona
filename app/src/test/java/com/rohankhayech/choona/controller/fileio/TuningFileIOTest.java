@@ -18,8 +18,6 @@
 
 package com.rohankhayech.choona.controller.fileio;
 
-import static com.rohankhayech.music.Instrument.GUITAR;
-
 import static org.junit.Assert.assertEquals;
 
 import com.rohankhayech.music.Tuning;
@@ -33,14 +31,14 @@ import java.util.Set;
 
 public class TuningFileIOTest {
 
-    private static final String TUNINGS_JSON = "{\"tunings\":[{\"strings\":\"E4 B3 G3 D3 A2 E2\",\"name\":\"Standard\",\"instrument\":\"GUITAR\"},{\"strings\":\"E4 B3 G3 D3 A2 D2\",\"name\":\"Drop D\",\"instrument\":\"GUITAR\"},{\"strings\":\"G3 D3 A2 E2\",\"instrument\":\"GUITAR\"}]}";
+    private static final String TUNINGS_JSON = "{\"tunings\":[{\"strings\":\"E4 B3 G3 D3 A2 E2\",\"name\":\"Standard\",\"instrument\":\"GUITAR\",\"category\":\"COMMON\"},{\"strings\":\"E4 B3 G3 D3 A2 D2\",\"name\":\"Drop D\",\"instrument\":\"GUITAR\",\"category\":\"COMMON\"},{\"strings\":\"G3 D3 A2 E2\",\"instrument\":\"GUITAR\"}]}";
 
     @Test
     public void testParseTunings() {
         Set<Tuning> tunings = TuningFileIO.parseTunings(TUNINGS_JSON);
         Set<Tuning> expected = new LinkedHashSet<>();
-        expected.add(Tuning.fromString(Tuning.STANDARD.getName(), GUITAR, null, Tuning.STANDARD.toFullString()));
-        expected.add(Tuning.fromString(Tuning.DROP_D.getName(), GUITAR, null, Tuning.DROP_D.toFullString()));
+        expected.add(Tuning.STANDARD);
+        expected.add(Tuning.DROP_D);
         expected.add(Tuning.fromString("G3 D3 A2 E2"));
         assertEquals(expected, tunings);
     }

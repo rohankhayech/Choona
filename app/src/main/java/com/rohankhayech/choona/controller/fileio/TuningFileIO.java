@@ -42,6 +42,11 @@ public class TuningFileIO {
     /** Private constructor to prevent instantiation. */
     private TuningFileIO() {}
 
+    /**
+     * Loads the user's custom tunings from file.
+     * @param context Android system context used to access the filesystem.
+     * @return The set of stored custom tunings.
+     */
     public static Set<Tuning> loadCustomTunings(Context context) {
         try {
             String json = FileIO.readFromFile(context, "tunings_custom"+FileIO.FILE_EXT);
@@ -51,6 +56,11 @@ public class TuningFileIO {
         }
     }
 
+    /**
+     * Loads the user's favourite tunings from file.
+     * @param context Android system context used to access the filesystem.
+     * @return The set of stored favourite tunings.
+     */
     public static Set<Tuning> loadFavouriteTunings(Context context) {
         try {
             String json = FileIO.readFromFile(context, "tunings_favourite"+FileIO.FILE_EXT);
@@ -62,6 +72,12 @@ public class TuningFileIO {
         }
     }
 
+    /**
+     * Saves the user's favourite and custom tunings to file.
+     * @param context Android system context used to access the filesystem.
+     * @param favourites Set of favourite tunings to save.
+     * @param custom Set of custom tunings to save.
+     */
     public static void saveTunings(Context context, Set<Tuning> favourites, Set<Tuning> custom) {
         String customJSON = encodeTunings(custom);
         String favouritesJSON = encodeTunings(favourites);
@@ -73,6 +89,11 @@ public class TuningFileIO {
         }
     }
 
+    /**
+     * Parses the set of tunings from the specified JSON string.
+     * @param tuningsJSON The JSON string representation of the set of tunings.
+     * @return A set of tunings represented by the JSON string.
+     */
     static Set<Tuning> parseTunings(String tuningsJSON) {
         Set<Tuning> tunings = new LinkedHashSet<>();
 
@@ -89,10 +110,17 @@ public class TuningFileIO {
                 // Retrieve tuning data
                 String name = tuningObj.optString("name", null); // Name should be null if absent.
                 Instrument instrument = Instrument.valueOf(tuningObj.optString("instrument", Tuning.DEFAULT_INSTRUMENT.toString()));
+                String categoryString = tuningObj.optString("category"); // Category should be null if absent.
+                Tuning.Category category;
+                if (!categoryString.isEmpty()) {
+                    category = Tuning.Category.valueOf(categoryString);
+                } else {
+                    category = null;
+                }
                 String strings = tuningObj.getString("strings");
 
                 // Create a tuning object.
-                Tuning tuning = Tuning.fromString(name, instrument, null, strings);
+                Tuning tuning = Tuning.fromString(name, instrument, category, strings);
 
                 // Add the tuning to the list.
                 tunings.add(tuning);
@@ -104,6 +132,11 @@ public class TuningFileIO {
         }
     }
 
+    /**
+     * Encodes the specified set of tunings to JSON.
+     * @param tunings The tunings to encode.
+     * @return A JSON string representation of the set of tunings.
+     */
     static String encodeTunings(Set<Tuning> tunings) {
         Objects.requireNonNull(tunings);
 
@@ -116,6 +149,7 @@ public class TuningFileIO {
                 // Encode the tuning data to JSON.
                 if (tuning.hasName()) tuningObj.put("name", tuning.getName());
                 tuningObj.put("instrument", tuning.getInstrument().toString());
+                if (tuning.hasCategory()) tuningObj.put("category", tuning.getCategory());
                 tuningObj.put("strings", tuning.toFullString());
 
                 // Add the tuning to the JSON array.
