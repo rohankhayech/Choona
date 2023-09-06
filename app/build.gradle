@@ -79,7 +79,7 @@ dependencies {
     implementation 'com.github.billthefarmer:mididriver:v1.24'
 
     // Utility
-    implementation "com.github.rohankhayech:AndroidUtils:main-SNAPSHOT"
+    implementation "com.github.rohankhayech:AndroidUtils:v0.1.0"
 
     // Open Source Licenses
     implementation "com.mikepenz:aboutlibraries-core:10.6.1"
