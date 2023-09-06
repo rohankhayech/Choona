@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -70,8 +71,7 @@ fun SettingsScreen(
                     Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
                 }
             },
-            backgroundColor = if (prefs.useBlackTheme && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-                else MaterialTheme.colors.primarySurface,
+            backgroundColor = MaterialTheme.colors.primarySurfaceBackground(prefs.useBlackTheme),
             title = { Text(stringResource(R.string.tuner_settings)) }
         )}
     ) { padding ->

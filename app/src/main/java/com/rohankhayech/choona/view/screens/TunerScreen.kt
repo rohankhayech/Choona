@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -41,9 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.rohankhayech.android.util.ui.preview.CompactThemePreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -457,8 +458,7 @@ private fun AppBar(
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
-        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-            else MaterialTheme.colors.primarySurface,
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -485,8 +485,7 @@ private fun CompactAppBar(
         title = {
             TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
         },
-        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-        else MaterialTheme.colors.primarySurface,
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
         actions = {
             // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
@@ -563,10 +562,7 @@ private fun TunerPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(device = "spec:width=411dp,height=320dp")
-@Preview(device = "spec:width=320dp,height=411dp")
-@Preview(device = "spec:width=411dp,height=320dp", uiMode = UI_MODE_NIGHT_YES)
-@Preview(device = "spec:width=320dp,height=411dp", uiMode = UI_MODE_NIGHT_YES)
+@CompactThemePreview
 @Composable
 private fun CompactPreview() {
     BasePreview(

@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.view.components.SectionLabel
@@ -57,8 +58,7 @@ fun AboutScreen(
         topBar = {
             TopAppBar(
                 title = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
-                backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-                    else MaterialTheme.colors.primarySurface,
+                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
                 navigationIcon = { 
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
@@ -127,8 +127,7 @@ fun LicencesScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.oss_licences)) },
-                backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-                    else MaterialTheme.colors.primarySurface,
+                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
