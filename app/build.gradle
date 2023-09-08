@@ -95,9 +95,9 @@ dependencies {
 }
 
 repositories {
-    maven { url "https://jitpack.io" }
     maven {
         name = "TarsosDSP repository"
         url = "https://mvn.0110.be/releases"
     }
+    maven { url "https://jitpack.io" }
 }
