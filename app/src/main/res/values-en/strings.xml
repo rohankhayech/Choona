@@ -85,4 +85,6 @@
     <string name="tun_cat_open">Open</string>
     <string name="tun_cat_misc">Misc</string>
     <string name="all_tunings">All Tunings</string>
+    <string name="privacy">Privacy</string>
+    <string name="privacy_policy">Privacy Policy</string>
 </resources>
