@@ -96,6 +96,10 @@ fun AboutScreen(
             ListItem(Modifier.clickable(onClick = onLicencesPressed)) {
                 Text(stringResource(R.string.third_party_licences))
             }
+            Divider()
+
+            SectionLabel(stringResource(R.string.privacy))
+            LinkListItem(text = stringResource(R.string.privacy_policy), url = "https://github.com/rohankhayech/Choona/blob/main/PRIVACY.md")
         }
     }
 }
