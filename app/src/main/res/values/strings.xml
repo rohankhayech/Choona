@@ -23,7 +23,7 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="open_permission_settings">Open Settings</string>
     <string name="tuner_audio_permission_rationale">The tuner requires permission to record audio to detect the pitch of incoming audio.\n\nPlease enable this permission to use the tuner:</string>
-    <string name="tuner_audio_permission_rationale_denied">Cannot use tuner as permission to record audio has not been granted.\n\nThe tuner requires this permission to detect the pitch of incoming audio.\n\nPlease enable this permission in Settings:</string>
+    <string name="tuner_audio_permission_rationale_denied">Cannot use tuner the as permission to use your microphone has not been granted.\n\nThe tuner requires this permission to detect the pitch of incoming audio.\n\nPlease enable this permission in Settings:</string>
     <string name="request_permission">Request Permission</string>
     <string name="permission_needed">Permission Needed</string>
     <string name="tuner">Tuner</string>

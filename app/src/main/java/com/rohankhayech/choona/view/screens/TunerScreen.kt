@@ -388,7 +388,7 @@ private fun TunerBodyScaffold(
 /**
  * UI screen shown to the user when the audio permission is not granted.
  *
- * @param requestAgain Whether the permission should be requested again.
+ * @param canRequest Whether the permission can be requested.
  * @param fullBlack Whether the app is in full black mode.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
@@ -396,7 +396,7 @@ private fun TunerBodyScaffold(
  */
 @Composable
 fun TunerPermissionScreen(
-    requestAgain: Boolean,
+    canRequest: Boolean,
     fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
@@ -417,7 +417,7 @@ fun TunerPermissionScreen(
             val rationale: String
             val buttonLabel: String
             val buttonAction: () -> Unit
-            if (requestAgain) {
+            if (canRequest) {
                 title = stringResource(R.string.permission_needed)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale)
                 buttonLabel = stringResource(R.string.request_permission).uppercase()
@@ -595,7 +595,7 @@ private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
             fullBlack = false,
-            requestAgain = true,
+            canRequest = true,
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
@@ -609,7 +609,7 @@ private fun PermissionDeniedPreview() {
     AppTheme {
         TunerPermissionScreen(
             fullBlack = false,
-            requestAgain = false,
+            canRequest = false,
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}

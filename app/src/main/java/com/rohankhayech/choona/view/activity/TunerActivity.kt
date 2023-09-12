@@ -74,9 +74,6 @@ class TunerActivity : AppCompatActivity() {
     /** MIDI controller used to play guitar notes. */
     private lateinit var midi: MidiController
 
-    /** Whether the RECORD_AUDIO permission has been granted. */
-    private val permGranted = MutableStateFlow(false)
-
     /** User preferences for the tuner. */
     private lateinit var prefs: Flow<TunerPreferences>
 
@@ -99,16 +96,7 @@ class TunerActivity : AppCompatActivity() {
             .map(TunerPreferences::fromAndroidPreferences)
 
         // Setup permission handler.
-        ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO, object : PermissionHandler.PermissionCallback {
-            override fun showInContextUI() {
-                permGranted.update { false }
-            }
-
-            override fun onPermissionDenied() {
-                permGranted.update { false }
-            }
-        })
-        requestPermission()
+        ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO)
 
         // Setup MIDI controller for note playback.
         midi = MidiController(vm.tuner.tuning.value.numStrings())
@@ -136,7 +124,7 @@ class TunerActivity : AppCompatActivity() {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
             AppTheme(fullBlack = prefs.useBlackTheme) {
-                val granted by permGranted.collectAsStateWithLifecycle()
+                val granted by ph.granted.collectAsStateWithLifecycle()
                 if (granted) {
                     // Collect state.
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
@@ -217,11 +205,12 @@ class TunerActivity : AppCompatActivity() {
                     )
                 } else {
                     // Audio permission not granted, show permission rationale.
+                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
                     TunerPermissionScreen(
                         fullBlack = prefs.useBlackTheme,
-                        requestAgain = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
+                        canRequest = firstRequest,
                         onSettingsPressed = ::openSettings,
-                        onRequestPermission = ::requestPermission,
+                        onRequestPermission = ph::request,
                         onOpenPermissionSettings = ::openPermissionSettings,
                     )
                 }
@@ -240,7 +229,6 @@ class TunerActivity : AppCompatActivity() {
         // Start midi driver.
         midi.start()
 
-        checkPermission()
         // Start the tuner if no panels are open.
         if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
@@ -380,22 +368,6 @@ class TunerActivity : AppCompatActivity() {
     /** Opens the tuner settings activity. */
     private fun openSettings() {
         startActivity(Intent(this, SettingsActivity::class.java))
-    }
-
-    /**
-     * Requests the audio permission.
-     */
-    private fun requestPermission() {
-        ph.requestPermAndPerform {
-            permGranted.update { true }
-        }
-    }
-
-    /** Checks for audio permission. */
-    private fun checkPermission() {
-        ph.checkPermAndPerform {
-            permGranted.update { true }
-        }
     }
 
     /** Opens the permission settings screen in the device settings. */
