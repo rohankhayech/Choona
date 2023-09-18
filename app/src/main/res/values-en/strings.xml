@@ -77,6 +77,7 @@
     <string name="oss_licences">Open Source Licences</string>
     <string name="configure_tuning">Configure Tuning</string>
     <string name="instr_bass">Bass</string>
+    <string name="instr_ukulele">Ukulele</string>
     <string name="instr_other">Other</string>
     <string name="deleted_tuning">Deleted tuning %1$s.</string>
     <string name="undo">Undo</string>

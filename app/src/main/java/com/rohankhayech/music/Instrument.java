@@ -33,6 +33,9 @@ public enum Instrument {
     /** Bass */
     BASS("Bass", 4, GeneralMidiConstants.ELECTRIC_BASS_FINGER),
 
+    /** Ukulele */
+    UKULELE("Ukulele", 4, GeneralMidiConstants.ACOUSTIC_GUITAR_NYLON),
+
     /** Other Instrument */
     OTHER("Other");
 

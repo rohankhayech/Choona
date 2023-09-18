@@ -621,6 +621,7 @@ fun Instrument.getLocalisedName(): String {
     return stringResource(when (this) {
         Instrument.GUITAR -> R.string.instr_guitar
         Instrument.BASS -> R.string.instr_bass
+        Instrument.UKULELE -> R.string.instr_ukulele
         else -> R.string.instr_other
     })
 }
