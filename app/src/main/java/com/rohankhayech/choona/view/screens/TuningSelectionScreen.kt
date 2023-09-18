@@ -418,7 +418,7 @@ private fun <T> TuningFilterChip(
         selected = selected,
         onClick = { if (enabled) if (selected) onSelect(null) else onSelect(filter) },
         border = if (selected) null else ChipDefaults.outlinedBorder,
-        colors = if (!selected) ChipDefaults.outlinedFilterChipColors()
+        colors = if (!selected) ChipDefaults.outlinedFilterChipColors(backgroundColor = MaterialTheme.colors.background)
         else ChipDefaults.filterChipColors(
             backgroundColor = MaterialTheme.colors.secondaryVariant.copy(alpha = 0.12f)
                 .compositeOver(MaterialTheme.colors.background),
@@ -707,7 +707,7 @@ private fun Preview() {
             custom = setOf(customTuning, favCustomTuning),
             Instrument.BASS, null,
             instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
-            categoryFilters = remember { mutableStateOf(Category.values().drop(1).associateWith { true }) },
+            categoryFilters = remember { mutableStateOf(Category.values().associateWith { true }) },
             backIcon = Icons.Default.Close,
             deletedTuning = MutableSharedFlow(),
             onSave = {_,_->},
