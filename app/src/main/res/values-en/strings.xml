@@ -87,4 +87,6 @@
     <string name="all_tunings">All Tunings</string>
     <string name="privacy">Privacy</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="help_feedback">Feedback</string>
+    <string name="send_feedback">Send feedback</string>
 </resources>

@@ -100,6 +100,9 @@ fun AboutScreen(
 
             SectionLabel(stringResource(R.string.privacy))
             LinkListItem(text = stringResource(R.string.privacy_policy), url = "https://github.com/rohankhayech/Choona/blob/main/PRIVACY.md")
+
+            SectionLabel(stringResource(R.string.help_feedback))
+            LinkListItem(text = stringResource(R.string.send_feedback), url = "https://github.com/rohankhayech/Choona/issues/new/choose")
         }
     }
 }
