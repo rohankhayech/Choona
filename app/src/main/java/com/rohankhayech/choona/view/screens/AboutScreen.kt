@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import com.rohankhayech.android.util.ui.theme.isTrueDark
 import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
@@ -43,14 +44,12 @@ import com.rohankhayech.choona.view.theme.AppTheme
 
 /**
  * UI screen displaying version, copyright and license information about the app.
- * @param fullBlack Whether the app is in full black mode.
  * @param onBackPressed Called when the back navigation button is pressed.
  * @author Rohan Khayech
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AboutScreen(
-    fullBlack: Boolean,
     onLicencesPressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -58,7 +57,7 @@ fun AboutScreen(
         topBar = {
             TopAppBar(
                 title = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
-                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
+                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
                 navigationIcon = { 
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
@@ -122,19 +121,17 @@ private fun LinkListItem(text: String, url: String) {
 
 /**
  * UI screen showing the licences of the apps dependencies.
- * @param fullBlack Whether the app is in full black mode.
  * @param onBackPressed Called when the back navigation button is pressed.
  */
 @Composable
 fun LicencesScreen(
-    fullBlack: Boolean,
     onBackPressed: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.oss_licences)) },
-                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
+                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
@@ -155,12 +152,12 @@ fun LicencesScreen(
 @Preview
 @Composable
 private fun Preview() {
-    AppTheme { AboutScreen(false, {}) {} }
+    AppTheme { AboutScreen({}) {} }
 }
 
 /** Preview */
 @Preview
 @Composable
 private fun LicensesPreview() {
-    AppTheme { LicencesScreen(false) {} }
+    AppTheme { LicencesScreen {} }
 }

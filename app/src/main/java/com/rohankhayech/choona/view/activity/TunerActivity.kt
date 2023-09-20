@@ -207,7 +207,6 @@ class TunerActivity : AppCompatActivity() {
                     // Audio permission not granted, show permission rationale.
                     val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
                     TunerPermissionScreen(
-                        fullBlack = prefs.useBlackTheme,
                         canRequest = firstRequest,
                         onSettingsPressed = ::openSettings,
                         onRequestPermission = ph::request,

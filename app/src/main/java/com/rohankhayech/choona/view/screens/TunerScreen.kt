@@ -44,6 +44,7 @@ import com.rohankhayech.android.util.ui.preview.CompactThemePreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.isTrueDark
 import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
@@ -113,10 +114,9 @@ fun TunerScreen(
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(prefs.useBlackTheme, onSettingsPressed)
+                AppBar(onSettingsPressed)
             } else {
                 CompactAppBar(
-                    fullBlack = prefs.useBlackTheme,
                     onSettingsPressed = onSettingsPressed,
                     tuning = tuning,
                     customTunings = customTunings,
@@ -389,7 +389,6 @@ private fun TunerBodyScaffold(
  * UI screen shown to the user when the audio permission is not granted.
  *
  * @param canRequest Whether the permission can be requested.
- * @param fullBlack Whether the app is in full black mode.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -397,13 +396,12 @@ private fun TunerBodyScaffold(
 @Composable
 fun TunerPermissionScreen(
     canRequest: Boolean,
-    fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(fullBlack, onSettingsPressed) }
+        topBar = { AppBar(onSettingsPressed) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -448,17 +446,15 @@ fun TunerPermissionScreen(
 
 /**
  * App bar for the tuning screen.
- * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun AppBar(
-    fullBlack: Boolean,
     onSettingsPressed: () -> Unit
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -470,12 +466,10 @@ private fun AppBar(
 
 /**
  * App bar for the tuning screen.
- * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun CompactAppBar(
-    fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
@@ -485,7 +479,7 @@ private fun CompactAppBar(
         title = {
             TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
         },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(fullBlack),
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
             // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
@@ -594,7 +588,6 @@ private fun LargeFontPreview() {
 private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
-            fullBlack = false,
             canRequest = true,
             onSettingsPressed = {},
             onRequestPermission = {},
@@ -608,7 +601,6 @@ private fun PermissionRequestPreview() {
 private fun PermissionDeniedPreview() {
     AppTheme {
         TunerPermissionScreen(
-            fullBlack = false,
             canRequest = false,
             onSettingsPressed = {},
             onRequestPermission = {},
