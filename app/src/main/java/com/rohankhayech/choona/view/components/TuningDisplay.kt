@@ -20,10 +20,12 @@ package com.rohankhayech.choona.view.components
 
 import kotlin.math.abs
 import kotlin.math.sign
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,8 +33,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
@@ -40,6 +46,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -55,7 +62,10 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
@@ -135,10 +145,13 @@ fun TuningDisplay(
 
     // Content
     Row(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(16.dp),
         verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        AccidentalIcon(R.drawable.music_accidental_flat, contentDescription = "Flat")
         TuningMeter(
             indicatorPosition = meterPosition,
             indicatorSize = indicatorSize,
@@ -146,6 +159,7 @@ fun TuningDisplay(
         ) {
             TuningMeterLabel(noteOffset = offset, color = color, displayType = displayType)
         }
+        AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
     }
 }
 
@@ -164,13 +178,18 @@ private fun TuningMeter(
     color: Color,
     labelContent: @Composable () -> Unit
 ) {
+    val dirIndicatorPos = when (LocalLayoutDirection.current) {
+        LayoutDirection.Ltr -> indicatorPosition
+        LayoutDirection.Rtl -> -indicatorPosition
+    }
+
     Column(
         modifier = Modifier
             .defaultMinSize(210.dp, 116.dp)
             .drawBehind {
                 drawMeter(
                     indicatorColor = color,
-                    indicatorPosition = indicatorPosition,
+                    indicatorPosition = dirIndicatorPos,
                     indicatorSize = indicatorSize
                 )
             },
@@ -283,6 +302,25 @@ private fun TuningMeterLabel(
             TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
             TuningDisplayType.CENTS -> stringResource(R.string.cents)
         })
+    }
+}
+
+/**
+ * Composable displaying an accidental (sharp or flat) icon.
+ * @param icon The icon resource.
+ * @param contentDescription Description of the icon for accessibility.
+ */
+@Composable
+private fun AccidentalIcon(
+    @DrawableRes icon: Int,
+    contentDescription: String
+) {
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = contentDescription,
+            modifier = Modifier.requiredSize(24.dp)
+        )
     }
 }
 

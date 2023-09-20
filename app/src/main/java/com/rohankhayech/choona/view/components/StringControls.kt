@@ -81,7 +81,11 @@ fun StringControls(
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
 ) {
-    Box(Modifier.padding(8.dp)) {
+    Box(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(8.dp)
+    ) {
         if (inline) {
             InlineStringControls(
                 tuning = tuning,
@@ -123,7 +127,6 @@ private fun SideBySideStringControls(
     onTuneUp: (Int) -> Unit
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Absolute.spacedBy(8.dp)
     ) {
