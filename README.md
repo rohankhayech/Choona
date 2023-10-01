@@ -7,7 +7,7 @@ Guitar tuner application for Android with support for custom tunings.
 - Listens as you play a string and indicates whether it is in-tune.
 - Displays the amount to tune each string up/down to reach the correct pitch.
 - Automatic detection of which string is playing.
-- Choose from 20+ common guitar tunings.
+- Choose from 20+ common guitar and bass tunings.
 - Save and tune to custom tunings with any combination of strings.
 - Display tuning offset in semitones or cents for improved accuracy.
 - Plays sounds to indicate how a string should sound and when it is in tune.
