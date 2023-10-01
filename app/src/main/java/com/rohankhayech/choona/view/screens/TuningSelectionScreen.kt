@@ -651,7 +651,7 @@ private fun LazyItemScope.SectionLabel(title: String) {
  * @param onDismiss Called when the save dialog is dismissed.
  */
 @Composable
-private fun SaveTuningDialog(
+fun SaveTuningDialog(
     tuning: Tuning,
     onSave: (String?, Tuning) -> Unit,
     onDismiss: () -> Unit
