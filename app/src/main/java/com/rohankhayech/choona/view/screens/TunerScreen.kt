@@ -407,7 +407,9 @@ fun TunerPermissionScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxWidth()
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -434,11 +436,11 @@ fun TunerPermissionScreen(
             Text( // Rationale
                 text = rationale,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 72.dp)
+                modifier = Modifier.widthIn(max = 256.dp)
             )
             // Action Button
             Button(onClick = buttonAction) {
-                Text(buttonLabel)
+                Text(buttonLabel, textAlign = TextAlign.Center)
             }
         }
     }
