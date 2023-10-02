@@ -337,7 +337,7 @@ fun TuningList(
 
         tunings.forEach { group ->
             item(group.toString()) {
-                SectionLabel("${group.key.first.getLocalisedName()} - ${group.key.second.getLocalisedName()} ")
+                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}")
             }
             items(group.value, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
