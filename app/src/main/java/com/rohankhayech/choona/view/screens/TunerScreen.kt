@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -41,6 +40,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.rohankhayech.android.util.ui.preview.CompactThemePreview
+import com.rohankhayech.android.util.ui.preview.LandscapePreview
+import com.rohankhayech.android.util.ui.preview.LargeFontPreview
+import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.isTrueDark
+import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -109,10 +114,9 @@ fun TunerScreen(
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(prefs.useBlackTheme, onSettingsPressed)
+                AppBar(onSettingsPressed)
             } else {
                 CompactAppBar(
-                    fullBlack = prefs.useBlackTheme,
                     onSettingsPressed = onSettingsPressed,
                     tuning = tuning,
                     customTunings = customTunings,
@@ -384,28 +388,28 @@ private fun TunerBodyScaffold(
 /**
  * UI screen shown to the user when the audio permission is not granted.
  *
- * @param requestAgain Whether the permission should be requested again.
- * @param fullBlack Whether the app is in full black mode.
+ * @param canRequest Whether the permission can be requested.
  * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
  */
 @Composable
 fun TunerPermissionScreen(
-    requestAgain: Boolean,
-    fullBlack: Boolean,
+    canRequest: Boolean,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(fullBlack, onSettingsPressed) }
+        topBar = { AppBar(onSettingsPressed) }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxWidth()
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -413,7 +417,7 @@ fun TunerPermissionScreen(
             val rationale: String
             val buttonLabel: String
             val buttonAction: () -> Unit
-            if (requestAgain) {
+            if (canRequest) {
                 title = stringResource(R.string.permission_needed)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale)
                 buttonLabel = stringResource(R.string.request_permission).uppercase()
@@ -432,11 +436,11 @@ fun TunerPermissionScreen(
             Text( // Rationale
                 text = rationale,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 72.dp)
+                modifier = Modifier.widthIn(max = 256.dp)
             )
             // Action Button
             Button(onClick = buttonAction) {
-                Text(buttonLabel)
+                Text(buttonLabel, textAlign = TextAlign.Center)
             }
         }
     }
@@ -444,18 +448,15 @@ fun TunerPermissionScreen(
 
 /**
  * App bar for the tuning screen.
- * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun AppBar(
-    fullBlack: Boolean,
     onSettingsPressed: () -> Unit
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
-        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-            else MaterialTheme.colors.primarySurface,
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
             // Settings button
             IconButton(onClick = onSettingsPressed) {
@@ -467,12 +468,10 @@ private fun AppBar(
 
 /**
  * App bar for the tuning screen.
- * @param fullBlack Whether the app bar should be displayed with a full black background.
  * @param onSettingsPressed Called when the settings button is pressed.
  */
 @Composable
 private fun CompactAppBar(
-    fullBlack: Boolean,
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
@@ -482,8 +481,7 @@ private fun CompactAppBar(
         title = {
             TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
         },
-        backgroundColor = if (fullBlack && !MaterialTheme.colors.isLight) MaterialTheme.colors.background
-        else MaterialTheme.colors.primarySurface,
+        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
             // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
@@ -551,8 +549,7 @@ private fun BasePreview(
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun TunerPreview() {
     BasePreview(
@@ -561,10 +558,7 @@ private fun TunerPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(device = "spec:width=411dp,height=320dp")
-@Preview(device = "spec:width=320dp,height=411dp")
-@Preview(device = "spec:width=411dp,height=320dp", uiMode = UI_MODE_NIGHT_YES)
-@Preview(device = "spec:width=320dp,height=411dp", uiMode = UI_MODE_NIGHT_YES)
+@CompactThemePreview
 @Composable
 private fun CompactPreview() {
     BasePreview(
@@ -574,7 +568,7 @@ private fun CompactPreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(device = "spec:width=891dp,height=411dp")
+@LandscapePreview
 @Composable
 private fun LandscapePreview() {
     BasePreview(
@@ -583,7 +577,7 @@ private fun LandscapePreview() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(fontScale = 1.3f)
+@LargeFontPreview
 @Composable
 private fun LargeFontPreview() {
     BasePreview(
@@ -596,8 +590,7 @@ private fun LargeFontPreview() {
 private fun PermissionRequestPreview() {
     AppTheme {
         TunerPermissionScreen(
-            fullBlack = false,
-            requestAgain = true,
+            canRequest = true,
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
@@ -610,8 +603,7 @@ private fun PermissionRequestPreview() {
 private fun PermissionDeniedPreview() {
     AppTheme {
         TunerPermissionScreen(
-            fullBlack = false,
-            requestAgain = false,
+            canRequest = false,
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}

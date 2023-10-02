@@ -51,11 +51,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.view.LightDarkPreview
-import com.rohankhayech.choona.view.PreviewWrapper
+import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.Tuning
 
 /**
@@ -248,7 +248,7 @@ fun TuningItem(
 }
 
 // Previews
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun Preview() {
     PreviewWrapper {
@@ -267,7 +267,7 @@ private fun Preview() {
 }
 
 // Previews
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun TuningItemPreview() {
     PreviewWrapper {

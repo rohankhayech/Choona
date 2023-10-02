@@ -23,7 +23,7 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="open_permission_settings">Open Settings</string>
     <string name="tuner_audio_permission_rationale">The tuner requires permission to record audio to detect the pitch of incoming audio.\n\nPlease enable this permission to use the tuner:</string>
-    <string name="tuner_audio_permission_rationale_denied">Cannot use tuner as permission to record audio has not been granted.\n\nThe tuner requires this permission to detect the pitch of incoming audio.\n\nPlease enable this permission in Settings:</string>
+    <string name="tuner_audio_permission_rationale_denied">Cannot use tuner the as permission to use your microphone has not been granted.\n\nThe tuner requires this permission to detect the pitch of incoming audio.\n\nPlease enable this permission in Settings:</string>
     <string name="request_permission">Request Permission</string>
     <string name="permission_needed">Permission Needed</string>
     <string name="tuner">Tuner</string>
@@ -61,7 +61,6 @@
     <string name="tuning_list_current">Current</string>
     <string name="tuning_list_favourites">Favourites</string>
     <string name="tuning_list_custom">Custom</string>
-    <string name="tuning_list_common">Common</string>
     <string name="instr_guitar">Guitar</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
@@ -78,4 +77,17 @@
     <string name="third_party_licences">Third-party licences</string>
     <string name="oss_licences">Open Source Licences</string>
     <string name="configure_tuning">Configure Tuning</string>
+    <string name="instr_bass">Bass</string>
+    <string name="instr_other">Other</string>
+    <string name="deleted_tuning">Deleted tuning %1$s.</string>
+    <string name="undo">Undo</string>
+    <string name="tun_cat_common">Common</string>
+    <string name="tun_cat_power">Power</string>
+    <string name="tun_cat_open">Open</string>
+    <string name="tun_cat_misc">Misc</string>
+    <string name="all_tunings">All Tunings</string>
+    <string name="privacy">Privacy</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="help_feedback">Feedback</string>
+    <string name="send_feedback">Send feedback</string>
 </resources>

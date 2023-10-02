@@ -52,10 +52,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.view.LightDarkPreview
-import com.rohankhayech.choona.view.PreviewWrapper
+import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning
 
@@ -81,7 +81,11 @@ fun StringControls(
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit
 ) {
-    Box(Modifier.padding(8.dp)) {
+    Box(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(8.dp)
+    ) {
         if (inline) {
             InlineStringControls(
                 tuning = tuning,
@@ -123,7 +127,6 @@ private fun SideBySideStringControls(
     onTuneUp: (Int) -> Unit
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Absolute.spacedBy(8.dp)
     ) {
@@ -334,7 +337,7 @@ private fun StringSelectionButton(
 
 // Previews
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 fun InlinePreview() {
     PreviewWrapper {
@@ -350,7 +353,7 @@ fun InlinePreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun SideBySidePreview() {
     PreviewWrapper {
@@ -366,7 +369,7 @@ private fun SideBySidePreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun CompactPreview() {
     PreviewWrapper {
@@ -379,7 +382,7 @@ private fun CompactPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
@@ -387,7 +390,7 @@ private fun StringControlPreview() {
     }
 }
 
-@LightDarkPreview
+@ThemePreview
 @Composable
 private fun ButtonStatesPreview() {
     PreviewWrapper {
@@ -405,6 +408,5 @@ private fun ButtonStatesPreview() {
 private fun LargeFontPreview() {
     PreviewWrapper {
         StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
-
     }
 }

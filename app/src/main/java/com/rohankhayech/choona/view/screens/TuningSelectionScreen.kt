@@ -18,14 +18,17 @@
 
 package com.rohankhayech.choona.view.screens
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import java.util.Locale
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -35,24 +38,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.secondaryTextButtonColors
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
-import com.rohankhayech.choona.view.theme.secondaryTextButtonColors
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.music.Tuning.Category
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * UI screen that allows the user to select a tuning for use,
  * as well as managing favourite and custom tunings.
  *
  * @param tuningList State holder for the tuning list.
+ * @param backIcon Icon used for the back navigation button.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
@@ -73,13 +85,25 @@ fun TuningSelectionScreen(
     val current by tuningList.current.collectAsStateWithLifecycle()
     val favourites by tuningList.favourites.collectAsStateWithLifecycle()
     val custom by tuningList.custom.collectAsStateWithLifecycle()
+    val tunings by tuningList.filteredTunings.collectAsStateWithLifecycle()
+    val instrumentFilter by tuningList.instrumentFilter.collectAsStateWithLifecycle()
+    val categoryFilter by tuningList.categoryFilter.collectAsStateWithLifecycle()
+    val instrumentFilters = tuningList.instrumentFilters.collectAsStateWithLifecycle()
+    val categoryFilters = tuningList.categoryFilters.collectAsStateWithLifecycle()
 
     TuningSelectionScreen(
         current = current,
-        common = Tunings.COMMON,
+        tunings = tunings,
         favourites = favourites,
         custom = custom,
+        instrumentFilter = instrumentFilter,
+        categoryFilter = categoryFilter,
+        instrumentFilters = instrumentFilters,
+        categoryFilters = categoryFilters,
         backIcon = backIcon,
+        deletedTuning = tuningList.deletedTuning,
+        onSelectInstrument = { tuningList.filterBy(instrument = it) },
+        onSelectCategory = { tuningList.filterBy(category = it) },
         onSave = { name, tuning ->
             tuningList.addCustom(name, tuning)
             onSave(name, tuning)
@@ -89,9 +113,7 @@ fun TuningSelectionScreen(
             onFavouriteSet(tuning, fav)
         }},
         onSelect = onSelect,
-        onDelete = {
-            tuningList.removeCustom(it)
-        },
+        onDelete = { tuningList.removeCustom(it) },
         onDismiss = onDismiss
     )
 }
@@ -101,9 +123,17 @@ fun TuningSelectionScreen(
  * as well as managing favourite and custom tunings.
  *
  * @param current Currently selected tuning, or null if N/A.
- * @param common Set of commonly used tunings.
+ * @param tunings Current collection of filtered and grouped tunings.
  * @param favourites Set of tunings marked as favourites.
  * @param custom Set of custom tunings saved by the user.
+ * @param instrumentFilter Current filter for tuning instrument.
+ * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
+ * @param backIcon Icon used for the back navigation button.
+ * @param deletedTuning Event indicating the specified tuning was deleted.
+ * @param onSelectInstrument Called when an instrument filter is selected.
+ * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
@@ -115,10 +145,17 @@ fun TuningSelectionScreen(
 @Composable
 fun TuningSelectionScreen(
     current: Tuning? = null,
-    common: Set<Tuning>,
+    tunings: Map<Pair<Instrument, Category?>, List<Tuning>>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
+    instrumentFilter: Instrument?,
+    categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
     backIcon: ImageVector?,
+    deletedTuning: SharedFlow<Tuning>,
+    onSelectInstrument: (Instrument?) -> Unit,
+    onSelectCategory: (Category?) -> Unit,
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -138,7 +175,25 @@ fun TuningSelectionScreen(
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
+    val scaffoldState = rememberScaffoldState()
+
+    // Collect deleted tuning events and show snackbar.
+    val context = LocalContext.current
+    LaunchedEffect(deletedTuning, context, scaffoldState.snackbarHostState) {
+        deletedTuning.collectLatest {
+            // Show deleted tuning snackbar.
+            val result = scaffoldState.snackbarHostState.showSnackbar(
+                message = context.getString(R.string.deleted_tuning, it),
+                actionLabel = context.getString(R.string.undo).uppercase(Locale.getDefault()),
+                duration = SnackbarDuration.Long
+            )
+            // Undo action
+            if (result == SnackbarResult.ActionPerformed) onSave(it.name, it)
+        }
+    }
+
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
@@ -156,9 +211,15 @@ fun TuningSelectionScreen(
             modifier = Modifier.padding(it),
             listState = listState,
             current = current,
-            common = common,
+            tunings = tunings,
             favourites = favourites,
             custom = custom,
+            instrumentFilter = instrumentFilter,
+            categoryFilter = categoryFilter,
+            instrumentFilters = instrumentFilters,
+            categoryFilters = categoryFilters,
+            onSelectInstrument = onSelectInstrument,
+            onSelectCategory = onSelectCategory,
             onSave = { showSaveDialog = true },
             onFavouriteSet = onFavouriteSet,
             onSelect = onSelect,
@@ -189,28 +250,40 @@ fun TuningSelectionScreen(
  * @param modifier The modifier to apply to this layout.
  * @param listState State controller for the lazy list.
  * @param current Currently selected tuning, or null if N/A.
- * @param common Set of commonly used tunings.
+ * @param tunings Current collection of filtered and grouped tunings.
  * @param favourites Set of tunings marked as favourites.
  * @param custom Set of custom tunings saved by the user.
+ * @param instrumentFilter Current filter for tuning instrument.
+ * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
+ * @param onSelectInstrument Called when an instrument filter is selected.
+ * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
  * @param onDelete Called when a custom tuning is deleted.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TuningList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     current: Tuning? = null,
-    common: Set<Tuning>,
+    tunings: Map<Pair<Instrument, Category?>, List<Tuning>>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
+    instrumentFilter: Instrument?,
+    categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
+    onSelectInstrument: (Instrument?) -> Unit,
+    onSelectCategory: (Category?) -> Unit,
     onSave: (Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
     onDelete: (Tuning) -> Unit
 ) {
-    val commonList = remember(common) { common.toList() }
     val favsList = remember(favourites) { favourites.toList() }
     val customList = remember(custom) { custom.toList() }
 
@@ -219,8 +292,8 @@ fun TuningList(
         // Current Tuning
         current?.let {
             item("cur") { SectionLabel(stringResource(R.string.tuning_list_current)) }
-            item("cur-[${current.toFullString()}]") {
-                val saved = remember(current, custom, common) { current.hasEquivalentIn(custom+common) }
+            item("cur-${current.instrument}-[${current.toFullString()}]") {
+                val saved = remember(current, custom) { current.hasEquivalentIn(custom+Tunings.COMMON) }
                 CurrentTuningItem(tuning = current, saved = saved, onSave = onSave, onSelect = onSelect)
             }
         }
@@ -228,7 +301,7 @@ fun TuningList(
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
             item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites)) }
-            items(favsList, key = { "fav-[${it.toFullString()}]" }) {
+            items(favsList, key = { "fav-${it.instrument}-[${it.toFullString()}]" }) {
                 FavouritableTuningItem(tuning = it, favourited = true, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
             }
         }
@@ -236,18 +309,130 @@ fun TuningList(
         // Custom Tunings
         if (custom.isNotEmpty()) {
             item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom)) }
-            items(customList, key = { "[${it.toFullString()}]" }) {
+            items(customList, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 CustomTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onDelete = onDelete)
             }
         }
 
-        // Common Tunings
-        item("com") { SectionLabel(stringResource(R.string.tuning_list_common)) }
-        items(commonList, key = { "[${it.toFullString()}]"  }) {
-            val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
-            FavouritableTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
+        // All Tunings
+        item("all") {
+            SectionLabel(stringResource(R.string.all_tunings))
         }
+        stickyHeader("filter-bar") {
+            var stuck by remember { mutableStateOf(false) }
+            Surface(
+                color = MaterialTheme.colors.background,
+                elevation = if (stuck) 2.dp else 0.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateItemPlacement()
+                    .onGloballyPositioned {
+                        stuck = it.positionInParent().y == 0f
+                    }
+            ) {
+                FilterBar(instrumentFilter, categoryFilter, instrumentFilters, categoryFilters, onSelectInstrument, onSelectCategory)
+            }
+        }
+
+        tunings.forEach { group ->
+            item(group.toString()) {
+                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}")
+            }
+            items(group.value, key = { "${it.instrument}-[${it.toFullString()}]" }) {
+                val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
+                FavouritableTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
+            }
+        }
+    }
+}
+
+/**
+ * Chip bar containing filters for tuning instrument and category.
+ *
+ * @param instrumentFilter Current filter for tuning instrument.
+ * @param categoryFilter Current filter for tuning category.
+ * @param instrumentFilters Available instrument filters and their enabled states.
+ * @param categoryFilters Available category filters and their enabled states.
+ * @param onSelectInstrument Called when an instrument filter is selected.
+ * @param onSelectCategory Called when an category filter is selected.
+ */
+// Note: Recomposition could be improved.
+@Composable
+private fun FilterBar(
+    instrumentFilter: Instrument?,
+    categoryFilter: Category?,
+    instrumentFilters: State<Map<Instrument, Boolean>>,
+    categoryFilters: State<Map<Category, Boolean>>,
+    onSelectInstrument: (Instrument?) -> Unit,
+    onSelectCategory: (Category?) -> Unit
+) {
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(8.dp))
+        instrumentFilters.value.forEach { filter ->
+            TuningFilterChip(
+                filter = filter.key,
+                filterText = filter.key.getLocalisedName(),
+                enabled = filter.value,
+                selected = instrumentFilter == filter.key,
+                onSelect = onSelectInstrument
+            )
+        }
+        categoryFilters.value.forEach { filter ->
+            TuningFilterChip(
+                filter = filter.key,
+                filterText = filter.key.getLocalisedName(),
+                enabled = filter.value,
+                selected = categoryFilter == filter.key,
+                onSelect = onSelectCategory
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+    }
+}
+
+/**
+ * Filter chip for tuning filters.
+ *
+ * @param filter The filter to display.
+ * @param filterText The localised filter name.
+ * @param enabled Whether the filter is enabled to be selected.
+ * @param selected Whether the filter is currently selected.
+ * @param onSelect Called when the filter is selected/unselected.
+ */
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun <T> TuningFilterChip(
+    filter: T,
+    filterText: String,
+    enabled: Boolean,
+    selected: Boolean,
+    onSelect: (T?) -> Unit
+) {
+    FilterChip(
+        enabled = enabled,
+        selected = selected,
+        onClick = { if (enabled) if (selected) onSelect(null) else onSelect(filter) },
+        border = if (selected) null else ChipDefaults.outlinedBorder,
+        colors = if (!selected) ChipDefaults.outlinedFilterChipColors(backgroundColor = MaterialTheme.colors.background)
+        else ChipDefaults.filterChipColors(
+            backgroundColor = MaterialTheme.colors.secondaryVariant.copy(alpha = 0.12f)
+                .compositeOver(MaterialTheme.colors.background),
+            contentColor = MaterialTheme.colors.secondaryVariant
+        ),
+        selectedIcon = {
+            Row {
+                Spacer(Modifier.width(4.dp))
+                Icon(Icons.Default.Done, null, Modifier.size(ChipDefaults.SelectedIconSize))
+            }
+        },
+        modifier = Modifier.animateContentSize()
+    ) {
+        Text(filterText)
     }
 }
 
@@ -263,7 +448,7 @@ fun TuningList(
 @Composable
 private fun LazyItemScope.CurrentTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     saved: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -299,13 +484,13 @@ private fun LazyItemScope.CurrentTuningItem(
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
     onDelete: (Tuning) -> Unit,
 ) {
-     val dismissState = rememberDismissState(
+    val dismissState = rememberDismissState(
         confirmStateChange = { dismissValue ->
             if (dismissValue == DismissValue.DismissedToStart) {
                 onDelete(tuning)
@@ -347,19 +532,13 @@ private fun LazyItemScope.CustomTuningItem(
             }
         }
     ) {
-        Surface(
-            color = MaterialTheme.colors.background
-        ) {
-            Column {
-                FavouritableTuningItem(
-                    tuning = tuning,
-                    instrumentName = instrumentName,
-                    favourited = favourited,
-                    onFavouriteSet = onFavouriteSet,
-                    onSelect = onSelect
-                )
-            }
-        }
+        FavouritableTuningItem(
+            tuning = tuning,
+            instrumentName = instrumentName,
+            favourited = favourited,
+            onFavouriteSet = onFavouriteSet,
+            onSelect = onSelect
+        )
     }
 }
 
@@ -375,7 +554,7 @@ private fun LazyItemScope.CustomTuningItem(
 @Composable
 private fun LazyItemScope.FavouritableTuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     favourited: Boolean,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
@@ -406,10 +585,9 @@ private fun LazyItemScope.FavouritableTuningItem(
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
-    instrumentName: String = stringResource(R.string.instr_guitar),
+    instrumentName: String = tuning.instrument.getLocalisedName(),
     onSelect: (Tuning) -> Unit,
-    trailing: (@Composable () -> Unit)? = null,
-
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val strings = remember(tuning) {
         tuning.strings
@@ -419,17 +597,43 @@ private fun LazyItemScope.TuningItem(
             ) { it.toFullString() }
     }
 
-    Column(Modifier.animateItemPlacement()) {
-        ListItem(
-            text = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            secondaryText = { Text(strings) },
-            overlineText = { Text("$instrumentName ‧ ${tuning.numStrings()}"+stringResource(R.string.num_strings_suffix)) },
-            modifier = Modifier.clickable { onSelect(tuning) },
-            trailing = trailing
-        )
+    Surface(
+        color = MaterialTheme.colors.background,
+        modifier = Modifier.animateItemPlacement()
+    ) {
+        Column {
+            ListItem(
+                text = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                secondaryText = { Text(strings) },
+                overlineText = { Text("$instrumentName ‧ ${tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) },
+                modifier = Modifier.clickable { onSelect(tuning) },
+                trailing = trailing
+            )
 
-        Divider()
+            Divider()
+        }
     }
+}
+
+/** @return The localised name of this instrument. */
+@Composable
+fun Instrument.getLocalisedName(): String {
+    return stringResource(when (this) {
+        Instrument.GUITAR -> R.string.instr_guitar
+        Instrument.BASS -> R.string.instr_bass
+        else -> R.string.instr_other
+    })
+}
+
+/** @return The localised name of this category. */
+@Composable
+fun Category?.getLocalisedName(): String {
+    return stringResource(when (this) {
+        Category.COMMON -> R.string.tun_cat_common
+        Category.POWER -> R.string.tun_cat_power
+        Category.OPEN -> R.string.tun_cat_open
+        else -> R.string.tun_cat_misc
+    })
 }
 
 /** UI component displaying a tuning category label with [title] text. */
@@ -447,7 +651,7 @@ private fun LazyItemScope.SectionLabel(title: String) {
  * @param onDismiss Called when the save dialog is dismissed.
  */
 @Composable
-private fun SaveTuningDialog(
+fun SaveTuningDialog(
     tuning: Tuning,
     onSave: (String?, Tuning) -> Unit,
     onDismiss: () -> Unit
@@ -488,37 +692,39 @@ private fun SaveTuningDialog(
 
 // Previews
 
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun Preview() {
-    val currentTuning = Tuning.fromString("G3 D3 A3 E4")
+    val currentTuning = Tunings.BASS_STANDARD.higherTuning()
     val customTuning = Tuning.fromString("E4 E3 E3 E3 E2 E2")
-    val favCustomTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")
+    val favCustomTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
-        Surface {
-            TuningSelectionScreen(
-                current = currentTuning,
-                common = Tunings.COMMON,
-                favourites = setOf(Tuning.STANDARD, favCustomTuning),
-                custom = setOf(customTuning, favCustomTuning),
-                backIcon = Icons.Default.Close,
-                onSave = {_,_->},
-                onFavouriteSet = {_,_ ->},
-                onSelect = {},
-                onDelete = {},
-                onDismiss = {}
-            )
-        }
+        TuningSelectionScreen(
+            current = currentTuning,
+            tunings = TuningList.GROUPED_TUNINGS,
+            favourites = setOf(Tuning.STANDARD, favCustomTuning),
+            custom = setOf(customTuning, favCustomTuning),
+            Instrument.BASS, null,
+            instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
+            categoryFilters = remember { mutableStateOf(Category.values().associateWith { true }) },
+            backIcon = Icons.Default.Close,
+            deletedTuning = MutableSharedFlow(),
+            onSave = {_,_->},
+            onFavouriteSet = {_,_ ->},
+            onSelect = {},
+            onDelete = {},
+            onSelectInstrument = {},
+            onSelectCategory = {},
+            onDismiss = {}
+        )
     }
 }
 
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@ThemePreview
 @Composable
 private fun SaveDialogPreview() {
-    val customTuning = Tuning.fromString("Custom", "C#4 B3 F#3 D3 A2 D2")
+    val customTuning = Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2")
 
     AppTheme {
         SaveTuningDialog(tuning = customTuning, onSave = {_,_->}) {}

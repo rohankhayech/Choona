@@ -74,9 +74,6 @@ class TunerActivity : AppCompatActivity() {
     /** MIDI controller used to play guitar notes. */
     private lateinit var midi: MidiController
 
-    /** Whether the RECORD_AUDIO permission has been granted. */
-    private val permGranted = MutableStateFlow(false)
-
     /** User preferences for the tuner. */
     private lateinit var prefs: Flow<TunerPreferences>
 
@@ -99,16 +96,7 @@ class TunerActivity : AppCompatActivity() {
             .map(TunerPreferences::fromAndroidPreferences)
 
         // Setup permission handler.
-        ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO, object : PermissionHandler.PermissionCallback {
-            override fun showInContextUI() {
-                permGranted.update { false }
-            }
-
-            override fun onPermissionDenied() {
-                permGranted.update { false }
-            }
-        })
-        requestPermission()
+        ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO)
 
         // Setup MIDI controller for note playback.
         midi = MidiController(vm.tuner.tuning.value.numStrings())
@@ -136,7 +124,7 @@ class TunerActivity : AppCompatActivity() {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
             AppTheme(fullBlack = prefs.useBlackTheme) {
-                val granted by permGranted.collectAsStateWithLifecycle()
+                val granted by ph.granted.collectAsStateWithLifecycle()
                 if (granted) {
                     // Collect state.
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
@@ -195,7 +183,7 @@ class TunerActivity : AppCompatActivity() {
                                 if (prefs.enableStringSelectSound) playStringSelectSound(it)
                             }
                         },
-                        onSelectTuning = vm.tuner::setTuning,
+                        onSelectTuning = ::setTuning,
                         onTuneUpString = vm.tuner::tuneStringUp,
                         onTuneDownString = vm.tuner::tuneStringDown,
                         onTuneUpTuning = vm.tuner::tuneUp,
@@ -217,11 +205,11 @@ class TunerActivity : AppCompatActivity() {
                     )
                 } else {
                     // Audio permission not granted, show permission rationale.
+                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
                     TunerPermissionScreen(
-                        fullBlack = prefs.useBlackTheme,
-                        requestAgain = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO),
+                        canRequest = firstRequest,
                         onSettingsPressed = ::openSettings,
-                        onRequestPermission = ::requestPermission,
+                        onRequestPermission = ph::request,
                         onOpenPermissionSettings = ::openPermissionSettings,
                     )
                 }
@@ -240,7 +228,6 @@ class TunerActivity : AppCompatActivity() {
         // Start midi driver.
         midi.start()
 
-        checkPermission()
         // Start the tuner if no panels are open.
         if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
@@ -270,7 +257,8 @@ class TunerActivity : AppCompatActivity() {
         midi.playNote(
             string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150
+            150,
+            vm.tuner.tuning.value.instrument.midiInstrument
         )
     }
 
@@ -328,12 +316,21 @@ class TunerActivity : AppCompatActivity() {
     }
 
     /**
-     * Sets the current tuning to the tuning selected on the tuning
-     * selection screen and restarts the tuner if no other panel is open.
+     * Sets the current tuning to the [tuning] selected on the tuning
+     * selection screen, restarts the tuner if no other panel is open,
+     * and recreates the MIDI driver if necessary.
      */
     private fun selectTuning(tuning: Tuning) {
+        // Consume back stack entry.
         dismissTuningSelectorOnBack.isEnabled = false
+
+        // Recreate MIDI driver if number of strings different.
+        checkAndRecreateMidiDriver(tuning)
+
+        // Select the tuning.
         vm.selectTuning(tuning)
+
+        // Start tuner if no other panel is open.
         if (!vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
@@ -341,25 +338,35 @@ class TunerActivity : AppCompatActivity() {
         }
     }
 
-    /** Opens the tuner settings activity. */
-    private fun openSettings() {
-        startActivity(Intent(this, SettingsActivity::class.java))
+    /**
+     * Sets the current tuning to the [tuning] specified,
+     * and recreates the MIDI driver if necessary.
+     */
+    private fun setTuning(tuning: Tuning) {
+        // Recreate MIDI driver if number of strings different.
+        checkAndRecreateMidiDriver(tuning)
+
+        // Select the tuning.
+        vm.tuner.setTuning(tuning)
     }
 
     /**
-     * Requests the audio permission.
+     * Recreates the MIDI driver when the number of strings
+     * in the new tuning is different from the current tuning.
+     *
+     * @param newTuning The new selected tuning.
      */
-    private fun requestPermission() {
-        ph.requestPermAndPerform {
-            permGranted.update { true }
+    private fun checkAndRecreateMidiDriver(newTuning: Tuning) {
+        if (newTuning.numStrings() != vm.tuner.tuning.value.numStrings()) {
+            midi.stop()
+            midi = MidiController(newTuning.numStrings())
+            midi.start()
         }
     }
 
-    /** Checks for audio permission. */
-    private fun checkPermission() {
-        ph.checkPermAndPerform {
-            permGranted.update { true }
-        }
+    /** Opens the tuner settings activity. */
+    private fun openSettings() {
+        startActivity(Intent(this, SettingsActivity::class.java))
     }
 
     /** Opens the permission settings screen in the device settings. */
@@ -379,7 +386,7 @@ class TunerActivityViewModel : ViewModel() {
     val tuner = Tuner()
 
     /** State holder containing the lists of favourite and custom tunings. */
-    val tuningList = TuningList(tuner.tuning.value)
+    val tuningList = TuningList(tuner.tuning.value, viewModelScope)
 
     /** Mutable backing property for [tuningSelectorOpen]. */
     private val _tuningSelectorOpen = MutableStateFlow(false)

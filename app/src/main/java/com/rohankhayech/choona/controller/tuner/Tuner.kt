@@ -132,6 +132,9 @@ class Tuner(
             updateTunedStatus(it, tuning)
             tuning
         }
+        if (selectedString.value >= tuning.numStrings()) {
+            _selectedString.update { tuning.numStrings() - 1 }
+        }
     }
 
     /** Tunes all strings in the tuning up by one semitone */
@@ -256,21 +259,17 @@ class Tuner(
      */
     @Throws(IllegalStateException::class)
     fun start(ph: PermissionHandler) {
-        if (!running) {
-            val granted = ph.checkPermAndPerform {
-                running = true
+        check(!running) { "Tuner already started." }
+        check(ph.check()) { "RECORD_AUDIO permission not granted." }
 
-                // Create audio dispatcher from default microphone.
-                dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLE_RATE, AUDIO_BUFFER_SIZE, 0)
-                dispatcher?.addAudioProcessor(pitchProcessor)
+        running = true
 
-                // Start the audio dispatcher (producer) thread.
-                Thread(dispatcher, "audio-dispatcher").start()
-            }
-            check(granted) {"RECORD_AUDIO permission not granted."}
-        } else {
-            throw IllegalStateException("Tuner already started")
-        }
+        // Create audio dispatcher from default microphone.
+        dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLE_RATE, AUDIO_BUFFER_SIZE, 0)
+        dispatcher?.addAudioProcessor(pitchProcessor)
+
+        // Start the audio dispatcher (producer) thread.
+        Thread(dispatcher, "audio-dispatcher").start()
     }
 
     /** Stops listening to incoming audio and note comparison. */

@@ -16,21 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.view
+package com.rohankhayech.music;
 
-import android.content.res.Configuration
-import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.rohankhayech.choona.view.theme.AppTheme
+import static org.junit.Assert.assertEquals;
 
-@Preview(group = "Light")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, group = "Dark")
-annotation class LightDarkPreview
+import org.billthefarmer.mididriver.GeneralMidiConstants;
+import org.junit.Test;
 
-@Composable
-fun PreviewWrapper(content: @Composable () -> Unit) {
-    AppTheme {
-        Surface(content = content)
+public class InstrumentTest {
+
+    private final Instrument instrument = Instrument.BASS;
+
+    @Test
+    public void testGetName() {
+        assertEquals("Bass", instrument.getName());
+    }
+
+    @Test
+    public void testGetDefaultNumStrings() {
+        assertEquals(4, instrument.getDefaultNumStrings());
+    }
+
+    @Test
+    public void getMidiInstrument() {
+        assertEquals(GeneralMidiConstants.ELECTRIC_BASS_FINGER, instrument.getMidiInstrument());
     }
 }
