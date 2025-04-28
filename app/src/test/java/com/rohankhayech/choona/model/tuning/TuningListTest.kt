@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -154,6 +154,9 @@ class TuningListTest {
                 Tunings.BASS_STANDARD,
                 Tunings.BASS_DROP_D,
                 Tunings.BASS_E_FLAT
+            ),
+            Pair(Instrument.UKULELE, Category.COMMON) to listOf(
+                Tunings.UKULELE_STANDARD
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -225,7 +228,8 @@ class TuningListTest {
         // Test incompatible filter.
         expected = mapOf(
             Instrument.GUITAR to true,
-            Instrument.BASS to false
+            Instrument.BASS to false,
+            Instrument.UKULELE to false
         )
         tuningList.filterBy(category = Category.MISC)
         testScope.advanceUntilIdle()
