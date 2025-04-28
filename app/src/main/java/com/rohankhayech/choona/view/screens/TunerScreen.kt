@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +18,47 @@
 
 package com.rohankhayech.choona.view.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.IconToggleButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Switch
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditOff
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -118,7 +145,7 @@ fun TunerScreen(
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(onSettingsPressed, editModeEnabled, onEditModeChanged, showEditToggle = true)
+                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged, )
             } else {
                 CompactAppBar(
                     onSettingsPressed = onSettingsPressed,
@@ -142,6 +169,7 @@ fun TunerScreen(
             favTunings,
             customTunings,
             prefs,
+            editModeEnabled,
             onSelectString,
             onSelectTuning,
             onTuneUpString,
@@ -321,6 +349,7 @@ private fun TunerBodyScaffold(
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
     prefs: TunerPreferences,
+    editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -332,7 +361,7 @@ private fun TunerBodyScaffold(
     onOpenTuningSelector: () -> Unit,
     portrait: TunerBodyLayout,
     landscape: TunerBodyLayout,
-    compactLayout: TunerBodyLayout
+    compactLayout: TunerBodyLayout,
 ) {
     val layout = if (!compact) {
         if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
@@ -362,7 +391,8 @@ private fun TunerBodyScaffold(
                 tuned = tuned,
                 onSelect = onSelectString,
                 onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString
+                onTuneUp = onTuneUpString,
+                editModeEnabled = editModeEnabled
             )
         },
         autoDetectSwitch = { modifier ->
@@ -383,7 +413,8 @@ private fun TunerBodyScaffold(
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                enabled = !expanded
+                enabled = !expanded,
+                editModeEnabled = editModeEnabled
             )
         }
     )
@@ -405,7 +436,7 @@ fun TunerPermissionScreen(
     onOpenPermissionSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { AppBar(onSettingsPressed) }
+        topBar = { AppBar(onSettingsPressed, false) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -460,9 +491,9 @@ fun TunerPermissionScreen(
 @Composable
 private fun AppBar(
     onSettingsPressed: () -> Unit,
-    editModeEnabled: Boolean,
-    onEditModeChanged: (Boolean) -> Unit,
-    showEditToggle: Boolean
+    showEditToggle: Boolean,
+    editModeEnabled: Boolean = false,
+    onEditModeChanged: ((Boolean) -> Unit) = {}
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
@@ -475,8 +506,8 @@ private fun AppBar(
                     onCheckedChange = onEditModeChanged
                 ) {
                     Icon(
-                        imageVector = if (editModeEnabled) Icons.Default.Check else Icons.Default.Close,
-                        contentDescription = stringResource(R.string.toggle_tuning)
+                        imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.toggle_edit_mode)
                     )
                 }
             }
@@ -570,7 +601,7 @@ private fun BasePreview(
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
             {}, {},{},{},{}, {}, {}, {}, {}, {}, {},
-            editModeEnabled = true,
+            editModeEnabled = false,
             onEditModeChanged = {}
         )
     }

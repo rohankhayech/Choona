@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.with
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -42,7 +45,12 @@ import com.rohankhayech.choona.view.screens.AboutScreen
 import com.rohankhayech.choona.view.screens.LicencesScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.theme.AppTheme
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -110,7 +118,7 @@ class SettingsActivity : AppCompatActivity() {
                             onSelectStringLayout = vm::setStringLayout,
                             onEnableStringSelectSound = vm::setEnableStringSelectSound,
                             onEnableInTuneSound = vm::setEnableInTuneSound,
-                            onEnableTuningEdit = vm::toggleEditMode,
+                            onToggleEditModeDefault = vm::toggleEditModeDefault,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
@@ -182,7 +190,7 @@ private class SettingsActivityViewModel(
     }
 
     /** Sets whether tuning editing is [enabled][enable]. */
-    fun toggleEditMode(enable: Boolean) {
+    fun toggleEditModeDefault(enable: Boolean) {
         setPreference(TunerPreferences.EDIT_MODE_DEFAULT_KEY, enable)
     }
 
