@@ -33,6 +33,7 @@ import androidx.datastore.preferences.preferencesDataStore
  * @property displayType Type of tuning offset value to display.
  * @property stringLayout Layout to display string controls.
  * @property useBlackTheme Whether to use full black theme when in dark mode.
+ * @property editModeDefault Whether to enable tuning edit functionality.
  *
  * @author Rohan Khayech
  */
@@ -43,6 +44,7 @@ data class TunerPreferences(
     val displayType: TuningDisplayType = DEFAULT_DISPLAY_TYPE,
     val stringLayout: StringLayout = DEFAULT_STRING_LAYOUT,
     val useBlackTheme: Boolean = DEFAULT_USE_BLACK_THEME,
+    val editModeDefault: Boolean = DEFAULT_EDIT_MODE_DEFAULT,
 ) {
     companion object {
         // Keys
@@ -51,6 +53,7 @@ data class TunerPreferences(
         val DISPLAY_TYPE_KEY = stringPreferencesKey("display_type")
         val STRING_LAYOUT_KEY = stringPreferencesKey("string_layout")
         val USE_BLACK_THEME_KEY = booleanPreferencesKey("use_black_theme")
+        val EDIT_MODE_DEFAULT_KEY = booleanPreferencesKey("edit_mode_default")
 
         // Defaults
         const val DEFAULT_ENABLE_STRING_SELECT_SOUND = true
@@ -58,6 +61,7 @@ data class TunerPreferences(
         val DEFAULT_DISPLAY_TYPE = TuningDisplayType.SIMPLE
         val DEFAULT_STRING_LAYOUT = StringLayout.INLINE
         const val DEFAULT_USE_BLACK_THEME = false
+        const val DEFAULT_EDIT_MODE_DEFAULT = false
 
         /**
          * Maps the specified android [preferences][prefs] to a [TunerPreferences] object.
@@ -68,7 +72,8 @@ data class TunerPreferences(
                 enableInTuneSound = prefs[ENABLE_IN_TUNE_SOUND_KEY] ?: DEFAULT_IN_TUNE_SOUND,
                 displayType = prefs[DISPLAY_TYPE_KEY]?.let { TuningDisplayType.valueOf(it) } ?: DEFAULT_DISPLAY_TYPE,
                 stringLayout = prefs[STRING_LAYOUT_KEY]?.let { StringLayout.valueOf(it) } ?: DEFAULT_STRING_LAYOUT,
-                useBlackTheme = prefs[USE_BLACK_THEME_KEY] ?: DEFAULT_USE_BLACK_THEME
+                useBlackTheme = prefs[USE_BLACK_THEME_KEY] ?: DEFAULT_USE_BLACK_THEME,
+                editModeDefault = prefs[EDIT_MODE_DEFAULT_KEY] ?: DEFAULT_EDIT_MODE_DEFAULT
             )
         }
     }

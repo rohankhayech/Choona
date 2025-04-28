@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,6 +138,7 @@ fun ConfigureTuningScreen(
                             onTuneDown = onTuneDownTuning,
                             onTuneUp = onTuneUpTuning,
                             onOpenTuningSelector = onOpenTuningSelector,
+                            editModeEnabled = true
                         )
                     }
                 }
@@ -160,7 +161,8 @@ fun ConfigureTuningScreen(
                 tuned = null,
                 onSelect = {},
                 onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString
+                onTuneUp = onTuneUpString,
+                true,
             )
             Spacer(Modifier.height(8.dp))
         }

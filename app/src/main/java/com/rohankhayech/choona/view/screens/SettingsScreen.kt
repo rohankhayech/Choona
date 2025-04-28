@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.ListItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Switch
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -47,6 +57,7 @@ import com.rohankhayech.choona.view.theme.AppTheme
  * @param onEnableStringSelectSound Called when the user toggles the string select sound.
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
  * @param onSetUseBlackTheme Called when the user toggles the full black theme.
+ * @param onToggleEditModeDefault Called when the user toggles the edit mode feature.
  * @param onBackPressed Called when the user presses the back navigation button.
  *
  * @author Rohan Khayech
@@ -60,6 +71,7 @@ fun SettingsScreen(
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
+    onToggleEditModeDefault: (Boolean) -> Unit,
     onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -183,8 +195,8 @@ fun SettingsScreen(
 
             Divider()
 
-            // Theme preferences
-            SectionLabel(title = stringResource(R.string.prefs_theme))
+            // Display preferences
+            SectionLabel(title = stringResource(R.string.prefs_display))
 
             // Full black theme
             ListItem(
@@ -198,7 +210,18 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable { onSetUseBlackTheme(!prefs.useBlackTheme) }
             )
-            Divider()
+
+            ListItem(
+                text = { Text(stringResource(R.string.pref_edit_mode_default)) },
+                secondaryText = { Text(stringResource(R.string.pref_edit_mode_default_desc)) },
+                trailing = {
+                    Switch(
+                        checked = prefs.editModeDefault,
+                        onCheckedChange = onToggleEditModeDefault
+                    )
+                },
+                modifier = Modifier.clickable { onToggleEditModeDefault(!prefs.editModeDefault) }
+            )
 
             // About
             SectionLabel(stringResource(R.string.about))
@@ -222,6 +245,7 @@ private fun Preview() {
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
+            onToggleEditModeDefault = {},
             onAboutPressed = {},
             onBackPressed = {},
         )
