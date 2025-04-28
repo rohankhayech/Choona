@@ -83,6 +83,8 @@ import com.rohankhayech.music.Tuning
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onSettingsPressed Called when the settings button is pressed.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
+ * @param editModeEnabled Whether tuning editing is enabled.
+ * @param onEditModeChanged Called when the edit mode toggle button is pressed.
  *
  * @author Rohan Khayech
  */
@@ -109,12 +111,14 @@ fun TunerScreen(
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onSettingsPressed: () -> Unit,
-    onConfigurePressed: () -> Unit
+    onConfigurePressed: () -> Unit,
+    editModeEnabled: Boolean,
+    onEditModeChanged: (Boolean) -> Unit
 ) {
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(onSettingsPressed)
+                AppBar(onSettingsPressed, editModeEnabled, onEditModeChanged, showEditToggle = true)
             } else {
                 CompactAppBar(
                     onSettingsPressed = onSettingsPressed,
@@ -449,15 +453,34 @@ fun TunerPermissionScreen(
 /**
  * App bar for the tuning screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param editModeEnabled Whether tuning editing is enabled.
+ * @param onEditModeChanged Called when the edit mode toggle button is pressed.
+ * @param showEditToggle Whether to show the edit mode toggle button.
  */
 @Composable
 private fun AppBar(
-    onSettingsPressed: () -> Unit
+    onSettingsPressed: () -> Unit,
+    editModeEnabled: Boolean,
+    onEditModeChanged: (Boolean) -> Unit,
+    showEditToggle: Boolean
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
         backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
+            if (showEditToggle) {
+                // Toggle tuning button
+                IconToggleButton(
+                    checked = editModeEnabled,
+                    onCheckedChange = onEditModeChanged
+                ) {
+                    Icon(
+                        imageVector = if (editModeEnabled) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = stringResource(R.string.toggle_tuning)
+                    )
+                }
+            }
+
             // Settings button
             IconButton(onClick = onSettingsPressed) {
                 Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
@@ -469,6 +492,9 @@ private fun AppBar(
 /**
  * App bar for the tuning screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param onConfigurePressed Called when the configure tuning button is pressed.
+ * @param tuning Current tuning.
+ * @param customTunings Set of custom tunings.
  */
 @Composable
 private fun CompactAppBar(
@@ -483,7 +509,7 @@ private fun CompactAppBar(
         },
         backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
         actions = {
-            // Configure tuning button.
+                        // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
                 Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.configure_tuning))
             }
@@ -543,7 +569,9 @@ private fun BasePreview(
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
-            {}, {},{},{},{}, {}, {}, {}, {}, {}, {}
+            {}, {},{},{},{}, {}, {}, {}, {}, {}, {},
+            editModeEnabled = true,
+            onEditModeChanged = {}
         )
     }
 }

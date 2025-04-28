@@ -57,6 +57,8 @@ import com.rohankhayech.music.Tuning
  * @param tuningList State holder for the tuning list.
  * @param tuningSelectorOpen Whether the tuning selection panel is open.
  * @param configurePanelOpen Whether the configure tuning panel is open.
+ * @param editModeEnabled Whether the edit mode is enabled.
+ * @param onEditModeChanged Called when the edit mode is toggled.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
  * @param onTuneUpString Called when a string is tuned up.
@@ -90,6 +92,8 @@ fun MainLayout(
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
     configurePanelOpen: Boolean,
+    editModeEnabled: Boolean,
+    onEditModeChanged: (Boolean) -> Unit,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -120,6 +124,8 @@ fun MainLayout(
                     favTunings,
                     customTunings,
                     prefs,
+                    editModeEnabled = editModeEnabled,
+                    onEditModeChanged = onEditModeChanged,
                     onSelectString,
                     onSelectTuning,
                     onTuneUpString,
@@ -162,6 +168,8 @@ fun MainLayout(
                 favTunings,
                 customTunings,
                 prefs,
+                editModeEnabled = editModeEnabled,
+                onEditModeChanged = onEditModeChanged,
                 onSelectString,
                 onSelectTuning,
                 onTuneUpString,

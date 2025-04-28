@@ -110,6 +110,7 @@ class SettingsActivity : AppCompatActivity() {
                             onSelectStringLayout = vm::setStringLayout,
                             onEnableStringSelectSound = vm::setEnableStringSelectSound,
                             onEnableInTuneSound = vm::setEnableInTuneSound,
+                            onEnableTuningEdit = vm::toggleEditMode,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
@@ -178,6 +179,11 @@ private class SettingsActivityViewModel(
     /** Sets whether the in tune sound is [enabled][enable]. */
     fun setEnableInTuneSound(enable: Boolean) {
         setPreference(TunerPreferences.ENABLE_IN_TUNE_SOUND_KEY, enable)
+    }
+
+    /** Sets whether tuning editing is [enabled][enable]. */
+    fun toggleEditMode(enable: Boolean) {
+        setPreference(TunerPreferences.EDIT_MODE_DEFAULT_KEY, enable)
     }
 
     /** Sets the [type][displayType] of tuning offset value to display. */

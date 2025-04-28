@@ -119,6 +119,13 @@ class TunerActivity : AppCompatActivity() {
             dismissTuningSelector()
         }
 
+        // Initialize edit mode state from preferences only on app load.
+        lifecycleScope.launch {
+            prefs.firstOrNull()?.let { preferences ->
+                vm.toggleEditMode(preferences.editModeDefault)
+            }
+        }
+
         // Set UI content.
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
@@ -136,6 +143,7 @@ class TunerActivity : AppCompatActivity() {
                     val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
+                    val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
                     // Calculate window size/orientation
                     val windowSizeClass = calculateWindowSizeClass(this)
@@ -201,7 +209,9 @@ class TunerActivity : AppCompatActivity() {
                         onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
                         onDismissTuningSelector = ::dismissTuningSelector,
-                        onDismissConfigurePanel = ::dismissConfigurePanel
+                        onDismissConfigurePanel = ::dismissConfigurePanel,
+                        onEditModeChanged = vm::toggleEditMode,
+                        editModeEnabled = editModeEnabled
                     )
                 } else {
                     // Audio permission not granted, show permission rationale.
@@ -401,6 +411,17 @@ class TunerActivityViewModel : ViewModel() {
      * Whether the configure tuning panel is currently open.
      */
     val configurePanelOpen = _configurePanelOpen.asStateFlow()
+
+    /** Mutable backing property for [editModeEnabled]. */
+    private val _editModeEnabled = MutableStateFlow(false)
+
+    /** Whether the edit mode is currently enabled. */
+    val editModeEnabled = _editModeEnabled.asStateFlow()
+
+    /** Toggles the edit mode state. */
+    fun toggleEditMode(enabled: Boolean) {
+        _editModeEnabled.update { enabled }
+    }
 
     /** Runs when the view model is instantiated. */
     init {

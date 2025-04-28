@@ -47,6 +47,7 @@ import com.rohankhayech.choona.view.theme.AppTheme
  * @param onEnableStringSelectSound Called when the user toggles the string select sound.
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
  * @param onSetUseBlackTheme Called when the user toggles the full black theme.
+ * @param onToggleEditMode Called when the user toggles the edit mode feature.
  * @param onBackPressed Called when the user presses the back navigation button.
  *
  * @author Rohan Khayech
@@ -60,6 +61,7 @@ fun SettingsScreen(
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
+    onToggleEditMode: (Boolean) -> Unit,
     onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -200,6 +202,22 @@ fun SettingsScreen(
             )
             Divider()
 
+            // Tuning editing preference
+            SectionLabel(title = stringResource(R.string.pref_tuning_edit))
+
+            ListItem(
+                text = { Text(stringResource(R.string.pref_enable_tuning_edit)) },
+                secondaryText = { Text(stringResource(R.string.pref_enable_tuning_edit_desc)) },
+                trailing = {
+                    Switch(
+                        checked = prefs.editModeDefault,
+                        onCheckedChange = onToggleEditMode
+                    )
+                },
+                modifier = Modifier.clickable { onToggleEditMode(!prefs.editModeDefault) }
+            )
+            Divider()
+
             // About
             SectionLabel(stringResource(R.string.about))
             ListItem(
@@ -222,6 +240,7 @@ private fun Preview() {
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
+            onToggleEditMode = {},
             onAboutPressed = {},
             onBackPressed = {},
         )

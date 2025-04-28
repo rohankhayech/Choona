@@ -68,6 +68,7 @@ import com.rohankhayech.music.Tuning
  * @param onSelect Called when a string is selected.
  * @param onTuneDown Called when a string is tuned down.
  * @param onTuneUp Called when a string is tuned up.
+ * @param editModeEnabled Whether edit mode is enabled.
  *
  * @author Rohan Khayech
  */
@@ -79,7 +80,8 @@ fun StringControls(
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
-    onTuneUp: (Int) -> Unit
+    onTuneUp: (Int) -> Unit,
+    editModeEnabled: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -93,7 +95,8 @@ fun StringControls(
                 tuned = tuned,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
-                onTuneUp = onTuneUp
+                onTuneUp = onTuneUp,
+                editModeEnabled = editModeEnabled
             )
         } else {
             SideBySideStringControls(
@@ -102,7 +105,8 @@ fun StringControls(
                 tuned = tuned,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
-                onTuneUp = onTuneUp
+                onTuneUp = onTuneUp,
+                editModeEnabled = editModeEnabled
             )
         }
     }
@@ -116,6 +120,7 @@ fun StringControls(
  * @param onSelect Called when a string is selected.
  * @param onTuneDown Called when a string is tuned down.
  * @param onTuneUp Called when a string is tuned up.
+ * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
 private fun SideBySideStringControls(
@@ -124,7 +129,8 @@ private fun SideBySideStringControls(
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
-    onTuneUp: (Int) -> Unit
+    onTuneUp: (Int) -> Unit,
+    editModeEnabled: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -143,7 +149,8 @@ private fun SideBySideStringControls(
             tuned = tuned,
             onSelect = onSelect,
             onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
+            onTuneUp = onTuneUp,
+            editModeEnabled = editModeEnabled
         )
         InlineStringControls(
             tuning = tuning,
@@ -152,7 +159,8 @@ private fun SideBySideStringControls(
             tuned = tuned,
             onSelect = onSelect,
             onTuneDown = onTuneDown,
-            onTuneUp = onTuneUp
+            onTuneUp = onTuneUp,
+            editModeEnabled = editModeEnabled
         )
     }
 }
@@ -166,6 +174,7 @@ private fun SideBySideStringControls(
  * @param onSelect Called when a string is selected.
  * @param onTuneDown Called when a string is tuned down.
  * @param onTuneUp Called when a string is tuned up.
+ * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
 private fun InlineStringControls(
@@ -175,7 +184,8 @@ private fun InlineStringControls(
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
-    onTuneUp: (Int) -> Unit
+    onTuneUp: (Int) -> Unit,
+    editModeEnabled: Boolean
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -191,6 +201,7 @@ private fun InlineStringControls(
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,
+                editModeEnabled = editModeEnabled
             )
         }
     }
@@ -255,6 +266,7 @@ fun CompactStringSelector(
  * @param onSelect Called when the string is selected.
  * @param onTuneDown Called when the string is tuned down.
  * @param onTuneUp Called when the string is tuned up.
+ * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
 private fun StringControl(
@@ -265,24 +277,29 @@ private fun StringControl(
     onSelect: (Int) -> Unit,
     onTuneDown: (Int) -> Unit,
     onTuneUp: (Int) -> Unit,
+    editModeEnabled: Boolean
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        // Tune Down Button
-        IconButton(
-            onClick = remember(onTuneDown, index) { { onTuneDown(index) } },
-            enabled = remember(string) { derivedStateOf { string.rootNoteIndex > Tuner.LOWEST_NOTE } }.value
-        ) {
-            Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+        if (editModeEnabled) {
+            // Tune Down Button
+            IconButton(
+                onClick = remember(onTuneDown, index) { { onTuneDown(index) } },
+                enabled = remember(string) { derivedStateOf { string.rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+            ) {
+                Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+            }
         }
 
         StringSelectionButton(index, string, tuned, selected, onSelect)
 
-        // Tune Up Button
-        IconButton(
-            onClick = remember(onTuneUp, index) { { onTuneUp(index) } },
-            enabled = remember(string) { derivedStateOf { string.rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
-        ) {
-            Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+        if (editModeEnabled) {
+            // Tune Up Button
+            IconButton(
+                onClick = remember(onTuneUp, index) { { onTuneUp(index) } },
+                enabled = remember(string) { derivedStateOf { string.rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+            ) {
+                Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+            }
         }
     }
 }
@@ -348,7 +365,8 @@ fun InlinePreview() {
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
             onTuneDown = {},
-            onTuneUp = {}
+            onTuneUp = {},
+            editModeEnabled = true
         )
     }
 }
@@ -364,7 +382,8 @@ private fun SideBySidePreview() {
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
             onTuneDown = {},
-            onTuneUp = {}
+            onTuneUp = {},
+            editModeEnabled = true
         )
     }
 }
@@ -386,7 +405,7 @@ private fun CompactPreview() {
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
+        StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
     }
 }
 
@@ -407,6 +426,6 @@ private fun ButtonStatesPreview() {
 @Composable
 private fun LargeFontPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
+        StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
     }
 }
