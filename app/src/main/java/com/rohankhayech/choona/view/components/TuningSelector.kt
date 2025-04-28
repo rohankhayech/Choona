@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +70,7 @@ import com.rohankhayech.music.Tuning
  * @param onTuneDown Called when the tuning is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
+ * @param editModeEnabled
  *
  * @author Rohan Khayech
  */
@@ -86,6 +87,7 @@ fun TuningSelector(
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
+    editModeEnabled: Boolean
 ) {
     Row(
         modifier = modifier
@@ -94,12 +96,14 @@ fun TuningSelector(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        // Tune Down Button
-        IconButton(
-            onClick = onTuneDown,
-            enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
-        ) {
-            Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+        if (editModeEnabled) {
+            // Tune Down Button
+            IconButton(
+                onClick = onTuneDown,
+                enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+            ) {
+                Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+            }
         }
 
         // Tuning Display and Selection
@@ -145,12 +149,14 @@ fun TuningSelector(
             }
         }
 
-        // Tune Up Button
-        IconButton(
-            onClick = onTuneUp,
-            enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
-        ) {
-            Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+        if (editModeEnabled) {
+            // Tune Up Button
+            IconButton(
+                onClick = onTuneUp,
+                enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+            ) {
+                Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+            }
         }
     }
 }
@@ -261,7 +267,8 @@ private fun Preview() {
             onSelect = {},
             onTuneDown = {},
             onTuneUp = {},
-            onOpenTuningSelector = {}
+            onOpenTuningSelector = {},
+            editModeEnabled = true
         )
     }
 }

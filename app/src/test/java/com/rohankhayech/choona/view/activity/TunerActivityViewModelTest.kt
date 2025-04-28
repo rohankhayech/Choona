@@ -52,6 +52,7 @@ class TunerActivityViewModelTest {
         assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
         assertFalse(vm.tuningSelectorOpen.value)
         assertFalse(vm.configurePanelOpen.value)
+        assertFalse(vm.editModeEnabled.value)
     }
 
     @Test
@@ -98,5 +99,13 @@ class TunerActivityViewModelTest {
         vm.tuningList.setCurrent(Tuning.STANDARD)
         testDispatcher.scheduler.runCurrent()
         assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+    }
+
+    @Test
+    fun testEditModeToggle() {
+        vm.toggleEditMode(true)
+        assertTrue(vm.editModeEnabled.value)
+        vm.toggleEditMode(false)
+        assertFalse(vm.editModeEnabled.value)
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.ListItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -75,7 +83,7 @@ fun AboutScreen(
             // Version and Copyright
             SectionLabel(stringResource(R.string.about))
             Text(
-                "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}\n© ${stringResource(R.string.copyright)} 2023 Rohan Khayech",
+                "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}\n© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.body2
             )

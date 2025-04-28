@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -53,7 +52,13 @@ import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.billthefarmer.mididriver.GeneralMidiConstants
 
@@ -119,6 +124,13 @@ class TunerActivity : AppCompatActivity() {
             dismissTuningSelector()
         }
 
+        // Initialize edit mode state from preferences only on app load.
+        lifecycleScope.launch {
+            prefs.firstOrNull()?.let { preferences ->
+                vm.toggleEditMode(preferences.editModeDefault)
+            }
+        }
+
         // Set UI content.
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
@@ -136,6 +148,7 @@ class TunerActivity : AppCompatActivity() {
                     val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
+                    val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
                     // Calculate window size/orientation
                     val windowSizeClass = calculateWindowSizeClass(this)
@@ -201,7 +214,9 @@ class TunerActivity : AppCompatActivity() {
                         onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
                         onDismissTuningSelector = ::dismissTuningSelector,
-                        onDismissConfigurePanel = ::dismissConfigurePanel
+                        onDismissConfigurePanel = ::dismissConfigurePanel,
+                        onEditModeChanged = vm::toggleEditMode,
+                        editModeEnabled = editModeEnabled
                     )
                 } else {
                     // Audio permission not granted, show permission rationale.
@@ -401,6 +416,17 @@ class TunerActivityViewModel : ViewModel() {
      * Whether the configure tuning panel is currently open.
      */
     val configurePanelOpen = _configurePanelOpen.asStateFlow()
+
+    /** Mutable backing property for [editModeEnabled]. */
+    private val _editModeEnabled = MutableStateFlow(false)
+
+    /** Whether the edit mode is currently enabled. */
+    val editModeEnabled = _editModeEnabled.asStateFlow()
+
+    /** Toggles the edit mode state. */
+    fun toggleEditMode(enabled: Boolean) {
+        _editModeEnabled.update { enabled }
+    }
 
     /** Runs when the view model is instantiated. */
     init {
