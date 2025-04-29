@@ -87,7 +87,7 @@ private fun InTuneScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -162,7 +162,7 @@ private fun SemitonesScreenshot() {
                 stringLayout = StringLayout.SIDE_BY_SIDE,
                 displayType = TuningDisplayType.SEMITONES
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
