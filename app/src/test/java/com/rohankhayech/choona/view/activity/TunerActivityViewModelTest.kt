@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ class TunerActivityViewModelTest {
         assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
         assertFalse(vm.tuningSelectorOpen.value)
         assertFalse(vm.configurePanelOpen.value)
+        assertFalse(vm.editModeEnabled.value)
     }
 
     @Test
@@ -98,5 +99,13 @@ class TunerActivityViewModelTest {
         vm.tuningList.setCurrent(Tuning.STANDARD)
         testDispatcher.scheduler.runCurrent()
         assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+    }
+
+    @Test
+    fun testEditModeToggle() {
+        vm.toggleEditMode(true)
+        assertTrue(vm.editModeEnabled.value)
+        vm.toggleEditMode(false)
+        assertFalse(vm.editModeEnabled.value)
     }
 }

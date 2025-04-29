@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ private fun TunerScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -87,7 +87,7 @@ private fun InTuneScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -162,7 +162,7 @@ private fun SemitonesScreenshot() {
                 stringLayout = StringLayout.SIDE_BY_SIDE,
                 displayType = TuningDisplayType.SEMITONES
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -186,7 +186,7 @@ private fun CentsScreenshot() {
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.CENTS
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -199,7 +199,7 @@ private fun SettingsScreenshot() {
             prefs = TunerPreferences(
                 enableInTuneSound = false
             ),
-            {},{},{},{},{},{},{}
+            {},{},{},{},{},{},{}, {}
         )
     }
 }
@@ -221,7 +221,7 @@ private fun DarkThemeScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -245,7 +245,7 @@ private fun BlackThemeScreenshot() {
             prefs = TunerPreferences(
                 useBlackTheme = true
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -267,7 +267,7 @@ private fun SplitScreenScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -297,7 +297,8 @@ private fun TabletScreenshot() {
             tuningList = tunings,
             tuningSelectorOpen = false,
             configurePanelOpen = false,
-            {},{},{},{},{},{},{},{},{},{},{},{},{},{}
+            true,
+            {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
         )
     }
 }
