@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
+import com.rohankhayech.music.Tuning.STANDARD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -69,6 +70,18 @@ class TuningList(
     /** Set of custom tunings added by the user. */
     val custom = _custom.asStateFlow()
 
+    /** Mutable backing property for [pinned]. */
+    private val _pinned = MutableStateFlow<Tuning>(STANDARD)
+
+    /** Pinned tuning to open when the app is launched. */
+    val pinned = _pinned.asStateFlow()
+
+    /** Mutable backing property for [lastUsed]. */
+    private val _lastUsed = MutableStateFlow<Tuning?>(null)
+
+    /** The tuning used last time the app was opened. */
+    val lastUsed = _lastUsed.asStateFlow()
+
     /** Mutable backing property for [instrumentFilter]. */
     private val _instrumentFilter = MutableStateFlow<Instrument?>(null)
 
@@ -86,11 +99,11 @@ class TuningList(
      * and grouped by instrument and category.
      */
     val filteredTunings = combine(instrumentFilter, categoryFilter) { instrument, category ->
-        Tunings.COMMON.filter {
+        Tunings.TUNINGS.filter {
             (instrument == null || it.instrument == instrument)
                 && (category == null || it.category == category)
         }.groupAndSort()
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.COMMON.groupAndSort())
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Tunings.TUNINGS.groupAndSort())
 
     /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
@@ -126,8 +139,11 @@ class TuningList(
         if (!loaded) {
             val customTunings = TuningFileIO.loadCustomTunings(context)
             val favouriteTunings = TuningFileIO.loadFavouriteTunings(context)
+            val initial = TuningFileIO.loadInitialTunings(context)
             _custom.update { customTunings }
             _favourites.update { favouriteTunings }
+            _lastUsed.update { initial.first }
+            initial.second?.let { i -> _pinned.update { i } }
             loaded = true
         }
     }
@@ -138,7 +154,7 @@ class TuningList(
      * @param context Android system context used to access the file-system
      */
     fun saveTunings(context: Context) {
-        TuningFileIO.saveTunings(context, favourites.value, custom.value)
+        TuningFileIO.saveTunings(context, favourites.value, custom.value, current.value, pinned.value)
     }
 
     /**
@@ -147,7 +163,7 @@ class TuningList(
     fun setCurrent(tuning: Tuning) {
         _current.update {
             if (tuning.hasName()) tuning else {
-                tuning.findEquivalentIn(custom.value + Tunings.COMMON) ?: tuning
+                tuning.findEquivalentIn(custom.value + Tunings.TUNINGS) ?: tuning
             }
         }
     }
@@ -184,6 +200,16 @@ class TuningList(
             _current.update { Tuning(null, tuning) }
         }
         _deletedTuning.tryEmit(tuning)
+    }
+
+    /** Sets the pinned [tuning]. */
+    fun setPinned(tuning: Tuning) {
+        _pinned.update { tuning }
+    }
+
+    /** Unpins the pinned tuning. */
+    fun unpinTuning() {
+        _pinned.update { STANDARD }
     }
 
     /**
@@ -223,7 +249,7 @@ class TuningList(
 
     companion object {
         /** Common tunings, grouped by instrument and category. */
-        val GROUPED_TUNINGS = Tunings.COMMON.groupAndSort()
+        val GROUPED_TUNINGS = Tunings.TUNINGS.groupAndSort()
 
         /**
          * Groups this collection of tunings by instrument - category pairs

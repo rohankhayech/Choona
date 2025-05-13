@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,44 +15,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package com.rohankhayech.choona.controller.fileio
 
-package com.rohankhayech.choona.controller.fileio;
-
-import android.content.Context;
-
-import com.rohankhayech.music.Instrument;
-import com.rohankhayech.music.Tuning;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.io.IOException
+import java.util.Objects
+import android.content.Context
+import androidx.annotation.VisibleForTesting
+import com.rohankhayech.music.Instrument
+import com.rohankhayech.music.Tuning
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * The Tuning File I/O class handles encoding/decoding and saving/loading custom tunings and tuning metadata to/from file.
- *
  * @author Rohan Khayech
  */
-public class TuningFileIO {
-
-    /** Private constructor to prevent instantiation. */
-    private TuningFileIO() {}
-
+object TuningFileIO {
     /**
      * Loads the user's custom tunings from file.
      * @param context Android system context used to access the filesystem.
      * @return The set of stored custom tunings.
      */
-    public static Set<Tuning> loadCustomTunings(Context context) {
+    fun loadCustomTunings(context: Context): Set<Tuning> {
         try {
-            String json = FileIO.readFromFile(context, "tunings_custom"+FileIO.FILE_EXT);
-            return parseTunings(json);
-        } catch (IOException e) {
-            return new LinkedHashSet<>();
+            val json = FileIO.readFromFile(context, "tunings_custom" + FileIO.FILE_EXT)
+            return parseTunings(json)
+        } catch (e: IOException) {
+            return LinkedHashSet()
         }
     }
 
@@ -61,14 +51,28 @@ public class TuningFileIO {
      * @param context Android system context used to access the filesystem.
      * @return The set of stored favourite tunings.
      */
-    public static Set<Tuning> loadFavouriteTunings(Context context) {
+    fun loadFavouriteTunings(context: Context): Set<Tuning> {
         try {
-            String json = FileIO.readFromFile(context, "tunings_favourite"+FileIO.FILE_EXT);
-            return parseTunings(json);
-        } catch (IOException e) {
-            Set<Tuning> defSet = new LinkedHashSet<>();
-            defSet.add(Tuning.STANDARD);
-            return defSet;
+            val json = FileIO.readFromFile(context, "tunings_favourite" + FileIO.FILE_EXT)
+            return parseTunings(json)
+        } catch (e: IOException) {
+            val defSet: MutableSet<Tuning> = LinkedHashSet()
+            defSet.add(Tuning.STANDARD)
+            return defSet
+        }
+    }
+
+    /**
+     * Loads the user's last used and initial tunings from file.
+     * @param context Android system context used to access the filesystem.
+     * @return The last used and pinned initial tunings.
+     */
+    fun loadInitialTunings(context: Context): Pair<Tuning?, Tuning?> {
+        try {
+            val json = FileIO.readFromFile(context, "tunings_initial" + FileIO.FILE_EXT)
+            return parseInitialTunings(json)
+        } catch (e: IOException) {
+            return Pair(null, null)
         }
     }
 
@@ -77,15 +81,19 @@ public class TuningFileIO {
      * @param context Android system context used to access the filesystem.
      * @param favourites Set of favourite tunings to save.
      * @param custom Set of custom tunings to save.
+     * @param lastUsed The last used tuning.
+     * @param initial The tuning selected to be used when the app is first opened.
      */
-    public static void saveTunings(Context context, Set<Tuning> favourites, Set<Tuning> custom) {
-        String customJSON = encodeTunings(custom);
-        String favouritesJSON = encodeTunings(favourites);
+    fun saveTunings(context: Context, favourites: Set<Tuning>, custom: Set<Tuning>, lastUsed: Tuning?, initial: Tuning?) {
+        val customJSON = encodeTunings(custom)
+        val favouritesJSON = encodeTunings(favourites)
+        val initialJSON = encodeInitialTunings(lastUsed, initial)
         try {
-            FileIO.writeToFile(context, "tunings_custom"+FileIO.FILE_EXT, customJSON);
-            FileIO.writeToFile(context, "tunings_favourite"+FileIO.FILE_EXT, favouritesJSON);
-        } catch (IOException e) {
-            throw new TuningIOException("Tunings could not be saved: " + e.getMessage(), e);
+            FileIO.writeToFile(context, "tunings_custom" + FileIO.FILE_EXT, customJSON)
+            FileIO.writeToFile(context, "tunings_favourite" + FileIO.FILE_EXT, favouritesJSON)
+            FileIO.writeToFile(context, "tunings_initial" + FileIO.FILE_EXT, initialJSON)
+        } catch (e: IOException) {
+            throw TuningIOException("Tunings could not be saved: " + e.message, e)
         }
     }
 
@@ -94,41 +102,30 @@ public class TuningFileIO {
      * @param tuningsJSON The JSON string representation of the set of tunings.
      * @return A set of tunings represented by the JSON string.
      */
-    static Set<Tuning> parseTunings(String tuningsJSON) {
-        Set<Tuning> tunings = new LinkedHashSet<>();
+    @VisibleForTesting
+    fun parseTunings(tuningsJSON: String): Set<Tuning> {
+        val tunings: MutableSet<Tuning> = LinkedHashSet()
 
         try {
             // Retrieve the JSON object from the JSON string.
-            JSONObject tuningsObj = new JSONObject(tuningsJSON);
+            val tuningsObj = JSONObject(tuningsJSON)
 
             // For each stored tuning.
-            JSONArray tuningsArr = tuningsObj.getJSONArray("tunings");
-            for (int i=0; i<tuningsArr.length(); i++) {
+            val tuningsArr = tuningsObj.getJSONArray("tunings")
+            for (i in 0 until tuningsArr.length()) {
                 // Retrieve tuning JSON.
-                JSONObject tuningObj = tuningsArr.getJSONObject(i);
+                val tuningObj = tuningsArr.getJSONObject(i)
 
-                // Retrieve tuning data
-                String name = tuningObj.optString("name", null); // Name should be null if absent.
-                Instrument instrument = Instrument.valueOf(tuningObj.optString("instrument", Tuning.DEFAULT_INSTRUMENT.toString()));
-                String categoryString = tuningObj.optString("category"); // Category should be null if absent.
-                Tuning.Category category;
-                if (!categoryString.isEmpty()) {
-                    category = Tuning.Category.valueOf(categoryString);
-                } else {
-                    category = null;
-                }
-                String strings = tuningObj.getString("strings");
-
-                // Create a tuning object.
-                Tuning tuning = Tuning.fromString(name, instrument, category, strings);
+                // Parse the tuning from the JSON object.
+                val tuning = parseTuning(tuningObj)
 
                 // Add the tuning to the list.
-                tunings.add(tuning);
+                tunings.add(tuning)
             }
 
-            return tunings;
-        } catch (JSONException e) {
-            throw new TuningIOException("Tunings could not be loaded: " + e.getMessage(), e);
+            return tunings
+        } catch (e: JSONException) {
+            throw TuningIOException("Tunings could not be loaded: " + e.message, e)
         }
     }
 
@@ -137,40 +134,113 @@ public class TuningFileIO {
      * @param tunings The tunings to encode.
      * @return A JSON string representation of the set of tunings.
      */
-    static String encodeTunings(Set<Tuning> tunings) {
-        Objects.requireNonNull(tunings);
+    @VisibleForTesting
+    fun encodeTunings(tunings: Set<Tuning>): String {
+        Objects.requireNonNull(tunings)
 
-        JSONArray tuningsArr = new JSONArray();
+        val tuningsArr = JSONArray()
         try {
-            for (Tuning tuning : tunings) {
-                // Create a new JSON object for the tuning.
-                JSONObject tuningObj = new JSONObject();
-
-                // Encode the tuning data to JSON.
-                if (tuning.hasName()) tuningObj.put("name", tuning.getName());
-                tuningObj.put("instrument", tuning.getInstrument().toString());
-                if (tuning.hasCategory()) tuningObj.put("category", tuning.getCategory());
-                tuningObj.put("strings", tuning.toFullString());
+            for (tuning in tunings) {
+                // Encode the tuning to JSON.
+                val tuningObj = encodeTuning(tuning)
 
                 // Add the tuning to the JSON array.
-                tuningsArr.put(tuningObj);
+                tuningsArr.put(tuningObj)
             }
 
-            JSONObject tuningsObj = new JSONObject();
-            tuningsObj.put("tunings", tuningsArr);
+            val tuningsObj = JSONObject()
+            tuningsObj.put("tunings", tuningsArr)
 
-            return tuningsObj.toString();
-        } catch (JSONException e) {
-            throw new TuningIOException("Tunings could not be saved: "+e.getMessage(), e);
+            return tuningsObj.toString()
+        } catch (e: JSONException) {
+            throw TuningIOException("Tunings could not be saved: " + e.message, e)
         }
     }
 
     /**
-     * Thrown when there is an error saving/encoding or loading/parsing a guitar tab.
+     * Parses the last used and initial tunings from the specified JSON string.
+     * @param tuningsJSON The JSON string representation of the last used and initial tunings.
+     * @return The last used and pinned intiial tunings represented by the JSON string.
      */
-    public static class TuningIOException extends RuntimeException {
-        private TuningIOException(String message, Throwable cause) {
-            super(message, cause);
+    private fun parseInitialTunings(tuningsJSON: String): Pair<Tuning?, Tuning?> {
+        try {
+            // Retrieve the JSON object from the JSON string.
+            val tuningsObj = JSONObject(tuningsJSON)
+
+            // Retrieve tuning data
+            val lastUsed = if (tuningsObj.has("lastUsed")) {
+                parseTuning(tuningsObj.getJSONObject("lastUsed"))
+            } else null
+            val initial = if (tuningsObj.has("initial")) {
+                parseTuning(tuningsObj.getJSONObject("initial"))
+            } else null
+
+            return Pair(lastUsed, initial)
+        } catch (e: JSONException) {
+            throw TuningIOException("Tunings could not be loaded: " + e.message, e)
         }
     }
+
+    /**
+     * Encodes the last used and initial tunings to JSON.
+     * @param lastUsed The last used tuning.
+     * @param initial The tuning selected to be used when the app is first opened.
+     * @return A JSON string representation of the last used and initial tunings.
+     */
+    private fun encodeInitialTunings(lastUsed: Tuning?, initial: Tuning?): String {
+        try {
+            val tuningsObj = JSONObject()
+            lastUsed?.let {tuningsObj.put("lastUsed", encodeTuning(it)) }
+            initial?.let {tuningsObj.put("initial", encodeTuning(it)) }
+            return tuningsObj.toString()
+        } catch (e: JSONException) {
+            throw TuningIOException("Tunings could not be saved: " + e.message, e)
+        }
+    }
+
+    /**
+     * Parses the tuning from the specified JSON object.
+     * @param tuningObj The JSON object representation of the tuning.
+     * @return The tuning represented by the JSON object.
+     */
+    @Throws(JSONException::class)
+    private fun parseTuning(tuningObj: JSONObject): Tuning {
+        // Retrieve tuning data
+        val name = tuningObj.optString("name", null) // Name should be null if absent.
+        val instrument = Instrument.valueOf(tuningObj.optString("instrument", Tuning.DEFAULT_INSTRUMENT.toString()))
+        val categoryString = tuningObj.optString("category") // Category should be null if absent.
+        val category = if (!categoryString.isEmpty()) {
+            Tuning.Category.valueOf(categoryString)
+        } else {
+            null
+        }
+        val strings = tuningObj.getString("strings")
+
+        // Create a tuning object.
+        return Tuning.fromString(name, instrument, category, strings)
+    }
+
+    /**
+     * Encodes the specified tuning to JSON.
+     * @param tuning The tuning to encode.
+     * @return A JSON object representation of the tuning.
+     * @throws JSONException If there is an error encoding the tuning to JSON.
+     */
+    @Throws(JSONException::class)
+    private fun encodeTuning(tuning: Tuning): JSONObject {
+        // Create a new JSON object for the tuning.
+        val tuningObj = JSONObject()
+
+        // Encode the tuning data to JSON.
+        if (tuning.hasName()) tuningObj.put("name", tuning.name)
+        tuningObj.put("instrument", tuning.instrument.toString())
+        if (tuning.hasCategory()) tuningObj.put("category", tuning.category)
+        tuningObj.put("strings", tuning.toFullString())
+        return tuningObj
+    }
 }
+
+/**
+ * Thrown when there is an error saving/encoding or loading/parsing a guitar tab.
+ */
+class TuningIOException(message: String, cause: Throwable) : RuntimeException(message, cause)

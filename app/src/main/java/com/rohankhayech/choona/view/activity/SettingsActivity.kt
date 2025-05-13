@@ -37,6 +37,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
@@ -77,7 +78,7 @@ class SettingsActivity : AppCompatActivity() {
         // Initialise view model.
         vm = ViewModelProvider(
             this,
-            SettingsActivityViewModel.Factory(tunerPreferenceDataStore)
+            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra("pinned") ?: "RAH")
         )[SettingsActivityViewModel::class.java]
 
         // Setup custom back navigation.
@@ -114,12 +115,14 @@ class SettingsActivity : AppCompatActivity() {
                     when (it) {
                         Screen.SETTINGS -> SettingsScreen(
                             prefs = prefs,
+                            pinnedTuning = vm.pinnedTuning,
                             onSelectDisplayType = vm::setDisplayType,
                             onSelectStringLayout = vm::setStringLayout,
                             onEnableStringSelectSound = vm::setEnableStringSelectSound,
                             onEnableInTuneSound = vm::setEnableInTuneSound,
                             onToggleEditModeDefault = vm::toggleEditModeDefault,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onSelectInitialTuning = vm::setInitialTuning,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
                         )
@@ -161,11 +164,13 @@ class SettingsActivity : AppCompatActivity() {
  * View model for the tuner settings activity.
  *
  * @param dataStore Data store object used to access and edit the user's preferences.
+ * @param pinnedTuning The tuning selected to be used when the app is first opened.
  *
  * @author Rohan Khayech
  */
 private class SettingsActivityViewModel(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    val pinnedTuning: String
 ) : ViewModel() {
 
     /** Mutable backing property for [screen]. */
@@ -209,6 +214,11 @@ private class SettingsActivityViewModel(
         setPreference(TunerPreferences.USE_BLACK_THEME_KEY, use)
     }
 
+    /** Sets the [initialTuning] to be used when the app is first opened. */
+    fun setInitialTuning(initialTuning: InitialTuningType) {
+        setPreference(TunerPreferences.INITIAL_TUNING_KEY, initialTuning.toString())
+    }
+
     /** Sets the preference with the specified [key] to the specified [value]. */
     private fun <T> setPreference(key: Preferences.Key<T>, value: T) {
         viewModelScope.launch {
@@ -227,16 +237,18 @@ private class SettingsActivityViewModel(
      * Factory class used to instantiate the view model with a reference to the data store.
      *
      * @param dataStore Data store object used to access and edit the user's preferences.
+     * @param pinnedTuning The tuning selected to be used when the app is first opened.
      */
     class Factory(
-        private val dataStore: DataStore<Preferences>
+        private val dataStore: DataStore<Preferences>,
+        private val pinnedTuning: String
     ) : ViewModelProvider.Factory {
 
         /** Instantiates the view model with a reference to the data store. */
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(SettingsActivityViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return SettingsActivityViewModel(dataStore) as T
+                return SettingsActivityViewModel(dataStore, pinnedTuning) as T
             } else {
                 throw IllegalArgumentException("Unknown ViewModel class")
             }
