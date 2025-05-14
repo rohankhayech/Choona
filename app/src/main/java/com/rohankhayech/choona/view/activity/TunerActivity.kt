@@ -25,11 +25,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -68,7 +68,7 @@ import org.billthefarmer.mididriver.GeneralMidiConstants
  *
  * @author Rohan Khayech
  */
-class TunerActivity : AppCompatActivity() {
+class TunerActivity : ComponentActivity() {
 
     /** View model used to hold the current tuner state. */
     private val vm: TunerActivityViewModel by viewModels()

@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -338,7 +339,7 @@ private fun ListeningPreview() {
 @Composable
 private fun InTunePreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
     }
 }
 
@@ -346,7 +347,7 @@ private fun InTunePreview() {
 @Composable
 private fun YellowPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
     }
 }
 
@@ -354,7 +355,7 @@ private fun YellowPreview() {
 @Composable
 private fun RedPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
     }
 }
 
@@ -362,7 +363,7 @@ private fun RedPreview() {
 @Composable
 private fun LargeFontLabelPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
     }
 }
 
@@ -370,6 +371,6 @@ private fun LargeFontLabelPreview() {
 @Composable
 private fun LargeFontIconPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
     }
 }

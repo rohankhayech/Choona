@@ -22,7 +22,6 @@ import java.util.Locale
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -314,7 +313,6 @@ fun TuningSelectionScreen(
  * @param onSelect Called when a tuning is selected.
  * @param onDelete Called when a custom tuning is deleted.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TuningList(
     modifier: Modifier = Modifier,
@@ -376,7 +374,7 @@ fun TuningList(
                 elevation = if (stuck) 2.dp else 0.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateItemPlacement()
+                    .animateItem()
                     .onGloballyPositioned {
                         stuck = it.positionInParent().y == 0f
                     }
@@ -541,7 +539,7 @@ private fun LazyItemScope.CurrentTuningItem(
  * @param onSelect Called when this tuning is selected.
  * @param onDelete Called when this tuning is swiped to be removed.
  */
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
@@ -561,7 +559,7 @@ private fun LazyItemScope.CustomTuningItem(
     )
 
     SwipeToDismiss(
-        modifier = Modifier.animateItemPlacement(),
+        modifier = Modifier.animateItem(),
         state = dismissState,
         directions = setOf(DismissDirection.EndToStart),
         background = {
@@ -642,7 +640,7 @@ private fun LazyItemScope.FavouritableTuningItem(
  * @param onSelect Called when this tuning is selected.
  * @param trailing The trailing action to display.
  */
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
@@ -660,7 +658,7 @@ private fun LazyItemScope.TuningItem(
 
     Surface(
         color = MaterialTheme.colors.background,
-        modifier = Modifier.animateItemPlacement()
+        modifier = Modifier.animateItem()
     ) {
         Column {
             ListItem(
@@ -699,10 +697,9 @@ fun Category?.getLocalisedName(): String {
 }
 
 /** UI component displaying a tuning category label with [title] text. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyItemScope.SectionLabel(title: String) {
-    SectionLabel(modifier = Modifier.animateItemPlacement(), title = title)
+    SectionLabel(modifier = Modifier.animateItem(), title = title)
 }
 
 /**
@@ -768,8 +765,8 @@ private fun Preview() {
             favourites = setOf(Tuning.STANDARD, favCustomTuning),
             custom = setOf(customTuning, favCustomTuning),
             Instrument.BASS, null,
-            instrumentFilters = remember { mutableStateOf(Instrument.values().dropLast(1).associateWith { true }) },
-            categoryFilters = remember { mutableStateOf(Category.values().associateWith { true }) },
+            instrumentFilters = remember { mutableStateOf(Instrument.entries.dropLast(1).associateWith { true }) },
+            categoryFilters = remember { mutableStateOf(Category.entries.associateWith { true }) },
             backIcon = Icons.Default.Close,
             deletedTuning = MutableSharedFlow(),
             onSave = {_,_->},

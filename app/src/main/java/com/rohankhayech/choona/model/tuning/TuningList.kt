@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,19 +94,19 @@ class TuningList(
 
     /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
-        Category.values().associateWith {
+        Category.entries.associateWith {
             it.isValidFilterWith(instrument)
         }
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.values().associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.entries.associateWith { true })
 
     /** Available instrument filters and their enabled states. */
     val instrumentFilters = categoryFilter.map { category ->
-        Instrument.values()
+        Instrument.entries
             .dropLast(1)
             .associateWith {
                 it.isValidFilterWith(category)
             }
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.values().dropLast(1).associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.entries.dropLast(1).associateWith { true })
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false

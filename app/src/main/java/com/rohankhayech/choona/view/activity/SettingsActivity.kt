@@ -20,14 +20,14 @@ package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
  *
  * @author Rohan Khayech
  */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
 
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
@@ -102,10 +102,10 @@ class SettingsActivity : AppCompatActivity() {
                     targetState = screen,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) with
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
                                 slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                         } else {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) with
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
                                 slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                         }
                     },
