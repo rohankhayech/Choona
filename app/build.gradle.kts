@@ -31,7 +31,7 @@ android {
     defaultConfig {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 8
         versionName = "1.4.0"
 
