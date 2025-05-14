@@ -25,7 +25,7 @@ import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.with
 import androidx.compose.runtime.getValue
@@ -102,11 +102,11 @@ class SettingsActivity : AppCompatActivity() {
                     targetState = screen,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.Start) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Start)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) with
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                         } else {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) with
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                         }
                     },
                     label = "Screen"

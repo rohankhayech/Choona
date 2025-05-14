@@ -55,6 +55,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -145,7 +146,7 @@ fun TunerScreen(
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged, )
+                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged)
             } else {
                 CompactAppBar(
                     onSettingsPressed = onSettingsPressed,
@@ -192,7 +193,7 @@ fun TunerScreen(
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     tuningDisplay()
-                    stringControls(inline = prefs.stringLayout == StringLayout.INLINE)
+                    stringControls(prefs.stringLayout == StringLayout.INLINE)
                     autoDetectSwitch(Modifier)
                     tuningSelector(Modifier.padding(vertical = 8.dp))
                 }
@@ -234,7 +235,7 @@ fun TunerScreen(
                         end.linkTo(parent.end)
                     }) {
                         stringControls(
-                            inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                                 && prefs.stringLayout == StringLayout.INLINE,
                         )
                     }
@@ -375,15 +376,17 @@ private fun TunerBodyScaffold(
     }
 
     layout(
-        padding = padding,
-        tuningDisplay = {
+        padding,
+        // Tuning Display
+        {
             TuningDisplay(
                 noteOffset = noteOffset,
                 displayType = prefs.displayType,
                 onTuned = onTuned
             )
         },
-        stringControls = { inline ->
+        // String controls
+        { inline ->
             StringControls(
                 inline = inline,
                 tuning = tuning,
@@ -395,14 +398,16 @@ private fun TunerBodyScaffold(
                 editModeEnabled = editModeEnabled
             )
         },
-        autoDetectSwitch = { modifier ->
+        // Auto Detect Switch
+        { modifier ->
             AutoDetectSwitch(
                 modifier = modifier,
                 autoDetect = autoDetect,
                 onAutoChanged = onAutoChanged
             )
         },
-        tuningSelector = { modifier ->
+        // Tuning Selector
+        { modifier ->
             TuningSelector(
                 modifier = modifier,
                 tuning = tuning,
@@ -593,14 +598,14 @@ private fun BasePreview(
             expanded = false,
             windowSizeClass,
             tuning = Tunings.HALF_STEP_DOWN,
-            noteOffset = remember { mutableStateOf(1.3)},
+            noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
             tuned = BooleanArray(6) { it==4 },
             autoDetect = true,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
-            {}, {},{},{},{}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = false,
             onEditModeChanged = {}
         )
