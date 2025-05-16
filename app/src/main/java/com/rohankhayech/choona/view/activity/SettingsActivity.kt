@@ -61,6 +61,11 @@ import kotlinx.coroutines.launch
  */
 class SettingsActivity : AppCompatActivity() {
 
+    companion object {
+        /** Activity intent extra for the name of the pinned tuning. */
+        const val EXTRA_PINNED = "pinned"
+    }
+
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
 
@@ -78,7 +83,7 @@ class SettingsActivity : AppCompatActivity() {
         // Initialise view model.
         vm = ViewModelProvider(
             this,
-            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra("pinned") ?: "")
+            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra(EXTRA_PINNED) ?: "")
         )[SettingsActivityViewModel::class.java]
 
         // Setup custom back navigation.

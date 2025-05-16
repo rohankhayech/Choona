@@ -397,7 +397,7 @@ class TunerActivity : AppCompatActivity() {
     /** Opens the tuner settings activity. */
     private fun openSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra("pinned", vm.tuningList.pinned.value.fullName)
+        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.fullName)
         startActivity(intent)
     }
 
@@ -413,7 +413,7 @@ class TunerActivity : AppCompatActivity() {
 }
 
 /** View model used to hold the current tuner and UI state. */
-class TunerActivityViewModel : ViewModel() {
+private class TunerActivityViewModel : ViewModel() {
     /** Tuner used for audio processing and note comparison. */
     val tuner = Tuner()
 

@@ -160,7 +160,7 @@ object TuningFileIO {
     /**
      * Parses the last used and initial tunings from the specified JSON string.
      * @param tuningsJSON The JSON string representation of the last used and initial tunings.
-     * @return The last used and pinned intiial tunings represented by the JSON string.
+     * @return The last used and pinned initial tunings represented by the JSON string.
      */
     private fun parseInitialTunings(tuningsJSON: String): Pair<Tuning?, Tuning?> {
         try {
@@ -206,13 +206,14 @@ object TuningFileIO {
     @Throws(JSONException::class)
     private fun parseTuning(tuningObj: JSONObject): Tuning {
         // Retrieve tuning data
-        val name = tuningObj.optString("name", null) // Name should be null if absent.
+        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") // Name should be null if absent.
+        val name: String? = tuningObj.optString("name", null)
         val instrument = Instrument.valueOf(tuningObj.optString("instrument", Tuning.DEFAULT_INSTRUMENT.toString()))
-        val categoryString = tuningObj.optString("category") // Category should be null if absent.
-        val category = if (!categoryString.isEmpty()) {
+        val categoryString = tuningObj.optString("category")
+        val category = if (categoryString.isNotEmpty()) {
             Tuning.Category.valueOf(categoryString)
         } else {
-            null
+            null // Category should be null if absent.
         }
         val strings = tuningObj.getString("strings")
 
