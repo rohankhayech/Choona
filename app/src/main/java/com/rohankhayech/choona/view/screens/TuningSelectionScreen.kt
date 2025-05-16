@@ -21,7 +21,6 @@ package com.rohankhayech.choona.view.screens
 import java.util.Locale
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -29,42 +28,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.ChipDefaults
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.DismissDirection
-import androidx.compose.material.DismissValue
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FilterChip
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.ListItem
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarResult
-import androidx.compose.material.Surface
-import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
@@ -72,12 +52,35 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
-import androidx.compose.material.rememberDismissState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,6 +90,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -95,11 +99,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.android.util.ui.theme.secondaryTextButtonColors
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
@@ -191,6 +193,7 @@ fun TuningSelectionScreen(
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuningSelectionScreen(
     current: Tuning? = null,
@@ -213,25 +216,18 @@ fun TuningSelectionScreen(
 ) {
     val listState = rememberLazyListState()
 
-    val appBarElevation by animateDpAsState(
-        remember { derivedStateOf {
-            if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
-                0.dp
-            } else AppBarDefaults.TopAppBarElevation
-        }}.value,
-        label = "App Bar Elevation"
-    )
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
-    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Collect deleted tuning events and show snackbar.
     val context = LocalContext.current
-    LaunchedEffect(deletedTuning, context, scaffoldState.snackbarHostState) {
+    LaunchedEffect(deletedTuning, context, snackbarHostState) {
         deletedTuning.collectLatest {
             // Show deleted tuning snackbar.
-            val result = scaffoldState.snackbarHostState.showSnackbar(
+            val result = snackbarHostState.showSnackbar(
                 message = context.getString(R.string.deleted_tuning, it.fullName),
                 actionLabel = context.getString(R.string.undo).uppercase(Locale.getDefault()),
                 duration = SnackbarDuration.Long
@@ -242,17 +238,17 @@ fun TuningSelectionScreen(
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
-                backgroundColor = MaterialTheme.colors.background,
-                navigationIcon = backIcon?.let {{
+                navigationIcon = { backIcon?.let {
                     IconButton(onClick = onDismiss) {
                         Icon(it, stringResource(R.string.dismiss))
                     }
                 }},
-                elevation = appBarElevation
+                scrollBehavior = scrollBehavior,
             )
         }
     ) {
@@ -339,7 +335,7 @@ fun TuningList(
 
         // Current Tuning
         current?.let {
-            item("cur") { SectionLabel(stringResource(R.string.tuning_list_current)) }
+            item("cur") { SectionLabel(stringResource(R.string.tuning_list_current), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
             item("cur-${current.instrument}-[${current.toFullString()}]") {
                 val saved = remember(current, custom) { current.hasEquivalentIn(custom+Tunings.COMMON) }
                 CurrentTuningItem(tuning = current, saved = saved, onSave = onSave, onSelect = onSelect)
@@ -348,7 +344,7 @@ fun TuningList(
 
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
-            item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites)) }
+            item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
             items(favsList, key = { "fav-${it.instrument}-[${it.toFullString()}]" }) {
                 FavouritableTuningItem(tuning = it, favourited = true, onFavouriteSet = onFavouriteSet, onSelect = onSelect)
             }
@@ -356,7 +352,7 @@ fun TuningList(
 
         // Custom Tunings
         if (custom.isNotEmpty()) {
-            item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom)) }
+            item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
             items(customList, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 CustomTuningItem(tuning = it, favourited = favourited, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onDelete = onDelete)
@@ -365,13 +361,12 @@ fun TuningList(
 
         // All Tunings
         item("all") {
-            SectionLabel(stringResource(R.string.all_tunings))
+            SectionLabel(stringResource(R.string.all_tunings), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)))
         }
         stickyHeader("filter-bar") {
             var stuck by remember { mutableStateOf(false) }
             Surface(
-                color = MaterialTheme.colors.background,
-                elevation = if (stuck) 2.dp else 0.dp,
+                color = if (stuck) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateItem()
@@ -385,7 +380,7 @@ fun TuningList(
 
         tunings.forEach { group ->
             item(group.toString()) {
-                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}")
+                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)))
             }
             items(group.value, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
@@ -417,7 +412,7 @@ private fun FilterBar(
 ) {
     Column {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -435,7 +430,7 @@ private fun FilterBar(
         Spacer(Modifier.width(8.dp))
     }
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -463,7 +458,6 @@ private fun FilterBar(
  * @param selected Whether the filter is currently selected.
  * @param onSelect Called when the filter is selected/unselected.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun <T> TuningFilterChip(
     filter: T,
@@ -476,23 +470,17 @@ private fun <T> TuningFilterChip(
         enabled = enabled,
         selected = selected,
         onClick = { if (enabled) if (selected) onSelect(null) else onSelect(filter) },
-        border = if (selected) null else ChipDefaults.outlinedBorder,
-        colors = if (!selected) ChipDefaults.outlinedFilterChipColors(backgroundColor = MaterialTheme.colors.background)
-        else ChipDefaults.filterChipColors(
-            backgroundColor = MaterialTheme.colors.secondaryVariant.copy(alpha = 0.12f)
-                .compositeOver(MaterialTheme.colors.background),
-            contentColor = MaterialTheme.colors.secondaryVariant
-        ),
-        selectedIcon = {
+        leadingIcon = if (selected) {{
             Row {
                 Spacer(Modifier.width(4.dp))
-                Icon(Icons.Default.Done, null, Modifier.size(ChipDefaults.SelectedIconSize))
+                Icon(Icons.Default.Done, null, Modifier.size(FilterChipDefaults.IconSize))
             }
-        },
-        modifier = Modifier.animateContentSize()
-    ) {
-        Text(filterText)
-    }
+        }} else null,
+        modifier = Modifier.animateContentSize(),
+        label = {
+            Text(filterText)
+        }
+    )
 }
 
 /**
@@ -539,7 +527,6 @@ private fun LazyItemScope.CurrentTuningItem(
  * @param onSelect Called when this tuning is selected.
  * @param onDelete Called when this tuning is swiped to be removed.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun LazyItemScope.CustomTuningItem(
     tuning: Tuning,
@@ -549,28 +536,26 @@ private fun LazyItemScope.CustomTuningItem(
     onSelect: (Tuning) -> Unit,
     onDelete: (Tuning) -> Unit,
 ) {
-    val dismissState = rememberDismissState(
-        confirmStateChange = { dismissValue ->
-            if (dismissValue == DismissValue.DismissedToStart) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
                 onDelete(tuning)
                 true
             } else false
         }
     )
 
-    SwipeToDismiss(
+    SwipeToDismissBox(
         modifier = Modifier.animateItem(),
         state = dismissState,
-        directions = setOf(DismissDirection.EndToStart),
-        background = {
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
-                    DismissValue.DismissedToStart -> MaterialTheme.colors.error
-                        .copy(alpha = 0.36f)
-                        .compositeOver(MaterialTheme.colors.surface)
-                    else -> MaterialTheme.colors.onSurface
+                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                    else -> MaterialTheme.colorScheme.surfaceContainer
                         .copy(alpha = 0.05f)
-                        .compositeOver(MaterialTheme.colors.surface)
+                        .compositeOver(MaterialTheme.colorScheme.surface)
                 },
                 label = "Tuning Item Background Color"
             )
@@ -586,7 +571,7 @@ private fun LazyItemScope.CustomTuningItem(
                 Icon(
                     Icons.Default.DeleteForever,
                     contentDescription = stringResource(R.string.delete),
-                    tint = MaterialTheme.colors.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -625,7 +610,7 @@ private fun LazyItemScope.FavouritableTuningItem(
         ) {
             Icon(
                 if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
-                tint = if (favourited) MaterialTheme.colors.secondary else LocalContentColor.current,
+                tint = if (favourited) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
                 contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
             )
         }
@@ -640,7 +625,6 @@ private fun LazyItemScope.FavouritableTuningItem(
  * @param onSelect Called when this tuning is selected.
  * @param trailing The trailing action to display.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun LazyItemScope.TuningItem(
     tuning: Tuning,
@@ -657,19 +641,19 @@ private fun LazyItemScope.TuningItem(
     }
 
     Surface(
-        color = MaterialTheme.colors.background,
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.animateItem()
     ) {
-        Column {
+        Column(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) {
             ListItem(
-                text = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                secondaryText = { Text(strings) },
-                overlineText = { Text("$instrumentName ‧ ${tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) },
+                headlineContent = { Text(tuning.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                supportingContent = { Text(strings) },
+                overlineContent = { Text("$instrumentName ‧ ${tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) },
                 modifier = Modifier.clickable { onSelect(tuning) },
-                trailing = trailing
+                trailingContent = trailing
             )
 
-            Divider()
+            HorizontalDivider()
         }
     }
 }
@@ -698,8 +682,8 @@ fun Category?.getLocalisedName(): String {
 
 /** UI component displaying a tuning category label with [title] text. */
 @Composable
-private fun LazyItemScope.SectionLabel(title: String) {
-    SectionLabel(modifier = Modifier.animateItem(), title = title)
+private fun LazyItemScope.SectionLabel(title: String, modifier: Modifier = Modifier) {
+    com.rohankhayech.choona.view.components.SectionLabel(modifier = modifier.animateItem(), title = title)
 }
 
 /**
@@ -722,8 +706,7 @@ fun SaveTuningDialog(
             Column {
                 Text(
                     stringResource(R.string.dialog_title_save_tuning),
-                    style = MaterialTheme.typography.subtitle1,
-                    color = LocalContentColor.current.copy(alpha = ContentAlpha.high)
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(16.dp))
                 TextField(
@@ -737,15 +720,15 @@ fun SaveTuningDialog(
         },
         confirmButton = {
             TextButton(onClick = { onSave(name.ifBlank { null }, tuning) }) {
-                Text(text = stringResource(R.string.save).uppercase())
+                Text(text = stringResource(R.string.save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, colors = secondaryTextButtonColors()) {
-                Text(text = stringResource(R.string.cancel).uppercase())
+            TextButton(onClick = onDismiss, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
+                Text(text = stringResource(R.string.cancel))
             }
         },
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss
     )
 }
 

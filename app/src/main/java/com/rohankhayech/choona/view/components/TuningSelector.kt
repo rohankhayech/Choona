@@ -25,19 +25,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.ExposedDropdownMenuDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuBoxScope
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -74,7 +76,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
@@ -113,12 +115,12 @@ fun TuningSelector(
             expanded = expanded && enabled,
             onExpandedChange = {
                 if (openDirect) onOpenTuningSelector()
-                else expanded = !expanded
+                else expanded = it
             }
         ) {
-
             // Current Tuning
             CurrentTuningField(
+                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
                 tuning = tuning,
                 customTunings = customTunings,
                 expanded = expanded,
@@ -132,20 +134,23 @@ fun TuningSelector(
             ) {
                 for (tuningOption in favTunings.value) {
                     DropdownMenuItem(
+                        text = {
+                            TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
+                        },
                         onClick = {
                             onSelect(tuningOption)
                             expanded = false
                         }
-                    ) {
-                        TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
-                    }
+                    )
                 }
-                DropdownMenuItem(onClick = {
+                DropdownMenuItem(
+                    text = {
+                        Text(stringResource(R.string.open_tuning_selector))
+                    },
+                    onClick = {
                     onOpenTuningSelector()
                     expanded = false
-                }) {
-                    Text(stringResource(R.string.open_tuning_selector))
-                }
+                })
             }
         }
 
@@ -169,23 +174,24 @@ fun TuningSelector(
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CurrentTuningField(
+private fun ExposedDropdownMenuBoxScope.CurrentTuningField(
+    modifier: Modifier = Modifier,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
     expanded: Boolean,
     showExpanded: Boolean
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = TextFieldDefaults.OutlinedTextFieldShape,
-        color = MaterialTheme.colors.background,
+        modifier = modifier.fillMaxWidth(),
+        shape = OutlinedTextFieldDefaults.shape,
+        color = MaterialTheme.colorScheme.background,
         border = BorderStroke(
-            width = if (expanded && showExpanded) TextFieldDefaults.FocusedBorderThickness
-            else TextFieldDefaults.UnfocusedBorderThickness,
-            color = if (expanded && showExpanded) MaterialTheme.colors.primary
-            else MaterialTheme.colors.onBackground.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
+            width = if (expanded && showExpanded) OutlinedTextFieldDefaults.FocusedBorderThickness
+            else OutlinedTextFieldDefaults.UnfocusedBorderThickness,
+            color = if (expanded && showExpanded) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.outlineVariant
         ),
     ) {
         Row(
@@ -213,6 +219,7 @@ fun TuningItem(
     modifier: Modifier = Modifier,
     tuning: Tuning,
     fontWeight: FontWeight,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     customTunings: State<Set<Tuning>>,
 ) {
     val tuningName = remember(tuning, customTunings) {
@@ -235,18 +242,18 @@ fun TuningItem(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = horizontalAlignment
     ) {
         Text(
             tuningName,
-            style = MaterialTheme.typography.subtitle1,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = fontWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             strings,
-            style = MaterialTheme.typography.body2,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

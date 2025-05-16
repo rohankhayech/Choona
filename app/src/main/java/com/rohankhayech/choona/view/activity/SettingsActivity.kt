@@ -24,9 +24,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
@@ -70,8 +70,8 @@ class SettingsActivity : ComponentActivity() {
     private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
 
     /** Called when the activity is created. */
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         // Initialise view model.

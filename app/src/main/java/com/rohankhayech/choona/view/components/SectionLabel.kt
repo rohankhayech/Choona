@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 package com.rohankhayech.choona.view.components
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,8 +32,8 @@ fun SectionLabel(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
         fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.caption,
-        color = MaterialTheme.colors.primaryVariant,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.secondary,
         modifier = modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
     )
 }

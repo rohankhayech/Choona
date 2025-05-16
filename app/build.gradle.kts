@@ -80,7 +80,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material)
+    implementation(libs.androidx.material3)
     implementation(libs.animation)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.animation)
@@ -100,7 +100,7 @@ dependencies {
 
     // Open Source Licenses
     implementation(libs.aboutlibraries.core)
-    implementation(libs.aboutlibraries.compose)
+    implementation(libs.aboutlibraries.compose.m3)
 
     // Testing
     testImplementation(libs.junit)

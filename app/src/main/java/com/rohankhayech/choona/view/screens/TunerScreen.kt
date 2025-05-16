@@ -34,21 +34,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditOff
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -60,6 +66,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,8 +79,7 @@ import com.rohankhayech.android.util.ui.preview.CompactThemePreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.android.util.ui.theme.isTrueDark
-import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
+import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -116,6 +122,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TunerScreen(
     compact: Boolean = false,
@@ -143,12 +150,17 @@ fun TunerScreen(
     editModeEnabled: Boolean,
     onEditModeChanged: (Boolean) -> Unit
 ) {
+    val scrollBehavior = if (!compact) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold (
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            if (!compact) {
+            if (expanded) {
+                ExpandedAppBar(scrollBehavior, onSettingsPressed, editModeEnabled, onEditModeChanged)
+            } else if (!compact) {
                 AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged)
             } else {
                 CompactAppBar(
+                    scrollBehavior,
                     onSettingsPressed = onSettingsPressed,
                     tuning = tuning,
                     customTunings = customTunings,
@@ -281,10 +293,11 @@ fun TunerScreen(
                             tuned = tuned,
                             onSelect = onSelectString,
                         )
-                        Divider(
+                        HorizontalDivider(
                             Modifier
                                 .width((1f / LocalDensity.current.density).dp)
-                                .fillMaxHeight())
+                                .fillMaxHeight()
+                        )
                         Box(Modifier.padding(horizontal = 16.dp)) {
                             autoDetectSwitch(Modifier.fillMaxHeight())
                         }
@@ -471,7 +484,7 @@ fun TunerPermissionScreen(
 
             Text( // Title
                 text = title,
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.titleLarge
             )
             Text( // Rationale
                 text = rationale,
@@ -493,6 +506,7 @@ fun TunerPermissionScreen(
  * @param onEditModeChanged Called when the edit mode toggle button is pressed.
  * @param showEditToggle Whether to show the edit mode toggle button.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
     onSettingsPressed: () -> Unit,
@@ -502,7 +516,11 @@ private fun AppBar(
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.app_name)) },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.vibrantContainer,
+            titleContentColor = contentColorFor(MaterialTheme.colorScheme.vibrantContainer),
+            actionIconContentColor = contentColorFor(MaterialTheme.colorScheme.vibrantContainer)
+        ),
         actions = {
             if (showEditToggle) {
                 // Toggle tuning button
@@ -528,22 +546,73 @@ private fun AppBar(
 /**
  * App bar for the tuning screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param editModeEnabled Whether tuning editing is enabled.
+ * @param onEditModeChanged Called when the edit mode toggle button is pressed.
+ * @param showEditToggle Whether to show the edit mode toggle button.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ExpandedAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    onSettingsPressed: () -> Unit,
+    editModeEnabled: Boolean = false,
+    onEditModeChanged: ((Boolean) -> Unit) = {}
+) {
+    LargeTopAppBar(
+        title = { Text(stringResource(R.string.app_name)) },
+        /*colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primarySurfaceBackground(
+                MaterialTheme.isTrueDark
+            ),
+        ),*/
+        actions = {
+            // Toggle tuning button
+            IconToggleButton(
+                checked = editModeEnabled,
+                onCheckedChange = onEditModeChanged
+            ) {
+                Icon(
+                    imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.toggle_edit_mode)
+                )
+            }
+
+
+            // Settings button
+            IconButton(onClick = onSettingsPressed) {
+                Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
+            }
+        },
+        scrollBehavior = scrollBehavior
+    )
+}
+
+/**
+ * App bar for the tuning screen.
+ * @param onSettingsPressed Called when the settings button is pressed.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
  * @param customTunings Set of custom tunings.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CompactAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>
 ) {
-    TopAppBar(
-        title = {
-            TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+    CenterAlignedTopAppBar(
+        navigationIcon = {
+            Text(text = "Choona", modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleMedium)
         },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+        title = {
+            TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
+        },
+        /*colors = TopAppBarDefaults.topAppBarColors(
+        containerColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+        ),*/
         actions = {
                         // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
@@ -554,7 +623,8 @@ private fun CompactAppBar(
             IconButton(onClick = onSettingsPressed) {
                 Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
             }
-        }
+        },
+        scrollBehavior = scrollBehavior
     )
 }
 
@@ -577,7 +647,7 @@ private fun AutoDetectSwitch(
     ) {
         Text(
             text = stringResource(R.string.auto_detect_label).uppercase(),
-            style = MaterialTheme.typography.subtitle2,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.paddingFromBaseline(bottom = 6.dp)
         )
         Switch(checked = autoDetect, onCheckedChange = onAutoChanged)

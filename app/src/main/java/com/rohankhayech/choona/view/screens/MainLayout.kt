@@ -26,10 +26,10 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -140,7 +140,7 @@ fun MainLayout(
                 )
             }
             Column(Modifier.weight(0.3f)) {
-                Surface(elevation = 8.dp) {
+                Surface(tonalElevation = 8.dp) {
                     TuningSelectionScreen(
                         tuningList = tuningList,
                         backIcon = null,
@@ -208,7 +208,7 @@ fun MainLayout(
         ) {
             TuningSelectionScreen(
                 tuningList = tuningList,
-                backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
+                backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
                 onSelect = onSelectTuningFromList,
                 onDismiss = onDismissTuningSelector,
             )

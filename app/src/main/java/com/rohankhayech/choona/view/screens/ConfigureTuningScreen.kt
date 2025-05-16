@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.screens
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -30,28 +29,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.BottomAppBar
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -80,6 +76,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigureTuningScreen(
     tuning: Tuning,
@@ -93,18 +90,11 @@ fun ConfigureTuningScreen(
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val scrollState = rememberScrollState()
-
-    val appBarElevation by animateDpAsState(
-        remember { derivedStateOf {
-            if (scrollState.value == 0) {
-                0.dp
-            } else AppBarDefaults.TopAppBarElevation
-        }}.value,
-        label = "App Bar Elevation"
-    )
+    val scrollBehavour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val bottomScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
 
     Scaffold (
+        Modifier.nestedScroll(scrollBehavour.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -115,32 +105,29 @@ fun ConfigureTuningScreen(
                         Icon(Icons.Default.Close, stringResource(R.string.dismiss))
                     }
                 },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = appBarElevation
+                scrollBehavior = scrollBehavour,
             )
         },
         bottomBar = {
             Column(Modifier.fillMaxWidth()) {
-                Divider(thickness = Dp.Hairline)
+                HorizontalDivider(thickness = Dp.Hairline)
                 BottomAppBar(
                     modifier = Modifier.height(IntrinsicSize.Min),
-                    backgroundColor = MaterialTheme.colors.background,
-                    contentColor = MaterialTheme.colors.onBackground,
                     contentPadding = PaddingValues(vertical = 8.dp),
+                    scrollBehavior = bottomScrollBehavior
                 ) {
-                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                        TuningSelector(
-                            tuning = tuning,
-                            favTunings = favTunings,
-                            customTunings = customTunings,
-                            openDirect = true,
-                            onSelect = onSelectTuning,
-                            onTuneDown = onTuneDownTuning,
-                            onTuneUp = onTuneUpTuning,
-                            onOpenTuningSelector = onOpenTuningSelector,
-                            editModeEnabled = true
-                        )
-                    }
+                    TuningSelector(
+                        tuning = tuning,
+                        favTunings = favTunings,
+                        customTunings = customTunings,
+                        openDirect = true,
+                        onSelect = onSelectTuning,
+                        onTuneDown = onTuneDownTuning,
+                        onTuneUp = onTuneUpTuning,
+                        onOpenTuningSelector = onOpenTuningSelector,
+                        editModeEnabled = true
+                    )
+
                 }
             }
         }
@@ -149,7 +136,7 @@ fun ConfigureTuningScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

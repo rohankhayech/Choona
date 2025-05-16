@@ -36,17 +36,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.SliderDefaults
-import androidx.compose.material.Text
+//noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.material.SliderDefaults.InactiveTrackAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -111,10 +110,10 @@ fun TuningDisplay(
     // Calculate colour of meter and label.
     val color by animateColorAsState(
         targetValue = run {
-            val pri = MaterialTheme.colors.primary
-            val err = MaterialTheme.colors.error
-            val onBack = MaterialTheme.colors.onBackground
-            val back = MaterialTheme.colors.background
+            val pri = MaterialTheme.colorScheme.primary
+            val err = MaterialTheme.colorScheme.error
+            val onBack = MaterialTheme.colorScheme.onBackground
+            val back = MaterialTheme.colorScheme.background
 
             remember(absPosition) { derivedStateOf {
                 if (absPosition != 0f) {
@@ -211,7 +210,7 @@ private fun TuningMeter(
  */
 private fun DrawScope.drawMeter(
     indicatorColor: Color,
-    trackColor: Color = indicatorColor.copy(alpha = SliderDefaults.InactiveTrackAlpha),
+    trackColor: Color = indicatorColor.copy(alpha = InactiveTrackAlpha),
     indicatorPosition: Float,
     indicatorSize: Float,
 ) {
@@ -296,7 +295,7 @@ private fun TuningMeterLabel(
         Text( // Offset Value
             color = color,
             text = "%+.${dp}f".format(offset),
-            style = MaterialTheme.typography.h3
+            style = MaterialTheme.typography.displaySmall
         )
         Text(text = when (displayType) {
             TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
@@ -316,13 +315,12 @@ private fun AccidentalIcon(
     @DrawableRes icon: Int,
     contentDescription: String
 ) {
-    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = contentDescription,
-            modifier = Modifier.requiredSize(24.dp)
-        )
-    }
+    Icon(
+        painter = painterResource(icon),
+        contentDescription = contentDescription,
+        modifier = Modifier.requiredSize(24.dp),
+        tint = LocalContentColor.current.copy(alpha = 0.38f)
+    )
 }
 
 // PREVIEWS

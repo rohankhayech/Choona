@@ -30,16 +30,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -323,8 +323,8 @@ private fun StringSelectionButton(
 ) {
     // Animate content color by selected and tuned state.
     val contentColor by animateColorAsState(
-        if (tuned) MaterialTheme.colors.primary
-        else if (selected) MaterialTheme.colors.secondaryVariant
+        if (tuned) MaterialTheme.colorScheme.primary
+        else if (selected) MaterialTheme.colorScheme.tertiary
         else LocalContentColor.current,
         label = "String Button Content Color"
     )
@@ -333,8 +333,8 @@ private fun StringSelectionButton(
     val backgroundColor by animateColorAsState(
         if (selected) {
             contentColor.copy(alpha = 0.12f)
-                .compositeOver(MaterialTheme.colors.background)
-        } else MaterialTheme.colors.background,
+                .compositeOver(MaterialTheme.colorScheme.background)
+        } else MaterialTheme.colorScheme.background,
         label = "String Button Background Color"
     )
 
@@ -342,8 +342,8 @@ private fun StringSelectionButton(
     OutlinedButton(
         modifier = Modifier.defaultMinSize(72.dp, 48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = backgroundColor,
-            contentColor = contentColor,
+            containerColor = backgroundColor,
+            contentColor = contentColor
         ),
         shape = RoundedCornerShape(100),
         onClick = remember(onSelect, index) { { onSelect(index) } }

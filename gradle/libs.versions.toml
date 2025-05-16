@@ -1,5 +1,5 @@
 [versions]
-aboutLibraries = "10.6.3"
+aboutLibraries = "12.1.2"
 agp = "8.7.3"
 constraintlayoutCompose = "1.1.1"
 datastorePreferencesVersion = "1.1.6"
@@ -7,7 +7,7 @@ jsonVersion = "20231013"
 kotlinxCoroutinesTest = "1.7.3"
 lifecycleRuntimeCompose = "2.9.0"
 mididriver = "v1.24"
-androidUtils = "v0.2.0"
+androidUtils = "v0.3.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -19,15 +19,15 @@ activityCompose = "1.10.1"
 composeBom = "2025.05.00"
 
 [libraries]
-aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutLibraries" }
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 androidx-animation = { module = "androidx.compose.animation:animation" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
-androidx-material = { module = "androidx.compose.material:material" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }
 animation = { module = "androidx.compose.animation:animation" }
 json-json = { module = "org.json:json", version.ref = "jsonVersion" }
@@ -47,7 +47,7 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme", version.ref = "androidUtils" }
+androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme-m3", version.ref = "androidUtils" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 
 [plugins]
