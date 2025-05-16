@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
@@ -143,6 +144,7 @@ fun MainLayout(
                 Surface(elevation = 8.dp) {
                     TuningSelectionScreen(
                         tuningList = tuningList,
+                        pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                         backIcon = null,
                         onSelect = onSelectTuningFromList,
                         onDismiss = {}
@@ -208,6 +210,7 @@ fun MainLayout(
         ) {
             TuningSelectionScreen(
                 tuningList = tuningList,
+                pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                 backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
                 onSelect = onSelectTuningFromList,
                 onDismiss = onDismissTuningSelector,

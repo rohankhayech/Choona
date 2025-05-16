@@ -145,7 +145,7 @@ fun TunerScreen(
     Scaffold (
         topBar = {
             if (!compact) {
-                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged, )
+                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged )
             } else {
                 CompactAppBar(
                     onSettingsPressed = onSettingsPressed,

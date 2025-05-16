@@ -103,6 +103,7 @@ private fun SelectionScreenshot() {
     AppTheme {
         TuningSelectionScreen(
             tuningList = tunings,
+            pinnedInitial = true,
             backIcon = Icons.Default.Close,
             onSelect = {},
             onDismiss = {}
@@ -125,13 +126,15 @@ private fun CustomScreenshot() {
             tunings = tunings.filteredTunings.value,
             favourites = tunings.favourites.value,
             custom = emptySet(),
+            pinned = Tuning.STANDARD,
+            pinnedInitial = true,
             instrumentFilter = null,
             categoryFilter = null,
             instrumentFilters = tunings.instrumentFilters.collectAsStateWithLifecycle(),
             categoryFilters = tunings.categoryFilters.collectAsStateWithLifecycle(),
             backIcon = Icons.Default.Close,
             deletedTuning = tunings.deletedTuning,
-            {}, {}, {_,_->}, {_,_->}, {}, {}, {}
+            {}, {}, {_,_->}, {_,_->}, {}, {}, {}, {}, {}
         )
 
         SaveTuningDialog(
@@ -199,7 +202,8 @@ private fun SettingsScreenshot() {
             prefs = TunerPreferences(
                 enableInTuneSound = false
             ),
-            {},{},{},{},{},{},{}, {}
+            pinnedTuning = "Standard",
+            {},{},{},{},{},{},{}, {}, {}
         )
     }
 }
