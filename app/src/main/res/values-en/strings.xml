@@ -95,7 +95,7 @@
     <string name="toggle_edit_mode">Toggle Editing</string>
     <string name="pref_initial_tuning">Default Tuning</string>
     <string name="pref_initial_tuning_pinned">Default</string>
-    <string name="pref_initial_tuning_pinned_desc">"Use the pinned tuning on app launch:\n%1$s "</string>
+    <string name="pref_initial_tuning_pinned_desc">Use the pinned tuning on app launch:\n%1$s</string>
     <string name="pref_initial_tuning_last">Last used</string>
     <string name="pref_initial_tuning_used_desc">Use the last used tuning on app launch.</string>
     <string name="pref_initial_tuning_pinned_desc_standard">Use Standard tuning on app launch.\nPin a tuning to use it as default.</string>

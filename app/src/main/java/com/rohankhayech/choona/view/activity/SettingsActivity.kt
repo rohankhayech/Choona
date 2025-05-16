@@ -78,7 +78,7 @@ class SettingsActivity : AppCompatActivity() {
         // Initialise view model.
         vm = ViewModelProvider(
             this,
-            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra("pinned") ?: "RAH")
+            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra("pinned") ?: "")
         )[SettingsActivityViewModel::class.java]
 
         // Setup custom back navigation.
