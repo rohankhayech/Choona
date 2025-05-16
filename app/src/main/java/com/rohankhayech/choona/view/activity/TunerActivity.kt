@@ -29,6 +29,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -413,7 +414,8 @@ class TunerActivity : AppCompatActivity() {
 }
 
 /** View model used to hold the current tuner and UI state. */
-private class TunerActivityViewModel : ViewModel() {
+@VisibleForTesting
+class TunerActivityViewModel : ViewModel() {
     /** Tuner used for audio processing and note comparison. */
     val tuner = Tuner()
 
