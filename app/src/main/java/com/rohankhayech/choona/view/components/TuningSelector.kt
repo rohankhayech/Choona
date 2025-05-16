@@ -226,7 +226,7 @@ fun TuningItem(
         if (tuning.hasName()) {
             tuning.name
         } else {
-            tuning.findEquivalentIn(customTunings.value + Tunings.COMMON)?.name
+            tuning.findEquivalentIn(customTunings.value + Tunings.TUNINGS)?.name
                 ?: tuning.toString()
         }
     }

@@ -45,21 +45,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.music.Tuning
 
 /**
  * A UI screen that displays and allows selection of the user's tuner preferences.
  *
  * @param prefs The tuner preferences.
+ * @param pinnedTuning The full name of the currently pinned tuning.
  * @param onSelectStringLayout Called when the user selects a string control layout.
  * @param onSelectDisplayType Called when the user selects a tuning display type.
  * @param onEnableStringSelectSound Called when the user toggles the string select sound.
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
  * @param onSetUseBlackTheme Called when the user toggles the full black theme.
+ * @param onSelectInitialTuning Called when the user selects the initial tuning type.
  * @param onToggleEditModeDefault Called when the user toggles the edit mode feature.
  * @param onBackPressed Called when the user presses the back navigation button.
  *
@@ -69,12 +73,14 @@ import com.rohankhayech.choona.view.theme.AppTheme
 @Composable
 fun SettingsScreen(
     prefs: TunerPreferences,
+    pinnedTuning: String,
     onSelectStringLayout: (StringLayout) -> Unit,
     onSelectDisplayType: (TuningDisplayType) -> Unit,
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
     onToggleEditModeDefault: (Boolean) -> Unit,
+    onSelectInitialTuning: (InitialTuningType) -> Unit,
     onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -199,6 +205,36 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            // Default tuning.
+            SectionLabel(title = stringResource(R.string.pref_initial_tuning))
+
+            // Pinned
+            ListItem(
+                text = { Text(stringResource(R.string.pref_initial_tuning_pinned)) },
+                secondaryText = { Text(if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning)) },
+                trailing = {
+                    RadioButton(
+                        selected = prefs.initialTuning == InitialTuningType.PINNED,
+                        onClick = { onSelectInitialTuning(InitialTuningType.PINNED) }
+                    )
+                },
+                modifier = Modifier.clickable { onSelectInitialTuning(InitialTuningType.PINNED) }
+            )
+
+            // Last Used
+            ListItem(
+                text = { Text(stringResource(R.string.pref_initial_tuning_last)) },
+                secondaryText = { Text(stringResource(R.string.pref_initial_tuning_used_desc)) },
+                trailing = {
+                    RadioButton(
+                        selected = prefs.initialTuning == InitialTuningType.LAST_USED,
+                        onClick = { onSelectInitialTuning(InitialTuningType.LAST_USED) }
+                    )
+                },
+                modifier = Modifier.clickable { onSelectInitialTuning(InitialTuningType.LAST_USED) }
+            )
+            Divider()
+
             // Display preferences
             SectionLabel(title = stringResource(R.string.prefs_display))
 
@@ -244,12 +280,14 @@ private fun Preview() {
     AppTheme {
         SettingsScreen(
             prefs = TunerPreferences(),
+            pinnedTuning = "Standard",
             onSelectDisplayType = {},
             onSelectStringLayout = {},
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
             onToggleEditModeDefault = {},
+            onSelectInitialTuning = {},
             onAboutPressed = {},
             onBackPressed = {},
         )
