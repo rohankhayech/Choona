@@ -25,7 +25,6 @@ import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
-import com.rohankhayech.music.Tuning.STANDARD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -71,7 +70,7 @@ class TuningList(
     val custom = _custom.asStateFlow()
 
     /** Mutable backing property for [pinned]. */
-    private val _pinned = MutableStateFlow<Tuning>(STANDARD)
+    private val _pinned = MutableStateFlow<Tuning>(Tuning.STANDARD)
 
     /** Pinned tuning to open when the app is launched. */
     val pinned = _pinned.asStateFlow()
@@ -199,6 +198,9 @@ class TuningList(
         if (current.value?.equivalentTo(tuning) == true) {
             _current.update { Tuning(null, tuning) }
         }
+        if (pinned.value.equivalentTo(tuning)) {
+            _pinned.update { Tuning(null, tuning) }
+        }
         _deletedTuning.tryEmit(tuning)
     }
 
@@ -209,7 +211,7 @@ class TuningList(
 
     /** Unpins the pinned tuning. */
     fun unpinTuning() {
-        _pinned.update { STANDARD }
+        _pinned.update { Tuning.STANDARD }
     }
 
     /**
