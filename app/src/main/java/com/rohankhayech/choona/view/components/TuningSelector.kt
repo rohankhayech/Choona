@@ -86,6 +86,7 @@ fun TuningSelector(
     customTunings: State<Set<Tuning>>,
     enabled: Boolean = true,
     openDirect: Boolean,
+    compact: Boolean,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
@@ -128,6 +129,7 @@ fun TuningSelector(
                     customTunings = customTunings,
                     expanded = expanded,
                     showExpanded = enabled,
+                    compact
                 )
 
                 // Dropdown Menu
@@ -190,7 +192,8 @@ private fun CurrentTuningField(
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
     expanded: Boolean,
-    showExpanded: Boolean
+    showExpanded: Boolean,
+    compact: Boolean
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -207,7 +210,7 @@ private fun CurrentTuningField(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TuningItem(modifier = Modifier.weight(1f), tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+            TuningItem(modifier = Modifier.weight(1f), compact = compact, tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
@@ -220,12 +223,15 @@ private fun CurrentTuningField(
  * @param tuning The tuning to display.
  * @param fontWeight The font weight of the tuning name text.
  * @param customTunings Set of custom tunings added by the user.
+ * @param horizontalAlignment The horizontal alignment of the text.
+ * @param compact Whether to show the compact version of the tuning.
  *
  * @author Rohan Khayech
  */
 @Composable
 fun TuningItem(
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
     tuning: Tuning,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -246,6 +252,7 @@ fun TuningItem(
             .joinToString(
                 separator = ", ",
             ) { it.toFullString() }
+            ) { if (compact) it.toString() else it.toFullString() }
     }
 
     Column(
@@ -255,14 +262,14 @@ fun TuningItem(
     ) {
         Text(
             tuningName,
-            style = MaterialTheme.typography.titleMedium,
+            style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
             fontWeight = fontWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             strings,
-            style = MaterialTheme.typography.bodyMedium,
+            style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -284,7 +291,11 @@ private fun Preview() {
             onTuneDown = {},
             onTuneUp = {},
             onOpenTuningSelector = {},
-            editModeEnabled = true
+            editModeEnabled = true,
+            compact = false
+        )
+    }
+}
 
 @ThemePreview
 @Composable

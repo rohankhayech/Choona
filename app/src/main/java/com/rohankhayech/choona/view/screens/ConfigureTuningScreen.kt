@@ -23,14 +23,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -73,6 +78,7 @@ import com.rohankhayech.music.Tuning
  * @param onTuneDownTuning Called when the tuning is tuned down.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onDismiss Called when the screen is dismissed.
+ * @param onSettingsPressed Called when the settings button is pressed.
  *
  * @author Rohan Khayech
  */
@@ -89,6 +95,7 @@ fun ConfigureTuningScreen(
     onTuneDownTuning: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
+    onSettingsPressed: () -> Unit,
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -97,7 +104,13 @@ fun ConfigureTuningScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.configure_tuning))
+                    Text(stringResource(R.string.configure_tuning), style = MaterialTheme.typography.titleMedium)
+                },
+                actions = {
+                    // Settings button
+                    IconButton(onClick = onSettingsPressed) {
+                        Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
@@ -123,7 +136,8 @@ fun ConfigureTuningScreen(
                         onTuneDown = onTuneDownTuning,
                         onTuneUp = onTuneUpTuning,
                         onOpenTuningSelector = onOpenTuningSelector,
-                        editModeEnabled = true
+                        editModeEnabled = true,
+                        compact = true
                     )
 
                 }
@@ -169,7 +183,8 @@ private fun Preview() {
             onTuneDownString = {},
             onTuneUpTuning = {},
             onTuneDownTuning = {},
-            onOpenTuningSelector = {}
+            onOpenTuningSelector = {},
+            onDismiss = {}
         ) {}
     }
 }

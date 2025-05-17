@@ -208,7 +208,8 @@ fun MainLayout(
                 onTuneUpTuning = onTuneUpTuning,
                 onTuneDownTuning = onTuneDownTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                onDismiss = onDismissConfigurePanel
+                onDismiss = onDismissConfigurePanel,
+                onSettingsPressed = onSettingsPressed
             )
         }
         AnimatedVisibility(

@@ -18,20 +18,26 @@
 
 package com.rohankhayech.choona.view.screens
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -42,11 +48,11 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -54,11 +60,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -66,6 +72,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -79,12 +86,16 @@ import com.rohankhayech.android.util.ui.preview.CompactThemePreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactStringSelector
+import com.rohankhayech.choona.view.components.StatusBarColor
+import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
@@ -161,7 +172,6 @@ fun TunerScreen(
             } else {
                 CompactAppBar(
                     scrollBehavior,
-                    onSettingsPressed = onSettingsPressed,
                     tuning = tuning,
                     customTunings = customTunings,
                     onConfigurePressed = onConfigurePressed
@@ -213,38 +223,26 @@ fun TunerScreen(
 
             // Landscape layout
             landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
-                ConstraintLayout(
+                Column (
                     Modifier.fillMaxSize()
                         .padding(padd)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    val (display, tuningSelectorBox, stringsSelector, autoSwitch) = createRefs()
-
-                    Box(Modifier.constrainAs(display) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(autoSwitch.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(stringsSelector.start)
-                    }) {
-                        tuningDisplay()
-                    }
-
-                    Box(Modifier.constrainAs(tuningSelectorBox) {
-                        top.linkTo(stringsSelector.bottom)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }) {
-                        tuningSelector(Modifier)
-                    }
-
-                    Box(Modifier.constrainAs(stringsSelector) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(tuningSelectorBox.top)
-                        start.linkTo(display.end)
-                        end.linkTo(parent.end)
-                    }) {
                         .consumeWindowInsets(padd)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            tuningDisplay()
+                            autoDetectSwitch(Modifier)
+                        }
                         stringControls(
                             Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
                             windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
@@ -428,7 +426,8 @@ private fun TunerBodyScaffold(
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
                 enabled = !expanded,
-                editModeEnabled = editModeEnabled
+                editModeEnabled = editModeEnabled,
+                compact = compact
             )
         }
     )
@@ -469,7 +468,7 @@ fun TunerPermissionScreen(
             if (canRequest) {
                 title = stringResource(R.string.permission_needed)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale)
-                buttonLabel = stringResource(R.string.request_permission).uppercase()
+                buttonLabel = stringResource(R.string.request_permission)
                 buttonAction = onRequestPermission
             } else {
                 title = stringResource(R.string.permission_denied)
@@ -601,30 +600,21 @@ private fun ExpandedAppBar(
 @Composable
 private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
-    onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            Text(text = "Choona", modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
         },
         title = {
-            TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
+            TuningItem(tuning = tuning, compact = true, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
         },
-        /*colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
-        ),*/
         actions = {
-                        // Configure tuning button.
+            // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
                 Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.configure_tuning))
-            }
-
-            // Settings button
-            IconButton(onClick = onSettingsPressed) {
-                Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
             }
         },
         scrollBehavior = scrollBehavior
