@@ -48,7 +48,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
@@ -267,7 +266,7 @@ fun TuningSelectionScreen(
         topBar = {
             StatusBarColor(if (MaterialTheme.isLight) StatusBarIconColor.DARK else StatusBarIconColor.LIGHT)
             TopAppBar(
-                title = { Text(stringResource(R.string.select_tuning)) },
+                title = { Text(if (backIcon == null) stringResource(R.string.tunings) else stringResource(R.string.select_tuning)) },
                 navigationIcon = { backIcon?.let {
                     IconButton(onClick = onDismiss) {
                         Icon(it, stringResource(R.string.dismiss))
@@ -581,7 +580,7 @@ private fun LazyItemScope.CurrentTuningItem(
                         val tint = if (pinned) MaterialTheme.colorScheme.secondary else LocalContentColor.current
                         Icon(
                             if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                            tint = if (pinnedInitial) tint else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+                            tint = if (pinnedInitial) tint else LocalContentColor.current.copy(alpha = 0.38f),
                             contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
                         )
                     }
@@ -715,7 +714,7 @@ private fun LazyItemScope.FavouritableTuningItem(
                 ) {
                     Icon(
                         Icons.Default.PushPin,
-                        tint = if (pinnedInitial) MaterialTheme.colorScheme.secondary else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+                        tint = if (pinnedInitial) MaterialTheme.colorScheme.secondary else LocalContentColor.current.copy(alpha = 0.38f),
                         contentDescription = stringResource(R.string.unpin)
                     )
                 }

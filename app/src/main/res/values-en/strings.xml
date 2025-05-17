@@ -19,6 +19,7 @@
 <resources>
     <string name="cancel">Cancel</string>
     <string name="tuning">Tuning</string>
+    <string name="tunings">Tunings</string>
     <string name="permission_denied">Permission Denied</string>
     <string name="open_permission_settings">Open Settings</string>
     <string name="tuner_audio_permission_rationale">The tuner requires permission to record audio to detect the pitch of incoming audio.\n\nPlease enable this permission to use the tuner:</string>

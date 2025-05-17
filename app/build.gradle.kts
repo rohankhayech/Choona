@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3.window.size)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.constraintlayout.compose)
 
     // Audio
     implementation(libs.tarsos.dsp.core)

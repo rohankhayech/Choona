@@ -78,6 +78,7 @@ import com.rohankhayech.music.Tuning
  */
 @Composable
 fun StringControls(
+    modifier: Modifier = Modifier,
     inline: Boolean,
     tuning: Tuning,
     selectedString: Int?,
@@ -88,7 +89,7 @@ fun StringControls(
     editModeEnabled: Boolean
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .horizontalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
