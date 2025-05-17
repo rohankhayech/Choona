@@ -131,10 +131,10 @@ class TuningList(
 
     /**
      * Loads the custom and favourite tunings from file if not yet loaded.
-     *
      * @param context Android system context used to access the file-system.
+     * @return `true` if tunings were successfully loaded, `false` if they were already loaded.
      */
-    fun loadTunings(context: Context) {
+    fun loadTunings(context: Context): Boolean {
         if (!loaded) {
             val customTunings = TuningFileIO.loadCustomTunings(context)
             val favouriteTunings = TuningFileIO.loadFavouriteTunings(context)
@@ -144,7 +144,8 @@ class TuningList(
             _lastUsed.update { initial.first }
             initial.second?.let { i -> _pinned.update { i } }
             loaded = true
-        }
+            return true
+        } else return false
     }
 
     /**
@@ -187,6 +188,9 @@ class TuningList(
         if (current.value?.equivalentTo(tuning) == true) {
             _current.update { newTuning }
         }
+        if (pinned.value.equivalentTo(tuning)) {
+            _pinned.update { newTuning }
+        }
     }
 
     /**
@@ -199,7 +203,7 @@ class TuningList(
             _current.update { Tuning(null, tuning) }
         }
         if (pinned.value.equivalentTo(tuning)) {
-            _pinned.update { Tuning(null, tuning) }
+            unpinTuning()
         }
         _deletedTuning.tryEmit(tuning)
     }

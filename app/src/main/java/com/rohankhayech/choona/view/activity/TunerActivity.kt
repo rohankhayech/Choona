@@ -116,10 +116,13 @@ class TunerActivity : ComponentActivity() {
 
         // Load tunings
         lifecycleScope.launch {
-            vm.tuningList.loadTunings(this@TunerActivity)
+            val firstLoad = vm.tuningList.loadTunings(this@TunerActivity)
 
-            // Switch to initial tuning
-            prefs.firstOrNull()?.let { preferences ->
+            // Initialize edit mode and initial tuning state from preferences only on app load.
+            if (firstLoad) prefs.firstOrNull()?.let { preferences ->
+                vm.toggleEditMode(preferences.editModeDefault)
+
+                // Switch to initial tuning
                 when(preferences.initialTuning) {
                     InitialTuningType.PINNED -> setTuning(vm.tuningList.pinned.value)
                     InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let { setTuning(it) }
@@ -138,13 +141,6 @@ class TunerActivity : ComponentActivity() {
             enabled = vm.tuningSelectorOpen.value
         ) {
             dismissTuningSelector()
-        }
-
-        // Initialize edit mode state from preferences only on app load.
-        lifecycleScope.launch {
-            prefs.firstOrNull()?.let { preferences ->
-                vm.toggleEditMode(preferences.editModeDefault)
-            }
         }
 
         // Set UI content.
