@@ -20,31 +20,40 @@ package com.rohankhayech.choona.view.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ListItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
-import com.rohankhayech.android.util.ui.theme.isTrueDark
-import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
+import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.view.components.SectionLabel
@@ -55,22 +64,29 @@ import com.rohankhayech.choona.view.theme.AppTheme
  * @param onBackPressed Called when the back navigation button is pressed.
  * @author Rohan Khayech
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
     onLicencesPressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
-                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
                 navigationIcon = { 
                     IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back))
                     }
-                }
+                },
+                colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                    TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+                } else {
+                    TopAppBarDefaults.topAppBarColors()
+                },
+                scrollBehavior = scrollBehavior
             )
         }
     ) { padding ->
@@ -78,6 +94,8 @@ fun AboutScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .verticalScroll(rememberScrollState())
         ) {
             // Version and Copyright
@@ -85,25 +103,25 @@ fun AboutScreen(
             Text(
                 "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}\n© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
                 modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.bodyMedium
             )
-            Divider()
+            HorizontalDivider()
 
             // License
             SectionLabel(stringResource(R.string.licence))
             Text(
                 "${stringResource(R.string.app_name)} ${stringResource(R.string.license_desc)}",
                 modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
             )
-            Divider()
+            HorizontalDivider()
             LinkListItem(text = stringResource(R.string.licence_terms), url = "https://github.com/rohankhayech/Choona/blob/main/LICENSE")
             LinkListItem(text = stringResource(R.string.source_code), url = "https://github.com/rohankhayech/Choona")
 
-            ListItem(Modifier.clickable(onClick = onLicencesPressed)) {
+            ListItem(modifier = Modifier.clickable(onClick = onLicencesPressed), headlineContent = {
                 Text(stringResource(R.string.third_party_licences))
-            }
-            Divider()
+            })
+            HorizontalDivider()
 
             SectionLabel(stringResource(R.string.privacy))
             LinkListItem(text = stringResource(R.string.privacy_policy), url = "https://github.com/rohankhayech/Choona/blob/main/PRIVACY.md")
@@ -117,41 +135,50 @@ fun AboutScreen(
 /**
  * List item with the specified [text] that directs to the specified [url] when pressed.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun LinkListItem(text: String, url: String) {
     val uriHandler = LocalUriHandler.current
-    ListItem(Modifier.clickable(onClick = remember {{ uriHandler.openUri(url) }})) {
+    ListItem(modifier = Modifier.clickable(onClick = remember {{ uriHandler.openUri(url) }}), headlineContent =  {
         Text(text)
-    }
-    Divider()
+    })
+    HorizontalDivider()
 }
 
 /**
  * UI screen showing the licences of the apps dependencies.
  * @param onBackPressed Called when the back navigation button is pressed.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicencesScreen(
     onBackPressed: () -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.oss_licences)) },
-                backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+                colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                    TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+                } else {
+                    TopAppBarDefaults.topAppBarColors()
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBack, stringResource(R.string.nav_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back))
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         }
     ) { padding ->
         LibrariesContainer(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
         )
     }
 }

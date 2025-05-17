@@ -33,6 +33,7 @@ import androidx.datastore.preferences.preferencesDataStore
  * @property displayType Type of tuning offset value to display.
  * @property stringLayout Layout to display string controls.
  * @property useBlackTheme Whether to use full black theme when in dark mode.
+ * @property useDynamicColor Whether to use dynamic color for the app theme.
  * @property editModeDefault Whether to enable tuning edit functionality.
  * @property initialTuning The default tuning used when opening the app.
  *
@@ -45,6 +46,7 @@ data class TunerPreferences(
     val displayType: TuningDisplayType = DEFAULT_DISPLAY_TYPE,
     val stringLayout: StringLayout = DEFAULT_STRING_LAYOUT,
     val useBlackTheme: Boolean = DEFAULT_USE_BLACK_THEME,
+    val useDynamicColor: Boolean = DEFAULT_USE_DYNAMIC_COLOR,
     val editModeDefault: Boolean = DEFAULT_EDIT_MODE_DEFAULT,
     val initialTuning: InitialTuningType = DEFAULT_INITIAL_TUNING,
 ) {
@@ -55,6 +57,7 @@ data class TunerPreferences(
         val DISPLAY_TYPE_KEY = stringPreferencesKey("display_type")
         val STRING_LAYOUT_KEY = stringPreferencesKey("string_layout")
         val USE_BLACK_THEME_KEY = booleanPreferencesKey("use_black_theme")
+        val USE_DYNAMIC_COLOR_KEY = booleanPreferencesKey("use_dynamic_color")
         val EDIT_MODE_DEFAULT_KEY = booleanPreferencesKey("edit_mode_default")
         val INITIAL_TUNING_KEY = stringPreferencesKey("initial_tuning")
 
@@ -66,6 +69,7 @@ data class TunerPreferences(
         const val DEFAULT_USE_BLACK_THEME = false
         const val DEFAULT_EDIT_MODE_DEFAULT = false
         val DEFAULT_INITIAL_TUNING = InitialTuningType.PINNED
+        const val DEFAULT_USE_DYNAMIC_COLOR = false
 
         /**
          * Maps the specified android [preferences][prefs] to a [TunerPreferences] object.
@@ -77,6 +81,7 @@ data class TunerPreferences(
                 displayType = prefs[DISPLAY_TYPE_KEY]?.let { TuningDisplayType.valueOf(it) } ?: DEFAULT_DISPLAY_TYPE,
                 stringLayout = prefs[STRING_LAYOUT_KEY]?.let { StringLayout.valueOf(it) } ?: DEFAULT_STRING_LAYOUT,
                 useBlackTheme = prefs[USE_BLACK_THEME_KEY] ?: DEFAULT_USE_BLACK_THEME,
+                useDynamicColor = prefs[USE_DYNAMIC_COLOR_KEY] ?: DEFAULT_USE_DYNAMIC_COLOR,
                 editModeDefault = prefs[EDIT_MODE_DEFAULT_KEY] ?: DEFAULT_EDIT_MODE_DEFAULT,
                 initialTuning = prefs[INITIAL_TUNING_KEY]?.let { InitialTuningType.valueOf(it) } ?: DEFAULT_INITIAL_TUNING
             )
