@@ -1,7 +1,7 @@
 [versions]
 aboutLibraries = "12.1.2"
-agp = "8.7.3"
 constraintlayoutCompose = "1.1.1"
+agp = "8.10.0"
 datastorePreferencesVersion = "1.1.6"
 jsonVersion = "20231013"
 kotlinxCoroutinesTest = "1.7.3"
@@ -22,7 +22,6 @@ composeBom = "2025.05.00"
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 androidx-animation = { module = "androidx.compose.animation:animation" }
-androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
