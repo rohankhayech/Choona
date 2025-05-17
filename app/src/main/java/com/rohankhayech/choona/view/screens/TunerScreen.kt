@@ -196,10 +196,10 @@ fun TunerScreen(
             // Portrait layout
             portrait = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxSize()
                         .padding(padd)
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                        .consumeWindowInsets(padd)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly
@@ -214,10 +214,8 @@ fun TunerScreen(
             // Landscape layout
             landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
                 ConstraintLayout(
-                    modifier = Modifier
+                    Modifier.fillMaxSize()
                         .padding(padd)
-                        .fillMaxHeight()
-                        .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
                     val (display, tuningSelectorBox, stringsSelector, autoSwitch) = createRefs()
@@ -246,7 +244,9 @@ fun TunerScreen(
                         start.linkTo(display.end)
                         end.linkTo(parent.end)
                     }) {
+                        .consumeWindowInsets(padd)
                         stringControls(
+                            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
                             windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                                 && prefs.stringLayout == StringLayout.INLINE,
                         )
@@ -293,12 +293,8 @@ fun TunerScreen(
                             tuned = tuned,
                             onSelect = onSelectString,
                         )
-                        HorizontalDivider(
-                            Modifier
-                                .width((1f / LocalDensity.current.density).dp)
-                                .fillMaxHeight()
-                        )
-                        Box(Modifier.padding(horizontal = 16.dp)) {
+                        VerticalDivider()
+                        Box(Modifier.padding(horizontal = 8.dp)) {
                             autoDetectSwitch(Modifier.fillMaxHeight())
                         }
                     }
@@ -478,7 +474,7 @@ fun TunerPermissionScreen(
             } else {
                 title = stringResource(R.string.permission_denied)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
-                buttonLabel = stringResource(R.string.open_permission_settings).uppercase()
+                buttonLabel = stringResource(R.string.open_permission_settings)
                 buttonAction = onOpenPermissionSettings
             }
 
@@ -514,8 +510,15 @@ private fun AppBar(
     editModeEnabled: Boolean = false,
     onEditModeChanged: ((Boolean) -> Unit) = {}
 ) {
+    StatusBarColor(iconColor = StatusBarIconColor.LIGHT)
     TopAppBar(
-        title = { Text(stringResource(R.string.app_name)) },
+        title = {
+            Text(stringResource(R.string.app_name),
+                 fontWeight = FontWeight.Bold,
+                 color = if (MaterialTheme.isTrueDark && !MaterialTheme.isLight)
+                     MaterialTheme.colorScheme.primary else Color.Unspecified
+            )
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.vibrantContainer,
             titleContentColor = contentColorFor(MaterialTheme.colorScheme.vibrantContainer),
@@ -641,9 +644,9 @@ private fun AutoDetectSwitch(
     onAutoChanged: (Boolean) -> Unit
 ) {
     Row(
-        modifier,
+        modifier.clickable { onAutoChanged(!autoDetect) }.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(R.string.auto_detect_label).uppercase(),
@@ -676,7 +679,7 @@ private fun BasePreview(
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-            editModeEnabled = false,
+            editModeEnabled = true,
             onEditModeChanged = {}
         )
     }

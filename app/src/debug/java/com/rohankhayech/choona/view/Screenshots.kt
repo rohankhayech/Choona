@@ -203,7 +203,7 @@ private fun SettingsScreenshot() {
                 enableInTuneSound = false
             ),
             pinnedTuning = "Standard",
-            {},{},{},{},{},{},{}, {}, {}
+            {},{},{},{},{},{},{}, {}, {}, {}
         )
     }
 }

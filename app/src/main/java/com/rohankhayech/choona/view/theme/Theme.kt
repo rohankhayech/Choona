@@ -42,8 +42,8 @@ fun AppTheme(
     AdaptableMaterialTheme(
         lightColorScheme = LightColorScheme,
         darkColorScheme = DarkColorScheme,
-        trueDarkColorScheme = DarkColorScheme.trueDark().copy(surface = Color.Black),
        // dynamicTrueDarkColorScheme = { if (Build.VERSION >= Build.VERSION_CODES.S) dynamicTrueDarkColorScheme(LocalContext.current).copy(surface = Color.Black) else DarkColorScheme.trueDark().copy(surface = Color.Black) },
+        trueDarkColorScheme = TrueDarkColorScheme,
         darkTheme = darkTheme,
         trueDark = fullBlack,
         dynamicColor = dynamicColor,
@@ -56,4 +56,10 @@ fun PreviewWrapper(content: @Composable () -> Unit) {
     AppTheme {
         Surface(content = content)
     }
+}
+
+@PreviewLightDark
+@Composable
+fun AppThemePreview() {
+    PreviewWrapper { ColorSwatch() }
 }

@@ -18,7 +18,8 @@
 
 package com.rohankhayech.choona.view.components
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,6 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuBoxScope
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,7 +77,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
@@ -91,76 +92,84 @@ fun TuningSelector(
     onOpenTuningSelector: () -> Unit,
     editModeEnabled: Boolean
 ) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = 8.dp)
-            .animateContentSize(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        if (editModeEnabled) {
-            // Tune Down Button
-            IconButton(
-                onClick = onTuneDown,
-                enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
-            ) {
-                Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
-            }
-        }
-
-        // Tuning Display and Selection
-        var expanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            modifier = Modifier.weight(1f),
-            expanded = expanded && enabled,
-            onExpandedChange = {
-                if (openDirect) onOpenTuningSelector()
-                else expanded = it
-            }
+    LookaheadScope {
+        Row(
+            modifier = modifier
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            // Current Tuning
-            CurrentTuningField(
-                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
-                tuning = tuning,
-                customTunings = customTunings,
-                expanded = expanded,
-                showExpanded = enabled
-            )
+            if (editModeEnabled) {
+                // Tune Down Button
+                IconButton(
+                    onClick = onTuneDown,
+                    enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                ) {
+                    Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+                }
+            }
 
-            // Dropdown Menu
-            ExposedDropdownMenu(
+            // Tuning Display and Selection
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = if (!editModeEnabled) 16.dp else 0.dp),
                 expanded = expanded && enabled,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = {
+                    if (openDirect) onOpenTuningSelector()
+                    else expanded = it
+                }
             ) {
-                for (tuningOption in favTunings.value) {
+                // Current Tuning
+                CurrentTuningField(
+                    modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
+                    tuning = tuning,
+                    customTunings = customTunings,
+                    expanded = expanded,
+                    showExpanded = enabled,
+                )
+
+                // Dropdown Menu
+                ExposedDropdownMenu(
+                    expanded = expanded && enabled,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    for (tuningOption in favTunings.value) {
+                        DropdownMenuItem(
+                            text = {
+                                TuningItem(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    tuning = tuningOption,
+                                    fontWeight = FontWeight.Normal,
+                                    customTunings = customTunings
+                                )
+                            },
+                            onClick = {
+                                onSelect(tuningOption)
+                                expanded = false
+                            }
+                        )
+                    }
                     DropdownMenuItem(
                         text = {
-                            TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
+                            Text(stringResource(R.string.open_tuning_selector))
                         },
                         onClick = {
-                            onSelect(tuningOption)
+                            onOpenTuningSelector()
                             expanded = false
-                        }
-                    )
+                        })
                 }
-                DropdownMenuItem(
-                    text = {
-                        Text(stringResource(R.string.open_tuning_selector))
-                    },
-                    onClick = {
-                    onOpenTuningSelector()
-                    expanded = false
-                })
             }
-        }
 
-        if (editModeEnabled) {
-            // Tune Up Button
-            IconButton(
-                onClick = onTuneUp,
-                enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
-            ) {
-                Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+            if (editModeEnabled) {
+                // Tune Up Button
+                IconButton(
+                    onClick = onTuneUp,
+                    enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                ) {
+                    Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+                }
             }
         }
     }
@@ -176,7 +185,7 @@ fun TuningSelector(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExposedDropdownMenuBoxScope.CurrentTuningField(
+private fun CurrentTuningField(
     modifier: Modifier = Modifier,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
@@ -276,6 +285,23 @@ private fun Preview() {
             onTuneUp = {},
             onOpenTuningSelector = {},
             editModeEnabled = true
+
+@ThemePreview
+@Composable
+private fun EditOffPreview() {
+    PreviewWrapper {
+        TuningSelector(
+            Modifier.padding(8.dp),
+            tuning = Tuning.STANDARD,
+            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
+            customTunings = remember { mutableStateOf(emptySet()) },
+            openDirect = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            onOpenTuningSelector = {},
+            editModeEnabled = false,
+            compact = false
         )
     }
 }

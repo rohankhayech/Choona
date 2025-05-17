@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,6 +46,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
@@ -55,7 +57,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -90,7 +92,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -101,9 +102,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.StatusBarColor
+import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
@@ -246,7 +251,7 @@ fun TuningSelectionScreen(
             // Show deleted tuning snackbar.
             val result = snackbarHostState.showSnackbar(
                 message = context.getString(R.string.deleted_tuning, it.fullName),
-                actionLabel = context.getString(R.string.undo).uppercase(Locale.getDefault()),
+                actionLabel = context.getString(R.string.undo),
                 duration = SnackbarDuration.Long
             )
             // Undo action
@@ -258,6 +263,7 @@ fun TuningSelectionScreen(
         Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
+            StatusBarColor(if (MaterialTheme.isLight) StatusBarIconColor.DARK else StatusBarIconColor.LIGHT)
             TopAppBar(
                 title = { Text(stringResource(R.string.select_tuning)) },
                 navigationIcon = { backIcon?.let {
@@ -265,12 +271,17 @@ fun TuningSelectionScreen(
                         Icon(it, stringResource(R.string.dismiss))
                     }
                 }},
+                colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                    TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+                } else {
+                    TopAppBarDefaults.topAppBarColors()
+                },
                 scrollBehavior = scrollBehavior,
             )
         }
-    ) {
+    ) { padding ->
         TuningList(
-            modifier = Modifier.padding(it),
+            modifier = Modifier.padding(padding).consumeWindowInsets(padding),
             listState = listState,
             current = current,
             tunings = tunings,
@@ -367,7 +378,7 @@ fun TuningList(
     LazyColumn(modifier = modifier, state = listState) {
         // Current Tuning
         current?.let {
-            item("cur") { SectionLabel(stringResource(R.string.tuning_list_current), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
+            item("cur") { SectionLabel(stringResource(R.string.tuning_list_current), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             item("cur-${current.instrument}-[${current.toFullString()}]") {
                 val saved = remember(current, custom) { current.hasEquivalentIn(custom+Tunings.TUNINGS) }
                 CurrentTuningItem(tuning = current, saved = saved, pinned = currentPinned, pinnedInitial = pinnedInitial, onSave = onSave, onSelect = onSelect, onPinnedSet = { tuning, pinned ->
@@ -385,7 +396,7 @@ fun TuningList(
 
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
-            item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
+            item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(favsList, key = { "fav-${it.instrument}-[${it.toFullString()}]" }) {
                 val isPinned = remember(pinned) { it.equivalentTo(pinned) }
                 FavouritableTuningItem(tuning = it, favourited = true, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
@@ -394,7 +405,7 @@ fun TuningList(
 
         // Custom Tunings
         if (custom.isNotEmpty()) {
-            item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))) }
+            item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(customList, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 val isPinned = remember(pinned) { it.equivalentTo(pinned) }
@@ -404,12 +415,12 @@ fun TuningList(
 
         // All Tunings
         item("all") {
-            SectionLabel(stringResource(R.string.all_tunings), Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)))
+            SectionLabel(stringResource(R.string.all_tunings), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
         }
         stickyHeader("filter-bar") {
             var stuck by remember { mutableStateOf(false) }
             Surface(
-                color = if (stuck) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surface,
+                color = if (stuck && (MaterialTheme.isLight || !MaterialTheme.isTrueDark)) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateItem()
@@ -423,7 +434,7 @@ fun TuningList(
 
         tunings.forEach { group ->
             item(group.toString()) {
-                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)))
+                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
             items(group.value, key = { "${it.instrument}-[${it.toFullString()}]" }) {
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
@@ -456,7 +467,7 @@ private fun FilterBar(
 ) {
     Column {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -474,7 +485,7 @@ private fun FilterBar(
         Spacer(Modifier.width(8.dp))
     }
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).windowInsetsPadding(WindowInsets.safeDrawing),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -557,7 +568,7 @@ private fun LazyItemScope.CurrentTuningItem(
         onSelect = onSelect,
         trailing = {
             Row {
-                if (!standard && (pinned || (saved && pinnedInitial))) {
+                AnimatedVisibility(!standard && (pinned || (saved && pinnedInitial)), enter = fadeIn(), exit = fadeOut()) {
                     IconToggleButton(
                         enabled = pinnedInitial,
                         checked = pinned,
@@ -565,7 +576,7 @@ private fun LazyItemScope.CurrentTuningItem(
                             onPinnedSet(tuning, it)
                         }
                     ) {
-                        val tint = if (pinned) MaterialTheme.colors.secondary else LocalContentColor.current
+                        val tint = if (pinned) MaterialTheme.colorScheme.secondary else LocalContentColor.current
                         Icon(
                             if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
                             tint = if (pinnedInitial) tint else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
@@ -632,8 +643,6 @@ private fun LazyItemScope.CustomTuningItem(
                 when (dismissState.targetValue) {
                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
                     else -> MaterialTheme.colorScheme.surfaceContainer
-                        .copy(alpha = 0.05f)
-                        .compositeOver(MaterialTheme.colorScheme.surface)
                 },
                 label = "Tuning Item Background Color"
             )
@@ -649,7 +658,10 @@ private fun LazyItemScope.CustomTuningItem(
                 Icon(
                     Icons.Default.DeleteForever,
                     contentDescription = stringResource(R.string.delete),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onErrorContainer
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
                 )
             }
         }
@@ -693,7 +705,7 @@ private fun LazyItemScope.FavouritableTuningItem(
     val standard = remember(tuning) { tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(tuning = tuning, instrumentName = instrumentName, onSelect = onSelect) {
         Row {
-            if (pinned && !standard) {
+            AnimatedVisibility(pinned && !standard, enter = fadeIn(), exit = fadeOut()) {
                 IconToggleButton(
                     enabled = pinnedInitial,
                     checked = true,
@@ -701,7 +713,7 @@ private fun LazyItemScope.FavouritableTuningItem(
                 ) {
                     Icon(
                         Icons.Default.PushPin,
-                        tint = if (pinnedInitial) MaterialTheme.colors.secondary else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+                        tint = if (pinnedInitial) MaterialTheme.colorScheme.secondary else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
                         contentDescription = stringResource(R.string.unpin)
                     )
                 }
@@ -822,12 +834,12 @@ fun SaveTuningDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(name.ifBlank { null }, tuning) }) {
+            Button(onClick = { onSave(name.ifBlank { null }, tuning) }) {
                 Text(text = stringResource(R.string.save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
+            TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.cancel))
             }
         },

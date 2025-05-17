@@ -29,12 +29,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningList
@@ -140,8 +144,12 @@ fun MainLayout(
                     onEditModeChanged,
                 )
             }
+            if (MaterialTheme.isTrueDark && !MaterialTheme.isLight) {
+                VerticalDivider()
+            }
             Column(Modifier.weight(0.3f)) {
-                Surface(tonalElevation = 8.dp) {
+                Surface(tonalElevation =  if (!MaterialTheme.isTrueDark || MaterialTheme.isLight) 8.dp else 0.dp) {
+
                     TuningSelectionScreen(
                         tuningList = tuningList,
                         pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
@@ -212,7 +220,6 @@ fun MainLayout(
                 tuningList = tuningList,
                 backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
                 pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
-                backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
                 onSelect = onSelectTuningFromList,
                 onDismiss = onDismissTuningSelector,
             )

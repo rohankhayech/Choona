@@ -84,7 +84,9 @@ fun SettingsScreen(
     onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { TopAppBar(
             // Back navigation button.
             navigationIcon = {
@@ -92,8 +94,13 @@ fun SettingsScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back))
                 }
             },
-            // backgroundColor = MaterialTheme.colors.primarySurfaceBackground(prefs.useBlackTheme),
-            title = { Text(stringResource(R.string.tuner_settings)) }
+            colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+            } else {
+                TopAppBarDefaults.topAppBarColors()
+            },
+            title = { Text(stringResource(R.string.tuner_settings)) },
+            scrollBehavior = scrollBehavior
         )}
     ) { padding ->
         Column(

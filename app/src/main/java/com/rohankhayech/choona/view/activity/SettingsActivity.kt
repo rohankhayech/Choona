@@ -19,6 +19,7 @@
 package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -77,8 +78,11 @@ class SettingsActivity : ComponentActivity() {
 
     /** Called when the activity is created. */
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            enableEdgeToEdge()
+        }
 
         // Initialise view model.
         vm = ViewModelProvider(

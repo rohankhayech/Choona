@@ -340,12 +340,16 @@ private fun StringSelectionButton(
 
     // Selection Button
     OutlinedButton(
-        modifier = Modifier.defaultMinSize(72.dp, 48.dp),
+        modifier = Modifier.defaultMinSize(84.dp, 48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = backgroundColor,
             contentColor = contentColor
         ),
-        shape = RoundedCornerShape(100),
+        border = ButtonDefaults.outlinedButtonBorder()
+            .copy(brush = SolidColor(
+                if (selected) contentColor.copy(alpha = 0.38f)
+                else MaterialTheme.colorScheme.outlineVariant
+            )),
         onClick = remember(onSelect, index) { { onSelect(index) } }
     ) {
         Text(string.toFullString(), modifier = Modifier.padding(4.dp))
@@ -360,7 +364,7 @@ fun InlinePreview() {
     PreviewWrapper {
         StringControls(
             inline = true,
-            tuning = Tuning.STANDARD,
+            tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
             selectedString = 1,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},

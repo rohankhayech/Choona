@@ -32,11 +32,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -90,11 +90,10 @@ fun ConfigureTuningScreen(
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val scrollBehavour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val bottomScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold (
-        Modifier.nestedScroll(scrollBehavour.nestedScrollConnection),
+        Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -105,7 +104,7 @@ fun ConfigureTuningScreen(
                         Icon(Icons.Default.Close, stringResource(R.string.dismiss))
                     }
                 },
-                scrollBehavior = scrollBehavour,
+                scrollBehavior = scrollBehaviour,
             )
         },
         bottomBar = {
@@ -114,7 +113,6 @@ fun ConfigureTuningScreen(
                 BottomAppBar(
                     modifier = Modifier.height(IntrinsicSize.Min),
                     contentPadding = PaddingValues(vertical = 8.dp),
-                    scrollBehavior = bottomScrollBehavior
                 ) {
                     TuningSelector(
                         tuning = tuning,
@@ -135,6 +133,8 @@ fun ConfigureTuningScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,7 +149,7 @@ fun ConfigureTuningScreen(
                 onSelect = {},
                 onTuneDown = onTuneDownString,
                 onTuneUp = onTuneUpString,
-                true,
+                editModeEnabled = true,
             )
             Spacer(Modifier.height(8.dp))
         }

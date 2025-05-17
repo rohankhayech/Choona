@@ -1,6 +1,5 @@
 [versions]
 aboutLibraries = "12.1.2"
-constraintlayoutCompose = "1.1.1"
 agp = "8.10.0"
 datastorePreferencesVersion = "1.1.6"
 jsonVersion = "20231013"

@@ -22,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -50,6 +52,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.view.components.SectionLabel
@@ -66,16 +70,21 @@ fun AboutScreen(
     onLicencesPressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") },
                 navigationIcon = { 
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back))
                     }
+                },
+                colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                    TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+                } else {
+                    TopAppBarDefaults.topAppBarColors()
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -85,8 +94,9 @@ fun AboutScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .consumeWindowInsets(padding)
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .verticalScroll(rememberScrollState())
         ) {
             // Version and Copyright
             SectionLabel(stringResource(R.string.about))
@@ -143,16 +153,23 @@ private fun LinkListItem(text: String, url: String) {
 fun LicencesScreen(
     onBackPressed: () -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.oss_licences)) },
-                // backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+                colors = if (!MaterialTheme.isLight && MaterialTheme.isTrueDark) {
+                    TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
+                } else {
+                    TopAppBarDefaults.topAppBarColors()
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back))
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         }
     ) { padding ->
@@ -160,7 +177,8 @@ fun LicencesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
         )
     }
 }
