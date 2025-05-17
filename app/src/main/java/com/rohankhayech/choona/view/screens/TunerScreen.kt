@@ -79,10 +79,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rohankhayech.android.util.ui.preview.CompactThemePreview
+import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
@@ -654,8 +660,10 @@ private fun BasePreview(
     compact: Boolean = false,
     windowSizeClass: WindowSizeClass,
     prefs: TunerPreferences = TunerPreferences(),
+    trueDark: Boolean = false,
+    dynamicColor: Boolean = false,
 ) {
-    AppTheme {
+    AppTheme(dynamicColor = dynamicColor, fullBlack = trueDark) {
         TunerScreen(
             compact,
             expanded = false,
@@ -680,6 +688,30 @@ private fun BasePreview(
 @Composable
 private fun TunerPreview() {
     BasePreview(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@DarkPreview
+@Composable
+private fun TrueDarkPreview() {
+    BasePreview(
+        trueDark = true,
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp))
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicPreview() {
+    BasePreview(
+        dynamicColor = true,
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
     )
 }

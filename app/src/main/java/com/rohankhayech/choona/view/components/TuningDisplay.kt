@@ -18,8 +18,10 @@
 
 package com.rohankhayech.choona.view.components
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import kotlin.math.abs
 import kotlin.math.sign
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,7 +38,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.SliderDefaults.InactiveTrackAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -65,14 +66,24 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.harmonisedWith
+import com.rohankhayech.android.util.ui.theme.m3.isDynamicColor
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.view.theme.Green500
 import com.rohankhayech.choona.view.theme.PreviewWrapper
+import com.rohankhayech.choona.view.theme.Red500
 import com.rohankhayech.choona.view.theme.Yellow500
 
 /**
@@ -110,22 +121,28 @@ fun TuningDisplay(
     // Calculate colour of meter and label.
     val color by animateColorAsState(
         targetValue = run {
-            val pri = MaterialTheme.colorScheme.primary
-            val err = MaterialTheme.colorScheme.error
+            val green = Green500
+            val yellow = Yellow500
+            val red = Red500
             val onBack = MaterialTheme.colorScheme.onBackground
             val back = MaterialTheme.colorScheme.background
+            val themeColors = MaterialTheme.colorScheme
+            val dynamicColors = MaterialTheme.isDynamicColor
 
-            remember(absPosition) { derivedStateOf {
-                if (absPosition != 0f) {
+            remember(absPosition, themeColors, dynamicColors) { derivedStateOf {
+                (if (absPosition != 0f) {
                     // Gradient from green to red based on offset.
                     if (absPosition < 0.5) {
-                        lerp(pri, Yellow500, absPosition * 2f)
+                        lerp(green, yellow, absPosition * 2f)
                     } else {
-                        lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                        lerp(yellow, red, (absPosition - 0.5f) * 2f)
                     }
                 } else {
                     // Listening color.
                     onBack.copy(alpha = 0.2f).compositeOver(back)
+                }).run {
+                    if (dynamicColors) harmonisedWith(themeColors)
+                    else this
                 }
             }}.value
         },
@@ -341,10 +358,34 @@ private fun InTunePreview() {
     }
 }
 
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicInTunePreview() {
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+    }
+}
+
 @ThemePreview
 @Composable
 private fun YellowPreview() {
-    PreviewWrapper {
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicYellowPreview() {
+    PreviewWrapper(dynamicColor = true) {
         TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
     }
 }
@@ -353,6 +394,18 @@ private fun YellowPreview() {
 @Composable
 private fun RedPreview() {
     PreviewWrapper {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicRedPreview() {
+    PreviewWrapper(dynamicColor = true) {
         TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
     }
 }

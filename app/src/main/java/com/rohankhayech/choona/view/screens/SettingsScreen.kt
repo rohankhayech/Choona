@@ -18,11 +18,11 @@
 
 package com.rohankhayech.choona.view.screens
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -35,15 +35,20 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.StringLayout
@@ -63,6 +68,7 @@ import com.rohankhayech.music.Tuning
  * @param onEnableStringSelectSound Called when the user toggles the string select sound.
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
  * @param onSetUseBlackTheme Called when the user toggles the full black theme.
+ * @param onSetUseDynamicColor Called when the user toggles the dynamic color feature.
  * @param onSelectInitialTuning Called when the user selects the initial tuning type.
  * @param onToggleEditModeDefault Called when the user toggles the edit mode feature.
  * @param onBackPressed Called when the user presses the back navigation button.
@@ -79,6 +85,7 @@ fun SettingsScreen(
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseBlackTheme: (Boolean) -> Unit,
+    onSetUseDynamicColor: (Boolean) -> Unit,
     onToggleEditModeDefault: (Boolean) -> Unit,
     onSelectInitialTuning: (InitialTuningType) -> Unit,
     onAboutPressed: () -> Unit,
@@ -107,7 +114,8 @@ fun SettingsScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(padding)
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
         ) {
             // String layout selection.
             SectionLabel(title = stringResource(R.string.pref_string_layout))
@@ -217,9 +225,9 @@ fun SettingsScreen(
 
             // Pinned
             ListItem(
-                text = { Text(stringResource(R.string.pref_initial_tuning_pinned)) },
-                secondaryText = { Text(if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning)) },
-                trailing = {
+                headlineContent = { Text(stringResource(R.string.pref_initial_tuning_pinned)) },
+                supportingContent = { Text(if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning)) },
+                trailingContent = {
                     RadioButton(
                         selected = prefs.initialTuning == InitialTuningType.PINNED,
                         onClick = { onSelectInitialTuning(InitialTuningType.PINNED) }
@@ -230,9 +238,9 @@ fun SettingsScreen(
 
             // Last Used
             ListItem(
-                text = { Text(stringResource(R.string.pref_initial_tuning_last)) },
-                secondaryText = { Text(stringResource(R.string.pref_initial_tuning_used_desc)) },
-                trailing = {
+                headlineContent = { Text(stringResource(R.string.pref_initial_tuning_last)) },
+                supportingContent = { Text(stringResource(R.string.pref_initial_tuning_used_desc)) },
+                trailingContent = {
                     RadioButton(
                         selected = prefs.initialTuning == InitialTuningType.LAST_USED,
                         onClick = { onSelectInitialTuning(InitialTuningType.LAST_USED) }
@@ -240,10 +248,26 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable { onSelectInitialTuning(InitialTuningType.LAST_USED) }
             )
-            Divider()
+            HorizontalDivider()
 
             // Display preferences
             SectionLabel(title = stringResource(R.string.prefs_display))
+
+            // Dynamic color theme
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.pref_use_dynamic_color)) },
+                    supportingContent = { Text(stringResource(R.string.pref_use_dynamic_color_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = prefs.useDynamicColor,
+                            onCheckedChange = onSetUseDynamicColor
+                        )
+                    },
+                    modifier = Modifier.clickable { onSetUseDynamicColor(!prefs.useDynamicColor) }
+                )
+            }
+
 
             // Full black theme
             ListItem(
@@ -287,12 +311,13 @@ private fun Preview() {
     AppTheme {
         SettingsScreen(
             prefs = TunerPreferences(),
-            pinnedTuning = "Standard",
+            pinnedTuning = Tuning.STANDARD.fullName,
             onSelectDisplayType = {},
             onSelectStringLayout = {},
             onEnableStringSelectSound = {},
             onEnableInTuneSound = {},
             onSetUseBlackTheme = {},
+            onSetUseDynamicColor = {},
             onToggleEditModeDefault = {},
             onSelectInitialTuning = {},
             onAboutPressed = {},

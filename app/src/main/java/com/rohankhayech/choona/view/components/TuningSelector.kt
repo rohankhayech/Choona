@@ -184,6 +184,7 @@ fun TuningSelector(
  * @param customTunings Set of custom tunings added by the user.
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
+ * @param compact Whether to show the compact version of the tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -250,8 +251,7 @@ fun TuningItem(
         tuning.strings
             .reversed()
             .joinToString(
-                separator = ", ",
-            ) { it.toFullString() }
+                separator = if (!compact) ", " else "",
             ) { if (compact) it.toString() else it.toFullString() }
     }
 

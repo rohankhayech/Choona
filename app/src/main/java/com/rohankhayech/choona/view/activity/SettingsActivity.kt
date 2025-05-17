@@ -107,7 +107,7 @@ class SettingsActivity : ComponentActivity() {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
             val screen by vm.screen.collectAsStateWithLifecycle()
 
-            AppTheme(fullBlack = prefs.useBlackTheme) {
+            AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 AnimatedContent(
                     targetState = screen,
                     transitionSpec = {
@@ -131,6 +131,7 @@ class SettingsActivity : ComponentActivity() {
                             onEnableInTuneSound = vm::setEnableInTuneSound,
                             onToggleEditModeDefault = vm::toggleEditModeDefault,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onSetUseDynamicColor = vm::setUseDynamicColor,
                             onSelectInitialTuning = vm::setInitialTuning,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
@@ -221,6 +222,11 @@ private class SettingsActivityViewModel(
     /** Sets whether to [use] full black theme when in dark mode. */
     fun setUseBlackTheme(use: Boolean) {
         setPreference(TunerPreferences.USE_BLACK_THEME_KEY, use)
+    }
+
+    /** Sets whether to [use] dynamic color theme when in dark mode. */
+    fun setUseDynamicColor(use: Boolean) {
+        setPreference(TunerPreferences.USE_DYNAMIC_COLOR_KEY, use)
     }
 
     /** Sets the [initialTuning] to be used when the app is first opened. */

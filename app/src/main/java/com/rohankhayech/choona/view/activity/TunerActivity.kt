@@ -151,7 +151,7 @@ class TunerActivity : ComponentActivity() {
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
-            AppTheme(fullBlack = prefs.useBlackTheme) {
+            AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 val granted by ph.granted.collectAsStateWithLifecycle()
                 if (granted) {
                     // Collect state.
