@@ -18,66 +18,92 @@
 
 package com.rohankhayech.choona.view.screens
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditOff
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.unit.toSize
 import com.rohankhayech.android.util.ui.preview.CompactThemePreview
+import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.android.util.ui.theme.isTrueDark
-import com.rohankhayech.android.util.ui.theme.primarySurfaceBackground
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
+import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactStringSelector
+import com.rohankhayech.choona.view.components.StatusBarColor
+import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
@@ -115,6 +141,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TunerScreen(
     compact: Boolean = false,
@@ -142,13 +169,17 @@ fun TunerScreen(
     editModeEnabled: Boolean,
     onEditModeChanged: (Boolean) -> Unit
 ) {
+    val scrollBehavior = if (!compact) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold (
+        Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            if (!compact) {
-                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged )
+            if (expanded) {
+                ExpandedAppBar(onSettingsPressed, editModeEnabled, onEditModeChanged)
+            } else if (!compact) {
+                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged)
             } else {
                 CompactAppBar(
-                    onSettingsPressed = onSettingsPressed,
+                    scrollBehavior,
                     tuning = tuning,
                     customTunings = customTunings,
                     onConfigurePressed = onConfigurePressed
@@ -160,7 +191,6 @@ fun TunerScreen(
             padding,
             compact,
             expanded,
-            windowSizeClass,
             tuning,
             noteOffset,
             selectedString,
@@ -183,16 +213,16 @@ fun TunerScreen(
             // Portrait layout
             portrait = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxSize()
                         .padding(padd)
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                        .consumeWindowInsets(padd)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     tuningDisplay()
-                    stringControls(inline = prefs.stringLayout == StringLayout.INLINE)
+                    stringControls(Modifier, prefs.stringLayout == StringLayout.INLINE)
                     autoDetectSwitch(Modifier)
                     tuningSelector(Modifier.padding(vertical = 8.dp))
                 }
@@ -200,52 +230,36 @@ fun TunerScreen(
 
             // Landscape layout
             landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
-                ConstraintLayout(
-                    modifier = Modifier
+                Column (
+                    Modifier.fillMaxSize()
                         .padding(padd)
-                        .fillMaxHeight()
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                        .consumeWindowInsets(padd)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    val (display, tuningSelectorBox, stringsSelector, autoSwitch) = createRefs()
-
-                    Box(Modifier.constrainAs(display) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(autoSwitch.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(stringsSelector.start)
-                    }) {
-                        tuningDisplay()
-                    }
-
-                    Box(Modifier.constrainAs(tuningSelectorBox) {
-                        top.linkTo(stringsSelector.bottom)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }) {
-                        tuningSelector(Modifier)
-                    }
-
-                    Box(Modifier.constrainAs(stringsSelector) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(tuningSelectorBox.top)
-                        start.linkTo(display.end)
-                        end.linkTo(parent.end)
-                    }) {
+                    Row(
+                        Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            Modifier.fillMaxHeight().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)),
+                        ) {
+                            tuningDisplay()
+                        }
                         stringControls(
-                            inline = windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
+                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
                                 && prefs.stringLayout == StringLayout.INLINE,
                         )
                     }
-
-                    Box(Modifier.constrainAs(autoSwitch) {
-                        top.linkTo(display.bottom)
-                        bottom.linkTo(tuningSelectorBox.top)
-                        start.linkTo(tuningSelectorBox.start)
-                        end.linkTo(stringsSelector.start)
-                    }) {
-                        autoDetectSwitch(Modifier)
+                    Row(
+                        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        tuningSelector(Modifier.weight(1f))
+                        autoDetectSwitch(Modifier.padding(end = 20.dp))
                     }
                 }
             },
@@ -280,11 +294,8 @@ fun TunerScreen(
                             tuned = tuned,
                             onSelect = onSelectString,
                         )
-                        Divider(
-                            Modifier
-                                .width((1f / LocalDensity.current.density).dp)
-                                .fillMaxHeight())
-                        Box(Modifier.padding(horizontal = 16.dp)) {
+                        VerticalDivider()
+                        Box(Modifier.padding(horizontal = 8.dp)) {
                             autoDetectSwitch(Modifier.fillMaxHeight())
                         }
                     }
@@ -302,7 +313,7 @@ fun TunerScreen(
 private typealias TunerBodyLayout = @Composable (
     padding: PaddingValues,
     tuningDisplay: @Composable () -> Unit,
-    stringControls: @Composable (inline: Boolean) -> Unit,
+    stringControls: @Composable (modifier: Modifier, inline: Boolean) -> Unit,
     autoDetectSwitch: @Composable (modifier: Modifier) -> Unit,
     tuningSelector: @Composable (modifier: Modifier) -> Unit
 ) -> Unit
@@ -316,7 +327,6 @@ private typealias TunerBodyLayout = @Composable (
  *
  * @param compact Whether to use compact layout.
  * @param expanded Whether the current window is an expanded width.
- * @param windowSizeClass Size class of the activity window.
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
@@ -340,7 +350,6 @@ private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
     expanded: Boolean,
-    windowSizeClass: WindowSizeClass,
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -363,28 +372,42 @@ private fun TunerBodyScaffold(
     landscape: TunerBodyLayout,
     compactLayout: TunerBodyLayout,
 ) {
+    // Calculate size of tuning pane.
+    val paneSize = with(LocalDensity.current) {
+        val windowSize = LocalWindowInfo.current.containerSize.toSize().toDpSize()
+        DpSize(
+            // Subtract width of selection pane in expanded layout
+            width = if (expanded) windowSize.width * 0.7f else windowSize.width,
+            height = windowSize.height
+        )
+    }
+
+    // Determine layout to use
     val layout = if (!compact) {
-        if ((windowSizeClass.heightSizeClass >= WindowHeightSizeClass.Medium && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact)
-            || (windowSizeClass.heightSizeClass == WindowHeightSizeClass.Expanded && windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium)) {
-            portrait
-        } else {
+        if (paneSize.height < paneSize.width || (expanded && prefs.stringLayout == StringLayout.INLINE)) {
             landscape
+        } else {
+            portrait
         }
     } else {
         compactLayout
     }
 
+    // Inject components into layout.
     layout(
-        padding = padding,
-        tuningDisplay = {
+        padding,
+        // Tuning Display
+        {
             TuningDisplay(
                 noteOffset = noteOffset,
                 displayType = prefs.displayType,
                 onTuned = onTuned
             )
         },
-        stringControls = { inline ->
+        // String controls
+        { modifier, inline ->
             StringControls(
+                modifier = modifier,
                 inline = inline,
                 tuning = tuning,
                 selectedString = selectedString,
@@ -395,14 +418,16 @@ private fun TunerBodyScaffold(
                 editModeEnabled = editModeEnabled
             )
         },
-        autoDetectSwitch = { modifier ->
+        // Auto Detect Switch
+        { modifier ->
             AutoDetectSwitch(
                 modifier = modifier,
                 autoDetect = autoDetect,
                 onAutoChanged = onAutoChanged
             )
         },
-        tuningSelector = { modifier ->
+        // Tuning Selector
+        { modifier ->
             TuningSelector(
                 modifier = modifier,
                 tuning = tuning,
@@ -414,7 +439,8 @@ private fun TunerBodyScaffold(
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
                 enabled = !expanded,
-                editModeEnabled = editModeEnabled
+                editModeEnabled = editModeEnabled,
+                compact = compact
             )
         }
     )
@@ -455,18 +481,18 @@ fun TunerPermissionScreen(
             if (canRequest) {
                 title = stringResource(R.string.permission_needed)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale)
-                buttonLabel = stringResource(R.string.request_permission).uppercase()
+                buttonLabel = stringResource(R.string.request_permission)
                 buttonAction = onRequestPermission
             } else {
                 title = stringResource(R.string.permission_denied)
                 rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
-                buttonLabel = stringResource(R.string.open_permission_settings).uppercase()
+                buttonLabel = stringResource(R.string.open_permission_settings)
                 buttonAction = onOpenPermissionSettings
             }
 
             Text( // Title
                 text = title,
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.titleLarge
             )
             Text( // Rationale
                 text = rationale,
@@ -488,6 +514,7 @@ fun TunerPermissionScreen(
  * @param onEditModeChanged Called when the edit mode toggle button is pressed.
  * @param showEditToggle Whether to show the edit mode toggle button.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
     onSettingsPressed: () -> Unit,
@@ -495,60 +522,116 @@ private fun AppBar(
     editModeEnabled: Boolean = false,
     onEditModeChanged: ((Boolean) -> Unit) = {}
 ) {
+    StatusBarColor(iconColor = StatusBarIconColor.LIGHT)
     TopAppBar(
-        title = { Text(stringResource(R.string.app_name)) },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+        title = {
+            Text(stringResource(R.string.app_name),
+                 fontWeight = FontWeight.Bold,
+                 color = if (MaterialTheme.isTrueDark && !MaterialTheme.isLight)
+                     MaterialTheme.colorScheme.primary else Color.Unspecified
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.vibrantContainer,
+            titleContentColor = contentColorFor(MaterialTheme.colorScheme.vibrantContainer),
+            actionIconContentColor = contentColorFor(MaterialTheme.colorScheme.vibrantContainer)
+        ),
         actions = {
-            if (showEditToggle) {
-                // Toggle tuning button
-                IconToggleButton(
-                    checked = editModeEnabled,
-                    onCheckedChange = onEditModeChanged
-                ) {
-                    Icon(
-                        imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.toggle_edit_mode)
-                    )
-                }
-            }
-
-            // Settings button
-            IconButton(onClick = onSettingsPressed) {
-                Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
-            }
+            AppBarActions(showEditToggle, editModeEnabled, onEditModeChanged, onSettingsPressed)
         }
     )
 }
 
 /**
- * App bar for the tuning screen.
+ * Action buttons for the app bar.
+ * @param showEditToggle Whether to show the edit mode toggle button.
+ * @param editModeEnabled Whether tuning editing is enabled.
+ * @param onEditModeChanged Called when the edit mode toggle button is pressed.
  * @param onSettingsPressed Called when the settings button is pressed.
+ */
+@Composable
+private fun AppBarActions(
+    showEditToggle: Boolean,
+    editModeEnabled: Boolean,
+    onEditModeChanged: (Boolean) -> Unit,
+    onSettingsPressed: () -> Unit
+) {
+    if (showEditToggle) {
+        // Toggle tuning button
+        IconToggleButton(
+            colors = IconButtonDefaults.iconToggleButtonColors().copy(
+                checkedContentColor = LocalContentColor.current
+            ),
+            checked = editModeEnabled,
+            onCheckedChange = onEditModeChanged
+        ) {
+            Icon(
+                imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
+                contentDescription = stringResource(R.string.toggle_edit_mode)
+            )
+        }
+    }
+
+    // Settings button
+    IconButton(onClick = onSettingsPressed) {
+        Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
+    }
+}
+
+/**
+ * App bar for the tuning screen in compact layout.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
  * @param customTunings Set of custom tunings.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CompactAppBar(
-    onSettingsPressed: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>
 ) {
-    TopAppBar(
-        title = {
-            TuningItem(tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+    CenterAlignedTopAppBar(
+        navigationIcon = {
+            Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
         },
-        backgroundColor = MaterialTheme.colors.primarySurfaceBackground(MaterialTheme.isTrueDark),
+        title = {
+            TuningItem(tuning = tuning, compact = true, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
+        },
         actions = {
-                        // Configure tuning button.
+            // Configure tuning button.
             IconButton(onClick = onConfigurePressed) {
                 Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.configure_tuning))
             }
+        },
+        scrollBehavior = scrollBehavior
+    )
+}
 
-            // Settings button
-            IconButton(onClick = onSettingsPressed) {
-                Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
-            }
+/**
+ * App bar for the tuning screen in expanded layout.
+ * @param onSettingsPressed Called when the settings button is pressed.
+ * @param editModeEnabled Whether tuning editing is enabled.
+ * @param onEditModeChanged Called when the edit mode toggle button is pressed.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ExpandedAppBar(
+    onSettingsPressed: () -> Unit,
+    editModeEnabled: Boolean = false,
+    onEditModeChanged: ((Boolean) -> Unit) = {}
+) {
+    TopAppBar(
+        title = {
+            Text(stringResource(R.string.app_name),
+                 fontWeight = FontWeight.Bold,
+                 color = MaterialTheme.colorScheme.primary,
+                 style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        actions = {
+            AppBarActions(true, editModeEnabled, onEditModeChanged, onSettingsPressed)
         }
     )
 }
@@ -566,13 +649,13 @@ private fun AutoDetectSwitch(
     onAutoChanged: (Boolean) -> Unit
 ) {
     Row(
-        modifier,
+        modifier.clickable { onAutoChanged(!autoDetect) }.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(R.string.auto_detect_label).uppercase(),
-            style = MaterialTheme.typography.subtitle2,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.paddingFromBaseline(bottom = 6.dp)
         )
         Switch(checked = autoDetect, onCheckedChange = onAutoChanged)
@@ -586,22 +669,24 @@ private fun BasePreview(
     compact: Boolean = false,
     windowSizeClass: WindowSizeClass,
     prefs: TunerPreferences = TunerPreferences(),
+    trueDark: Boolean = false,
+    dynamicColor: Boolean = false,
 ) {
-    AppTheme {
+    AppTheme(dynamicColor = dynamicColor, fullBlack = trueDark) {
         TunerScreen(
             compact,
             expanded = false,
             windowSizeClass,
             tuning = Tunings.HALF_STEP_DOWN,
-            noteOffset = remember { mutableStateOf(1.3)},
+            noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
             tuned = BooleanArray(6) { it==4 },
             autoDetect = true,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
-            {}, {},{},{},{}, {}, {}, {}, {}, {}, {},
-            editModeEnabled = false,
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            editModeEnabled = true,
             onEditModeChanged = {}
         )
     }
@@ -612,6 +697,30 @@ private fun BasePreview(
 @Composable
 private fun TunerPreview() {
     BasePreview(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@DarkPreview
+@Composable
+private fun TrueDarkPreview() {
+    BasePreview(
+        trueDark = true,
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp))
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicPreview() {
+    BasePreview(
+        dynamicColor = true,
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
     )
 }

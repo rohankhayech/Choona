@@ -106,19 +106,19 @@ class TuningList(
 
     /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
-        Category.values().associateWith {
+        Category.entries.associateWith {
             it.isValidFilterWith(instrument)
         }
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.values().associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.entries.associateWith { true })
 
     /** Available instrument filters and their enabled states. */
     val instrumentFilters = categoryFilter.map { category ->
-        Instrument.values()
+        Instrument.entries
             .dropLast(1)
             .associateWith {
                 it.isValidFilterWith(category)
             }
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.values().dropLast(1).associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.entries.dropLast(1).associateWith { true })
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
@@ -131,10 +131,10 @@ class TuningList(
 
     /**
      * Loads the custom and favourite tunings from file if not yet loaded.
-     *
      * @param context Android system context used to access the file-system.
+     * @return `true` if tunings were successfully loaded, `false` if they were already loaded.
      */
-    fun loadTunings(context: Context) {
+    fun loadTunings(context: Context): Boolean {
         if (!loaded) {
             val customTunings = TuningFileIO.loadCustomTunings(context)
             val favouriteTunings = TuningFileIO.loadFavouriteTunings(context)
@@ -144,7 +144,8 @@ class TuningList(
             _lastUsed.update { initial.first }
             initial.second?.let { i -> _pinned.update { i } }
             loaded = true
-        }
+            return true
+        } else return false
     }
 
     /**
@@ -187,6 +188,9 @@ class TuningList(
         if (current.value?.equivalentTo(tuning) == true) {
             _current.update { newTuning }
         }
+        if (pinned.value.equivalentTo(tuning)) {
+            _pinned.update { newTuning }
+        }
     }
 
     /**
@@ -199,7 +203,7 @@ class TuningList(
             _current.update { Tuning(null, tuning) }
         }
         if (pinned.value.equivalentTo(tuning)) {
-            _pinned.update { Tuning(null, tuning) }
+            unpinTuning()
         }
         _deletedTuning.tryEmit(tuning)
     }

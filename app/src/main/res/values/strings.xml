@@ -20,6 +20,7 @@
     <string name="app_name" translatable="false">Choona</string>
     <string name="cancel">Cancel</string>
     <string name="tuning">Tuning</string>
+    <string name="tunings">Tunings</string>
     <string name="permission_denied">Permission Denied</string>
     <string name="open_permission_settings">Open Settings</string>
     <string name="tuner_audio_permission_rationale">The tuner requires permission to record audio to detect the pitch of incoming audio.\n\nPlease enable this permission to use the tuner:</string>
@@ -52,7 +53,7 @@
     <string name="pref_enable_in_tune_sound">Play in-tune sound</string>
     <string name="pref_enable_in_tune_sound_desc">Play a sound once the string is in tune.</string>
     <string name="prefs_display">Theme and Display</string>
-    <string name="pref_use_black_theme">Use full black theme when in dark mode</string>
+    <string name="pref_use_black_theme">Use true dark theme when in dark mode</string>
     <string name="pref_use_black_theme_desc">Optimised for AMOLED displays.</string>
     <string name="nav_back">Back</string>
     <string name="open_tuning_selector">More…</string>
@@ -103,4 +104,6 @@
     <string name="unpin">Unpin as default</string>
     <string name="pin">Pin as default</string>
     <string name="tuning_list_pinned">Default</string>
+    <string name="pref_use_dynamic_color">Use dynamic colour theme</string>
+    <string name="pref_use_dynamic_color_desc">Use colours from your device theme.</string>
 </resources>

@@ -19,15 +19,16 @@
 package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -59,7 +60,7 @@ import kotlinx.coroutines.launch
  *
  * @author Rohan Khayech
  */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
 
     companion object {
         /** Activity intent extra for the name of the pinned tuning. */
@@ -76,9 +77,12 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
 
     /** Called when the activity is created. */
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            enableEdgeToEdge()
+        }
 
         // Initialise view model.
         vm = ViewModelProvider(
@@ -103,16 +107,16 @@ class SettingsActivity : AppCompatActivity() {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
             val screen by vm.screen.collectAsStateWithLifecycle()
 
-            AppTheme(fullBlack = prefs.useBlackTheme) {
+            AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 AnimatedContent(
                     targetState = screen,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.Start) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Start)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                         } else {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                         }
                     },
                     label = "Screen"
@@ -127,6 +131,7 @@ class SettingsActivity : AppCompatActivity() {
                             onEnableInTuneSound = vm::setEnableInTuneSound,
                             onToggleEditModeDefault = vm::toggleEditModeDefault,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onSetUseDynamicColor = vm::setUseDynamicColor,
                             onSelectInitialTuning = vm::setInitialTuning,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
@@ -217,6 +222,11 @@ private class SettingsActivityViewModel(
     /** Sets whether to [use] full black theme when in dark mode. */
     fun setUseBlackTheme(use: Boolean) {
         setPreference(TunerPreferences.USE_BLACK_THEME_KEY, use)
+    }
+
+    /** Sets whether to [use] dynamic color theme when in dark mode. */
+    fun setUseDynamicColor(use: Boolean) {
+        setPreference(TunerPreferences.USE_DYNAMIC_COLOR_KEY, use)
     }
 
     /** Sets the [initialTuning] to be used when the app is first opened. */
