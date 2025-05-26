@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.view.components
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -29,17 +30,16 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -47,15 +47,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.harmonised
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.view.theme.PreviewWrapper
+import com.rohankhayech.choona.view.theme.extColors
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning
 
@@ -74,6 +78,7 @@ import com.rohankhayech.music.Tuning
  */
 @Composable
 fun StringControls(
+    modifier: Modifier = Modifier,
     inline: Boolean,
     tuning: Tuning,
     selectedString: Int?,
@@ -84,7 +89,7 @@ fun StringControls(
     editModeEnabled: Boolean
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .horizontalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
@@ -323,8 +328,11 @@ private fun StringSelectionButton(
 ) {
     // Animate content color by selected and tuned state.
     val contentColor by animateColorAsState(
-        if (tuned) MaterialTheme.colors.primary
-        else if (selected) MaterialTheme.colors.secondaryVariant
+        if (selected) {
+            if (tuned) MaterialTheme.extColors.green.onContainer.harmonised()
+            else MaterialTheme.colorScheme.onTertiaryContainer
+        }
+        else if (tuned) MaterialTheme.extColors.green.color.harmonised()
         else LocalContentColor.current,
         label = "String Button Content Color"
     )
@@ -332,20 +340,25 @@ private fun StringSelectionButton(
     // Animate background color by selected state.
     val backgroundColor by animateColorAsState(
         if (selected) {
-            contentColor.copy(alpha = 0.12f)
-                .compositeOver(MaterialTheme.colors.background)
-        } else MaterialTheme.colors.background,
+            if (tuned) MaterialTheme.extColors.green.container.harmonised()
+            else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.60f)
+        }
+        else MaterialTheme.colorScheme.background,
         label = "String Button Background Color"
     )
 
     // Selection Button
     OutlinedButton(
-        modifier = Modifier.defaultMinSize(72.dp, 48.dp),
+        modifier = Modifier.defaultMinSize(84.dp, 48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = backgroundColor,
-            contentColor = contentColor,
+            containerColor = backgroundColor,
+            contentColor = contentColor
         ),
-        shape = RoundedCornerShape(100),
+        border = ButtonDefaults.outlinedButtonBorder()
+            .copy(brush = SolidColor(
+                if (selected) contentColor.copy(alpha = 0.38f)
+                else MaterialTheme.colorScheme.outlineVariant
+            )),
         onClick = remember(onSelect, index) { { onSelect(index) } }
     ) {
         Text(string.toFullString(), modifier = Modifier.padding(4.dp))
@@ -360,7 +373,7 @@ fun InlinePreview() {
     PreviewWrapper {
         StringControls(
             inline = true,
-            tuning = Tuning.STANDARD,
+            tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
             selectedString = 1,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
@@ -413,6 +426,23 @@ private fun StringControlPreview() {
 @Composable
 private fun ButtonStatesPreview() {
     PreviewWrapper {
+        Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StringSelectionButton(tuned = false, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = false, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = true, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
+            StringSelectionButton(tuned = true, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)
+        }
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicButtonStatesPreview() {
+    PreviewWrapper(dynamicColor = true) {
         Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StringSelectionButton(tuned = false, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
             StringSelectionButton(tuned = false, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)

@@ -45,7 +45,7 @@ public final class Tunings {
     private static final Set<Tuning> tunings = new LinkedHashSet<>();
 
     /** A list of common guitar tunings. */
-    public static final Set<Tuning> COMMON = Collections.unmodifiableSet(tunings);
+    public static final Set<Tuning> TUNINGS = Collections.unmodifiableSet(tunings);
 
     public static final Tuning STANDARD = add(Tuning.STANDARD);
     public static final Tuning HALF_STEP_DOWN = add(Tuning.fromString("Half Step Down", GUITAR, Category.COMMON, "D#4 A#3 F#3 C#3 G#2 D#2"));

@@ -18,40 +18,41 @@
 
 package com.rohankhayech.choona.view.screens
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.BottomAppBar
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -77,9 +78,11 @@ import com.rohankhayech.music.Tuning
  * @param onTuneDownTuning Called when the tuning is tuned down.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onDismiss Called when the screen is dismissed.
+ * @param onSettingsPressed Called when the settings button is pressed.
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigureTuningScreen(
     tuning: Tuning,
@@ -92,55 +95,51 @@ fun ConfigureTuningScreen(
     onTuneDownTuning: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
+    onSettingsPressed: () -> Unit,
 ) {
-    val scrollState = rememberScrollState()
-
-    val appBarElevation by animateDpAsState(
-        remember { derivedStateOf {
-            if (scrollState.value == 0) {
-                0.dp
-            } else AppBarDefaults.TopAppBarElevation
-        }}.value,
-        label = "App Bar Elevation"
-    )
+    val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold (
+        Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.configure_tuning))
+                    Text(stringResource(R.string.configure_tuning), style = MaterialTheme.typography.titleMedium)
+                },
+                actions = {
+                    // Settings button
+                    IconButton(onClick = onSettingsPressed) {
+                        Icon(Icons.Default.Settings, stringResource(R.string.tuner_settings))
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, stringResource(R.string.dismiss))
                     }
                 },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = appBarElevation
+                scrollBehavior = scrollBehaviour,
             )
         },
         bottomBar = {
             Column(Modifier.fillMaxWidth()) {
-                Divider(thickness = Dp.Hairline)
+                HorizontalDivider(thickness = Dp.Hairline)
                 BottomAppBar(
                     modifier = Modifier.height(IntrinsicSize.Min),
-                    backgroundColor = MaterialTheme.colors.background,
-                    contentColor = MaterialTheme.colors.onBackground,
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
-                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                        TuningSelector(
-                            tuning = tuning,
-                            favTunings = favTunings,
-                            customTunings = customTunings,
-                            openDirect = true,
-                            onSelect = onSelectTuning,
-                            onTuneDown = onTuneDownTuning,
-                            onTuneUp = onTuneUpTuning,
-                            onOpenTuningSelector = onOpenTuningSelector,
-                            editModeEnabled = true
-                        )
-                    }
+                    TuningSelector(
+                        tuning = tuning,
+                        favTunings = favTunings,
+                        customTunings = customTunings,
+                        openDirect = true,
+                        onSelect = onSelectTuning,
+                        onTuneDown = onTuneDownTuning,
+                        onTuneUp = onTuneUpTuning,
+                        onOpenTuningSelector = onOpenTuningSelector,
+                        editModeEnabled = true,
+                        compact = true
+                    )
+
                 }
             }
         }
@@ -148,8 +147,10 @@ fun ConfigureTuningScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .fillMaxSize()
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -162,7 +163,7 @@ fun ConfigureTuningScreen(
                 onSelect = {},
                 onTuneDown = onTuneDownString,
                 onTuneUp = onTuneUpString,
-                true,
+                editModeEnabled = true,
             )
             Spacer(Modifier.height(8.dp))
         }
@@ -182,7 +183,8 @@ private fun Preview() {
             onTuneDownString = {},
             onTuneUpTuning = {},
             onTuneDownTuning = {},
-            onOpenTuningSelector = {}
+            onOpenTuningSelector = {},
+            onDismiss = {}
         ) {}
     }
 }

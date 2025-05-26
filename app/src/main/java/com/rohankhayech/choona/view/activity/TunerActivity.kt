@@ -22,14 +22,17 @@ import java.io.IOException
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.VisibleForTesting
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -44,6 +47,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
@@ -68,7 +72,7 @@ import org.billthefarmer.mididriver.GeneralMidiConstants
  *
  * @author Rohan Khayech
  */
-class TunerActivity : AppCompatActivity() {
+class TunerActivity : ComponentActivity() {
 
     /** View model used to hold the current tuner state. */
     private val vm: TunerActivityViewModel by viewModels()
@@ -95,6 +99,10 @@ class TunerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            enableEdgeToEdge()
+        }
+
         // Setup preferences
         prefs = tunerPreferenceDataStore.data
             .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
@@ -108,7 +116,18 @@ class TunerActivity : AppCompatActivity() {
 
         // Load tunings
         lifecycleScope.launch {
-            vm.tuningList.loadTunings(this@TunerActivity)
+            val firstLoad = vm.tuningList.loadTunings(this@TunerActivity)
+
+            // Initialize edit mode and initial tuning state from preferences only on app load.
+            if (firstLoad) prefs.firstOrNull()?.let { preferences ->
+                vm.toggleEditMode(preferences.editModeDefault)
+
+                // Switch to initial tuning
+                when(preferences.initialTuning) {
+                    InitialTuningType.PINNED -> setTuning(vm.tuningList.pinned.value)
+                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let { setTuning(it) }
+                }
+            }
         }
 
         // Setup custom back navigation.
@@ -124,18 +143,11 @@ class TunerActivity : AppCompatActivity() {
             dismissTuningSelector()
         }
 
-        // Initialize edit mode state from preferences only on app load.
-        lifecycleScope.launch {
-            prefs.firstOrNull()?.let { preferences ->
-                vm.toggleEditMode(preferences.editModeDefault)
-            }
-        }
-
         // Set UI content.
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
-            AppTheme(fullBlack = prefs.useBlackTheme) {
+            AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 val granted by ph.granted.collectAsStateWithLifecycle()
                 if (granted) {
                     // Collect state.
@@ -260,11 +272,17 @@ class TunerActivity : AppCompatActivity() {
         // Stop midi driver.
         midi.stop()
 
+        // Call superclass.
+        super.onPause()
+    }
+
+    /** Called when the activity is no longer visible. */
+    override fun onStop() {
         // Save tunings.
         vm.tuningList.saveTunings(this)
 
-        // Call superclass.
-        super.onPause()
+        // Call superclass
+        super.onStop()
     }
 
     /** Plays the string selection sound for the specified [string]. */
@@ -381,7 +399,9 @@ class TunerActivity : AppCompatActivity() {
 
     /** Opens the tuner settings activity. */
     private fun openSettings() {
-        startActivity(Intent(this, SettingsActivity::class.java))
+        val intent = Intent(this, SettingsActivity::class.java)
+        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.fullName)
+        startActivity(intent)
     }
 
     /** Opens the permission settings screen in the device settings. */
@@ -396,6 +416,7 @@ class TunerActivity : AppCompatActivity() {
 }
 
 /** View model used to hold the current tuner and UI state. */
+@VisibleForTesting
 class TunerActivityViewModel : ViewModel() {
     /** Tuner used for audio processing and note comparison. */
     val tuner = Tuner()

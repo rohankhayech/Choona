@@ -26,15 +26,20 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.theme.m3.isLight
+import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
@@ -139,10 +144,15 @@ fun MainLayout(
                     onEditModeChanged,
                 )
             }
+            if (MaterialTheme.isTrueDark && !MaterialTheme.isLight) {
+                VerticalDivider()
+            }
             Column(Modifier.weight(0.3f)) {
-                Surface(elevation = 8.dp) {
+                Surface(tonalElevation =  if (!MaterialTheme.isTrueDark || MaterialTheme.isLight) 8.dp else 0.dp) {
+
                     TuningSelectionScreen(
                         tuningList = tuningList,
+                        pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                         backIcon = null,
                         onSelect = onSelectTuningFromList,
                         onDismiss = {}
@@ -198,7 +208,8 @@ fun MainLayout(
                 onTuneUpTuning = onTuneUpTuning,
                 onTuneDownTuning = onTuneDownTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                onDismiss = onDismissConfigurePanel
+                onDismiss = onDismissConfigurePanel,
+                onSettingsPressed = onSettingsPressed
             )
         }
         AnimatedVisibility(
@@ -208,7 +219,8 @@ fun MainLayout(
         ) {
             TuningSelectionScreen(
                 tuningList = tuningList,
-                backIcon = if (configurePanelOpen) Icons.Default.ArrowBack else Icons.Default.Close,
+                backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
+                pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                 onSelect = onSelectTuningFromList,
                 onDismiss = onDismissTuningSelector,
             )

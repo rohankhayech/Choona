@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.CompactOrientationPreview
 import com.rohankhayech.android.util.ui.preview.DarkPreview
-import com.rohankhayech.android.util.ui.preview.TabletPreview
+import com.rohankhayech.android.util.ui.preview.TabletThemePreview
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
@@ -49,7 +50,7 @@ import com.rohankhayech.music.Tuning
 // Previews for generating screenshots.
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
+@DarkPreview
 @Composable
 private fun TunerScreenshot() {
     AppTheme {
@@ -71,7 +72,7 @@ private fun TunerScreenshot() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
+@DarkPreview
 @Composable
 private fun InTuneScreenshot() {
     AppTheme {
@@ -80,7 +81,7 @@ private fun InTuneScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.DROP_D,
-            noteOffset = remember { mutableStateOf(0.01)},
+            noteOffset = remember { mutableDoubleStateOf(0.01) },
             selectedString = 5,
             tuned = BooleanArray(6) { it == 5 },
             autoDetect = true,
@@ -92,7 +93,7 @@ private fun InTuneScreenshot() {
     }
 }
 
-@Preview
+@DarkPreview
 @Composable
 private fun SelectionScreenshot() {
     val tunings = TuningList(Tunings.WHOLE_STEP_DOWN).apply {
@@ -103,6 +104,7 @@ private fun SelectionScreenshot() {
     AppTheme {
         TuningSelectionScreen(
             tuningList = tunings,
+            pinnedInitial = true,
             backIcon = Icons.Default.Close,
             onSelect = {},
             onDismiss = {}
@@ -111,7 +113,7 @@ private fun SelectionScreenshot() {
 }
 
 @SuppressLint("StateFlowValueCalledInComposition")
-@Preview
+@DarkPreview
 @Composable
 private fun CustomScreenshot() {
     val current = Tuning.fromString("F4 C4 G#3 D#3 A#2 F2")
@@ -125,13 +127,15 @@ private fun CustomScreenshot() {
             tunings = tunings.filteredTunings.value,
             favourites = tunings.favourites.value,
             custom = emptySet(),
+            pinned = Tuning.STANDARD,
+            pinnedInitial = true,
             instrumentFilter = null,
             categoryFilter = null,
             instrumentFilters = tunings.instrumentFilters.collectAsStateWithLifecycle(),
             categoryFilters = tunings.categoryFilters.collectAsStateWithLifecycle(),
             backIcon = Icons.Default.Close,
             deletedTuning = tunings.deletedTuning,
-            {}, {}, {_,_->}, {_,_->}, {}, {}, {}
+            {}, {}, {_,_->}, {_,_->}, {}, {}, {}, {}, {}
         )
 
         SaveTuningDialog(
@@ -143,7 +147,7 @@ private fun CustomScreenshot() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
+@DarkPreview
 @Composable
 private fun SemitonesScreenshot() {
     AppTheme {
@@ -192,36 +196,15 @@ private fun CentsScreenshot() {
 }
 
 @Composable
-@Preview
+@DarkPreview
 private fun SettingsScreenshot() {
     AppTheme {
         SettingsScreen(
             prefs = TunerPreferences(
                 enableInTuneSound = false
             ),
-            {},{},{},{},{},{},{}, {}
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@DarkPreview
-@Composable
-private fun DarkThemeScreenshot() {
-    AppTheme {
-        TunerScreen(
-            compact = false,
-            expanded = false,
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = Tunings.DROP_D,
-            noteOffset = remember { mutableStateOf(-0.2)},
-            selectedString = 3,
-            tuned = BooleanArray(6) { it==5 || it==4 },
-            autoDetect = true,
-            favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
-            prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            pinnedTuning = "Standard",
+            {},{},{},{},{},{},{}, {}, {}, {}
         )
     }
 }
@@ -254,7 +237,7 @@ private fun BlackThemeScreenshot() {
 @CompactOrientationPreview
 @Composable
 private fun SplitScreenScreenshot() {
-    AppTheme {
+    AppTheme(darkTheme = true) {
         TunerScreen(
             compact = true,
             expanded = false,
@@ -273,7 +256,7 @@ private fun SplitScreenScreenshot() {
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@TabletPreview
+@TabletThemePreview
 @Composable
 private fun TabletScreenshot() {
     val tunings = TuningList(Tunings.WHOLE_STEP_DOWN).apply {

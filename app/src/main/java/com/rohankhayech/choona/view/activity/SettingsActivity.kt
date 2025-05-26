@@ -19,15 +19,16 @@
 package com.rohankhayech.choona.view.activity
 
 import java.io.IOException
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -37,6 +38,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
@@ -58,7 +60,12 @@ import kotlinx.coroutines.launch
  *
  * @author Rohan Khayech
  */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
+
+    companion object {
+        /** Activity intent extra for the name of the pinned tuning. */
+        const val EXTRA_PINNED = "pinned"
+    }
 
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
@@ -70,14 +77,17 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
 
     /** Called when the activity is created. */
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            enableEdgeToEdge()
+        }
 
         // Initialise view model.
         vm = ViewModelProvider(
             this,
-            SettingsActivityViewModel.Factory(tunerPreferenceDataStore)
+            SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra(EXTRA_PINNED) ?: "")
         )[SettingsActivityViewModel::class.java]
 
         // Setup custom back navigation.
@@ -97,16 +107,16 @@ class SettingsActivity : AppCompatActivity() {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
             val screen by vm.screen.collectAsStateWithLifecycle()
 
-            AppTheme(fullBlack = prefs.useBlackTheme) {
+            AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 AnimatedContent(
                     targetState = screen,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.Start) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Start)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                         } else {
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.End) with
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.End)
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                         }
                     },
                     label = "Screen"
@@ -114,12 +124,15 @@ class SettingsActivity : AppCompatActivity() {
                     when (it) {
                         Screen.SETTINGS -> SettingsScreen(
                             prefs = prefs,
+                            pinnedTuning = vm.pinnedTuning,
                             onSelectDisplayType = vm::setDisplayType,
                             onSelectStringLayout = vm::setStringLayout,
                             onEnableStringSelectSound = vm::setEnableStringSelectSound,
                             onEnableInTuneSound = vm::setEnableInTuneSound,
                             onToggleEditModeDefault = vm::toggleEditModeDefault,
                             onSetUseBlackTheme = vm::setUseBlackTheme,
+                            onSetUseDynamicColor = vm::setUseDynamicColor,
+                            onSelectInitialTuning = vm::setInitialTuning,
                             onAboutPressed = ::openAboutScreen,
                             onBackPressed = ::finish
                         )
@@ -161,11 +174,13 @@ class SettingsActivity : AppCompatActivity() {
  * View model for the tuner settings activity.
  *
  * @param dataStore Data store object used to access and edit the user's preferences.
+ * @param pinnedTuning The tuning selected to be used when the app is first opened.
  *
  * @author Rohan Khayech
  */
 private class SettingsActivityViewModel(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    val pinnedTuning: String
 ) : ViewModel() {
 
     /** Mutable backing property for [screen]. */
@@ -209,6 +224,16 @@ private class SettingsActivityViewModel(
         setPreference(TunerPreferences.USE_BLACK_THEME_KEY, use)
     }
 
+    /** Sets whether to [use] dynamic color theme when in dark mode. */
+    fun setUseDynamicColor(use: Boolean) {
+        setPreference(TunerPreferences.USE_DYNAMIC_COLOR_KEY, use)
+    }
+
+    /** Sets the [initialTuning] to be used when the app is first opened. */
+    fun setInitialTuning(initialTuning: InitialTuningType) {
+        setPreference(TunerPreferences.INITIAL_TUNING_KEY, initialTuning.toString())
+    }
+
     /** Sets the preference with the specified [key] to the specified [value]. */
     private fun <T> setPreference(key: Preferences.Key<T>, value: T) {
         viewModelScope.launch {
@@ -227,16 +252,18 @@ private class SettingsActivityViewModel(
      * Factory class used to instantiate the view model with a reference to the data store.
      *
      * @param dataStore Data store object used to access and edit the user's preferences.
+     * @param pinnedTuning The tuning selected to be used when the app is first opened.
      */
     class Factory(
-        private val dataStore: DataStore<Preferences>
+        private val dataStore: DataStore<Preferences>,
+        private val pinnedTuning: String
     ) : ViewModelProvider.Factory {
 
         /** Instantiates the view model with a reference to the data store. */
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(SettingsActivityViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return SettingsActivityViewModel(dataStore) as T
+                return SettingsActivityViewModel(dataStore, pinnedTuning) as T
             } else {
                 throw IllegalArgumentException("Unknown ViewModel class")
             }

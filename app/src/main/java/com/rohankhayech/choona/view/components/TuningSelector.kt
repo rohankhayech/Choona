@@ -18,26 +18,28 @@
 
 package com.rohankhayech.choona.view.components
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.ExposedDropdownMenuDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -47,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -74,7 +77,7 @@ import com.rohankhayech.music.Tuning
  *
  * @author Rohan Khayech
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
@@ -83,79 +86,92 @@ fun TuningSelector(
     customTunings: State<Set<Tuning>>,
     enabled: Boolean = true,
     openDirect: Boolean,
+    compact: Boolean,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     editModeEnabled: Boolean
 ) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = 8.dp)
-            .animateContentSize(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        if (editModeEnabled) {
-            // Tune Down Button
-            IconButton(
-                onClick = onTuneDown,
-                enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
-            ) {
-                Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
-            }
-        }
-
-        // Tuning Display and Selection
-        var expanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            modifier = Modifier.weight(1f),
-            expanded = expanded && enabled,
-            onExpandedChange = {
-                if (openDirect) onOpenTuningSelector()
-                else expanded = !expanded
-            }
+    LookaheadScope {
+        Row(
+            modifier = modifier
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-
-            // Current Tuning
-            CurrentTuningField(
-                tuning = tuning,
-                customTunings = customTunings,
-                expanded = expanded,
-                showExpanded = enabled
-            )
-
-            // Dropdown Menu
-            ExposedDropdownMenu(
-                expanded = expanded && enabled,
-                onDismissRequest = { expanded = false }
-            ) {
-                for (tuningOption in favTunings.value) {
-                    DropdownMenuItem(
-                        onClick = {
-                            onSelect(tuningOption)
-                            expanded = false
-                        }
-                    ) {
-                        TuningItem(modifier = Modifier.padding(vertical = 8.dp), tuning = tuningOption, fontWeight = FontWeight.Normal, customTunings = customTunings)
-                    }
-                }
-                DropdownMenuItem(onClick = {
-                    onOpenTuningSelector()
-                    expanded = false
-                }) {
-                    Text(stringResource(R.string.open_tuning_selector))
+            if (editModeEnabled) {
+                // Tune Down Button
+                IconButton(
+                    onClick = onTuneDown,
+                    enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                ) {
+                    Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
                 }
             }
-        }
 
-        if (editModeEnabled) {
-            // Tune Up Button
-            IconButton(
-                onClick = onTuneUp,
-                enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+            // Tuning Display and Selection
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = if (!editModeEnabled) 16.dp else 0.dp),
+                expanded = expanded && enabled,
+                onExpandedChange = {
+                    if (openDirect) onOpenTuningSelector()
+                    else expanded = it
+                }
             ) {
-                Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+                // Current Tuning
+                CurrentTuningField(
+                    modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
+                    tuning = tuning,
+                    customTunings = customTunings,
+                    expanded = expanded,
+                    showExpanded = enabled,
+                    compact
+                )
+
+                // Dropdown Menu
+                ExposedDropdownMenu(
+                    expanded = expanded && enabled,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    for (tuningOption in favTunings.value) {
+                        DropdownMenuItem(
+                            text = {
+                                TuningItem(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    tuning = tuningOption,
+                                    fontWeight = FontWeight.Normal,
+                                    customTunings = customTunings
+                                )
+                            },
+                            onClick = {
+                                onSelect(tuningOption)
+                                expanded = false
+                            }
+                        )
+                    }
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.open_tuning_selector))
+                        },
+                        onClick = {
+                            onOpenTuningSelector()
+                            expanded = false
+                        })
+                }
+            }
+
+            if (editModeEnabled) {
+                // Tune Up Button
+                IconButton(
+                    onClick = onTuneUp,
+                    enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                ) {
+                    Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+                }
             }
         }
     }
@@ -168,31 +184,34 @@ fun TuningSelector(
  * @param customTunings Set of custom tunings added by the user.
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
+ * @param compact Whether to show the compact version of the tuning.
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentTuningField(
+    modifier: Modifier = Modifier,
     tuning: Tuning,
     customTunings: State<Set<Tuning>>,
     expanded: Boolean,
-    showExpanded: Boolean
+    showExpanded: Boolean,
+    compact: Boolean
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = TextFieldDefaults.OutlinedTextFieldShape,
-        color = MaterialTheme.colors.background,
+        modifier = modifier.fillMaxWidth(),
+        shape = OutlinedTextFieldDefaults.shape,
+        color = MaterialTheme.colorScheme.background,
         border = BorderStroke(
-            width = if (expanded && showExpanded) TextFieldDefaults.FocusedBorderThickness
-            else TextFieldDefaults.UnfocusedBorderThickness,
-            color = if (expanded && showExpanded) MaterialTheme.colors.primary
-            else MaterialTheme.colors.onBackground.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
+            width = if (expanded && showExpanded) OutlinedTextFieldDefaults.FocusedBorderThickness
+            else OutlinedTextFieldDefaults.UnfocusedBorderThickness,
+            color = if (expanded && showExpanded) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.outlineVariant
         ),
     ) {
         Row(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TuningItem(modifier = Modifier.weight(1f), tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+            TuningItem(modifier = Modifier.weight(1f), compact = compact, tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
@@ -205,21 +224,25 @@ private fun CurrentTuningField(
  * @param tuning The tuning to display.
  * @param fontWeight The font weight of the tuning name text.
  * @param customTunings Set of custom tunings added by the user.
+ * @param horizontalAlignment The horizontal alignment of the text.
+ * @param compact Whether to show the compact version of the tuning.
  *
  * @author Rohan Khayech
  */
 @Composable
 fun TuningItem(
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
     tuning: Tuning,
     fontWeight: FontWeight,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     customTunings: State<Set<Tuning>>,
 ) {
     val tuningName = remember(tuning, customTunings) {
         if (tuning.hasName()) {
             tuning.name
         } else {
-            tuning.findEquivalentIn(customTunings.value + Tunings.COMMON)?.name
+            tuning.findEquivalentIn(customTunings.value + Tunings.TUNINGS)?.name
                 ?: tuning.toString()
         }
     }
@@ -228,25 +251,25 @@ fun TuningItem(
         tuning.strings
             .reversed()
             .joinToString(
-                separator = ", ",
-            ) { it.toFullString() }
+                separator = if (!compact) ", " else "",
+            ) { if (compact) it.toString() else it.toFullString() }
     }
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = horizontalAlignment
     ) {
         Text(
             tuningName,
-            style = MaterialTheme.typography.subtitle1,
+            style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
             fontWeight = fontWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             strings,
-            style = MaterialTheme.typography.body2,
+            style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -268,7 +291,28 @@ private fun Preview() {
             onTuneDown = {},
             onTuneUp = {},
             onOpenTuningSelector = {},
-            editModeEnabled = true
+            editModeEnabled = true,
+            compact = false
+        )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun EditOffPreview() {
+    PreviewWrapper {
+        TuningSelector(
+            Modifier.padding(8.dp),
+            tuning = Tuning.STANDARD,
+            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
+            customTunings = remember { mutableStateOf(emptySet()) },
+            openDirect = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            onOpenTuningSelector = {},
+            editModeEnabled = false,
+            compact = false
         )
     }
 }

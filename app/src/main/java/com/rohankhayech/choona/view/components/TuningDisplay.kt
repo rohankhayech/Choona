@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
 
 package com.rohankhayech.choona.view.components
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import kotlin.math.abs
 import kotlin.math.sign
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,20 +38,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.SliderDefaults
-import androidx.compose.material.Text
+import androidx.compose.material.SliderDefaults.InactiveTrackAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -65,14 +66,24 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
+import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.m3.harmonisedWith
+import com.rohankhayech.android.util.ui.theme.m3.isDynamicColor
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.view.theme.Green500
 import com.rohankhayech.choona.view.theme.PreviewWrapper
+import com.rohankhayech.choona.view.theme.Red500
 import com.rohankhayech.choona.view.theme.Yellow500
 
 /**
@@ -110,22 +121,28 @@ fun TuningDisplay(
     // Calculate colour of meter and label.
     val color by animateColorAsState(
         targetValue = run {
-            val pri = MaterialTheme.colors.primary
-            val err = MaterialTheme.colors.error
-            val onBack = MaterialTheme.colors.onBackground
-            val back = MaterialTheme.colors.background
+            val green = Green500
+            val yellow = Yellow500
+            val red = Red500
+            val onBack = MaterialTheme.colorScheme.onBackground
+            val back = MaterialTheme.colorScheme.background
+            val themeColors = MaterialTheme.colorScheme
+            val dynamicColors = MaterialTheme.isDynamicColor
 
-            remember(absPosition) { derivedStateOf {
-                if (absPosition != 0f) {
+            remember(absPosition, themeColors, dynamicColors) { derivedStateOf {
+                (if (absPosition != 0f) {
                     // Gradient from green to red based on offset.
                     if (absPosition < 0.5) {
-                        lerp(pri, Yellow500, absPosition * 2f)
+                        lerp(green, yellow, absPosition * 2f)
                     } else {
-                        lerp(Yellow500, err, (absPosition - 0.5f) * 2f)
+                        lerp(yellow, red, (absPosition - 0.5f) * 2f)
                     }
                 } else {
                     // Listening color.
                     onBack.copy(alpha = 0.2f).compositeOver(back)
+                }).run {
+                    if (dynamicColors) harmonisedWith(themeColors)
+                    else this
                 }
             }}.value
         },
@@ -210,7 +227,7 @@ private fun TuningMeter(
  */
 private fun DrawScope.drawMeter(
     indicatorColor: Color,
-    trackColor: Color = indicatorColor.copy(alpha = SliderDefaults.InactiveTrackAlpha),
+    trackColor: Color = indicatorColor.copy(alpha = InactiveTrackAlpha),
     indicatorPosition: Float,
     indicatorSize: Float,
 ) {
@@ -295,7 +312,7 @@ private fun TuningMeterLabel(
         Text( // Offset Value
             color = color,
             text = "%+.${dp}f".format(offset),
-            style = MaterialTheme.typography.h3
+            style = MaterialTheme.typography.displayMedium
         )
         Text(text = when (displayType) {
             TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
@@ -315,13 +332,12 @@ private fun AccidentalIcon(
     @DrawableRes icon: Int,
     contentDescription: String
 ) {
-    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = contentDescription,
-            modifier = Modifier.requiredSize(24.dp)
-        )
-    }
+    Icon(
+        painter = painterResource(icon),
+        contentDescription = contentDescription,
+        modifier = Modifier.requiredSize(24.dp),
+        tint = LocalContentColor.current.copy(alpha = 0.38f)
+    )
 }
 
 // PREVIEWS
@@ -338,15 +354,39 @@ private fun ListeningPreview() {
 @Composable
 private fun InTunePreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicInTunePreview() {
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
     }
 }
 
 @ThemePreview
 @Composable
 private fun YellowPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicYellowPreview() {
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
     }
 }
 
@@ -354,7 +394,19 @@ private fun YellowPreview() {
 @Composable
 private fun RedPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+    }
+}
+
+@PreviewDynamicColors
+@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicRedPreview() {
+    PreviewWrapper(dynamicColor = true) {
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
     }
 }
 
@@ -362,7 +414,7 @@ private fun RedPreview() {
 @Composable
 private fun LargeFontLabelPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
     }
 }
 
@@ -370,6 +422,6 @@ private fun LargeFontLabelPreview() {
 @Composable
 private fun LargeFontIconPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
     }
 }
