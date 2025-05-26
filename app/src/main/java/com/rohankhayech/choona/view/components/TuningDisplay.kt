@@ -312,7 +312,7 @@ private fun TuningMeterLabel(
         Text( // Offset Value
             color = color,
             text = "%+.${dp}f".format(offset),
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.displayMedium
         )
         Text(text = when (displayType) {
             TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
