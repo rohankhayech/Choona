@@ -67,7 +67,7 @@ android {
 
 dependencies {
     // Local
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
     // Android
     implementation(libs.androidx.core.ktx)
@@ -91,7 +91,6 @@ dependencies {
 
     // Audio
     implementation(libs.tarsos.dsp.core)
-    implementation(libs.mididriver)
 
     // Utility
     implementation(libs.androidutils.theme)
