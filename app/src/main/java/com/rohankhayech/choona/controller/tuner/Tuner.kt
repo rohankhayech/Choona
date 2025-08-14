@@ -19,6 +19,7 @@
 package com.rohankhayech.choona.controller.tuner
 
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.pitch.AMDF
@@ -257,18 +258,17 @@ class Tuner(
         _error.update { null }
 
         var bufferSize = AUDIO_BUFFER_SIZE
+        var sampleRate = SAMPLE_RATE
         while (dispatcher == null) {
             try {
-                if (bufferSize == AUDIO_BUFFER_SIZE) throw IllegalArgumentException("Buffer size too small should be at least 7680")
-
                 // Create audio dispatcher from default microphone.
-                dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLE_RATE, bufferSize, 0)
+                dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(sampleRate, bufferSize, 0)
 
                 // Setup and add pitch processor.
                 val pdh = PitchDetectionHandler { result, _ -> processPitch(result) }
                 val pitchProcessor = PitchProcessor(
                     AMDF(
-                        SAMPLE_RATE.toFloat(),
+                        sampleRate.toFloat(),
                         bufferSize,
                         Notes.getPitch(LOWEST_NOTE),
                         Notes.getPitch(HIGHEST_NOTE)
@@ -291,6 +291,7 @@ class Tuner(
                         throw err
                     } else {
                         bufferSize = requiredBufferSize
+                        sampleRate = (SAMPLE_RATE.toFloat() * (bufferSize.toFloat() / AUDIO_BUFFER_SIZE.toFloat())).roundToInt()
                     }
             }
         }
