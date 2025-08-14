@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@ package com.rohankhayech.choona.controller.tuner
 
 import kotlin.math.abs
 import be.tarsos.dsp.AudioDispatcher
-import be.tarsos.dsp.AudioProcessor
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.pitch.AMDF
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchDetectionResult
+import com.rohankhayech.choona.model.error.TunerException
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
@@ -102,22 +102,11 @@ class Tuner(
     /** Audio dispatcher used to receive incoming audio data.  */
     private var dispatcher: AudioDispatcher? = null
 
-    /** Audio processor used to determine pitch of incoming audio data.  */
-    private val pitchProcessor: AudioProcessor
+    /** Mutable backing property for [error]. */
+    private val _error = MutableStateFlow<Exception?>(null)
 
-    init {
-        // Setup pitch processor.
-        val pdh = PitchDetectionHandler { result, _ -> processPitch(result) }
-        pitchProcessor = PitchProcessor(
-            AMDF(
-                SAMPLE_RATE.toFloat(),
-                AUDIO_BUFFER_SIZE,
-                Notes.getPitch(LOWEST_NOTE),
-                Notes.getPitch(HIGHEST_NOTE)
-            ),
-            pdh
-        )
-    }
+    /** Error preventing the tuner from running. `null` if no error has occurred. */
+    val error = _error.asStateFlow()
 
     /** Selects the [nth][n] string in the tuning for comparison. */
     fun selectString(n: Int) {
@@ -256,20 +245,55 @@ class Tuner(
      *
      * @param ph The Android runtime permission handler.
      * @throws IllegalStateException If the RECORD_AUDIO permission is not granted, or the tuner has already started.
+     * @throws TunerException If the tuner fails to start due to another error.
+     *                        The [error] property will also be set with this exception.
      */
-    @Throws(IllegalStateException::class)
+    @Throws(IllegalStateException::class, TunerException::class)
     fun start(ph: PermissionHandler) {
         check(!running) { "Tuner already started." }
         check(ph.check()) { "RECORD_AUDIO permission not granted." }
 
         running = true
+        _error.update { null }
 
-        // Create audio dispatcher from default microphone.
-        dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLE_RATE, AUDIO_BUFFER_SIZE, 0)
-        dispatcher?.addAudioProcessor(pitchProcessor)
+        var bufferSize = AUDIO_BUFFER_SIZE
+        while (dispatcher == null) {
+            try {
+                if (bufferSize == AUDIO_BUFFER_SIZE) throw IllegalArgumentException("Buffer size too small should be at least 7680")
 
-        // Start the audio dispatcher (producer) thread.
-        Thread(dispatcher, "audio-dispatcher").start()
+                // Create audio dispatcher from default microphone.
+                dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLE_RATE, bufferSize, 0)
+
+                // Setup and add pitch processor.
+                val pdh = PitchDetectionHandler { result, _ -> processPitch(result) }
+                val pitchProcessor = PitchProcessor(
+                    AMDF(
+                        SAMPLE_RATE.toFloat(),
+                        bufferSize,
+                        Notes.getPitch(LOWEST_NOTE),
+                        Notes.getPitch(HIGHEST_NOTE)
+                    ),
+                    pdh
+                )
+                dispatcher?.addAudioProcessor(pitchProcessor)
+
+                // Start the audio dispatcher (producer) thread.
+                Thread(dispatcher, "audio-dispatcher").start()
+            } catch(e: Exception) {
+                    // Extract the required buffer size from the exception message.
+                    val requiredBufferSize = e.message?.substringAfter("should be at least ")?.substringBefore("\n")?.trim()?.toIntOrNull()
+
+                    if (requiredBufferSize == null || requiredBufferSize == bufferSize) {
+                        // If we have tried the device's required buffer size and still failed, throw an exception.
+                        val err = TunerException(e.message, e)
+                        _error.update { err }
+                        running = false
+                        throw err
+                    } else {
+                        bufferSize = requiredBufferSize
+                    }
+            }
+        }
     }
 
     /** Stops listening to incoming audio and note comparison. */

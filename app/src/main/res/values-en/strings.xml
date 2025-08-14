@@ -105,4 +105,7 @@
     <string name="tuning_list_pinned">Default</string>
     <string name="pref_use_dynamic_color">Use dynamic colour theme</string>
     <string name="pref_use_dynamic_color_desc">Use colours from your device theme.</string>
+    <string name="error_title">Error</string>
+    <string name="error_description">Sorry, the following error occurred preventing the tuner from running:</string>
+    <string name="error_action_call">Please restart the application to retry.</string>
 </resources>
