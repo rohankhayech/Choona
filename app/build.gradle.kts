@@ -32,8 +32,8 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.4.1"
+        versionCode = 10
+        versionName = "1.4.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -67,7 +67,7 @@ android {
 
 dependencies {
     // Local
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
     // Android
     implementation(libs.androidx.core.ktx)
@@ -91,7 +91,6 @@ dependencies {
 
     // Audio
     implementation(libs.tarsos.dsp.core)
-    implementation(libs.mididriver)
 
     // Utility
     implementation(libs.androidutils.theme)

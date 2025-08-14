@@ -53,6 +53,7 @@ import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.choona.view.screens.MainLayout
+import com.rohankhayech.choona.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
@@ -149,7 +150,8 @@ class TunerActivity : ComponentActivity() {
 
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 val granted by ph.granted.collectAsStateWithLifecycle()
-                if (granted) {
+                val error by vm.tuner.error.collectAsStateWithLifecycle()
+                if (granted && error == null) {
                     // Collect state.
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
                     val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
@@ -230,7 +232,7 @@ class TunerActivity : ComponentActivity() {
                         onEditModeChanged = vm::toggleEditMode,
                         editModeEnabled = editModeEnabled
                     )
-                } else {
+                } else if (!granted) {
                     // Audio permission not granted, show permission rationale.
                     val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
                     TunerPermissionScreen(
@@ -239,6 +241,8 @@ class TunerActivity : ComponentActivity() {
                         onRequestPermission = ph::request,
                         onOpenPermissionSettings = ::openPermissionSettings,
                     )
+                } else {
+                    TunerErrorScreen(error, ::openSettings)
                 }
             }
         }
@@ -259,7 +263,8 @@ class TunerActivity : ComponentActivity() {
         if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
-            } catch (_: IllegalStateException) {
+            } catch (e: Exception) {
+                // Catch and ignore, error will be displayed in the UI.
             }
         }
     }
@@ -333,7 +338,7 @@ class TunerActivity : ComponentActivity() {
         if (!vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
-            } catch(_: IllegalStateException) {}
+            } catch(_: Exception) {}
         }
     }
 
@@ -344,7 +349,7 @@ class TunerActivity : ComponentActivity() {
         if (!vm.tuningSelectorOpen.value) {
             try {
                 vm.tuner.start(ph)
-            } catch (_: IllegalStateException) {}
+            } catch (_: Exception) {}
         }
     }
 
@@ -367,7 +372,7 @@ class TunerActivity : ComponentActivity() {
         if (!vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
-            } catch(_: IllegalStateException) {}
+            } catch(_: Exception) {}
         }
     }
 

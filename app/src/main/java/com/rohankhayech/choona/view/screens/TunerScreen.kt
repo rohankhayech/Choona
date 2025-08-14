@@ -507,6 +507,57 @@ fun TunerPermissionScreen(
     }
 }
 
+
+/**
+ * UI screen shown to the user when the tuner has failed to start.
+ * @param error The error to display.
+ * @param onSettingsPressed Called when the settings navigation button is pressed.
+ */
+@Composable
+fun TunerErrorScreen(
+    error: Exception?,
+    onSettingsPressed: () -> Unit,
+) {
+    Scaffold(
+        topBar = { AppBar(onSettingsPressed, false) }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text( // Title
+                text = stringResource(R.string.error_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+            Text( // Rationale
+                text = stringResource(R.string.error_description),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.widthIn(max = 256.dp)
+            )
+            if (error?.message != null) {
+                Text( // Error message
+                    text = error.message!!,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(max = 256.dp),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Text( // Rationale
+                text = stringResource(R.string.error_action_call),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.widthIn(max = 256.dp)
+            )
+        }
+    }
+}
+
 /**
  * App bar for the tuning screen.
  * @param onSettingsPressed Called when the settings button is pressed.
@@ -775,6 +826,17 @@ private fun PermissionDeniedPreview() {
             onSettingsPressed = {},
             onRequestPermission = {},
             onOpenPermissionSettings = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ErrorPreview() {
+    AppTheme {
+        TunerErrorScreen (
+            error = Exception("Something went wrong."),
+            onSettingsPressed = {},
         )
     }
 }

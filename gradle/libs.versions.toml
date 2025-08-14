@@ -5,7 +5,6 @@ datastorePreferencesVersion = "1.1.7"
 jsonVersion = "20231013"
 kotlinxCoroutinesTest = "1.7.3"
 lifecycleRuntimeCompose = "2.9.0"
-mididriver = "v1.24"
 androidUtils = "v0.3.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.0.21"
@@ -30,7 +29,6 @@ androidx-material3-window-size = { module = "androidx.compose.material3:material
 animation = { module = "androidx.compose.animation:animation" }
 json-json = { module = "org.json:json", version.ref = "jsonVersion" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
-mididriver = { module = "com.github.billthefarmer:mididriver", version.ref = "mididriver" }
 androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview", version.ref = "androidUtils" }
 tarsos-dsp-core = { module = "be.tarsos.dsp:core", version.ref = "tarsosDSPCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
