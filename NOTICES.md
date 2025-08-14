@@ -5,7 +5,7 @@ This file contains the relevant notices and licenses for the following 3rd party
 ## Android Open Source Project ([Apache License, Version 2.0](#apache-license-version-20))
 This project uses various libraries part of the Android Open Source Project.
 
-    Copyright 2023 The Android Open Source Project
+    Copyright 2025 The Android Open Source Project
  
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -44,10 +44,10 @@ This project uses various libraries part of the Android Open Source Project.
 - Includes modified copy of the PitchProcessor class allowing a pitch detector object to be passed in.
     
 ## Midi Driver by Bill Farmer ([Apache License, Version 2.0](#apache-license-version-20))
-    Copyright (C) 2023 Bill Farmer
+    Copyright (C) 2025 Bill Farmer
 
 ## AboutLibraries by Mike Penz ([Apache License, Version 2.0](#apache-license-version-20))
-    Copyright 2021 Mike Penz
+    Copyright 2025 Mike Penz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ This project uses various libraries part of the Android Open Source Project.
     limitations under the License.
 
 ## Android Utils by Rohan Khayech ([Apache License, Version 2.0](#apache-license-version-20))
-    Copyright 2023 Rohan Khayech
+    Copyright 2025 Rohan Khayech
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
