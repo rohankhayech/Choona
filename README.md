@@ -39,6 +39,9 @@ Choona is available for Android devices running Android 7.0 Nougat and above.
 <a href='https://play.google.com/store/apps/details?id=com.rohankhayech.choona&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
   <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width=20%/>
 </a>
+<a href='https://apt.izzysoft.de/packages/com.rohankhayech.choona'>
+  <img alt='Get it at IzzyOnDroid' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' width='20%'/>
+</a>
 
 > Google Play and the Google Play logo are trademarks of Google LLC.
 
