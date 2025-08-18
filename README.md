@@ -18,19 +18,19 @@ Guitar tuner application for Android with support for custom tunings.
 
 ## Screenshots
 
-<img src="assets/screenshots/01-tuner.jpg" width=30%> <img src="assets/screenshots/02-in_tune.jpg" width=30%>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01-tuner.jpg" width=30%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02-in_tune.jpg" width=30%>
 
 <details>
   <summary>
     View All
   </summary>
   <br>
-  <img src="assets/screenshots/03-selection.jpg" width=20%> <img src="assets/screenshots/04-custom.jpg" width=20%>
-  <img src="assets/screenshots/05-semitones.jpg" width=20%> <img src="assets/screenshots/06-cents.jpg" width=20%> 
-  <img src="assets/screenshots/07-settings.jpg" width=20%> <img src="assets/screenshots/08-black_theme.jpg" width=20%>
-  <img src="assets/screenshots/09-splitscreen.jpg" width="20%"> 
-  <img src="assets/screenshots/10-tablet.jpg" width=40%>
-  <img src="assets/screenshots/11-tablet.jpg" width=40%>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03-selection.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04-custom.jpg" width=20%>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-semitones.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06-cents.jpg" width=20%> 
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/07-settings.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/08-black_theme.jpg" width=20%>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/09-splitscreen.jpg" width="20%"> 
+  <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/10-tablet.jpg" width=40%>
+  <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/11-tablet.jpg" width=40%>
 </details>
 
 ## Installation

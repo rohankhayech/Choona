@@ -263,7 +263,7 @@ class TunerActivity : ComponentActivity() {
         if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
             try {
                 vm.tuner.start(ph)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Catch and ignore, error will be displayed in the UI.
             }
         }

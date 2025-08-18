@@ -1,0 +1,15 @@
+Guitar tuner with support for custom tunings.
+
+<b>FEATURES:</b>
+
+Listens as you play a string and indicates whether it is in-tune.
+- Displays the amount to tune each string up/down to reach the correct pitch.
+- Automatic detection of which string is playing.
+- Choose from 20+ common guitar, bass and ukulele tunings.
+- Save and tune to custom tunings with any combination of strings.
+- Display tuning offset in semitones or cents for improved accuracy.
+- Plays sounds to indicate how a string should sound and when it is in tune.
+- Keep track of your favourite tunings.
+- Set a tuning to open automatically when the app starts, or keep the last used tuning.
+- Support for dark mode, true dark and device color themes.
+- Support for multi-window and large screen devices.
