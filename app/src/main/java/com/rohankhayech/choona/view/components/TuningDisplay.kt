@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
@@ -85,21 +86,26 @@ import com.rohankhayech.choona.view.theme.Green500
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.choona.view.theme.Red500
 import com.rohankhayech.choona.view.theme.Yellow500
+import com.rohankhayech.music.Notes
 
 /**
  * UI component consisting of a visual meter and
  * text label displaying the current tuning [offset][noteOffset].
  *
+ * @param noteIndex The index of the currently selected/detected note.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param displayType Type of tuning offset value to display.
+ * @param showNote Whether to display the note and octave in the label.
  * @param onTuned Called when the detected note is held in tune.
  *
  * @author Rohan Khayech
  */
 @Composable
 fun TuningDisplay(
+    noteIndex: Int,
     noteOffset: State<Double?>,
     displayType: TuningDisplayType,
+    showNote: Boolean,
     onTuned: () -> Unit
 ) {
     val offset = noteOffset.value
@@ -174,7 +180,11 @@ fun TuningDisplay(
             indicatorSize = indicatorSize,
             color = color
         ) {
-            TuningMeterLabel(noteOffset = offset, color = color, displayType = displayType)
+            TuningMeterLabel(
+                noteOffset = offset, color = color, displayType = displayType,
+                noteIndex = noteIndex,
+                showNote = showNote
+            )
         }
         AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
     }
@@ -269,13 +279,40 @@ private fun DrawScope.drawMeter(
 }
 
 /**
+ * Displays the detected/selected musical note, including its root and octave.
+ *
+ * @param noteIndex The index of the note to display.
+ * @param color The color of the text.
+ */
+@Composable
+private fun NoteDisplay(noteIndex: Int, color: Color) {
+    Row (
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text( // Root Note
+            color = color,
+            text = Notes.getRootNote(Notes.getSymbol(noteIndex)),
+            style = MaterialTheme.typography.displayMedium
+        )
+        Text( // Octave
+            color = color,
+            text = Notes.getOctave(Notes.getSymbol(noteIndex)).toString(),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+/**
  * Label displaying the [note offset][noteOffset]
  * and tuning state with the specified [color] and [displayType].
  */
 @Composable
 private fun TuningMeterLabel(
+    noteIndex: Int,
     noteOffset: Double?,
     displayType: TuningDisplayType,
+    showNote: Boolean = true,
     color: Color
 ) {
     Spacer(modifier = Modifier.height(24.dp))
@@ -292,33 +329,48 @@ private fun TuningMeterLabel(
         )
         Text(text = stringResource(R.string.listening))
 
-        // In Tune
+    // In Tune
     } else if (abs(noteOffset) < Tuner.TUNED_OFFSET_THRESHOLD) {
-        Icon(
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-                .size(48.dp),
-            tint = color,
-            imageVector = Icons.Default.CheckCircle,
-            contentDescription = null
-        )
+        if (showNote) {
+            NoteDisplay(noteIndex = noteIndex!!, color = color)
+        } else {
+            Icon(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .size(48.dp),
+                tint = color,
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null
+            )
+        }
         Text(text = stringResource(R.string.in_tune))
 
-        // Out of Tune
+    // Out of Tune
     } else {
         val offset = noteOffset * displayType.multiplier
         val dp = if (displayType == TuningDisplayType.SEMITONES) 1 else 0 // decimal places
+        val formattedOffset = "%+.${dp}f".format(offset)
 
-        Text( // Offset Value
-            color = color,
-            text = "%+.${dp}f".format(offset),
-            style = MaterialTheme.typography.displayMedium
-        )
-        Text(text = when (displayType) {
-            TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
-            TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
-            TuningDisplayType.CENTS -> stringResource(R.string.cents)
-        })
+        if (showNote) {
+            NoteDisplay(noteIndex = noteIndex, color = color)
+            Text(text = when (displayType) {
+                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
+                TuningDisplayType.SEMITONES -> "$formattedOffset ${stringResource(R.string.semitones)}"
+                TuningDisplayType.CENTS -> "$formattedOffset ${stringResource(R.string.cents)}"
+            })
+        } else {
+            Text( // Offset Value
+                color = color,
+                text = formattedOffset,
+                style = MaterialTheme.typography.displayMedium
+            )
+            Text(text = when (displayType) {
+                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
+                TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
+                TuningDisplayType.CENTS -> stringResource(R.string.cents)
+            })
+        }
+
     }
 }
 
@@ -346,7 +398,7 @@ private fun AccidentalIcon(
 @Composable
 private fun ListeningPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableStateOf(null) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableStateOf(null) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
     }
 }
 
@@ -354,7 +406,7 @@ private fun ListeningPreview() {
 @Composable
 private fun InTunePreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
     }
 }
 
@@ -366,7 +418,7 @@ private fun InTunePreview() {
 @Composable
 private fun DynamicInTunePreview() {
     PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
     }
 }
 
@@ -374,7 +426,7 @@ private fun DynamicInTunePreview() {
 @Composable
 private fun YellowPreview() {
     PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
     }
 }
 
@@ -386,7 +438,7 @@ private fun YellowPreview() {
 @Composable
 private fun DynamicYellowPreview() {
     PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.07) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.SIMPLE, showNote = false) {}
     }
 }
 
@@ -394,7 +446,7 @@ private fun DynamicYellowPreview() {
 @Composable
 private fun RedPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(-27.0) }, displayType = TuningDisplayType.CENTS, showNote = false) {}
     }
 }
 
@@ -406,7 +458,7 @@ private fun RedPreview() {
 @Composable
 private fun DynamicRedPreview() {
     PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(-27.0) }, TuningDisplayType.CENTS) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(-27.0) }, displayType = TuningDisplayType.CENTS, showNote = false) {}
     }
 }
 
@@ -414,7 +466,7 @@ private fun DynamicRedPreview() {
 @Composable
 private fun LargeFontLabelPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(2.7) }, TuningDisplayType.SIMPLE) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.7) }, displayType = TuningDisplayType.SIMPLE, showNote = false) {}
     }
 }
 
@@ -422,6 +474,30 @@ private fun LargeFontLabelPreview() {
 @Composable
 private fun LargeFontIconPreview() {
     PreviewWrapper {
-        TuningDisplay(noteOffset = remember { mutableDoubleStateOf(0.09) }, TuningDisplayType.SEMITONES) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
+    }
+}
+
+@ThemePreview
+@Composable
+private fun InTuneNotePreview() {
+    PreviewWrapper {
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
+    }
+}
+
+@ThemePreview
+@Composable
+private fun NoteCentsPreview() {
+    PreviewWrapper {
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.CENTS, showNote = true) {}
+    }
+}
+
+@ThemePreview
+@Composable
+private fun NoteSemitonesPreview() {
+    PreviewWrapper {
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(27.0) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
     }
 }

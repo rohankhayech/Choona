@@ -102,6 +102,7 @@ import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactStringSelector
+import com.rohankhayech.choona.view.components.NoteControls
 import com.rohankhayech.choona.view.components.StatusBarColor
 import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.components.StringControls
@@ -150,13 +151,17 @@ fun TunerScreen(
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
+    selectedNote: Int,
     tuned: BooleanArray,
+    noteTuned: Boolean,
     autoDetect: Boolean,
+    chromatic: Boolean,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -194,14 +199,18 @@ fun TunerScreen(
             tuning,
             noteOffset,
             selectedString,
+            selectedNote,
             tuned,
+            noteTuned,
             autoDetect,
+            chromatic,
             favTunings,
             customTunings,
             prefs,
             editModeEnabled,
             onSelectString,
             onSelectTuning,
+            onSelectNote,
             onTuneUpString,
             onTuneDownString,
             onTuneUpTuning,
@@ -353,14 +362,18 @@ private fun TunerBodyScaffold(
     tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
+    selectedNote: Int,
     tuned: BooleanArray,
+    noteTuned: Boolean,
     autoDetect: Boolean,
+    chromatic: Boolean,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -399,24 +412,35 @@ private fun TunerBodyScaffold(
         // Tuning Display
         {
             TuningDisplay(
+                noteIndex = selectedNote,
                 noteOffset = noteOffset,
+                showNote = chromatic && autoDetect,
                 displayType = prefs.displayType,
                 onTuned = onTuned
             )
         },
         // String controls
         { modifier, inline ->
-            StringControls(
-                modifier = modifier,
-                inline = inline,
-                tuning = tuning,
-                selectedString = selectedString,
-                tuned = tuned,
-                onSelect = onSelectString,
-                onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString,
-                editModeEnabled = editModeEnabled
-            )
+            if (chromatic) {
+                NoteControls(
+                    modifier = modifier,
+                    selectedNoteIndex = selectedNote,
+                    tuned = noteTuned,
+                    onSelect = onSelectNote,
+                )
+            } else {
+                StringControls(
+                    modifier = modifier,
+                    inline = inline,
+                    tuning = tuning,
+                    selectedString = selectedString,
+                    tuned = tuned,
+                    onSelect = onSelectString,
+                    onTuneDown = onTuneDownString,
+                    onTuneUp = onTuneUpString,
+                    editModeEnabled = editModeEnabled
+                )
+            }
         },
         // Auto Detect Switch
         { modifier ->
@@ -731,12 +755,15 @@ private fun BasePreview(
             tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
+            selectedNote = -28,
             tuned = BooleanArray(6) { it==4 },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,
             onEditModeChanged = {}
         )
