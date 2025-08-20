@@ -59,14 +59,17 @@ private fun TunerScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.STANDARD,
-            noteOffset = remember { mutableStateOf(0.3)},
+            noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
+            selectedNote = -29,
             tuned = BooleanArray(6) { false },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -83,12 +86,15 @@ private fun InTuneScreenshot() {
             tuning = Tunings.DROP_D,
             noteOffset = remember { mutableDoubleStateOf(0.01) },
             selectedString = 5,
+            selectedNote = 0, // Assuming a valid note for Drop D, string 5
             tuned = BooleanArray(6) { it == 5 },
+            noteTuned = true, // Implied by "InTune"
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -156,17 +162,20 @@ private fun SemitonesScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.STANDARD,
-            noteOffset = remember { mutableStateOf(-3.6)},
+            noteOffset = remember { mutableDoubleStateOf(-3.6) },
             selectedString = 3,
+            selectedNote = -29,
             tuned = BooleanArray(6) { false },
+            noteTuned = false,
             autoDetect = false,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(
                 stringLayout = StringLayout.SIDE_BY_SIDE,
                 displayType = TuningDisplayType.SEMITONES
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -181,16 +190,19 @@ private fun CentsScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.STANDARD,
-            noteOffset = remember { mutableStateOf(-0.42)},
+            noteOffset = remember { mutableDoubleStateOf(-0.42) },
             selectedString = 3,
+            selectedNote = -29,
             tuned = BooleanArray(6) { false },
+            noteTuned = false,
             autoDetect = false,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.CENTS
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -219,16 +231,19 @@ private fun BlackThemeScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.DROP_D,
-            noteOffset = remember { mutableStateOf(-0.2)},
+            noteOffset = remember { mutableDoubleStateOf(-0.2) },
             selectedString = 3,
+            selectedNote = -29,
             tuned = BooleanArray(6) { it==5 || it==4 },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(
                 useBlackTheme = true
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -243,14 +258,17 @@ private fun SplitScreenScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = Tunings.STANDARD,
-            noteOffset = remember { mutableStateOf(0.3)},
+            noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
+            selectedNote = -29,
             tuned = BooleanArray(6) { false },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -270,10 +288,13 @@ private fun TabletScreenshot() {
             compact = false,
             expanded = true,
             tuning = Tunings.WHOLE_STEP_DOWN,
-            noteOffset = remember { mutableStateOf(0.3)},
+            noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
+            selectedNote = -28,
             tuned = BooleanArray(6) { false },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
@@ -281,7 +302,7 @@ private fun TabletScreenshot() {
             tuningSelectorOpen = false,
             configurePanelOpen = false,
             true,
-            {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
+            {}, {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
         )
     }
 }

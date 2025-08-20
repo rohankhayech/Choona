@@ -156,8 +156,11 @@ class TunerActivity : ComponentActivity() {
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
                     val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
                     val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
+                    val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
                     val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
+                    val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
                     val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
+                    val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
                     val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
                     val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
@@ -195,8 +198,11 @@ class TunerActivity : ComponentActivity() {
                         tuning = tuning,
                         noteOffset = noteOffset,
                         selectedString = selectedString,
+                        selectedNote = selectedNote,
                         tuned = tuned,
+                        noteTuned = noteTuned,
                         autoDetect = autoDetect,
+                        chromatic = chromatic,
                         favTunings = favTunings,
                         customTunings = customTunings,
                         prefs = prefs,
@@ -211,6 +217,7 @@ class TunerActivity : ComponentActivity() {
                             }
                         },
                         onSelectTuning = ::setTuning,
+                        onSelectNote = vm.tuner::selectNote,
                         onTuneUpString = vm.tuner::tuneStringUp,
                         onTuneDownString = vm.tuner::tuneStringDown,
                         onTuneUpTuning = vm.tuner::tuneUp,
