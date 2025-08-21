@@ -161,6 +161,7 @@ fun TunerScreen(
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
     onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
@@ -210,6 +211,7 @@ fun TunerScreen(
             editModeEnabled,
             onSelectString,
             onSelectTuning,
+            onSelectChromatic,
             onSelectNote,
             onTuneUpString,
             onTuneDownString,
@@ -373,6 +375,7 @@ private fun TunerBodyScaffold(
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
     onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
@@ -455,6 +458,7 @@ private fun TunerBodyScaffold(
             TuningSelector(
                 modifier = modifier,
                 tuning = tuning,
+                chromatic = chromatic,
                 favTunings = favTunings,
                 customTunings = customTunings,
                 openDirect = false,
@@ -464,7 +468,8 @@ private fun TunerBodyScaffold(
                 onOpenTuningSelector = onOpenTuningSelector,
                 enabled = !expanded,
                 editModeEnabled = editModeEnabled,
-                compact = compact
+                compact = compact,
+                onSelectChromatic = onSelectChromatic
             )
         }
     )
@@ -763,7 +768,7 @@ private fun BasePreview(
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,
             onEditModeChanged = {}
         )

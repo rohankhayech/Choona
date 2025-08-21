@@ -56,6 +56,7 @@ import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -217,7 +218,14 @@ class TunerActivity : ComponentActivity() {
                             }
                         },
                         onSelectTuning = ::setTuning,
-                        onSelectNote = vm.tuner::selectNote,
+                        onSelectChromatic = vm.tuner::setChromatic,
+                        onSelectNote = remember(prefs.enableStringSelectSound) {
+                            {
+                                vm.tuner.selectNote(it)
+                                // Play sound on string selection.
+                                if (prefs.enableStringSelectSound) playNoteSelectSound(it)
+                            }
+                        },
                         onTuneUpString = vm.tuner::tuneStringUp,
                         onTuneDownString = vm.tuner::tuneStringDown,
                         onTuneUpTuning = vm.tuner::tuneUp,
@@ -304,6 +312,16 @@ class TunerActivity : ComponentActivity() {
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
             150,
             vm.tuner.tuning.value.instrument.midiInstrument
+        )
+    }
+
+    /** Plays the note selection sound for the specified [noteIndex]. */
+    private fun playNoteSelectSound(noteIndex: Int) {
+        midi.playNote(
+            0,
+            MidiController.noteIndexToMidi(noteIndex),
+            150,
+            Instrument.GUITAR.midiInstrument
         )
     }
 

@@ -69,7 +69,7 @@ private fun TunerScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -94,7 +94,7 @@ private fun InTuneScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -175,7 +175,7 @@ private fun SemitonesScreenshot() {
                 stringLayout = StringLayout.SIDE_BY_SIDE,
                 displayType = TuningDisplayType.SEMITONES
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }
@@ -202,7 +202,7 @@ private fun CentsScreenshot() {
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.CENTS
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -216,7 +216,7 @@ private fun SettingsScreenshot() {
                 enableInTuneSound = false
             ),
             pinnedTuning = "Standard",
-            {},{},{},{},{},{},{}, {}, {}, {}
+            {},{}, {},{},{},{},{}, {}, {}, {}
         )
     }
 }
@@ -243,7 +243,7 @@ private fun BlackThemeScreenshot() {
             prefs = TunerPreferences(
                 useBlackTheme = true
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -268,7 +268,7 @@ private fun SplitScreenScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
     }
 }
@@ -302,7 +302,7 @@ private fun TabletScreenshot() {
             tuningSelectorOpen = false,
             configurePanelOpen = false,
             true,
-            {}, {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
+            {}, {}, {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
         )
     }
 }

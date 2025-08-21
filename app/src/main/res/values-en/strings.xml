@@ -108,4 +108,6 @@
     <string name="error_title">Error</string>
     <string name="error_description">Sorry, the following error occurred preventing the tuner from running:</string>
     <string name="error_action_call">Please restart the application to retry.</string>
+    <string name="chromatic">Chromatic</string>
+    <string name="chromatic_desc">Tune to any note</string>
 </resources>

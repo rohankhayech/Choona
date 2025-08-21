@@ -138,6 +138,9 @@ class Tuner(
 
     /** Sets the guitar tuning for comparison. */
     fun setTuning(tuning: Tuning) {
+        if (chromatic.value) {
+            setChromatic(false)
+        }
         _tuning.update {
             updateTunedStatus(it, tuning)
             tuning
@@ -227,7 +230,7 @@ class Tuner(
     }
 
     /** Sets whether the tuner is in chromatic mode or instrument mode. */
-    fun setChromatic(on: Boolean) {
+    fun setChromatic(on: Boolean = true) {
         // Reset tuned state.
         _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
         _noteTuned.update { false }

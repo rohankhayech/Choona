@@ -87,10 +87,12 @@ fun TuningSelector(
     enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
+    chromatic: Boolean,
     onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
+    onSelectChromatic: () -> Unit,
     editModeEnabled: Boolean
 ) {
     LookaheadScope {
@@ -129,7 +131,8 @@ fun TuningSelector(
                     customTunings = customTunings,
                     expanded = expanded,
                     showExpanded = enabled,
-                    compact
+                    compact,
+                    chromatic
                 )
 
                 // Dropdown Menu
@@ -137,6 +140,21 @@ fun TuningSelector(
                     expanded = expanded && enabled,
                     onDismissRequest = { expanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = {
+                            TwoLineItem(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                compact = compact,
+                                title = stringResource(R.string.chromatic),
+                                label = stringResource(R.string.chromatic_desc),
+                                fontWeight = FontWeight.Normal,
+                            )
+                        },
+                        onClick = {
+                            onSelectChromatic()
+                            expanded = false
+                        }
+                    )
                     for (tuningOption in favTunings.value) {
                         DropdownMenuItem(
                             text = {
@@ -194,7 +212,8 @@ private fun CurrentTuningField(
     customTunings: State<Set<Tuning>>,
     expanded: Boolean,
     showExpanded: Boolean,
-    compact: Boolean
+    compact: Boolean,
+    chromatic: Boolean
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -211,7 +230,23 @@ private fun CurrentTuningField(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TuningItem(modifier = Modifier.weight(1f), compact = compact, tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+            if (chromatic) {
+                TwoLineItem(
+                    modifier = Modifier.weight(1f),
+                    compact = compact,
+                    title = stringResource(R.string.chromatic),
+                    label = "Tune to any note",
+                    fontWeight = FontWeight.Bold
+                )
+            } else {
+                TuningItem(
+                    modifier = Modifier.weight(1f),
+                    compact = compact,
+                    tuning = tuning,
+                    customTunings = customTunings,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
@@ -255,20 +290,44 @@ fun TuningItem(
             ) { if (compact) it.toString() else it.toFullString() }
     }
 
+    TwoLineItem(modifier, compact, tuningName, strings, fontWeight, horizontalAlignment)
+}
+
+/**
+ * UI component displaying the name and strings of the specified tuning.
+ *
+ * @param modifier The modifier to apply to this layout.
+ * @param title The title to display.
+ * @param label The label to display under the title.
+ * @param fontWeight The font weight of the tuning name text.
+ * @param horizontalAlignment The horizontal alignment of the text.
+ * @param compact Whether to show the compact version of the tuning.
+ *
+ * @author Rohan Khayech
+ */
+@Composable
+fun TwoLineItem(
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+    title: String,
+    label: String,
+    fontWeight: FontWeight,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = horizontalAlignment
     ) {
         Text(
-            tuningName,
+            title,
             style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
             fontWeight = fontWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            strings,
+            label,
             style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -292,7 +351,9 @@ private fun Preview() {
             onTuneUp = {},
             onOpenTuningSelector = {},
             editModeEnabled = true,
-            compact = false
+            compact = false,
+            chromatic = false,
+            onSelectChromatic = {}
         )
     }
 }
@@ -312,7 +373,9 @@ private fun EditOffPreview() {
             onTuneUp = {},
             onOpenTuningSelector = {},
             editModeEnabled = false,
-            compact = false
+            compact = false,
+            chromatic = true,
+            onSelectChromatic = {}
         )
     }
 }

@@ -71,7 +71,6 @@ import com.rohankhayech.music.Tuning
  * @param tuning Guitar tuning used for comparison.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param customTunings Set of custom tunings added by the user.
- * @param onSelectTuning Called when a tuning is selected.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
@@ -86,9 +85,9 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun ConfigureTuningScreen(
     tuning: Tuning,
+    chromatic: Boolean,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
-    onSelectTuning: (Tuning) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -132,12 +131,14 @@ fun ConfigureTuningScreen(
                         favTunings = favTunings,
                         customTunings = customTunings,
                         openDirect = true,
-                        onSelect = onSelectTuning,
+                        onSelect = {},
                         onTuneDown = onTuneDownTuning,
                         onTuneUp = onTuneUpTuning,
                         onOpenTuningSelector = onOpenTuningSelector,
                         editModeEnabled = true,
-                        compact = true
+                        compact = true,
+                        chromatic = chromatic,
+                        onSelectChromatic = {}
                     )
 
                 }
@@ -176,9 +177,9 @@ private fun Preview() {
     AppTheme {
         ConfigureTuningScreen(
             tuning = Tunings.HALF_STEP_DOWN,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
-            onSelectTuning = {},
             onTuneUpString = {},
             onTuneDownString = {},
             onTuneUpTuning = {},
