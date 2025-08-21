@@ -218,7 +218,7 @@ class TunerActivity : ComponentActivity() {
                             }
                         },
                         onSelectTuning = ::setTuning,
-                        onSelectChromatic = vm.tuner::setChromatic,
+                        onSelectChromatic = { vm.tuner.setChromatic(true) },
                         onSelectNote = remember(prefs.enableStringSelectSound) {
                             {
                                 vm.tuner.selectNote(it)
@@ -242,6 +242,7 @@ class TunerActivity : ComponentActivity() {
                         onSettingsPressed = ::openSettings,
                         onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
+                        onSelectChromaticFromList = ::selectChromatic,
                         onDismissTuningSelector = ::dismissTuningSelector,
                         onDismissConfigurePanel = ::dismissConfigurePanel,
                         onEditModeChanged = vm::toggleEditMode,
@@ -402,6 +403,25 @@ class TunerActivity : ComponentActivity() {
     }
 
     /**
+     * Sets chromatic mode on as selected on the tuning selection screen
+     * and restarts the tuner if no other panel is open.
+     */
+    private fun selectChromatic() {
+        // Consume back stack entry.
+        dismissTuningSelectorOnBack.isEnabled = false
+
+        // Select the tuning.
+        vm.selectChromatic()
+
+        // Start tuner if no other panel is open.
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: Exception) {}
+        }
+    }
+
+    /**
      * Sets the current tuning to the [tuning] specified,
      * and recreates the MIDI driver if necessary.
      */
@@ -481,16 +501,27 @@ class TunerActivityViewModel : ViewModel() {
 
     /** Runs when the view model is instantiated. */
     init {
-        // Update tuner when the current selection in the tuning list is updated.
+        // Update the tuning list when the tuner's tuning is updated.
         viewModelScope.launch {
             tuner.tuning.collect {
                 tuningList.setCurrent(it)
             }
         }
-        // Update the tuning list when the tuner's tuning is updated.
+        viewModelScope.launch {
+            tuner.chromatic.collect {
+                tuningList.setChromatic(it)
+            }
+        }
+
+        // Update tuner when the current selection in the tuning list is updated.
         viewModelScope.launch {
             tuningList.current.collect {
                 it?.let { tuner.setTuning(it) }
+            }
+        }
+        viewModelScope.launch {
+            tuningList.chromatic.collect {
+                tuner.setChromatic(it)
             }
         }
     }
@@ -523,5 +554,11 @@ class TunerActivityViewModel : ViewModel() {
     fun selectTuning(tuning: Tuning) {
         _tuningSelectorOpen.update { false }
         tuner.setTuning(tuning)
+    }
+
+    /** Sets the current tuning to chromatic as selected in the tuning selection screen and dismisses it. */
+    fun selectChromatic() {
+        _tuningSelectorOpen.update { false }
+        tuner.setChromatic(true)
     }
 }

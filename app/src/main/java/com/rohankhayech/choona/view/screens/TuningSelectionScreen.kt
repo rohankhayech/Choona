@@ -140,10 +140,12 @@ fun TuningSelectionScreen(
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onFavouriteSet: (Tuning, Boolean) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
     val current by tuningList.current.collectAsStateWithLifecycle()
+    val chromatic by tuningList.chromatic.collectAsStateWithLifecycle()
     val favourites by tuningList.favourites.collectAsStateWithLifecycle()
     val custom by tuningList.custom.collectAsStateWithLifecycle()
     val tunings by tuningList.filteredTunings.collectAsStateWithLifecycle()
@@ -152,13 +154,16 @@ fun TuningSelectionScreen(
     val instrumentFilters = tuningList.instrumentFilters.collectAsStateWithLifecycle()
     val categoryFilters = tuningList.categoryFilters.collectAsStateWithLifecycle()
     val pinned by tuningList.pinned.collectAsStateWithLifecycle()
+    val chromaticPinned by tuningList.chromaticPinned.collectAsStateWithLifecycle()
 
     TuningSelectionScreen(
         current = current,
+        chromatic = chromatic,
         tunings = tunings,
         favourites = favourites,
         custom = custom,
         pinned = pinned,
+        chromaticPinned = chromaticPinned,
         pinnedInitial = pinnedInitial,
         instrumentFilter = instrumentFilter,
         categoryFilter = categoryFilter,
@@ -177,9 +182,11 @@ fun TuningSelectionScreen(
             onFavouriteSet(tuning, fav)
         }},
         onSelect = onSelect,
+        onSelectChromatic = onSelectChromatic,
         onDelete = { tuningList.removeCustom(it) },
         onDismiss = onDismiss,
         onPin = { tuningList.setPinned(it) },
+        onPinChromatic = tuningList::pinChromatic,
         onUnpin = { tuningList.unpinTuning() }
     )
 }
@@ -216,10 +223,12 @@ fun TuningSelectionScreen(
 @Composable
 fun TuningSelectionScreen(
     current: Tuning? = null,
+    chromatic: Boolean,
     tunings: Map<Pair<Instrument, Category?>, List<Tuning>>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
     pinned: Tuning,
+    chromaticPinned: Boolean,
     pinnedInitial: Boolean,
     instrumentFilter: Instrument?,
     categoryFilter: Category?,
@@ -232,9 +241,11 @@ fun TuningSelectionScreen(
     onSave: (String?, Tuning) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
     onDelete: (Tuning) -> Unit,
     onDismiss: () -> Unit,
     onPin: (tuning: Tuning) -> Unit,
+    onPinChromatic: () -> Unit,
     onUnpin: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -285,10 +296,12 @@ fun TuningSelectionScreen(
             modifier = Modifier.padding(padding).consumeWindowInsets(padding),
             listState = listState,
             current = current,
+            chromatic = chromatic,
             tunings = tunings,
             favourites = favourites,
             custom = custom,
             pinned = pinned,
+            chromaticPinned = chromaticPinned,
             pinnedInitial = pinnedInitial,
             instrumentFilter = instrumentFilter,
             categoryFilter = categoryFilter,
@@ -299,8 +312,10 @@ fun TuningSelectionScreen(
             onSave = { showSaveDialog = true },
             onFavouriteSet = onFavouriteSet,
             onSelect = onSelect,
+            onSelectChromatic = onSelectChromatic,
             onDelete = onDelete,
             onPin = onPin,
+            onPinChromatic = onPinChromatic,
             onUnpin = onUnpin
         )
     }
@@ -351,10 +366,12 @@ fun TuningList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     current: Tuning? = null,
+    chromatic: Boolean = true,
     tunings: Map<Pair<Instrument, Category?>, List<Tuning>>,
     favourites: Set<Tuning>,
     custom: Set<Tuning>,
     pinned: Tuning,
+    chromaticPinned: Boolean,
     pinnedInitial: Boolean,
     instrumentFilter: Instrument?,
     categoryFilter: Category?,
@@ -366,7 +383,9 @@ fun TuningList(
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onUnpin: () -> Unit,
     onPin: (Tuning) -> Unit,
+    onPinChromatic: () -> Unit,
     onSelect: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
     onDelete: (Tuning) -> Unit
 ) {
     val favsList = remember(favourites) { favourites.toList() }
@@ -379,12 +398,36 @@ fun TuningList(
     LazyColumn(modifier = modifier, state = listState) {
         // Current Tuning
         current?.let {
-            item("cur") { SectionLabel(stringResource(R.string.tuning_list_current), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
-            item("cur-${current.instrument}-[${current.toFullString()}]") {
-                val saved = remember(current, custom) { current.hasEquivalentIn(custom+Tunings.TUNINGS) }
-                CurrentTuningItem(tuning = current, saved = saved, pinned = currentPinned, pinnedInitial = pinnedInitial, onSave = onSave, onSelect = onSelect, onPinnedSet = { tuning, pinned ->
-                    if (pinned) onPin(tuning) else onUnpin()
-                })
+            item("cur") {
+                SectionLabel(
+                    stringResource(R.string.tuning_list_current),
+                    Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+                )
+            }
+            if (chromatic) {
+                item("cur-chromatic") {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.chromatic)) },
+                        supportingContent = { Text(stringResource(R.string.chromatic_desc)) },
+                        trailingContent = {
+                            CurrentTrailingContent(null, saved = true, pinned = chromaticPinned, pinnedInitial = pinnedInitial, onSave = {}, onPinnedSet = { _, pinned -> if (pinned) onPinChromatic() else onUnpin() })
+                        }
+                    )
+                }
+            } else {
+                item("cur-${current.instrument}-[${current.toFullString()}]") {
+                    val saved = remember(current, custom) { current.hasEquivalentIn(custom + Tunings.TUNINGS) }
+                    CurrentTuningItem(
+                        tuning = current,
+                        saved = saved,
+                        pinned = currentPinned,
+                        pinnedInitial = pinnedInitial,
+                        onSave = onSave,
+                        onSelect = onSelect,
+                        onPinnedSet = { tuning, pinned ->
+                            if (pinned) onPin(tuning!!) else onUnpin()
+                        })
+                }
             }
         }
 
@@ -441,6 +484,21 @@ fun TuningList(
                 val favourited = remember(favourites) { it.hasEquivalentIn(favourites) }
                 val isPinned = remember(pinned) { it.equivalentTo(pinned) }
                 FavouritableTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
+            }
+        }
+        if (instrumentFilter == null && categoryFilter == null || categoryFilter == Category.MISC) {
+            item(Category.MISC.toString()) {
+                SectionLabel(Category.MISC.getLocalisedName(), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
+            }
+            item(key = "chromatic") {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.chromatic)) },
+                    supportingContent = { Text(stringResource(R.string.chromatic_desc)) },
+                    trailingContent = {
+                        FavouritableTrailingContent(null, false, pinned = chromaticPinned, pinnedInitial = pinnedInitial, onFavouriteSet = {_, _ ->}, onUnpin = onUnpin)
+                    },
+                    modifier = Modifier.clickable(onClick = onSelectChromatic)
+                )
             }
         }
     }
@@ -560,45 +618,64 @@ private fun LazyItemScope.CurrentTuningItem(
     pinnedInitial: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (Tuning) -> Unit,
-    onPinnedSet: (Tuning, Boolean) -> Unit
+    onPinnedSet: (Tuning?, Boolean) -> Unit
 ) {
-    val standard = remember(tuning) { tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(
         tuning = tuning,
         instrumentName = instrumentName,
         onSelect = onSelect,
         trailing = {
-            Row {
-                AnimatedVisibility(!standard && (pinned || (saved && pinnedInitial)), enter = fadeIn(), exit = fadeOut()) {
-                    IconToggleButton(
-                        enabled = pinnedInitial,
-                        checked = pinned,
-                        onCheckedChange = {
-                            onPinnedSet(tuning, it)
-                        }
-                    ) {
-                        val tint = if (pinned) MaterialTheme.colorScheme.secondary else LocalContentColor.current
-                        Icon(
-                            if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                            tint = if (pinnedInitial) tint else LocalContentColor.current.copy(alpha = 0.38f),
-                            contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
-                        )
-                    }
-                }
-
-                if (!saved) {
-                    IconButton(
-                        onClick = { onSave(tuning) }
-                    ) {
-                        Icon(
-                            Icons.Default.SaveAs,
-                            contentDescription = stringResource(R.string.save)
-                        )
-                    }
-                }
-            }
+            CurrentTrailingContent(
+                tuning = tuning,
+                saved = saved,
+                pinned = pinned,
+                pinnedInitial = pinnedInitial,
+                onSave = onSave,
+                onPinnedSet = onPinnedSet
+            )
         }
     )
+}
+
+@Composable
+private fun CurrentTrailingContent(
+    tuning: Tuning?,
+    saved: Boolean,
+    pinned: Boolean,
+    pinnedInitial: Boolean,
+    onSave: (Tuning) -> Unit,
+    onPinnedSet: (Tuning?, Boolean) -> Unit
+) {
+    val standard = remember(tuning) { tuning?.equivalentTo(Tunings.STANDARD) ?: false }
+    Row {
+        AnimatedVisibility(!standard && (pinned || (saved && pinnedInitial)), enter = fadeIn(), exit = fadeOut()) {
+            IconToggleButton(
+                enabled = pinnedInitial,
+                checked = pinned,
+                onCheckedChange = {
+                    onPinnedSet(tuning, it)
+                }
+            ) {
+                val tint = if (pinned) MaterialTheme.colorScheme.secondary else LocalContentColor.current
+                Icon(
+                    if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                    tint = if (pinnedInitial) tint else LocalContentColor.current.copy(alpha = 0.38f),
+                    contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
+                )
+            }
+        }
+
+        if (!saved) {
+            IconButton(
+                onClick = { tuning ?.let { onSave(tuning) } }
+            ) {
+                Icon(
+                    Icons.Default.SaveAs,
+                    contentDescription = stringResource(R.string.save)
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -703,32 +780,46 @@ private fun LazyItemScope.FavouritableTuningItem(
     onSelect: (Tuning) -> Unit,
     onUnpin: () -> Unit
 ) {
-    val standard = remember(tuning) { tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(tuning = tuning, instrumentName = instrumentName, onSelect = onSelect) {
-        Row {
-            AnimatedVisibility(pinned && !standard, enter = fadeIn(), exit = fadeOut()) {
-                IconToggleButton(
-                    enabled = pinnedInitial,
-                    checked = true,
-                    onCheckedChange = { onUnpin() }
-                ) {
-                    Icon(
-                        Icons.Default.PushPin,
-                        tint = if (pinnedInitial) MaterialTheme.colorScheme.secondary else LocalContentColor.current.copy(alpha = 0.38f),
-                        contentDescription = stringResource(R.string.unpin)
-                    )
-                }
-            }
+       FavouritableTrailingContent (tuning, favourited, pinned, pinnedInitial, onFavouriteSet = { tuning, fav ->
+           onFavouriteSet(tuning!!, fav)
+       }, onUnpin)
+    }
+}
+
+@Composable
+private fun FavouritableTrailingContent(
+    tuning: Tuning?,
+    favourited: Boolean,
+    pinned: Boolean,
+    pinnedInitial: Boolean,
+    onFavouriteSet: (Tuning?, Boolean) -> Unit,
+    onUnpin: () -> Unit
+) {
+    val standard = remember(tuning) { tuning?.equivalentTo(Tunings.STANDARD) ?: false }
+    Row {
+        AnimatedVisibility(pinned && !standard, enter = fadeIn(), exit = fadeOut()) {
             IconToggleButton(
-                checked = favourited,
-                onCheckedChange = { onFavouriteSet(tuning, !favourited) }
+                enabled = pinnedInitial,
+                checked = true,
+                onCheckedChange = { onUnpin() }
             ) {
                 Icon(
-                    if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
-                    tint = if (favourited) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
-                    contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+                    Icons.Default.PushPin,
+                    tint = if (pinnedInitial) MaterialTheme.colorScheme.secondary else LocalContentColor.current.copy(alpha = 0.38f),
+                    contentDescription = stringResource(R.string.unpin)
                 )
             }
+        }
+        IconToggleButton(
+            checked = favourited,
+            onCheckedChange = { onFavouriteSet(tuning, !favourited) }
+        ) {
+            Icon(
+                if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
+                tint = if (favourited) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
+                contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+            )
         }
     }
 }
@@ -861,7 +952,9 @@ private fun Preview() {
         TuningSelectionScreen(
             current = currentTuning,
             tunings = TuningList.GROUPED_TUNINGS,
+            chromatic = true,
             pinned = Tunings.WHOLE_STEP_DOWN,
+            chromaticPinned = false,
             pinnedInitial = true,
             favourites = setOf(Tuning.STANDARD),
             custom = setOf(customTuning, favCustomTuning),
@@ -874,11 +967,13 @@ private fun Preview() {
             onSave = {_,_->},
             onFavouriteSet = {_,_ ->},
             onSelect = {},
+            onSelectChromatic = {},
             onDelete = {},
             onSelectInstrument = {},
             onSelectCategory = {},
             onDismiss = {},
             onPin = {_ -> },
+            onPinChromatic = {},
             onUnpin = {},
         )
     }

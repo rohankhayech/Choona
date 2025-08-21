@@ -113,6 +113,7 @@ private fun SelectionScreenshot() {
             pinnedInitial = true,
             backIcon = Icons.Default.Close,
             onSelect = {},
+            onSelectChromatic = {},
             onDismiss = {}
         )
     }
@@ -131,6 +132,8 @@ private fun CustomScreenshot() {
         TuningSelectionScreen(
             current = tunings.current.value,
             tunings = tunings.filteredTunings.value,
+            chromatic = false,
+            chromaticPinned = false,
             favourites = tunings.favourites.value,
             custom = emptySet(),
             pinned = Tuning.STANDARD,
@@ -141,7 +144,17 @@ private fun CustomScreenshot() {
             categoryFilters = tunings.categoryFilters.collectAsStateWithLifecycle(),
             backIcon = Icons.Default.Close,
             deletedTuning = tunings.deletedTuning,
-            {}, {}, {_,_->}, {_,_->}, {}, {}, {}, {}, {}
+            onSelectInstrument = {},
+            onSelectCategory = {},
+            onSave = {_, _ ->},
+            onFavouriteSet = {_, _ ->},
+            onSelect = {},
+            onSelectChromatic = {},
+            onDelete = {},
+            onDismiss = {},
+            onPin = {},
+            onPinChromatic = {},
+            onUnpin = {},
         )
 
         SaveTuningDialog(
@@ -302,7 +315,7 @@ private fun TabletScreenshot() {
             tuningSelectorOpen = false,
             configurePanelOpen = false,
             true,
-            {}, {}, {}, {},{},{},{},{},{},{},{},{},{},{},{},{},{}
+            {}, {}, {}, {},{},{},{}, {}, {},{},{},{},{},{},{},{},{},{}
         )
     }
 }

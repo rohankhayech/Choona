@@ -116,6 +116,7 @@ fun MainLayout(
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
+    onSelectChromaticFromList: () -> Unit,
     onDismissTuningSelector: () -> Unit,
     onDismissConfigurePanel: () -> Unit,
 ) {
@@ -165,6 +166,7 @@ fun MainLayout(
                         pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                         backIcon = null,
                         onSelect = onSelectTuningFromList,
+                        onSelectChromatic = onSelectChromaticFromList,
                         onDismiss = {}
                     )
                 }
@@ -237,6 +239,7 @@ fun MainLayout(
                 backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
                 pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                 onSelect = onSelectTuningFromList,
+                onSelectChromatic = onSelectChromaticFromList,
                 onDismiss = onDismissTuningSelector,
             )
         }

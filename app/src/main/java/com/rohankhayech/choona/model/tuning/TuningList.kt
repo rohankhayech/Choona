@@ -56,6 +56,12 @@ class TuningList(
     /** The current tuning, or null if N/A. */
     val current = _current.asStateFlow()
 
+    /** Mutable backing property for [chromatic]. */
+    private val _chromatic = MutableStateFlow(false)
+
+    /** Whether chromatic tuning is currently selected. */
+    val chromatic = _chromatic.asStateFlow()
+
     /** Mutable backing property for [favourites]. */
     private val _favourites = MutableStateFlow<Set<Tuning>>(setOf(
         Tuning.STANDARD))
@@ -74,6 +80,12 @@ class TuningList(
 
     /** Pinned tuning to open when the app is launched. */
     val pinned = _pinned.asStateFlow()
+
+    /** Mutable backing property for [chromaticPinned]. */
+    private val _chromaticPinned = MutableStateFlow(false)
+
+    /** Whether chromatic tuning is pinned to open when the app is launched. */
+    val chromaticPinned = _chromaticPinned.asStateFlow()
 
     /** Mutable backing property for [lastUsed]. */
     private val _lastUsed = MutableStateFlow<Tuning?>(null)
@@ -168,6 +180,11 @@ class TuningList(
         }
     }
 
+    /** Selects chromatic as the current tuning. */
+    fun setChromatic(on: Boolean) {
+        _chromatic.update { on }
+    }
+
     /**
      * Marks the specified [tuning] as a favourite if [fav] set to true, otherwise un-marks it.
      */
@@ -210,12 +227,20 @@ class TuningList(
 
     /** Sets the pinned [tuning]. */
     fun setPinned(tuning: Tuning) {
+        _chromaticPinned.update { false }
         _pinned.update { tuning }
     }
 
     /** Unpins the pinned tuning. */
     fun unpinTuning() {
         _pinned.update { Tuning.STANDARD }
+        _chromaticPinned.update { false }
+    }
+
+    /** Sets chromatic tuning as the pinned tuning. */
+    fun pinChromatic() {
+        _pinned.update { Tuning.STANDARD }
+        _chromaticPinned.update { true }
     }
 
     /**
