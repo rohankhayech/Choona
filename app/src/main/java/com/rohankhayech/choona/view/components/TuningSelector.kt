@@ -102,7 +102,7 @@ fun TuningSelector(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (editModeEnabled) {
+            if (editModeEnabled && !chromatic) {
                 // Tune Down Button
                 IconButton(
                     onClick = onTuneDown,
@@ -117,7 +117,7 @@ fun TuningSelector(
             ExposedDropdownMenuBox(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = if (!editModeEnabled) 16.dp else 0.dp),
+                    .padding(horizontal = if (!editModeEnabled || chromatic) 16.dp else 0.dp),
                 expanded = expanded && enabled,
                 onExpandedChange = {
                     if (openDirect) onOpenTuningSelector()
@@ -182,7 +182,7 @@ fun TuningSelector(
                 }
             }
 
-            if (editModeEnabled) {
+            if (editModeEnabled && !chromatic) {
                 // Tune Up Button
                 IconButton(
                     onClick = onTuneUp,
@@ -235,7 +235,7 @@ private fun CurrentTuningField(
                     modifier = Modifier.weight(1f),
                     compact = compact,
                     title = stringResource(R.string.chromatic),
-                    label = "Tune to any note",
+                    label = stringResource(R.string.chromatic_desc),
                     fontWeight = FontWeight.Bold
                 )
             } else {
