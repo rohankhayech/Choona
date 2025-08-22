@@ -100,9 +100,9 @@ import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.view.components.CompactNoteControls
+import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
-import com.rohankhayech.choona.view.components.NoteControls
+import com.rohankhayech.choona.view.components.NoteSelector
 import com.rohankhayech.choona.view.components.StatusBarColor
 import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.components.StringControls
@@ -301,7 +301,7 @@ fun TunerScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (chromatic) {
-                            CompactNoteControls(
+                            CompactNoteSelector(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(vertical = 8.dp),
@@ -440,7 +440,7 @@ private fun TunerBodyScaffold(
         // String controls
         { modifier, inline ->
             if (chromatic) {
-                NoteControls(
+                NoteSelector(
                     modifier = modifier,
                     selectedNoteIndex = selectedNote,
                     tuned = noteTuned,

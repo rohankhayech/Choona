@@ -19,22 +19,20 @@
 package com.rohankhayech.choona.view.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -42,11 +40,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonised
-import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.view.theme.PreviewWrapper
@@ -54,19 +50,19 @@ import com.rohankhayech.choona.view.theme.extColors
 import com.rohankhayech.music.Notes
 
 /** Octave of the lowest note detectable by the tuner. */
-private val LOWEST_OCTAVE = Notes.getOctave(Notes.getSymbol(Tuner.LOWEST_NOTE))
+private val LOWEST_OCTAVE = Notes.getOctave(Notes.getSymbol(LOWEST_NOTE))
 
 /** Octave of the highest note detectable by the tuner. */
-private val HIGHEST_OCTAVE = Notes.getOctave(Notes.getSymbol(Tuner.HIGHEST_NOTE))
+private val HIGHEST_OCTAVE = Notes.getOctave(Notes.getSymbol(HIGHEST_NOTE))
 
 /** Number of octaves available for tuning, from the lowest to the highest note. */
 private val NUM_OCTAVES = HIGHEST_OCTAVE - LOWEST_OCTAVE + 1
 
 /** Index of the root note, of the lowest note detectable by the tuner, in the list of note symbols. */
-private val LOWEST_ROOT_NOTE_INDEX = Notes.NOTE_SYMBOLS.indexOf(Notes.getRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE)))
+private val LOWEST_ROOT_NOTE_INDEX = Notes.NOTE_SYMBOLS.indexOf(Notes.getRootNote(Notes.getSymbol(LOWEST_NOTE)))
 
 /** Index of the root note, of the highest note detectable by the tuner, in the list of note symbols. */
-private val HIGHEST_ROOT_NOTE_INDEX = Notes.NOTE_SYMBOLS.indexOf(Notes.getRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE)))
+private val HIGHEST_ROOT_NOTE_INDEX = Notes.NOTE_SYMBOLS.indexOf(Notes.getRootNote(Notes.getSymbol(HIGHEST_NOTE)))
 
 /**
  * Component displaying and allowing selection of the available notes and octaves for tuning.
@@ -78,17 +74,17 @@ private val HIGHEST_ROOT_NOTE_INDEX = Notes.NOTE_SYMBOLS.indexOf(Notes.getRootNo
  * @author Rohan Khayech
  */
 @Composable
-fun NoteControls(
+fun NoteSelector(
     modifier: Modifier = Modifier,
     selectedNoteIndex: Int,
     tuned: Boolean,
     onSelect: (Int) -> Unit,
 ) {
     // TODO: THIS WHOLE COMPONENT IS LIKELY REALLY SLOW, PLEASE OPTIMISE IT
-    // some remembers and more note stuff in constants
+    // some remembers
 
     Column(
-        modifier= modifier,
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -133,8 +129,17 @@ fun NoteControls(
     }
 }
 
+/**
+ * Component displaying and allowing selection of the available notes for tuning in a single row.
+ * @param modifier Modifier to apply to this component.
+ * @param selectedNoteIndex Index of the selected note.
+ * @param tuned Whether each string has been tuned.
+ * @param onSelect Called when a string is selected.
+ *
+ * @author Rohan Khayech
+ */
 @Composable
-fun CompactNoteControls(
+fun CompactNoteSelector(
     modifier: Modifier = Modifier,
     selectedNoteIndex: Int,
     tuned: Boolean,
@@ -180,25 +185,20 @@ fun ScrollableButtonRow(
     reversed: Boolean = false,
     onSelect: (Int) -> Unit,
 ) {
-    val scrollState = rememberScrollState()
+    val listState = rememberLazyListState()
 
-    val selectedButtonPosition = with(LocalDensity.current) {
-        remember(items.size, selectedIndex) {
-            (92.dp * (selectedIndex)).toPx()
-        }
-    }
-    LaunchedEffect(key1 = selectedIndex) {
-        scrollState.animateScrollTo(selectedButtonPosition.toInt())
-    }
+    // Center the selected button.
+    LazyListAutoScroll(listState, selectedIndex, ItemScrollPosition.Center)
 
-    Row(
-        modifier = modifier.horizontalScroll(scrollState),
+    LazyRow(
+        modifier,
+        state = listState,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        contentPadding = PaddingValues(horizontal = 8.dp),
         reverseLayout = reversed
     ) {
-        Spacer(Modifier.width(8.dp))
-        items.forEach { (index, label) ->
+        items(items, {(index) -> index}) { (index, label) ->
             NoteSelectionButton(
                 index = index,
                 label = label,
@@ -208,7 +208,6 @@ fun ScrollableButtonRow(
                 onSelect = onSelect
             )
         }
-        Spacer(Modifier.width(8.dp))
     }
 }
 
@@ -278,7 +277,7 @@ private fun Preview() {
     var noteIndex by remember { mutableIntStateOf(-29) }
 
     PreviewWrapper {
-        NoteControls(
+        NoteSelector(
             modifier = Modifier.padding(vertical = 8.dp),
             selectedNoteIndex = noteIndex,
             tuned = false,
@@ -293,7 +292,7 @@ private fun CompactPreview() {
     var noteIndex by remember { mutableIntStateOf(-29) }
 
     PreviewWrapper {
-        CompactNoteControls (
+        CompactNoteSelector (
             modifier = Modifier.padding(vertical = 8.dp),
             selectedNoteIndex = noteIndex,
             tuned = false,

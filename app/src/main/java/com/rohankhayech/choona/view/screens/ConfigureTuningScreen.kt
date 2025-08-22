@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.CompactOrientationThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.view.components.NoteControls
+import com.rohankhayech.choona.view.components.NoteSelector
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningSelector
 import com.rohankhayech.choona.view.theme.AppTheme
@@ -158,7 +158,7 @@ fun ConfigureTuningScreen(
             verticalArrangement = Arrangement.Center
         ) {
             if (chromatic) {
-                NoteControls(
+                NoteSelector(
                     Modifier.padding(vertical = 8.dp),
                     selectedNoteIndex = selectedNote,
                     tuned = false,
