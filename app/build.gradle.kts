@@ -26,14 +26,14 @@ plugins {
 android {
     namespace = "com.rohankhayech.choona"
 
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 11
-        versionName = "1.4.3"
+        versionName = "1.4.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
