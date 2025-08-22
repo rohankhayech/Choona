@@ -5,7 +5,7 @@ datastorePreferencesVersion = "1.1.7"
 jsonVersion = "20250517"
 kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeCompose = "2.9.2"
-androidUtils = "v0.3.0"
+androidUtils = "v0.4.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.2.10"
 coreKtx = "1.16.0"
@@ -44,6 +44,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme-m3", version.ref = "androidUtils" }
+androidutils-layout = { module = "com.github.rohankhayech.AndroidUtils:layout", version.ref = "androidUtils" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 
 [plugins]

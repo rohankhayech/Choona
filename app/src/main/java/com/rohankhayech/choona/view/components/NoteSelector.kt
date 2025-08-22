@@ -41,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
+import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonised
 import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE

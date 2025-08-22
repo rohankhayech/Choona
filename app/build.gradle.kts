@@ -95,6 +95,7 @@ dependencies {
     // Utility
     implementation(libs.androidutils.theme)
     implementation(libs.androidutils.preview)
+    implementation(libs.androidutils.layout)
 
     // Open Source Licenses
     implementation(libs.aboutlibraries.core)
