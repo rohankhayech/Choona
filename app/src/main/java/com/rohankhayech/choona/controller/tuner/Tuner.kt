@@ -112,7 +112,7 @@ class Tuner(
     val noteTuned = _noteTuned.asStateFlow()
 
     /** Mutable backing property for [chromatic]. */
-    private val _chromatic = MutableStateFlow(true)
+    private val _chromatic = MutableStateFlow(false)
 
     /** Whether the tuner is currently in chromatic mode, or instrument mode. */
     val chromatic = _chromatic.asStateFlow()

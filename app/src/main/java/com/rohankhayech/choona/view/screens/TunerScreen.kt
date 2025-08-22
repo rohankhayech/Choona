@@ -23,7 +23,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -101,6 +100,7 @@ import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.CompactNoteControls
 import com.rohankhayech.choona.view.components.CompactStringSelector
 import com.rohankhayech.choona.view.components.NoteControls
 import com.rohankhayech.choona.view.components.StatusBarColor
@@ -109,6 +109,7 @@ import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
 import com.rohankhayech.choona.view.components.TuningSelector
+import com.rohankhayech.choona.view.components.TwoLineItem
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
 
@@ -180,15 +181,16 @@ fun TunerScreen(
         Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (expanded) {
-                ExpandedAppBar(onSettingsPressed, editModeEnabled, onEditModeChanged)
+                ExpandedAppBar(onSettingsPressed, editModeEnabled, !chromatic, onEditModeChanged)
             } else if (!compact) {
-                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged)
+                AppBar(onSettingsPressed, showEditToggle = !chromatic, editModeEnabled, onEditModeChanged)
             } else {
                 CompactAppBar(
                     scrollBehavior,
                     tuning = tuning,
                     customTunings = customTunings,
-                    onConfigurePressed = onConfigurePressed
+                    onConfigurePressed = onConfigurePressed,
+                    chromatic = chromatic
                 )
             }
         }
@@ -294,8 +296,20 @@ fun TunerScreen(
                     }
                     Row(
                         Modifier
-                            .height(IntrinsicSize.Min)
-                            .padding(bottom = 8.dp)) {
+                            .height(72.dp)
+                            .padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (chromatic) {
+                            CompactNoteControls(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(vertical = 8.dp),
+                                selectedNoteIndex = selectedNote,
+                                tuned = noteTuned,
+                                onSelect = onSelectNote,
+                            )
+                        } else {
                         CompactStringSelector(
                             modifier = Modifier
                                 .weight(1f)
@@ -305,9 +319,10 @@ fun TunerScreen(
                             tuned = tuned,
                             onSelect = onSelectString,
                         )
+                        }
                         VerticalDivider()
                         Box(Modifier.padding(horizontal = 8.dp)) {
-                            autoDetectSwitch(Modifier.fillMaxHeight())
+                            autoDetectSwitch(Modifier)
                         }
                     }
                 }
@@ -670,14 +685,31 @@ private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
     tuning: Tuning,
-    customTunings: State<Set<Tuning>>
+    customTunings: State<Set<Tuning>>,
+    chromatic: Boolean
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
         },
         title = {
-            TuningItem(tuning = tuning, compact = true, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
+            if (chromatic) {
+                TwoLineItem(
+                    compact = true,
+                    title = stringResource(R.string.chromatic),
+                    label = stringResource(R.string.chromatic_desc),
+                    fontWeight = FontWeight.Bold,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                )
+            } else {
+                TuningItem(
+                    tuning = tuning,
+                    compact = true,
+                    customTunings = customTunings,
+                    fontWeight = FontWeight.Bold,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                )
+            }
         },
         actions = {
             // Configure tuning button.
@@ -700,6 +732,7 @@ private fun CompactAppBar(
 private fun ExpandedAppBar(
     onSettingsPressed: () -> Unit,
     editModeEnabled: Boolean = false,
+    showEditToggle: Boolean,
     onEditModeChanged: ((Boolean) -> Unit) = {}
 ) {
     TopAppBar(
@@ -711,7 +744,7 @@ private fun ExpandedAppBar(
             )
         },
         actions = {
-            AppBarActions(true, editModeEnabled, onEditModeChanged, onSettingsPressed)
+            AppBarActions(showEditToggle, editModeEnabled, onEditModeChanged, onSettingsPressed)
         }
     )
 }

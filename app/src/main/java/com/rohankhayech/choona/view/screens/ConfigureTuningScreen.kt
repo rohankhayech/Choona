@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.CompactOrientationThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.NoteControls
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningSelector
 import com.rohankhayech.choona.view.theme.AppTheme
@@ -86,12 +86,14 @@ import com.rohankhayech.music.Tuning
 fun ConfigureTuningScreen(
     tuning: Tuning,
     chromatic: Boolean,
+    selectedNote: Int,
     favTunings: State<Set<Tuning>>,
     customTunings: State<Set<Tuning>>,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
     onTuneDownTuning: () -> Unit,
+    onSelectNote: (Int) -> Unit,
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
     onSettingsPressed: () -> Unit,
@@ -155,18 +157,26 @@ fun ConfigureTuningScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(Modifier.height(8.dp))
-            StringControls(
-                inline = true,
-                tuning = tuning,
-                selectedString = null,
-                tuned = null,
-                onSelect = {},
-                onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString,
-                editModeEnabled = true,
-            )
-            Spacer(Modifier.height(8.dp))
+            if (chromatic) {
+                NoteControls(
+                    Modifier.padding(vertical = 8.dp),
+                    selectedNoteIndex = selectedNote,
+                    tuned = false,
+                    onSelect = onSelectNote
+                )
+            } else {
+                StringControls(
+                    Modifier.padding(vertical = 8.dp),
+                    inline = true,
+                    tuning = tuning,
+                    selectedString = null,
+                    tuned = null,
+                    onSelect = {},
+                    onTuneDown = onTuneDownString,
+                    onTuneUp = onTuneUpString,
+                    editModeEnabled = true,
+                )
+            }
         }
     }
 }
@@ -178,6 +188,7 @@ private fun Preview() {
         ConfigureTuningScreen(
             tuning = Tunings.HALF_STEP_DOWN,
             chromatic = false,
+            selectedNote = -29,
             favTunings = remember { mutableStateOf(emptySet()) },
             customTunings = remember { mutableStateOf(emptySet()) },
             onTuneUpString = {},
@@ -185,7 +196,8 @@ private fun Preview() {
             onTuneUpTuning = {},
             onTuneDownTuning = {},
             onOpenTuningSelector = {},
-            onDismiss = {}
+            onDismiss = {},
+            onSelectNote = {}
         ) {}
     }
 }

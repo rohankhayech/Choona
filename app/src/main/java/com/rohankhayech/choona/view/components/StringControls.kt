@@ -198,9 +198,8 @@ private fun InlineStringControls(
 }
 
 /**
- * Component displaying the specified [strings] inline horizontally and allowing selection of a string for tuning.
+ * Component displaying the specified strings inline horizontally and allowing selection of a string for tuning.
  * @param tuning Current guitar tuning used for comparison.
- * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
  * @param selectedString Index of the selected string in the tuning.
  * @param tuned Whether each string has been tuned.
  * @param onSelect Called when a string is selected.
@@ -217,9 +216,10 @@ fun CompactStringSelector(
 ) {
     ScrollableButtonRow(
         modifier = modifier,
-        items = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs.toFullString()) }.reversed() },
+        items = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs.toFullString()) } },
         selectedIndex = selectedString,
         activatedButtons = tuned,
+        reversed = true,
         onSelect = onSelect
     )
 }

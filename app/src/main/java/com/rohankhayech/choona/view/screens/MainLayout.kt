@@ -218,12 +218,14 @@ fun MainLayout(
             ConfigureTuningScreen(
                 tuning = tuning,
                 chromatic,
+                selectedNote = selectedNote,
                 favTunings = favTunings,
                 customTunings = customTunings,
                 onTuneUpString = onTuneUpString,
                 onTuneDownString = onTuneDownString,
                 onTuneUpTuning = onTuneUpTuning,
                 onTuneDownTuning = onTuneDownTuning,
+                onSelectNote = onSelectNote,
                 onOpenTuningSelector = onOpenTuningSelector,
                 onDismiss = onDismissConfigurePanel,
                 onSettingsPressed = onSettingsPressed

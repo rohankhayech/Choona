@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonised
 import com.rohankhayech.choona.controller.tuner.Tuner
+import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
+import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.choona.view.theme.extColors
 import com.rohankhayech.music.Notes
@@ -131,6 +133,33 @@ fun NoteControls(
     }
 }
 
+@Composable
+fun CompactNoteControls(
+    modifier: Modifier = Modifier,
+    selectedNoteIndex: Int,
+    tuned: Boolean,
+    onSelect: (Int) -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val notes = List(HIGHEST_NOTE - LOWEST_NOTE + 1) { i ->
+            Pair(i, Notes.getSymbol(i + LOWEST_NOTE))
+        }
+
+        ScrollableButtonRow(
+            items = notes,
+            selectedIndex = selectedNoteIndex - LOWEST_NOTE,
+            activatedButtons = remember (tuned, selectedNoteIndex) { BooleanArray(notes.size) { i -> tuned && i == selectedNoteIndex - LOWEST_NOTE }},
+            onSelect = remember (onSelect) {{ index ->
+                onSelect(index + LOWEST_NOTE)
+            }}
+        )
+    }
+}
+
 /**
  * Component displaying a scrollable row of note selection buttons.
  * @param modifier Modifier to apply to this component.
@@ -148,6 +177,7 @@ fun ScrollableButtonRow(
     selectedIndex: Int,
     activatedButtons: BooleanArray,
     disabledButtons: BooleanArray = BooleanArray(items.size) { false },
+    reversed: Boolean = false,
     onSelect: (Int) -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -165,6 +195,7 @@ fun ScrollableButtonRow(
         modifier = modifier.horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
+        reverseLayout = reversed
     ) {
         Spacer(Modifier.width(8.dp))
         items.forEach { (index, label) ->
@@ -248,6 +279,21 @@ private fun Preview() {
 
     PreviewWrapper {
         NoteControls(
+            modifier = Modifier.padding(vertical = 8.dp),
+            selectedNoteIndex = noteIndex,
+            tuned = false,
+            onSelect = { noteIndex = it }
+        )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun CompactPreview() {
+    var noteIndex by remember { mutableIntStateOf(-29) }
+
+    PreviewWrapper {
+        CompactNoteControls (
             modifier = Modifier.padding(vertical = 8.dp),
             selectedNoteIndex = noteIndex,
             tuned = false,
