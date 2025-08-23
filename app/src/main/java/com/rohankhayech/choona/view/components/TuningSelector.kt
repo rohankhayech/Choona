@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.Tuning
 
@@ -66,7 +66,7 @@ import com.rohankhayech.music.Tuning
  *
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCustomName
  * @param enabled Whether the selector is enabled. Defaults to true.
  * @param openDirect Whether to open the tuning selection screen directly instead of the favourites dropdown.
  * @param onSelect Called when a tuning is selected.
@@ -81,18 +81,16 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    tuning: TuningEntry,
+    favTunings: State<Set<TuningEntry>>,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
     enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
-    chromatic: Boolean,
-    onSelect: (Tuning) -> Unit,
+    onSelect: (TuningEntry) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
-    onSelectChromatic: () -> Unit,
     editModeEnabled: Boolean
 ) {
     LookaheadScope {
@@ -102,11 +100,11 @@ fun TuningSelector(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (editModeEnabled && !chromatic) {
+            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
                 // Tune Down Button
                 IconButton(
                     onClick = onTuneDown,
-                    enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
                 }
@@ -117,7 +115,7 @@ fun TuningSelector(
             ExposedDropdownMenuBox(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = if (!editModeEnabled || chromatic) 16.dp else 0.dp),
+                    .padding(horizontal = if (!editModeEnabled || tuning is TuningEntry.InstrumentTuning) 16.dp else 0.dp),
                 expanded = expanded && enabled,
                 onExpandedChange = {
                     if (openDirect) onOpenTuningSelector()
@@ -128,11 +126,10 @@ fun TuningSelector(
                 CurrentTuningField(
                     modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
                     tuning = tuning,
-                    customTunings = customTunings,
+                    getCustomName,
                     expanded = expanded,
                     showExpanded = enabled,
-                    compact,
-                    chromatic
+                    compact
                 )
 
                 // Dropdown Menu
@@ -140,21 +137,6 @@ fun TuningSelector(
                     expanded = expanded && enabled,
                     onDismissRequest = { expanded = false }
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            TwoLineItem(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                compact = compact,
-                                title = stringResource(R.string.chromatic),
-                                label = stringResource(R.string.chromatic_desc),
-                                fontWeight = FontWeight.Normal,
-                            )
-                        },
-                        onClick = {
-                            onSelectChromatic()
-                            expanded = false
-                        }
-                    )
                     for (tuningOption in favTunings.value) {
                         DropdownMenuItem(
                             text = {
@@ -162,7 +144,7 @@ fun TuningSelector(
                                     modifier = Modifier.padding(vertical = 8.dp),
                                     tuning = tuningOption,
                                     fontWeight = FontWeight.Normal,
-                                    customTunings = customTunings
+                                    getCustomName = getCustomName
                                 )
                             },
                             onClick = {
@@ -182,11 +164,11 @@ fun TuningSelector(
                 }
             }
 
-            if (editModeEnabled && !chromatic) {
+            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
                 // Tune Up Button
                 IconButton(
                     onClick = onTuneUp,
-                    enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.tune_up))
                 }
@@ -199,7 +181,7 @@ fun TuningSelector(
  * Outlined dropdown box field showing the current tuning.
  *
  * @param tuning The current guitar tuning.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCustomName
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
  * @param compact Whether to show the compact version of the tuning.
@@ -208,12 +190,11 @@ fun TuningSelector(
 @Composable
 private fun CurrentTuningField(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
-    customTunings: State<Set<Tuning>>,
+    tuning: TuningEntry,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
     expanded: Boolean,
     showExpanded: Boolean,
-    compact: Boolean,
-    chromatic: Boolean
+    compact: Boolean
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -230,23 +211,13 @@ private fun CurrentTuningField(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (chromatic) {
-                TwoLineItem(
-                    modifier = Modifier.weight(1f),
-                    compact = compact,
-                    title = stringResource(R.string.chromatic),
-                    label = stringResource(R.string.chromatic_desc),
-                    fontWeight = FontWeight.Bold
-                )
-            } else {
-                TuningItem(
-                    modifier = Modifier.weight(1f),
-                    compact = compact,
-                    tuning = tuning,
-                    customTunings = customTunings,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            TuningItem(
+                modifier = Modifier.weight(1f),
+                compact = compact,
+                tuning = tuning,
+                getCustomName = getCustomName,
+                fontWeight = FontWeight.Bold
+            )
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
@@ -258,9 +229,9 @@ private fun CurrentTuningField(
  * @param modifier The modifier to apply to this layout.
  * @param tuning The tuning to display.
  * @param fontWeight The font weight of the tuning name text.
- * @param customTunings Set of custom tunings added by the user.
  * @param horizontalAlignment The horizontal alignment of the text.
  * @param compact Whether to show the compact version of the tuning.
+ * @param getCustomName
  *
  * @author Rohan Khayech
  */
@@ -268,66 +239,48 @@ private fun CurrentTuningField(
 fun TuningItem(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
-    tuning: Tuning,
+    tuning: TuningEntry,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    customTunings: State<Set<Tuning>>,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
 ) {
-    val tuningName = remember(tuning, customTunings) {
-        if (tuning.hasName()) {
-            tuning.name
-        } else {
-            tuning.findEquivalentIn(customTunings.value + Tunings.TUNINGS)?.name
-                ?: tuning.toString()
-        }
+    val tuningName = when (tuning) {
+        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
+        is TuningEntry.InstrumentTuning ->
+            if (tuning.tuning.hasName()) {
+                tuning.tuning.name
+            } else {
+                tuning.getCustomName()
+            }
     }
 
     val strings = remember(tuning) {
-        tuning.strings
-            .reversed()
-            .joinToString(
+        tuning.tuning?.strings
+            ?.reversed()
+            ?.joinToString(
                 separator = if (!compact) ", " else "",
             ) { if (compact) it.toString() else it.toFullString() }
+    } ?: ""
+
+    val desc = when (tuning) {
+        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
+        is TuningEntry.InstrumentTuning -> strings
     }
 
-    TwoLineItem(modifier, compact, tuningName, strings, fontWeight, horizontalAlignment)
-}
-
-/**
- * UI component displaying the name and strings of the specified tuning.
- *
- * @param modifier The modifier to apply to this layout.
- * @param title The title to display.
- * @param label The label to display under the title.
- * @param fontWeight The font weight of the tuning name text.
- * @param horizontalAlignment The horizontal alignment of the text.
- * @param compact Whether to show the compact version of the tuning.
- *
- * @author Rohan Khayech
- */
-@Composable
-fun TwoLineItem(
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-    title: String,
-    label: String,
-    fontWeight: FontWeight,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = horizontalAlignment
     ) {
         Text(
-            title,
+            tuningName,
             style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
             fontWeight = fontWeight,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            label,
+            desc,
             style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -342,9 +295,8 @@ private fun Preview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
@@ -352,8 +304,7 @@ private fun Preview() {
             onOpenTuningSelector = {},
             editModeEnabled = true,
             compact = false,
-            chromatic = false,
-            onSelectChromatic = {}
+            getCustomName = { this.tuning.toString() }
         )
     }
 }
@@ -364,18 +315,16 @@ private fun EditOffPreview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
+            getCustomName = { this.tuning.toString() },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
             onTuneUp = {},
             onOpenTuningSelector = {},
             editModeEnabled = false,
-            compact = false,
-            chromatic = true,
-            onSelectChromatic = {}
+            compact = false
         )
     }
 }
@@ -387,8 +336,8 @@ private fun TuningItemPreview() {
     PreviewWrapper {
         TuningItem(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            getCustomName = { this.tuning.toString() },
             fontWeight = FontWeight.Bold
         )
     }

@@ -50,6 +50,7 @@ import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.choona.view.screens.MainLayout
@@ -126,8 +127,16 @@ class TunerActivity : ComponentActivity() {
 
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
-                    InitialTuningType.PINNED -> setTuning(vm.tuningList.pinned.value)
-                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let { setTuning(it) }
+                    InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
+                        is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
+                        is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                    }
+                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
+                        when (it) {
+                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                            is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+                    }
                 }
             }
         }
@@ -165,7 +174,6 @@ class TunerActivity : ComponentActivity() {
                     val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
                     val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
-                    val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
                     val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
                     // Calculate window size/orientation
@@ -196,7 +204,7 @@ class TunerActivity : ComponentActivity() {
                         windowSizeClass = windowSizeClass,
                         compact = compact,
                         expanded = expanded,
-                        tuning = tuning,
+                        tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
                         noteOffset = noteOffset,
                         selectedString = selectedString,
                         selectedNote = selectedNote,
@@ -205,7 +213,11 @@ class TunerActivity : ComponentActivity() {
                         autoDetect = autoDetect,
                         chromatic = chromatic,
                         favTunings = favTunings,
-                        customTunings = customTunings,
+                        getCustomName = {
+                            vm.tuningList.run {
+                                this@MainLayout.getCustomName()
+                            }
+                        },
                         prefs = prefs,
                         tuningList = vm.tuningList,
                         tuningSelectorOpen = tuningSelectorOpen,
@@ -450,7 +462,7 @@ class TunerActivity : ComponentActivity() {
     /** Opens the tuner settings activity. */
     private fun openSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.fullName)
+        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.name)
         startActivity(intent)
     }
 
@@ -504,24 +516,24 @@ class TunerActivityViewModel : ViewModel() {
         // Update the tuning list when the tuner's tuning is updated.
         viewModelScope.launch {
             tuner.tuning.collect {
-                tuningList.setCurrent(it)
+                tuningList.setCurrent(TuningEntry.InstrumentTuning(it))
             }
         }
         viewModelScope.launch {
             tuner.chromatic.collect {
-                tuningList.setChromatic(it)
+                tuningList.setCurrent(TuningEntry.ChromaticTuning)
             }
         }
 
         // Update tuner when the current selection in the tuning list is updated.
         viewModelScope.launch {
             tuningList.current.collect {
-                it?.let { tuner.setTuning(it) }
-            }
-        }
-        viewModelScope.launch {
-            tuningList.chromatic.collect {
-                tuner.setChromatic(it)
+                it?.let {
+                    when (it) {
+                        is TuningEntry.InstrumentTuning -> tuner.setTuning(it.tuning)
+                        is TuningEntry.ChromaticTuning -> tuner.setChromatic(true)
+                    }
+                }
             }
         }
     }

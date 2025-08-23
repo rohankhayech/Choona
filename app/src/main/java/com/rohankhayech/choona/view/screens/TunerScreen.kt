@@ -99,6 +99,7 @@ import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
@@ -109,7 +110,6 @@ import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
 import com.rohankhayech.choona.view.components.TuningSelector
-import com.rohankhayech.choona.view.components.TwoLineItem
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
 
@@ -125,7 +125,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCustomName
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -149,7 +149,7 @@ fun TunerScreen(
     compact: Boolean = false,
     expanded: Boolean = false,
     windowSizeClass: WindowSizeClass,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -157,8 +157,8 @@ fun TunerScreen(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    favTunings: State<Set<TuningEntry>>,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -188,9 +188,8 @@ fun TunerScreen(
                 CompactAppBar(
                     scrollBehavior,
                     tuning = tuning,
-                    customTunings = customTunings,
-                    onConfigurePressed = onConfigurePressed,
-                    chromatic = chromatic
+                    getCustomName = getCustomName,
+                    onConfigurePressed = onConfigurePressed
                 )
             }
         }
@@ -208,7 +207,7 @@ fun TunerScreen(
             autoDetect,
             chromatic,
             favTunings,
-            customTunings,
+            getCustomName,
             prefs,
             editModeEnabled,
             onSelectString,
@@ -314,7 +313,7 @@ fun TunerScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(vertical = 8.dp),
-                            tuning = tuning,
+                            tuning = tuning.tuning!!,
                             selectedString = selectedString,
                             tuned = tuned,
                             onSelect = onSelectString,
@@ -359,7 +358,7 @@ private typealias TunerBodyLayout = @Composable (
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCustomName
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -376,7 +375,7 @@ private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
     expanded: Boolean,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -384,8 +383,8 @@ private fun TunerBodyScaffold(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    favTunings: State<Set<TuningEntry>>,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
@@ -450,7 +449,7 @@ private fun TunerBodyScaffold(
                 StringControls(
                     modifier = modifier,
                     inline = inline,
-                    tuning = tuning,
+                    tuning = tuning.tuning!!,
                     selectedString = selectedString,
                     tuned = tuned,
                     onSelect = onSelectString,
@@ -473,18 +472,22 @@ private fun TunerBodyScaffold(
             TuningSelector(
                 modifier = modifier,
                 tuning = tuning,
-                chromatic = chromatic,
                 favTunings = favTunings,
-                customTunings = customTunings,
+                getCustomName,
                 openDirect = false,
-                onSelect = onSelectTuning,
+                onSelect = {
+                    if (it is TuningEntry.InstrumentTuning) {
+                        onSelectTuning(it.tuning)
+                    } else {
+                        onSelectChromatic()
+                    }
+                },
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
                 enabled = !expanded,
                 editModeEnabled = editModeEnabled,
-                compact = compact,
-                onSelectChromatic = onSelectChromatic
+                compact = compact
             )
         }
     )
@@ -677,39 +680,27 @@ private fun AppBarActions(
  * App bar for the tuning screen in compact layout.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
- * @param customTunings Set of custom tunings.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
-    tuning: Tuning,
-    customTunings: State<Set<Tuning>>,
-    chromatic: Boolean
+    tuning: TuningEntry,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
         },
         title = {
-            if (chromatic) {
-                TwoLineItem(
-                    compact = true,
-                    title = stringResource(R.string.chromatic),
-                    label = stringResource(R.string.chromatic_desc),
-                    fontWeight = FontWeight.Bold,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                )
-            } else {
-                TuningItem(
-                    tuning = tuning,
-                    compact = true,
-                    customTunings = customTunings,
-                    fontWeight = FontWeight.Bold,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                )
-            }
+            TuningItem(
+                tuning = tuning,
+                compact = true,
+                getCustomName = getCustomName,
+                fontWeight = FontWeight.Bold,
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
         },
         actions = {
             // Configure tuning button.
@@ -790,7 +781,7 @@ private fun BasePreview(
             compact,
             expanded = false,
             windowSizeClass,
-            tuning = Tunings.HALF_STEP_DOWN,
+            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
             noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
             selectedNote = -28,
@@ -799,7 +790,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            getCustomName = { this.tuning.toString() },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,

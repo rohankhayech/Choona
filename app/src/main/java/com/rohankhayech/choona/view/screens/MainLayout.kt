@@ -41,6 +41,7 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
 
@@ -57,7 +58,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCustomName
  * @param prefs User preferences for the tuner.
  * @param tuningList State holder for the tuning list.
  * @param tuningSelectorOpen Whether the tuning selection panel is open.
@@ -86,7 +87,7 @@ fun MainLayout(
     windowSizeClass: WindowSizeClass,
     compact: Boolean,
     expanded: Boolean,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -94,8 +95,8 @@ fun MainLayout(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    favTunings: State<Set<TuningEntry>>,
+    getCustomName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
@@ -136,7 +137,7 @@ fun MainLayout(
                     autoDetect,
                     chromatic,
                     favTunings,
-                    customTunings,
+                    getCustomName,
                     prefs,
                     onSelectString,
                     onSelectTuning,
@@ -191,7 +192,7 @@ fun MainLayout(
                 autoDetect,
                 chromatic,
                 favTunings,
-                customTunings,
+                getCustomName,
                 prefs,
                 onSelectString,
                 onSelectTuning,
@@ -220,7 +221,7 @@ fun MainLayout(
                 chromatic,
                 selectedNote = selectedNote,
                 favTunings = favTunings,
-                customTunings = customTunings,
+                getCustomName = getCustomName,
                 onTuneUpString = onTuneUpString,
                 onTuneDownString = onTuneDownString,
                 onTuneUpTuning = onTuneUpTuning,
