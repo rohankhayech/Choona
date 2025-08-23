@@ -54,7 +54,7 @@ class TuningListTest {
     @Test
     fun testConstructor() {
         val tl = TuningList(Tuning.STANDARD)
-        assertSame(Tuning.STANDARD, tl.current.value)
+        assertSame(TuningEntry.InstrumentTuning(Tuning.STANDARD), tl.current.value)
     }
 
     @Test
@@ -64,56 +64,56 @@ class TuningListTest {
 
         // Test not in list.
         var new = Tuning.fromString("E2")
-        tuningList.setCurrent(new)
-        assertSame(new, tuningList.current.value)
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
+        assertEquals(TuningEntry.InstrumentTuning(new), tuningList.current.value)
 
         // Test equiv in list.
         new = Tuning.fromString("E4 B3 G3 D3 A2 E2")
-        tuningList.setCurrent(new)
-        assertSame(Tuning.STANDARD, tuningList.current.value)
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
+        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.current.value)
     }
 
     @Test
     fun testFavourites() {
         // Test default value.
-        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
+        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
 
         // Test set fav
-        tuningList.setFavourited(Tuning.DROP_D, true)
-        assertEquals(setOf(Tuning.STANDARD, Tuning.DROP_D), tuningList.favourites.value)
+        tuningList.setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), true)
+        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning, TuningEntry.InstrumentTuning(Tuning.DROP_D)), tuningList.favourites.value)
 
         // Test set unfav
-        tuningList.setFavourited(Tuning.DROP_D, false)
-        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
+        tuningList.setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), false)
+        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
     }
 
     @Test
     fun testCustom() {
         // Test default value.
-        assertEquals(emptySet<Tuning>(), tuningList.custom.value)
+        assertEquals(emptySet<TuningEntry.InstrumentTuning>(), tuningList.custom.value)
 
         // Setup
-        tuningList.setCurrent(Tuning.STANDARD)
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
 
         // Test add custom.
         val new = Tuning.fromString("E2")
         val named = Tuning.fromString("New", Tuning.DEFAULT_INSTRUMENT, null, "E2")
         tuningList.addCustom("New", new)
-        assertEquals(setOf(named), tuningList.custom.value)
-        assertEquals(Tuning.STANDARD, tuningList.current.value)
+        assertEquals(setOf(TuningEntry.InstrumentTuning(named)), tuningList.custom.value)
+        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.current.value)
         tuningList.removeCustom(named)
 
         // Test add custom with equiv current
-        tuningList.setCurrent(new)
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
         tuningList.addCustom("New", new)
-        assertEquals(named, tuningList.current.value)
+        assertEquals(TuningEntry.InstrumentTuning(named), tuningList.current.value)
 
         // Test remove custom
-        tuningList.setFavourited(named, true)
+        tuningList.setFavourited(TuningEntry.InstrumentTuning(named), true)
         tuningList.removeCustom(named)
-        assertEquals(emptySet<Tuning>(), tuningList.custom.value)
-        assertEquals(setOf(Tuning.STANDARD), tuningList.favourites.value)
-        assertEquals(new, tuningList.current.value)
+        assertEquals(emptySet<TuningEntry.InstrumentTuning>(), tuningList.custom.value)
+        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
+        assertEquals(TuningEntry.InstrumentTuning(new), tuningList.current.value)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -217,7 +217,7 @@ class TuningListTest {
         }
 
         // Test initial
-        var expected = Instrument.values().dropLast(1).associateWith { true }
+        var expected = Instrument.entries.dropLast(1).associateWith { true }
         assertEquals(expected, tuningList.instrumentFilters.value)
 
         // Test compatible filter.
@@ -245,7 +245,7 @@ class TuningListTest {
         }
 
         // Test initial
-        var expected = Category.values().associateWith { true }
+        var expected = Category.entries.associateWith { true }
         assertEquals(expected, tuningList.categoryFilters.value)
 
         // Test compatible filter.
@@ -293,7 +293,7 @@ class TuningListTest {
         val newList = TuningList()
         assertEquals(tuningList, newList)
 
-        newList.setCurrent(Tuning.STANDARD)
+        newList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
         assertNotEquals(tuningList, newList)
     }
 
@@ -320,7 +320,7 @@ class TuningListTest {
             (Instrument.BASS to Category.POWER) to listOf(bassPower)
         )
 
-        val grouped = with (TuningList) { tunings.groupAndSort() }
+        val grouped = with (TuningList) { tunings.map { TuningEntry.InstrumentTuning(it) }.groupAndSort() }
 
         assertEquals(expectedGroups, grouped)
     }

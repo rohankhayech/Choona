@@ -45,6 +45,10 @@ sealed class TuningEntry(
     object ChromaticTuning: TuningEntry("Chromatic") {
         override val tuning: Tuning? = null
         override val key: String = "chromatic"
+
+        override fun toString(): String {
+            return "Chromatic Tuning"
+        }
     }
 
     /** An instrument tuning. */
@@ -58,13 +62,15 @@ sealed class TuningEntry(
         override fun equals(other: Any?): Boolean {
             if (other === this) return true
             if (other !is InstrumentTuning) return false
-
-            val o = other
-            return tuning == o.tuning
+            return tuning == other.tuning
         }
 
         override fun hashCode(): Int {
              return tuning.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Instrument Tuning: $tuning"
         }
     }
 }

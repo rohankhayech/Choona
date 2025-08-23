@@ -17,6 +17,7 @@
  */
 package com.rohankhayech.choona.controller.fileio
 
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.music.Tuning
 import org.json.JSONException
 import org.json.JSONObject
@@ -32,20 +33,20 @@ class TuningFileIOTest {
     @Test
     fun testParseTunings() {
         val tunings = TuningFileIO.parseTunings(TUNINGS_JSON)
-        val expected: MutableSet<Tuning> = LinkedHashSet()
-        expected.add(Tuning.STANDARD)
-        expected.add(Tuning.DROP_D)
-        expected.add(Tuning.fromString("G3 D3 A2 E2"))
+        val expected: MutableSet<TuningEntry> = LinkedHashSet()
+        expected.add(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        expected.add(TuningEntry.InstrumentTuning(Tuning.DROP_D))
+        expected.add(TuningEntry.InstrumentTuning(Tuning.fromString("G3 D3 A2 E2")))
         Assert.assertEquals(expected, tunings)
     }
 
     @Test
     @Throws(JSONException::class)
     fun testEncodeTunings() {
-        val tunings: MutableSet<Tuning> = LinkedHashSet()
-        tunings.add(Tuning.STANDARD)
-        tunings.add(Tuning.DROP_D)
-        tunings.add(Tuning.fromString("G3 D3 A2 E2"))
+        val tunings: MutableSet<TuningEntry> = LinkedHashSet()
+        tunings.add(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        tunings.add(TuningEntry.InstrumentTuning(Tuning.DROP_D))
+        tunings.add(TuningEntry.InstrumentTuning(Tuning.fromString("G3 D3 A2 E2")))
         val json = TuningFileIO.encodeTunings(tunings)
         Assert.assertEquals(JSONObject(TUNINGS_JSON).toString(), JSONObject(json).toString())
     }

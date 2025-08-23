@@ -269,7 +269,6 @@ class TuningList(
 
     /** @return Whether this tuning is favourited in the tuning list. */
     fun TuningEntry.isFavourite(): Boolean {
-        println("this.tuning ${this.tuning} hasEquivalentIn ${instrFavs.value}: ${this.tuning?.hasEquivalentIn(instrFavs.value)}")
         return (this is TuningEntry.ChromaticTuning && favourites.value.contains(this)) ||
             this.tuning?.hasEquivalentIn(instrFavs.value) == true
     }
