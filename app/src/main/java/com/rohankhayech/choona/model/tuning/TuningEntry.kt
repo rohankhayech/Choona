@@ -54,5 +54,17 @@ sealed class TuningEntry(
     ): TuningEntry(if (tuning.hasName()) tuning.name else null) {
         override val key: String
             get() = "${tuning.instrument}-[${tuning.toFullString()}]"
+
+        override fun equals(other: Any?): Boolean {
+            if (other === this) return true
+            if (other !is InstrumentTuning) return false
+
+            val o = other
+            return tuning == o.tuning
+        }
+
+        override fun hashCode(): Int {
+             return tuning.hashCode()
+        }
     }
 }
