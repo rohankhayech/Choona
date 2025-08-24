@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.view.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -40,24 +41,34 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mikepenz.aboutlibraries.ui.compose.android.rememberLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
+import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
+import kotlinx.coroutines.launch
 
 /**
  * UI screen displaying version, copyright and license information about the app.
@@ -67,10 +78,14 @@ import com.rohankhayech.choona.view.theme.AppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
+    prefs: TunerPreferences,
     onLicencesPressed: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onReviewOptOut: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val snackbarHost = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -88,6 +103,9 @@ fun AboutScreen(
                 },
                 scrollBehavior = scrollBehavior
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHost)
         }
     ) { padding ->
         Column(
@@ -128,6 +146,30 @@ fun AboutScreen(
 
             SectionLabel(stringResource(R.string.help_feedback))
             LinkListItem(text = stringResource(R.string.send_feedback), url = "https://github.com/rohankhayech/Choona/issues/new/choose")
+            LinkListItem(text = stringResource(R.string.rate_app), url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona")
+
+            AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
+                ListItem(
+                    headlineContent =  { Text(stringResource(R.string.pref_review_opt_out)) },
+                    supportingContent =  { Text(stringResource(R.string.pref_review_opt_out_desc)) },
+                    trailingContent = {
+                        val optedOutMsg = stringResource(R.string.review_opted_out)
+                        Switch(
+                            checked = !prefs.showReviewPrompt,
+                            onCheckedChange = {
+                                onReviewOptOut()
+
+                                coroutineScope.launch {
+                                    snackbarHost.showSnackbar(
+                                        message = optedOutMsg,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -173,7 +215,9 @@ fun LicencesScreen(
             )
         }
     ) { padding ->
+        val libs by rememberLibraries()
         LibrariesContainer(
+            libraries = libs,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -187,7 +231,7 @@ fun LicencesScreen(
 @Preview
 @Composable
 private fun Preview() {
-    AppTheme { AboutScreen({}) {} }
+    AppTheme { AboutScreen(TunerPreferences(), {}, {}, {}) }
 }
 
 /** Preview */
