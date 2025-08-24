@@ -108,4 +108,8 @@
     <string name="error_title">Error</string>
     <string name="error_description">Sorry, the following error occurred preventing the tuner from running:</string>
     <string name="error_action_call">Please restart the application to retry.</string>
+    <string name="pref_review_opt_out">Opt-out of review prompts</string>
+    <string name="pref_review_opt_out_desc">Don\'t ask me to review the app again.</string>
+    <string name="rate_app">Rate and review</string>
+    <string name="review_opted_out">You won\'t be asked to review the app again.</string>
 </resources>
