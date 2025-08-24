@@ -72,7 +72,10 @@ import kotlinx.coroutines.launch
 
 /**
  * UI screen displaying version, copyright and license information about the app.
+ * @param prefs User preferences for the tuner.
+ * @param onLicencesPressed Called when the licenses item is pressed
  * @param onBackPressed Called when the back navigation button is pressed.
+ * @param onReviewOptOut Called when the user opts out of review prompts.
  * @author Rohan Khayech
  */
 @OptIn(ExperimentalMaterial3Api::class)

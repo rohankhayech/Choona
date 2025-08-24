@@ -36,6 +36,8 @@ import androidx.datastore.preferences.preferencesDataStore
  * @property useDynamicColor Whether to use dynamic color for the app theme.
  * @property editModeDefault Whether to enable tuning edit functionality.
  * @property initialTuning The default tuning used when opening the app.
+ * @property showReviewPrompt Whether the user can be prompted for a review.
+ * @property reviewPromptLaunches Number of times the review prompt has been shown.
  *
  * @author Rohan Khayech
  */

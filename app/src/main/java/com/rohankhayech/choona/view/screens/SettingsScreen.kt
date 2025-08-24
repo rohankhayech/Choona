@@ -69,8 +69,9 @@ import com.rohankhayech.music.Tuning
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
  * @param onSetUseBlackTheme Called when the user toggles the full black theme.
  * @param onSetUseDynamicColor Called when the user toggles the dynamic color feature.
- * @param onSelectInitialTuning Called when the user selects the initial tuning type.
  * @param onToggleEditModeDefault Called when the user toggles the edit mode feature.
+ * @param onSelectInitialTuning Called when the user selects the initial tuning type.
+ * @param onAboutPressed Called when the user presses the about option.
  * @param onBackPressed Called when the user presses the back navigation button.
  *
  * @author Rohan Khayech
