@@ -15,6 +15,7 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
 composeBom = "2025.08.00"
+reviewKtx = "2.0.2"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
@@ -45,6 +46,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme-m3", version.ref = "androidUtils" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "reviewKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

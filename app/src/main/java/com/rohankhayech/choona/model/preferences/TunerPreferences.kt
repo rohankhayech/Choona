@@ -49,6 +49,7 @@ data class TunerPreferences(
     val useDynamicColor: Boolean = DEFAULT_USE_DYNAMIC_COLOR,
     val editModeDefault: Boolean = DEFAULT_EDIT_MODE_DEFAULT,
     val initialTuning: InitialTuningType = DEFAULT_INITIAL_TUNING,
+    val reviewPromptLaunches: Int = 0
 ) {
     companion object {
         // Keys
@@ -60,6 +61,7 @@ data class TunerPreferences(
         val USE_DYNAMIC_COLOR_KEY = booleanPreferencesKey("use_dynamic_color")
         val EDIT_MODE_DEFAULT_KEY = booleanPreferencesKey("edit_mode_default")
         val INITIAL_TUNING_KEY = stringPreferencesKey("initial_tuning")
+        val REVIEW_PROMPT_LAUNCHES_KEY = stringPreferencesKey("review_prompt_launches")
 
         // Defaults
         const val DEFAULT_ENABLE_STRING_SELECT_SOUND = true
@@ -70,6 +72,8 @@ data class TunerPreferences(
         const val DEFAULT_EDIT_MODE_DEFAULT = false
         val DEFAULT_INITIAL_TUNING = InitialTuningType.PINNED
         const val DEFAULT_USE_DYNAMIC_COLOR = false
+        /** Maximum number of times to prompt the user for a review. */
+        const val REVIEW_PROMPT_ATTEMPTS = 3
 
         /**
          * Maps the specified android [preferences][prefs] to a [TunerPreferences] object.
@@ -84,6 +88,8 @@ data class TunerPreferences(
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR_KEY] ?: DEFAULT_USE_DYNAMIC_COLOR,
                 editModeDefault = prefs[EDIT_MODE_DEFAULT_KEY] ?: DEFAULT_EDIT_MODE_DEFAULT,
                 initialTuning = prefs[INITIAL_TUNING_KEY]?.let { InitialTuningType.valueOf(it) } ?: DEFAULT_INITIAL_TUNING
+                initialTuning = prefs[INITIAL_TUNING_KEY]?.let { InitialTuningType.valueOf(it) } ?: DEFAULT_INITIAL_TUNING,
+                reviewPromptLaunches = prefs[REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0
             )
         }
     }

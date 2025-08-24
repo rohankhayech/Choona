@@ -321,7 +321,7 @@ private fun Preview() {
             onToggleEditModeDefault = {},
             onSelectInitialTuning = {},
             onAboutPressed = {},
-            onBackPressed = {},
+            onBackPressed = {}
         )
     }
 }

@@ -39,16 +39,23 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
@@ -57,6 +64,7 @@ import com.rohankhayech.choona.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -92,6 +100,9 @@ class TunerActivity : ComponentActivity() {
 
     /** Callback used to dismiss configure tuning panel when the back button is pressed. */
     private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
+
+    /** Google Play review manager. */
+    private lateinit var manager: ReviewManager
 
     /**
      * Called when activity is created.
@@ -144,6 +155,8 @@ class TunerActivity : ComponentActivity() {
             dismissTuningSelector()
         }
 
+        manager = ReviewManagerFactory.create(this)
+
         // Set UI content.
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
@@ -185,6 +198,22 @@ class TunerActivity : ComponentActivity() {
                     // Dismiss tuning selector when switching to expanded view.
                     LaunchedEffect(expanded, tuningSelectorOpen) {
                         if (tuningSelectorOpen && expanded) dismissTuningSelector()
+                    }
+
+                    // Launch review prompt after tuning if conditions met.
+                    var askedForReview by rememberSaveable { mutableStateOf(false) }
+                    LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
+                        if (
+                            !askedForReview  // Only ask once per app session.
+                            && prefs.showReviewPrompt  // Do not ask if user has disabled.
+                            && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
+                            && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
+                            && Math.random() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
+                        ) {
+                            delay(1000)
+                            launchReviewPrompt()
+                            askedForReview = true
+                        }
                     }
 
                     // Display UI content.
@@ -418,6 +447,29 @@ class TunerActivity : ComponentActivity() {
             )
         )
     }
+
+    /** Launches a prompt for the user to review the app on Google Play. */
+    private fun launchReviewPrompt() {
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val reviewInfo = task.result
+                manager.launchReviewFlow(this, reviewInfo)
+                    .addOnCompleteListener {
+                        // Increment launches counter.
+                        lifecycleScope.launch {
+                            tunerPreferenceDataStore.edit { prefs ->
+                                prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY] = (
+                                    (prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0)
+                                        + 1
+                                ).toString()
+                            }
+                        }
+
+                    }
+            }
+        }
+    }
 }
 
 /** View model used to hold the current tuner and UI state. */
@@ -500,3 +552,6 @@ class TunerActivityViewModel : ViewModel() {
         tuner.setTuning(tuning)
     }
 }
+
+/** Probability of showing the review prompt once all strings are in tune. */
+private const val REVIEW_PROMPT_CHANCE = 0.3
