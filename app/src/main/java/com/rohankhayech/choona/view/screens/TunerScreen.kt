@@ -93,6 +93,8 @@ import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.StatusBarColor
+import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
@@ -104,8 +106,6 @@ import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
 import com.rohankhayech.choona.view.components.NoteSelector
-import com.rohankhayech.choona.view.components.StatusBarColor
-import com.rohankhayech.choona.view.components.StatusBarIconColor
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
