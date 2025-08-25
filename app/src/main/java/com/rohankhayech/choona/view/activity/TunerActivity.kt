@@ -51,6 +51,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
@@ -134,7 +135,7 @@ class TunerActivity : ComponentActivity() {
 
             // Initialize edit mode and initial tuning state from preferences only on app load.
             if (firstLoad) prefs.firstOrNull()?.let { preferences ->
-                vm.toggleEditMode(preferences.editModeDefault)
+                vm.setEditMode(preferences.editModeDefault)
 
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
@@ -286,7 +287,7 @@ class TunerActivity : ComponentActivity() {
                         onSelectChromaticFromList = ::selectChromatic,
                         onDismissTuningSelector = ::dismissTuningSelector,
                         onDismissConfigurePanel = ::dismissConfigurePanel,
-                        onEditModeChanged = vm::toggleEditMode,
+                        onEditModeChanged = vm::setEditMode,
                         editModeEnabled = editModeEnabled
                     )
                 } else if (!granted) {
@@ -490,8 +491,14 @@ class TunerActivity : ComponentActivity() {
 
     /** Opens the tuner settings activity. */
     private fun openSettings() {
+        val pinnedName = when (val current = vm.tuningList.current.value) {
+            is TuningEntry.InstrumentTuning -> current.tuning.fullName
+            is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+            null -> null
+        }
+
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.name)
+        intent.putExtra(SettingsActivity.EXTRA_PINNED, pinnedName)
         startActivity(intent)
     }
 
@@ -558,8 +565,8 @@ class TunerActivityViewModel : ViewModel() {
     /** Whether the edit mode is currently enabled. */
     val editModeEnabled = _editModeEnabled.asStateFlow()
 
-    /** Toggles the edit mode state. */
-    fun toggleEditMode(enabled: Boolean) {
+    /** Sets the edit mode state. */
+    fun setEditMode(enabled: Boolean) {
         _editModeEnabled.update { enabled }
     }
 

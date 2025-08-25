@@ -104,9 +104,9 @@ class TunerActivityViewModelTest {
 
     @Test
     fun testEditModeToggle() {
-        vm.toggleEditMode(true)
+        vm.setEditMode(true)
         assertTrue(vm.editModeEnabled.value)
-        vm.toggleEditMode(false)
+        vm.setEditMode(false)
         assertFalse(vm.editModeEnabled.value)
     }
 }
