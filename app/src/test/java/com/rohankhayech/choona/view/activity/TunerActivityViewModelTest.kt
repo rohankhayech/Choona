@@ -50,7 +50,7 @@ class TunerActivityViewModelTest {
 
     @Test
     fun testInitial() {
-        assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
+        assertEquals(TuningEntry.InstrumentTuning(vm.tuner.tuning.value), vm.tuningList.current.value)
         assertFalse(vm.tuningSelectorOpen.value)
         assertFalse(vm.configurePanelOpen.value)
         assertFalse(vm.editModeEnabled.value)
