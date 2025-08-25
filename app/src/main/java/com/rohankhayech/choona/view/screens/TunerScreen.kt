@@ -125,7 +125,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName
+ * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -358,7 +358,7 @@ private typealias TunerBodyLayout = @Composable (
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName
+ * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -678,8 +678,10 @@ private fun AppBarActions(
 
 /**
  * App bar for the tuning screen in compact layout.
+ * @param scrollBehavior Scroll behavior for the app bar.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
+ * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

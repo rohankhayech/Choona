@@ -58,7 +58,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName
+ * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param tuningList State holder for the tuning list.
  * @param tuningSelectorOpen Whether the tuning selection panel is open.

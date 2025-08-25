@@ -70,7 +70,7 @@ import com.rohankhayech.choona.view.theme.AppTheme
  *
  * @param tuning Guitar tuning used for comparison.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName
+ * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.

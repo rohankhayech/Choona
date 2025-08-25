@@ -273,7 +273,7 @@ class TuningList(
             this.tuning?.hasEquivalentIn(instrFavs.value) == true
     }
 
-    /** @return Whether this tuning is saved with a custom name in the tuning list. */
+    /** @return The name of this tuning if it is saved as a custom tuning. */
     fun TuningEntry.InstrumentTuning.getCustomName(): String {
         return this.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
             ?: this.tuning.toString()
