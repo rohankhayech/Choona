@@ -572,8 +572,13 @@ class TunerActivityViewModel : ViewModel() {
             }
         }
         viewModelScope.launch {
-            tuner.chromatic.collect {
-                tuningList.setCurrent(TuningEntry.ChromaticTuning)
+            tuner.chromatic.collect { chromatic ->
+                if (chromatic) {
+                    tuningList.setCurrent(TuningEntry.ChromaticTuning)
+                } else {
+                    // If switching back to the same instrument tuning, the tuning flow above will not emit, so update here.
+                    tuningList.setCurrent(TuningEntry.InstrumentTuning(tuner.tuning.value))
+                }
             }
         }
 
