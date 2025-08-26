@@ -220,7 +220,11 @@ object TuningFileIO {
             return TuningEntry.ChromaticTuning
         }
 
-        val instrument: Instrument? = Instrument.valueOf(instr)
+        val instrument: Instrument? = try {
+            Instrument.valueOf(instr)
+        } catch (_: IllegalArgumentException) {
+            Instrument.OTHER
+        }
 
         val categoryString = tuningObj.optString("category")
         val category = if (categoryString.isNotEmpty()) {
