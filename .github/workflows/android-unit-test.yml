@@ -3,20 +3,21 @@ name: Unit Test
 on:
   push:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', 'gradle.properties' ]
+    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
   pull_request:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', 'gradle.properties' ]
+    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
 
 jobs:
   build:
+    name: Unit Test
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
