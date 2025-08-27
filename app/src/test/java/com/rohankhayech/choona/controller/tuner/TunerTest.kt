@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,28 @@
 package com.rohankhayech.choona.controller.tuner
 
 import be.tarsos.dsp.pitch.PitchDetectionResult
+import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
 
 class TunerTest {
 
-    private val tuner = Tuner()
+    private lateinit var tuner: Tuner
+
+    @Before
+    fun setUp() {
+        tuner = Tuner()
+    }
 
     @Test
     fun testSelectString() {
@@ -52,8 +65,19 @@ class TunerTest {
         // Check reset tuned status on different string.
         assertFalse(tuner.tuned.value[5])
         for (i in 0..4) {
-            assertTrue(tuner.tuned.value[i])
+            try {
+                assertTrue(tuner.tuned.value[i])
+            } catch (e: AssertionError) {
+                fail("String $i should be tuned")
+            }
         }
+        assertFalse(tuner.chromatic.value)
+
+        tuner.setChromatic()
+        tuner.setTuning(Tunings.WHOLE_STEP_DOWN)
+
+        assertSame(Tunings.WHOLE_STEP_DOWN, tuner.tuning.value)
+        assertFalse(tuner.chromatic.value)
     }
 
     @Test
@@ -130,6 +154,26 @@ class TunerTest {
     }
 
     @Test
+    fun testSelectNote() {
+        tuner.setChromatic()
+        tuner.setTuned()
+
+        tuner.selectNote(Tuner.LOWEST_NOTE)
+        assertEquals(Tuner.LOWEST_NOTE, tuner.selectedNote.value)
+        assertFalse(tuner.noteTuned.value)
+
+        tuner.selectNote(Tuner.HIGHEST_NOTE)
+        assertEquals(Tuner.HIGHEST_NOTE, tuner.selectedNote.value)
+
+        tuner.setTuned()
+        tuner.selectNote(Tuner.HIGHEST_NOTE)
+        assertTrue(tuner.noteTuned.value)
+
+        assertThrows(IllegalArgumentException::class.java) { tuner.selectNote(Tuner.LOWEST_NOTE-1) }
+        assertThrows(IllegalArgumentException::class.java) { tuner.selectNote(Tuner.HIGHEST_NOTE+1) }
+    }
+
+    @Test
     fun testSetTuned() {
         tuner.setTuned()
         assertTrue(tuner.tuned.value[0])
@@ -170,6 +214,27 @@ class TunerTest {
         tuner.setAutoDetect(true)
         tuner.processPitch(PitchDetectionResult().apply { pitch = -1f; isPitched = false })
         assertEquals(0, tuner.selectedString.value)
+        assertNull(tuner.noteOffset.value) // Test not offset.
+
+        // Test chromatic with auto detect.
+        tuner.setChromatic()
+        tuner.setTuned()
+        tuner.setAutoDetect(true)
+        tuner.processPitch(PitchDetectionResult().apply { pitch = 452f; isPitched = true })
+        assertEquals(Notes.getIndex("A4"), tuner.selectedNote.value) // Test auto-detect.
+        assertEquals(0.466, tuner.noteOffset.value!!, 0.001) // Test note offset.
+        assertFalse(tuner.noteTuned.value)
+
+        // Test with auto detect off.
+        tuner.setAutoDetect(false)
+        tuner.processPitch(PitchDetectionResult().apply { pitch = 246.94f; isPitched = true })
+        assertEquals(Notes.getIndex("A4"), tuner.selectedNote.value) // Test no auto-detect.
+        assertEquals(-10.0, tuner.noteOffset.value!!, 0.001) // Test note offset.
+
+        // Test un-pitched.
+        tuner.setAutoDetect(true)
+        tuner.processPitch(PitchDetectionResult().apply { pitch = -1f; isPitched = false })
+        assertEquals(Notes.getIndex("A4"), tuner.selectedNote.value) // Test no change.
         assertNull(tuner.noteOffset.value) // Test not offset.
     }
 }

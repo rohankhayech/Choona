@@ -67,7 +67,7 @@ import com.rohankhayech.music.Tuning
  * @param modifier Modifier to be applied to the selector.
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param enabled Whether the selector is enabled. Defaults to true.
  * @param openDirect Whether to open the tuning selection screen directly instead of the favourites dropdown.
  * @param onSelect Called when a tuning is selected.
@@ -84,7 +84,7 @@ fun TuningSelector(
     modifier: Modifier = Modifier,
     tuning: TuningEntry,
     favTunings: State<Set<TuningEntry>>,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
@@ -127,7 +127,7 @@ fun TuningSelector(
                 CurrentTuningField(
                     modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
                     tuning = tuning,
-                    getCustomName,
+                    getCanonicalName,
                     expanded = expanded,
                     showExpanded = enabled,
                     compact
@@ -145,7 +145,7 @@ fun TuningSelector(
                                     modifier = Modifier.padding(vertical = 8.dp),
                                     tuning = tuningOption,
                                     fontWeight = FontWeight.Normal,
-                                    getCustomName = getCustomName
+                                    getCanonicalName = getCanonicalName
                                 )
                             },
                             onClick = {
@@ -182,7 +182,7 @@ fun TuningSelector(
  * Outlined dropdown box field showing the current tuning.
  *
  * @param tuning The current guitar tuning.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
  * @param compact Whether to show the compact version of the tuning.
@@ -192,7 +192,7 @@ fun TuningSelector(
 private fun CurrentTuningField(
     modifier: Modifier = Modifier,
     tuning: TuningEntry,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     expanded: Boolean,
     showExpanded: Boolean,
     compact: Boolean
@@ -216,7 +216,7 @@ private fun CurrentTuningField(
                 modifier = Modifier.weight(1f),
                 compact = compact,
                 tuning = tuning,
-                getCustomName = getCustomName,
+                getCanonicalName = getCanonicalName,
                 fontWeight = FontWeight.Bold
             )
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -232,7 +232,7 @@ private fun CurrentTuningField(
  * @param tuning The tuning to display.
  * @param fontWeight The font weight of the tuning name text.
  * @param horizontalAlignment The horizontal alignment of the text.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  *
  * @author Rohan Khayech
  */
@@ -243,7 +243,7 @@ fun TuningItem(
     tuning: TuningEntry,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
 ) {
     val tuningName = when (tuning) {
         is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
@@ -251,7 +251,7 @@ fun TuningItem(
             if (tuning.tuning.hasName()) {
                 tuning.tuning.name
             } else {
-                tuning.getCustomName()
+                tuning.getCanonicalName()
             }
     }
 
@@ -305,7 +305,7 @@ private fun Preview() {
             onOpenTuningSelector = {},
             editModeEnabled = true,
             compact = false,
-            getCustomName = { this.tuning.toString() }
+            getCanonicalName = { this.tuning.toString() }
         )
     }
 }
@@ -318,7 +318,7 @@ private fun EditOffPreview() {
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
             favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
-            getCustomName = { this.tuning.toString() },
+            getCanonicalName = { this.tuning.toString() },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
@@ -338,7 +338,7 @@ private fun TuningItemPreview() {
         TuningItem(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            getCustomName = { this.tuning.toString() },
+            getCanonicalName = { this.tuning.toString() },
             fontWeight = FontWeight.Bold
         )
     }

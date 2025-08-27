@@ -100,6 +100,23 @@ class TunerActivityViewModelTest {
         vm.tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
         testDispatcher.scheduler.runCurrent()
         assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+
+        vm.tuner.setChromatic()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(TuningEntry.ChromaticTuning, vm.tuningList.current.value)
+
+        vm.tuner.setChromatic(false)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), vm.tuningList.current.value)
+
+        vm.tuningList.setCurrent(TuningEntry.ChromaticTuning)
+        testDispatcher.scheduler.runCurrent()
+        assertTrue(vm.tuner.chromatic.value)
+
+        vm.tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+        assertFalse(vm.tuner.chromatic.value)
     }
 
     @Test
@@ -108,5 +125,13 @@ class TunerActivityViewModelTest {
         assertTrue(vm.editModeEnabled.value)
         vm.setEditMode(false)
         assertFalse(vm.editModeEnabled.value)
+    }
+
+    @Test
+    fun testSelectChromatic() {
+        vm.openTuningSelector()
+        vm.selectChromatic()
+        assertFalse(vm.tuningSelectorOpen.value)
+        assertTrue(vm.tuner.chromatic.value)
     }
 }

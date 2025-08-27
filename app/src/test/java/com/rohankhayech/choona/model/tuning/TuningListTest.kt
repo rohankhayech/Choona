@@ -28,9 +28,11 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -70,6 +72,10 @@ class TuningListTest {
         new = Tuning.fromString("E4 B3 G3 D3 A2 E2")
         tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
         assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.current.value)
+
+        // Test chromatic.
+        tuningList.setCurrent(TuningEntry.ChromaticTuning)
+        assertEquals(TuningEntry.ChromaticTuning, tuningList.current.value)
     }
 
     @Test
@@ -112,11 +118,13 @@ class TuningListTest {
         tuningList.removeCustom(named)
         testScope.advanceUntilIdle()
 
-        // Test add custom with equiv current
+        // Test add custom with equiv current and pinned
         tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
+        tuningList.setPinned(TuningEntry.InstrumentTuning(new))
         tuningList.addCustom("New", new)
         testScope.advanceUntilIdle()
         assertEquals(TuningEntry.InstrumentTuning(named), tuningList.current.value)
+        assertEquals(TuningEntry.InstrumentTuning(named), tuningList.pinned.value)
 
         // Test remove custom
         tuningList.setFavourited(TuningEntry.InstrumentTuning(named), true)
@@ -125,6 +133,7 @@ class TuningListTest {
         assertEquals(emptySet<TuningEntry.InstrumentTuning>(), tuningList.custom.value)
         assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
         assertEquals(TuningEntry.InstrumentTuning(new), tuningList.current.value)
+        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.pinned.value)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -334,5 +343,90 @@ class TuningListTest {
         val grouped = with (TuningList) { tunings.groupAndSort() }
 
         assertEquals(expectedGroups, grouped)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testCurrentSaved() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.currentSaved.collect {}
+        }
+        testScope.backgroundScope.launch {
+            tuningList.custom.collect {}
+        }
+
+        // Test default value.
+        assertFalse(tuningList.currentSaved.value)
+
+        val new = Tuning.fromString("E2")
+
+        // Test not in list.
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
+        testScope.advanceUntilIdle()
+        assertFalse(tuningList.currentSaved.value)
+
+        // Test equiv in custom.
+        tuningList.addCustom("Saved", new)
+        testScope.advanceUntilIdle()
+        assertTrue(tuningList.currentSaved.value)
+
+        // Test remove custom.
+        tuningList.removeCustom(tuningList.custom.value.first().tuning)
+        testScope.advanceUntilIdle()
+        assertFalse(tuningList.currentSaved.value)
+
+        // Test equiv in built-in.
+        tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.DROP_D))
+        testScope.advanceUntilIdle()
+        assertTrue(tuningList.currentSaved.value)
+
+        // Test chromatic.
+        tuningList.setCurrent(TuningEntry.ChromaticTuning)
+        testScope.advanceUntilIdle()
+        assertTrue(tuningList.currentSaved.value)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testIsFavourite() {
+        tuningList.run {
+            // Test default value.
+            assertTrue(TuningEntry.InstrumentTuning(Tuning.STANDARD).isFavourite())
+            assertTrue(TuningEntry.ChromaticTuning.isFavourite())
+            assertFalse(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
+
+            // Test set fav
+            setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), true)
+            testScope.advanceUntilIdle()
+            assertTrue(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
+
+            // Test set unfav
+            setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), false)
+            testScope.advanceUntilIdle()
+            assertFalse(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
+            setFavourited(TuningEntry.InstrumentTuning(Tuning.STANDARD), false)
+            testScope.advanceUntilIdle()
+            assertFalse(TuningEntry.InstrumentTuning(Tuning.STANDARD).isFavourite())
+            setFavourited(TuningEntry.ChromaticTuning, false)
+            testScope.advanceUntilIdle()
+            assertFalse(TuningEntry.ChromaticTuning.isFavourite())
+        }
+    }
+
+    @Test
+    fun testGetCanonicalName() {
+        with (tuningList) {
+            // Test built in
+            assertEquals(Tunings.HALF_STEP_DOWN.name, TuningEntry.InstrumentTuning(Tuning.STANDARD.lowerTuning()).getCanonicalName())
+
+            // Test custom with name
+            val new = Tuning.fromString("E2")
+            assertEquals("E", TuningEntry.InstrumentTuning(new).getCanonicalName())
+            val named = addCustom("Named", new)
+            assertEquals("Named", TuningEntry.InstrumentTuning(new).getCanonicalName())
+            removeCustom(named)
+            assertEquals("E", TuningEntry.InstrumentTuning(new).getCanonicalName())
+        }
     }
 }

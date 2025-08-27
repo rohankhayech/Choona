@@ -144,7 +144,7 @@ class TuningList(
     /** Whether the current tuning has been saved (or is a built-in tuning). */
     val currentSaved = combine(current, _custom) { current, custom ->
         current is TuningEntry.ChromaticTuning || current?.tuning?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), false)
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), true)
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
@@ -188,14 +188,14 @@ class TuningList(
      */
     fun setCurrent(tuning: TuningEntry) {
         _current.update {
-            tuning as? TuningEntry.ChromaticTuning
-                ?: if (tuning is TuningEntry.InstrumentTuning) {
-                    if (tuning.hasName()) tuning else {
-                        tuning.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.let {
-                            TuningEntry.InstrumentTuning(it)
-                        } ?: tuning
-                    }
-                } else { tuning }
+            when (tuning) {
+                is TuningEntry.ChromaticTuning -> tuning
+                is TuningEntry.InstrumentTuning -> if (tuning.hasName()) tuning else {
+                    tuning.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.let {
+                        TuningEntry.InstrumentTuning(it)
+                    } ?: tuning
+                }
+            }
         }
     }
 
@@ -212,8 +212,9 @@ class TuningList(
 
     /**
      * Saves the specified custom [tuning] under the given [name].
+     * @return The named tuning.
      */
-    fun addCustom(name: String?, tuning: Tuning) {
+    fun addCustom(name: String?, tuning: Tuning): Tuning {
         val newTuning = Tuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
         if (current.value?.tuning?.equivalentTo(tuning) == true) {
@@ -222,6 +223,7 @@ class TuningList(
         if (pinned.value.tuning?.equivalentTo(tuning) == true) {
             _pinned.update { TuningEntry.InstrumentTuning(newTuning) }
         }
+        return newTuning
     }
 
     /**
@@ -273,8 +275,8 @@ class TuningList(
             this.tuning?.hasEquivalentIn(instrFavs.value) == true
     }
 
-    /** @return The name of this tuning if it is saved as a custom tuning. */
-    fun TuningEntry.InstrumentTuning.getCustomName(): String {
+    /** @return The name of this tuning if it is saved as a built-in or custom tuning. */
+    fun TuningEntry.InstrumentTuning.getCanonicalName(): String {
         return this.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
             ?: this.tuning.toString()
     }

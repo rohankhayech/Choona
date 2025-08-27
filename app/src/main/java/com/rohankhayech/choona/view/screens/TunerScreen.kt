@@ -125,7 +125,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -158,7 +158,7 @@ fun TunerScreen(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -188,7 +188,7 @@ fun TunerScreen(
                 CompactAppBar(
                     scrollBehavior,
                     tuning = tuning,
-                    getCustomName = getCustomName,
+                    getCanonicalName = getCanonicalName,
                     onConfigurePressed = onConfigurePressed
                 )
             }
@@ -207,7 +207,7 @@ fun TunerScreen(
             autoDetect,
             chromatic,
             favTunings,
-            getCustomName,
+            getCanonicalName,
             prefs,
             editModeEnabled,
             onSelectString,
@@ -358,7 +358,7 @@ private typealias TunerBodyLayout = @Composable (
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -384,7 +384,7 @@ private fun TunerBodyScaffold(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
@@ -473,7 +473,7 @@ private fun TunerBodyScaffold(
                 modifier = modifier,
                 tuning = tuning,
                 favTunings = favTunings,
-                getCustomName,
+                getCanonicalName,
                 openDirect = false,
                 onSelect = {
                     if (it is TuningEntry.InstrumentTuning) {
@@ -681,7 +681,7 @@ private fun AppBarActions(
  * @param scrollBehavior Scroll behavior for the app bar.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -689,7 +689,7 @@ private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
     tuning: TuningEntry,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -699,7 +699,7 @@ private fun CompactAppBar(
             TuningItem(
                 tuning = tuning,
                 compact = true,
-                getCustomName = getCustomName,
+                getCanonicalName = getCanonicalName,
                 fontWeight = FontWeight.Bold,
                 horizontalAlignment = Alignment.CenterHorizontally
             )
@@ -792,7 +792,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCustomName = { this.tuning.toString() },
+            getCanonicalName = { this.tuning.toString() },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,
