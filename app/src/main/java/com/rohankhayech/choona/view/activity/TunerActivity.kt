@@ -491,10 +491,9 @@ class TunerActivity : ComponentActivity() {
 
     /** Opens the tuner settings activity. */
     private fun openSettings() {
-        val pinnedName = when (val current = vm.tuningList.current.value) {
-            is TuningEntry.InstrumentTuning -> current.tuning.fullName
+        val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
+            is TuningEntry.InstrumentTuning -> pinned.tuning.fullName
             is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
-            null -> null
         }
 
         val intent = Intent(this, SettingsActivity::class.java)
