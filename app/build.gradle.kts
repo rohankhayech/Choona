@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -26,14 +28,14 @@ plugins {
 android {
     namespace = "com.rohankhayech.choona"
 
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 11
-        versionName = "1.4.3"
+        targetSdk = 36
+        versionCode = 12
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -59,9 +61,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
     }
 }
 
@@ -73,6 +77,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.review.ktx)
 
     // Compose
     val composeBOM = platform(libs.androidx.compose.bom)
@@ -95,6 +100,7 @@ dependencies {
     // Utility
     implementation(libs.androidutils.theme)
     implementation(libs.androidutils.preview)
+    implementation(libs.androidutils.layout)
 
     // Open Source Licenses
     implementation(libs.aboutlibraries.core)

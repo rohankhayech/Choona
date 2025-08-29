@@ -39,24 +39,35 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -93,6 +104,9 @@ class TunerActivity : ComponentActivity() {
     /** Callback used to dismiss configure tuning panel when the back button is pressed. */
     private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
 
+    /** Google Play review manager. */
+    private lateinit var manager: ReviewManager
+
     /**
      * Called when activity is created.
      */
@@ -121,12 +135,20 @@ class TunerActivity : ComponentActivity() {
 
             // Initialize edit mode and initial tuning state from preferences only on app load.
             if (firstLoad) prefs.firstOrNull()?.let { preferences ->
-                vm.toggleEditMode(preferences.editModeDefault)
+                vm.setEditMode(preferences.editModeDefault)
 
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
-                    InitialTuningType.PINNED -> setTuning(vm.tuningList.pinned.value)
-                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let { setTuning(it) }
+                    InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
+                        is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
+                        is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                    }
+                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
+                        when (it) {
+                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                            is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+                    }
                 }
             }
         }
@@ -144,6 +166,8 @@ class TunerActivity : ComponentActivity() {
             dismissTuningSelector()
         }
 
+        manager = ReviewManagerFactory.create(this)
+
         // Set UI content.
         setContent {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
@@ -156,12 +180,14 @@ class TunerActivity : ComponentActivity() {
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
                     val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
                     val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
+                    val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
                     val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
+                    val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
                     val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
+                    val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
                     val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
                     val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
-                    val customTunings = vm.tuningList.custom.collectAsStateWithLifecycle()
                     val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
                     // Calculate window size/orientation
@@ -187,18 +213,41 @@ class TunerActivity : ComponentActivity() {
                         if (tuningSelectorOpen && expanded) dismissTuningSelector()
                     }
 
+                    // Launch review prompt after tuning if conditions met.
+                    var askedForReview by rememberSaveable { mutableStateOf(false) }
+                    LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
+                        if (
+                            !askedForReview  // Only ask once per app session.
+                            && prefs.showReviewPrompt  // Do not ask if user has disabled.
+                            && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
+                            && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
+                            && Math.random() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
+                        ) {
+                            delay(1000)
+                            launchReviewPrompt()
+                            askedForReview = true
+                        }
+                    }
+
                     // Display UI content.
                     MainLayout(
                         windowSizeClass = windowSizeClass,
                         compact = compact,
                         expanded = expanded,
-                        tuning = tuning,
+                        tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
                         noteOffset = noteOffset,
                         selectedString = selectedString,
+                        selectedNote = selectedNote,
                         tuned = tuned,
+                        noteTuned = noteTuned,
                         autoDetect = autoDetect,
+                        chromatic = chromatic,
                         favTunings = favTunings,
-                        customTunings = customTunings,
+                        getCanonicalName = {
+                            vm.tuningList.run {
+                                this@MainLayout.getCanonicalName()
+                            }
+                        },
                         prefs = prefs,
                         tuningList = vm.tuningList,
                         tuningSelectorOpen = tuningSelectorOpen,
@@ -211,6 +260,14 @@ class TunerActivity : ComponentActivity() {
                             }
                         },
                         onSelectTuning = ::setTuning,
+                        onSelectChromatic = { vm.tuner.setChromatic(true) },
+                        onSelectNote = remember(prefs.enableStringSelectSound) {
+                            {
+                                vm.tuner.selectNote(it)
+                                // Play sound on string selection.
+                                if (prefs.enableStringSelectSound) playNoteSelectSound(it)
+                            }
+                        },
                         onTuneUpString = vm.tuner::tuneStringUp,
                         onTuneDownString = vm.tuner::tuneStringDown,
                         onTuneUpTuning = vm.tuner::tuneUp,
@@ -227,9 +284,10 @@ class TunerActivity : ComponentActivity() {
                         onSettingsPressed = ::openSettings,
                         onConfigurePressed = ::openConfigurePanel,
                         onSelectTuningFromList = ::selectTuning,
+                        onSelectChromaticFromList = ::selectChromatic,
                         onDismissTuningSelector = ::dismissTuningSelector,
                         onDismissConfigurePanel = ::dismissConfigurePanel,
-                        onEditModeChanged = vm::toggleEditMode,
+                        onEditModeChanged = vm::setEditMode,
                         editModeEnabled = editModeEnabled
                     )
                 } else if (!granted) {
@@ -297,6 +355,16 @@ class TunerActivity : ComponentActivity() {
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
             150,
             vm.tuner.tuning.value.instrument.midiInstrument
+        )
+    }
+
+    /** Plays the note selection sound for the specified [noteIndex]. */
+    private fun playNoteSelectSound(noteIndex: Int) {
+        midi.playNote(
+            0,
+            MidiController.noteIndexToMidi(noteIndex),
+            150,
+            Instrument.GUITAR.midiInstrument
         )
     }
 
@@ -377,6 +445,25 @@ class TunerActivity : ComponentActivity() {
     }
 
     /**
+     * Sets chromatic mode on as selected on the tuning selection screen
+     * and restarts the tuner if no other panel is open.
+     */
+    private fun selectChromatic() {
+        // Consume back stack entry.
+        dismissTuningSelectorOnBack.isEnabled = false
+
+        // Select the tuning.
+        vm.selectChromatic()
+
+        // Start tuner if no other panel is open.
+        if (!vm.configurePanelOpen.value) {
+            try {
+                vm.tuner.start(ph)
+            } catch(_: Exception) {}
+        }
+    }
+
+    /**
      * Sets the current tuning to the [tuning] specified,
      * and recreates the MIDI driver if necessary.
      */
@@ -404,8 +491,13 @@ class TunerActivity : ComponentActivity() {
 
     /** Opens the tuner settings activity. */
     private fun openSettings() {
+        val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
+            is TuningEntry.InstrumentTuning -> pinned.tuning.fullName
+            is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+        }
+
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra(SettingsActivity.EXTRA_PINNED, vm.tuningList.pinned.value.fullName)
+        intent.putExtra(SettingsActivity.EXTRA_PINNED, pinnedName)
         startActivity(intent)
     }
 
@@ -417,6 +509,29 @@ class TunerActivity : ComponentActivity() {
                 Uri.fromParts("package", packageName, null)
             )
         )
+    }
+
+    /** Launches a prompt for the user to review the app on Google Play. */
+    private fun launchReviewPrompt() {
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val reviewInfo = task.result
+                manager.launchReviewFlow(this, reviewInfo)
+                    .addOnCompleteListener {
+                        // Increment launches counter.
+                        lifecycleScope.launch {
+                            tunerPreferenceDataStore.edit { prefs ->
+                                prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY] = (
+                                    (prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0)
+                                        + 1
+                                ).toString()
+                            }
+                        }
+
+                    }
+            }
+        }
     }
 }
 
@@ -449,23 +564,39 @@ class TunerActivityViewModel : ViewModel() {
     /** Whether the edit mode is currently enabled. */
     val editModeEnabled = _editModeEnabled.asStateFlow()
 
-    /** Toggles the edit mode state. */
-    fun toggleEditMode(enabled: Boolean) {
+    /** Sets the edit mode state. */
+    fun setEditMode(enabled: Boolean) {
         _editModeEnabled.update { enabled }
     }
 
     /** Runs when the view model is instantiated. */
     init {
-        // Update tuner when the current selection in the tuning list is updated.
-        viewModelScope.launch {
-            tuner.tuning.collect {
-                tuningList.setCurrent(it)
-            }
-        }
         // Update the tuning list when the tuner's tuning is updated.
         viewModelScope.launch {
+            tuner.tuning.collect {
+                tuningList.setCurrent(TuningEntry.InstrumentTuning(it))
+            }
+        }
+        viewModelScope.launch {
+            tuner.chromatic.collect { chromatic ->
+                if (chromatic) {
+                    tuningList.setCurrent(TuningEntry.ChromaticTuning)
+                } else {
+                    // If switching back to the same instrument tuning, the tuning flow above will not emit, so update here.
+                    tuningList.setCurrent(TuningEntry.InstrumentTuning(tuner.tuning.value))
+                }
+            }
+        }
+
+        // Update tuner when the current selection in the tuning list is updated.
+        viewModelScope.launch {
             tuningList.current.collect {
-                it?.let { tuner.setTuning(it) }
+                it?.let {
+                    when (it) {
+                        is TuningEntry.InstrumentTuning -> tuner.setTuning(it.tuning)
+                        is TuningEntry.ChromaticTuning -> tuner.setChromatic(true)
+                    }
+                }
             }
         }
     }
@@ -499,4 +630,13 @@ class TunerActivityViewModel : ViewModel() {
         _tuningSelectorOpen.update { false }
         tuner.setTuning(tuning)
     }
+
+    /** Sets the current tuning to chromatic as selected in the tuning selection screen and dismisses it. */
+    fun selectChromatic() {
+        _tuningSelectorOpen.update { false }
+        tuner.setChromatic(true)
+    }
 }
+
+/** Probability of showing the review prompt once all strings are in tune. */
+private const val REVIEW_PROMPT_CHANCE = 0.3

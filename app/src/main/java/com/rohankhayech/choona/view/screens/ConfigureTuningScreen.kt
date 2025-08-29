@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,24 +57,27 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.CompactOrientationThemePreview
 import com.rohankhayech.choona.R
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.NoteSelector
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningSelector
 import com.rohankhayech.choona.view.theme.AppTheme
-import com.rohankhayech.music.Tuning
 
 /**
  * UI screen used to tune individual strings and the tuning
  * itself up and down, as well as select from favourite tunings.
  *
  * @param tuning Guitar tuning used for comparison.
+ * @param chromatic Whether the chromatic tuning mode is enabled.
+ * @param selectedNote The selected note in chromatic mode.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
- * @param onSelectTuning Called when a tuning is selected.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
  * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onSelectNote Called when a note is selected in chromatic mode.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onDismiss Called when the screen is dismissed.
  * @param onSettingsPressed Called when the settings button is pressed.
@@ -85,14 +87,16 @@ import com.rohankhayech.music.Tuning
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigureTuningScreen(
-    tuning: Tuning,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
-    onSelectTuning: (Tuning) -> Unit,
+    tuning: TuningEntry,
+    chromatic: Boolean,
+    selectedNote: Int,
+    favTunings: State<Set<TuningEntry>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
     onTuneDownTuning: () -> Unit,
+    onSelectNote: (Int) -> Unit,
     onOpenTuningSelector: () -> Unit,
     onDismiss: () -> Unit,
     onSettingsPressed: () -> Unit,
@@ -130,9 +134,9 @@ fun ConfigureTuningScreen(
                     TuningSelector(
                         tuning = tuning,
                         favTunings = favTunings,
-                        customTunings = customTunings,
+                        getCanonicalName = getCanonicalName,
                         openDirect = true,
-                        onSelect = onSelectTuning,
+                        onSelect = {},
                         onTuneDown = onTuneDownTuning,
                         onTuneUp = onTuneUpTuning,
                         onOpenTuningSelector = onOpenTuningSelector,
@@ -154,18 +158,26 @@ fun ConfigureTuningScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(Modifier.height(8.dp))
-            StringControls(
-                inline = true,
-                tuning = tuning,
-                selectedString = null,
-                tuned = null,
-                onSelect = {},
-                onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString,
-                editModeEnabled = true,
-            )
-            Spacer(Modifier.height(8.dp))
+            if (chromatic) {
+                NoteSelector(
+                    Modifier.padding(vertical = 8.dp),
+                    selectedNoteIndex = selectedNote,
+                    tuned = false,
+                    onSelect = onSelectNote
+                )
+            } else {
+                StringControls(
+                    Modifier.padding(vertical = 8.dp),
+                    inline = true,
+                    tuning = tuning.tuning!!,
+                    selectedString = null,
+                    tuned = null,
+                    onSelect = {},
+                    onTuneDown = onTuneDownString,
+                    onTuneUp = onTuneUpString,
+                    editModeEnabled = true,
+                )
+            }
         }
     }
 }
@@ -175,16 +187,18 @@ fun ConfigureTuningScreen(
 private fun Preview() {
     AppTheme {
         ConfigureTuningScreen(
-            tuning = Tunings.HALF_STEP_DOWN,
+            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+            chromatic = false,
+            selectedNote = -29,
             favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
-            onSelectTuning = {},
+            getCanonicalName = { this.tuning.toString() },
             onTuneUpString = {},
             onTuneDownString = {},
             onTuneUpTuning = {},
             onTuneDownTuning = {},
             onOpenTuningSelector = {},
-            onDismiss = {}
+            onDismiss = {},
+            onSelectNote = {}
         ) {}
     }
 }

@@ -137,8 +137,10 @@ class SettingsActivity : ComponentActivity() {
                             onBackPressed = ::finish
                         )
                         Screen.ABOUT -> AboutScreen(
+                            prefs,
                             onLicencesPressed = ::openLicencesScreen,
-                            onBackPressed = ::dismissAboutScreen
+                            onBackPressed = ::dismissAboutScreen,
+                            onReviewOptOut = vm::optOutOfReviewPrompt
                         )
                         Screen.LICENCES -> LicencesScreen(onBackPressed = ::dismissLicencesScreen)
                     }
@@ -232,6 +234,11 @@ private class SettingsActivityViewModel(
     /** Sets the [initialTuning] to be used when the app is first opened. */
     fun setInitialTuning(initialTuning: InitialTuningType) {
         setPreference(TunerPreferences.INITIAL_TUNING_KEY, initialTuning.toString())
+    }
+
+    /** Opts the user out of future review prompts. */
+    fun optOutOfReviewPrompt() {
+        setPreference(TunerPreferences.SHOW_REVIEW_PROMPT_KEY, false)
     }
 
     /** Sets the preference with the specified [key] to the specified [value]. */

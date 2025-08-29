@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package com.rohankhayech.music;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,7 +43,9 @@ public final class Notes {
     /** The MIDI number of note A4. */
     public static final int A4_MIDI_NOTE_NUMBER = 69;
 
-    private static final List<String> NOTE_SYMBOLS = Arrays.asList("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+    public static final List<String> NOTE_SYMBOLS = Collections.unmodifiableList(
+        Arrays.asList("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+    );
 
     /**
      * Returns the pitch of the specified note.
@@ -84,9 +87,9 @@ public final class Notes {
         int len = note.length();
         if (len < 2 || len > 3) throw new IllegalArgumentException("Invalid note symbol.");
 
-        int offset = getOffsetWithinOctave(note.substring(0, len-1));
+        int offset = getOffsetWithinOctave(getRootNote(note));
         try {
-            int octave = Integer.parseInt(note.substring(len - 1));
+            int octave = getOctave(note);
             return (octave-4)*12 + offset;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid note symbol.", e);
@@ -97,15 +100,15 @@ public final class Notes {
 
     /**
      * Returns the offset of the note within the octave.
-     * @param noteSymbol The symbol representing the note, including a letter and an optional sharp symbol (eg. "E or A#").
+     * @param rootNote The symbol representing the note, including a letter and an optional sharp symbol (eg. "E or A#").
      * @return The offset of the note within the octave.
      * @throws IllegalArgumentException If the note symbol string does not represent a valid note.
      */
-    private static int getOffsetWithinOctave(String noteSymbol) {
-        int len = noteSymbol.length();
+    private static int getOffsetWithinOctave(String rootNote) {
+        int len = rootNote.length();
         if (len < 1 || len > 2) throw new IllegalArgumentException("Invalid note symbol.");
 
-        int letterIndex = NOTE_SYMBOLS.indexOf(noteSymbol);
+        int letterIndex = NOTE_SYMBOLS.indexOf(rootNote);
         if (letterIndex != -1) {
             return letterIndex - 9;
         } else throw new IllegalArgumentException("Invalid note symbol.");
@@ -119,5 +122,24 @@ public final class Notes {
     public static String getSymbol(int noteIndex) {
         int octave = 4 + Math.floorDiv(noteIndex+9, 12);
         return NOTE_SYMBOLS.get(Math.floorMod(noteIndex+9, 12)) + octave;
+    }
+
+    /**
+     * Returns the root note within the octave of the specified note.
+     * @param note A string representing the note, containing a letter, an optional sharp symbol and the octave (eg. "E2" or "A#4").
+     * @return The symbol representing the root note, including a letter and an optional sharp symbol (eg. "E or A#").
+     */
+    public static String getRootNote(String note) {
+        return note.substring(0, note.length()-1);
+    }
+
+    /**
+     * Returns the octave of the specified note.
+     * @param note A string representing the note, containing a letter, an optional sharp symbol and the octave (eg. "E2" or "A#4").
+     * @return The octave of the note.
+     * @throws NumberFormatException If the note string does not end with a valid octave number.
+     */
+    public static int getOctave(String note) {
+        return Integer.parseInt(note.substring(note.length() - 1));
     }
 }

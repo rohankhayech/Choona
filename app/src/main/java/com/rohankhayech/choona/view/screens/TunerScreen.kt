@@ -23,7 +23,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -94,16 +93,19 @@ import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.LandscapePreview
 import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
+import com.rohankhayech.android.util.ui.theme.StatusBarColor
+import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
-import com.rohankhayech.choona.view.components.StatusBarColor
-import com.rohankhayech.choona.view.components.StatusBarIconColor
+import com.rohankhayech.choona.view.components.NoteSelector
 import com.rohankhayech.choona.view.components.StringControls
 import com.rohankhayech.choona.view.components.TuningDisplay
 import com.rohankhayech.choona.view.components.TuningItem
@@ -123,7 +125,7 @@ import com.rohankhayech.music.Tuning
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -147,16 +149,21 @@ fun TunerScreen(
     compact: Boolean = false,
     expanded: Boolean = false,
     windowSizeClass: WindowSizeClass,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
+    selectedNote: Int,
     tuned: BooleanArray,
+    noteTuned: Boolean,
     autoDetect: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    chromatic: Boolean,
+    favTunings: State<Set<TuningEntry>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
+    onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -174,14 +181,14 @@ fun TunerScreen(
         Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (expanded) {
-                ExpandedAppBar(onSettingsPressed, editModeEnabled, onEditModeChanged)
+                ExpandedAppBar(onSettingsPressed, editModeEnabled, !chromatic, onEditModeChanged)
             } else if (!compact) {
-                AppBar(onSettingsPressed, showEditToggle = true, editModeEnabled, onEditModeChanged)
+                AppBar(onSettingsPressed, showEditToggle = !chromatic, editModeEnabled, onEditModeChanged)
             } else {
                 CompactAppBar(
                     scrollBehavior,
                     tuning = tuning,
-                    customTunings = customTunings,
+                    getCanonicalName = getCanonicalName,
                     onConfigurePressed = onConfigurePressed
                 )
             }
@@ -194,14 +201,19 @@ fun TunerScreen(
             tuning,
             noteOffset,
             selectedString,
+            selectedNote,
             tuned,
+            noteTuned,
             autoDetect,
+            chromatic,
             favTunings,
-            customTunings,
+            getCanonicalName,
             prefs,
             editModeEnabled,
             onSelectString,
             onSelectTuning,
+            onSelectChromatic,
+            onSelectNote,
             onTuneUpString,
             onTuneDownString,
             onTuneUpTuning,
@@ -283,20 +295,33 @@ fun TunerScreen(
                     }
                     Row(
                         Modifier
-                            .height(IntrinsicSize.Min)
-                            .padding(bottom = 8.dp)) {
+                            .height(72.dp)
+                            .padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (chromatic) {
+                            CompactNoteSelector(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(vertical = 8.dp),
+                                selectedNoteIndex = selectedNote,
+                                tuned = noteTuned,
+                                onSelect = onSelectNote,
+                            )
+                        } else {
                         CompactStringSelector(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(vertical = 8.dp),
-                            tuning = tuning,
+                            tuning = tuning.tuning!!,
                             selectedString = selectedString,
                             tuned = tuned,
                             onSelect = onSelectString,
                         )
+                        }
                         VerticalDivider()
                         Box(Modifier.padding(horizontal = 8.dp)) {
-                            autoDetectSwitch(Modifier.fillMaxHeight())
+                            autoDetectSwitch(Modifier)
                         }
                     }
                 }
@@ -330,13 +355,19 @@ private typealias TunerBodyLayout = @Composable (
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
+ * @param selectedNote The index of the currently selected note in chromatic mode.
  * @param tuned Whether each string has been tuned.
+ * @param noteTuned Whether the selected note in chromatic mode has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param chromatic Whether the tuner is in chromatic mode.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
+ * @param editModeEnabled Whether tuning editing is enabled.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
+ * @param onSelectChromatic Called when chromatic mode is selected.
+ * @param onSelectNote Called when a note is selected in chromatic mode.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
@@ -344,23 +375,31 @@ private typealias TunerBodyLayout = @Composable (
  * @param onAutoChanged Called when the auto detect switch is toggled.
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
+ * @param portrait Layout to use in portrait orientation.
+ * @param landscape Layout to use in landscape orientation.
+ * @param compactLayout Layout to use for compact screens.
  */
 @Composable
 private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
     expanded: Boolean,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
+    selectedNote: Int,
     tuned: BooleanArray,
+    noteTuned: Boolean,
     autoDetect: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    chromatic: Boolean,
+    favTunings: State<Set<TuningEntry>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
+    onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -399,24 +438,35 @@ private fun TunerBodyScaffold(
         // Tuning Display
         {
             TuningDisplay(
+                noteIndex = selectedNote,
                 noteOffset = noteOffset,
+                showNote = chromatic && autoDetect,
                 displayType = prefs.displayType,
                 onTuned = onTuned
             )
         },
         // String controls
         { modifier, inline ->
-            StringControls(
-                modifier = modifier,
-                inline = inline,
-                tuning = tuning,
-                selectedString = selectedString,
-                tuned = tuned,
-                onSelect = onSelectString,
-                onTuneDown = onTuneDownString,
-                onTuneUp = onTuneUpString,
-                editModeEnabled = editModeEnabled
-            )
+            if (chromatic) {
+                NoteSelector(
+                    modifier = modifier,
+                    selectedNoteIndex = selectedNote,
+                    tuned = noteTuned,
+                    onSelect = onSelectNote,
+                )
+            } else {
+                StringControls(
+                    modifier = modifier,
+                    inline = inline,
+                    tuning = tuning.tuning!!,
+                    selectedString = selectedString,
+                    tuned = tuned,
+                    onSelect = onSelectString,
+                    onTuneDown = onTuneDownString,
+                    onTuneUp = onTuneUpString,
+                    editModeEnabled = editModeEnabled
+                )
+            }
         },
         // Auto Detect Switch
         { modifier ->
@@ -432,9 +482,15 @@ private fun TunerBodyScaffold(
                 modifier = modifier,
                 tuning = tuning,
                 favTunings = favTunings,
-                customTunings = customTunings,
+                getCanonicalName,
                 openDirect = false,
-                onSelect = onSelectTuning,
+                onSelect = {
+                    if (it is TuningEntry.InstrumentTuning) {
+                        onSelectTuning(it.tuning)
+                    } else {
+                        onSelectChromatic()
+                    }
+                },
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
@@ -561,9 +617,9 @@ fun TunerErrorScreen(
 /**
  * App bar for the tuning screen.
  * @param onSettingsPressed Called when the settings button is pressed.
+ * @param showEditToggle Whether to show the edit mode toggle button.
  * @param editModeEnabled Whether tuning editing is enabled.
  * @param onEditModeChanged Called when the edit mode toggle button is pressed.
- * @param showEditToggle Whether to show the edit mode toggle button.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -631,24 +687,31 @@ private fun AppBarActions(
 
 /**
  * App bar for the tuning screen in compact layout.
+ * @param scrollBehavior Scroll behavior for the app bar.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param tuning Current tuning.
- * @param customTunings Set of custom tunings.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
-    tuning: Tuning,
-    customTunings: State<Set<Tuning>>
+    tuning: TuningEntry,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
         },
         title = {
-            TuningItem(tuning = tuning, compact = true, customTunings = customTunings, fontWeight = FontWeight.Bold, horizontalAlignment = Alignment.CenterHorizontally)
+            TuningItem(
+                tuning = tuning,
+                compact = true,
+                getCanonicalName = getCanonicalName,
+                fontWeight = FontWeight.Bold,
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
         },
         actions = {
             // Configure tuning button.
@@ -664,6 +727,7 @@ private fun CompactAppBar(
  * App bar for the tuning screen in expanded layout.
  * @param onSettingsPressed Called when the settings button is pressed.
  * @param editModeEnabled Whether tuning editing is enabled.
+ * @param showEditToggle Whether to show the edit mode toggle button.
  * @param onEditModeChanged Called when the edit mode toggle button is pressed.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -671,6 +735,7 @@ private fun CompactAppBar(
 private fun ExpandedAppBar(
     onSettingsPressed: () -> Unit,
     editModeEnabled: Boolean = false,
+    showEditToggle: Boolean,
     onEditModeChanged: ((Boolean) -> Unit) = {}
 ) {
     TopAppBar(
@@ -682,7 +747,7 @@ private fun ExpandedAppBar(
             )
         },
         actions = {
-            AppBarActions(true, editModeEnabled, onEditModeChanged, onSettingsPressed)
+            AppBarActions(showEditToggle, editModeEnabled, onEditModeChanged, onSettingsPressed)
         }
     )
 }
@@ -690,6 +755,7 @@ private fun ExpandedAppBar(
 /**
  * Switch control allowing auto detection of string to be enabled/disabled.
  *
+ * @param modifier Modifier to be applied to the component.
  * @param autoDetect Whether auto detection is enabled.
  * @param onAutoChanged Called when the switch is toggled.
  */
@@ -728,15 +794,18 @@ private fun BasePreview(
             compact,
             expanded = false,
             windowSizeClass,
-            tuning = Tunings.HALF_STEP_DOWN,
+            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
             noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
+            selectedNote = -28,
             tuned = BooleanArray(6) { it==4 },
+            noteTuned = false,
             autoDetect = true,
+            chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            getCanonicalName = { this.tuning.toString() },
             prefs,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,
             onEditModeChanged = {}
         )
