@@ -55,10 +55,13 @@ import com.rohankhayech.music.Tuning
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
+ * @param selectedNote The index of the currently selected note in chromatic mode.
  * @param tuned Whether each string has been tuned.
- * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param noteTuned Whether the currently detected note in chromatic mode has been tuned.
+ * @param autoDetect Whether the tuner will automatically detect the currently playing string/note.
+ * @param chromatic Whether the tuner is in chromatic mode.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param tuningList State holder for the tuning list.
  * @param tuningSelectorOpen Whether the tuning selection panel is open.
@@ -67,6 +70,8 @@ import com.rohankhayech.music.Tuning
  * @param onEditModeChanged Called when the edit mode is toggled.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
+ * @param onSelectChromatic Called when the chromatic mode is selected.
+ * @param onSelectNote Called when a note is selected in chromatic mode.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
@@ -77,6 +82,7 @@ import com.rohankhayech.music.Tuning
  * @param onSettingsPressed Called when the settings button is pressed.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
+ * @param onSelectChromaticFromList Called when the chromatic mode is selected from the selection panel.
  * @param onDismissTuningSelector Called when the tuning selection screen is dismissed.
  * @param onDismissConfigurePanel Called when the screen is dismissed.
  *
@@ -96,7 +102,7 @@ fun MainLayout(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
@@ -137,7 +143,7 @@ fun MainLayout(
                     autoDetect,
                     chromatic,
                     favTunings,
-                    getCustomName,
+                    getCanonicalName,
                     prefs,
                     onSelectString,
                     onSelectTuning,
@@ -192,7 +198,7 @@ fun MainLayout(
                 autoDetect,
                 chromatic,
                 favTunings,
-                getCustomName,
+                getCanonicalName,
                 prefs,
                 onSelectString,
                 onSelectTuning,
@@ -221,7 +227,7 @@ fun MainLayout(
                 chromatic,
                 selectedNote = selectedNote,
                 favTunings = favTunings,
-                getCustomName = getCustomName,
+                getCanonicalName = getCanonicalName,
                 onTuneUpString = onTuneUpString,
                 onTuneDownString = onTuneDownString,
                 onTuneUpTuning = onTuneUpTuning,

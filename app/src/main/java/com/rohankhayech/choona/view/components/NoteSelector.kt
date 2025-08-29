@@ -82,9 +82,6 @@ fun NoteSelector(
     tuned: Boolean,
     onSelect: (Int) -> Unit,
 ) {
-    // TODO: THIS WHOLE COMPONENT IS LIKELY REALLY SLOW, PLEASE OPTIMISE IT
-    // some remembers
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -173,6 +170,8 @@ fun CompactNoteSelector(
  * @param items List of pairs of string index and label to display in this button row.
  * @param selectedIndex Index of the selected button.
  * @param activatedButtons Whether each button is activated.
+ * @param disabledButtons Whether each button is disabled.
+ * @param reversed Whether the button row is reversed.
  * @param onSelect Called when a string is selected.
  *
  * @author Rohan Khayech
@@ -220,6 +219,7 @@ fun ScrollableButtonRow(
  * @param label The button label.
  * @param tuned Whether the note is tuned.
  * @param selected Whether the note is currently selected for tuning.
+ * @param disabled Whether the button is disabled.
  * @param onSelect Called when the note is selected.
  */
 @Composable

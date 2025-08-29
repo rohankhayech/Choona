@@ -69,12 +69,15 @@ import com.rohankhayech.choona.view.theme.AppTheme
  * itself up and down, as well as select from favourite tunings.
  *
  * @param tuning Guitar tuning used for comparison.
+ * @param chromatic Whether the chromatic tuning mode is enabled.
+ * @param selectedNote The selected note in chromatic mode.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param getCustomName Gets the name of the tuning if it is saved as a custom tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
  * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onSelectNote Called when a note is selected in chromatic mode.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onDismiss Called when the screen is dismissed.
  * @param onSettingsPressed Called when the settings button is pressed.
@@ -88,7 +91,7 @@ fun ConfigureTuningScreen(
     chromatic: Boolean,
     selectedNote: Int,
     favTunings: State<Set<TuningEntry>>,
-    getCustomName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -131,7 +134,7 @@ fun ConfigureTuningScreen(
                     TuningSelector(
                         tuning = tuning,
                         favTunings = favTunings,
-                        getCustomName = getCustomName,
+                        getCanonicalName = getCanonicalName,
                         openDirect = true,
                         onSelect = {},
                         onTuneDown = onTuneDownTuning,
@@ -188,7 +191,7 @@ private fun Preview() {
             chromatic = false,
             selectedNote = -29,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCustomName = { this.tuning.toString() },
+            getCanonicalName = { this.tuning.toString() },
             onTuneUpString = {},
             onTuneDownString = {},
             onTuneUpTuning = {},

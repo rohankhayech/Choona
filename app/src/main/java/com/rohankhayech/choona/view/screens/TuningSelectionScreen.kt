@@ -196,6 +196,7 @@ fun TuningSelectionScreen(
  * as well as managing favourite and custom tunings.
  *
  * @param current Currently selected tuning, or null if N/A.
+ * @param currentSaved Whether the current tuning is saved as a custom or built-in tuning.
  * @param tunings Current collection of filtered and grouped tunings.
  * @param favourites Set of tunings marked as favourites.
  * @param custom Set of custom tunings saved by the user.
@@ -207,6 +208,7 @@ fun TuningSelectionScreen(
  * @param categoryFilters Available category filters and their enabled states.
  * @param backIcon Icon used for the back navigation button.
  * @param deletedTuning Event indicating the specified tuning was deleted.
+ * @param isFavourite Function that returns whether a tuning is marked as a favourite.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
@@ -341,11 +343,12 @@ fun TuningSelectionScreen(
  * @param modifier The modifier to apply to this layout.
  * @param listState State controller for the lazy list.
  * @param current Currently selected tuning, or null if N/A.
+ * @param currentSaved Whether the current tuning is saved as a custom or built-in tuning.
  * @param tunings Current collection of filtered and grouped tunings.
  * @param favourites Set of tunings marked as favourites.
+ * @param custom Set of custom tunings saved by the user.
  * @param pinned The tuning pinned to be used when the app is first opened.
  * @param pinnedInitial Whether the pinned tuning is used as the initial tuning.
- * @param custom Set of custom tunings saved by the user.
  * @param instrumentFilter Current filter for tuning instrument.
  * @param categoryFilter Current filter for tuning category.
  * @param instrumentFilters Available instrument filters and their enabled states.
@@ -354,10 +357,10 @@ fun TuningSelectionScreen(
  * @param onSelectCategory Called when an category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
- * @param onSelect Called when a tuning is selected.
- * @param onDelete Called when a custom tuning is deleted.
  * @param onPin Called when a tuning is pinned as default.
  * @param onUnpin Called when the pinned tuning is unpinned as default.
+ * @param onSelect Called when a tuning is selected.
+ * @param onDelete Called when a custom tuning is deleted.
  */
 @Composable
 fun TuningList(
@@ -379,8 +382,8 @@ fun TuningList(
     onSelectCategory: (Category?) -> Unit,
     onSave: (Tuning) -> Unit,
     onFavouriteSet: (TuningEntry, Boolean) -> Unit,
-    onUnpin: () -> Unit,
     onPin: (TuningEntry) -> Unit,
+    onUnpin: () -> Unit,
     onSelect: (TuningEntry) -> Unit,
     onDelete: (Tuning) -> Unit
 ) {

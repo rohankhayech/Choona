@@ -214,6 +214,7 @@ class Tuner(
 
     /**
      * Sets the [tuned] value of the [nth][n] string.
+     * If in chromatic mode, sets the [noteTuned] value instead.
      */
     fun setTuned(n: Int = selectedString.value, tuned: Boolean = true) {
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }

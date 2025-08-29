@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.view.components
 
-//noinspection UsingMaterialAndMaterial3Libraries
 import kotlin.math.abs
 import kotlin.math.sign
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -38,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.SliderDefaults.InactiveTrackAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -304,7 +304,7 @@ private fun NoteDisplay(noteIndex: Int, color: Color) {
 }
 
 /**
- * Label displaying the [note offset][noteOffset]
+ * Label displaying the [note offset][noteOffset] (or the specified [note][noteIndex] if [showNote] is true),
  * and tuning state with the specified [color] and [displayType].
  */
 @Composable
@@ -332,7 +332,7 @@ private fun TuningMeterLabel(
     // In Tune
     } else if (abs(noteOffset) < Tuner.TUNED_OFFSET_THRESHOLD) {
         if (showNote) {
-            NoteDisplay(noteIndex = noteIndex!!, color = color)
+            NoteDisplay(noteIndex = noteIndex, color = color)
         } else {
             Icon(
                 modifier = Modifier

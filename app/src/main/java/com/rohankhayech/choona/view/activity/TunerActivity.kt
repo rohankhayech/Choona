@@ -243,9 +243,9 @@ class TunerActivity : ComponentActivity() {
                         autoDetect = autoDetect,
                         chromatic = chromatic,
                         favTunings = favTunings,
-                        getCustomName = {
+                        getCanonicalName = {
                             vm.tuningList.run {
-                                this@MainLayout.getCustomName()
+                                this@MainLayout.getCanonicalName()
                             }
                         },
                         prefs = prefs,
