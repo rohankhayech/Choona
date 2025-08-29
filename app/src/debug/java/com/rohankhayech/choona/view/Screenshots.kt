@@ -46,6 +46,7 @@ import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.screens.TunerScreen
 import com.rohankhayech.choona.view.screens.TuningSelectionScreen
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
 
 // Previews for generating screenshots.
@@ -127,7 +128,6 @@ private fun CustomScreenshot() {
     val current = TuningEntry.InstrumentTuning(Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
     val tunings = TuningList(current.tuning).apply {
         setFavourited(TuningEntry.InstrumentTuning(Tunings.DROP_D), true)
-        addCustom("Example", current.tuning)
     }
 
     AppTheme {
@@ -135,7 +135,7 @@ private fun CustomScreenshot() {
             current = tunings.current.value,
             tunings = tunings.filteredTunings.value,
             favourites = tunings.favourites.value,
-            custom = emptySet(),
+            custom = tunings.custom.value,
             pinned = TuningEntry.InstrumentTuning(Tuning.STANDARD),
             pinnedInitial = true,
             instrumentFilter = null,
@@ -153,7 +153,9 @@ private fun CustomScreenshot() {
             onDismiss = {},
             onPin = {},
             onUnpin = {},
-            isFavourite = { false },
+            isFavourite = { tunings.run {
+                this@TuningSelectionScreen.isFavourite()
+            }},
             currentSaved = false
         )
 
@@ -167,6 +169,33 @@ private fun CustomScreenshot() {
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @DarkPreview
+@Composable
+private fun ChromaticScreenshot() {
+    AppTheme {
+        TunerScreen(
+            compact = false,
+            expanded = false,
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
+            tuning = TuningEntry.ChromaticTuning,
+            noteOffset = remember { mutableDoubleStateOf(-0.4) },
+            selectedString = 3,
+            selectedNote = Notes.getIndex("D3"),
+            tuned = BooleanArray(6) { false },
+            noteTuned = false,
+            autoDetect = true,
+            chromatic = true,
+            favTunings = remember { mutableStateOf(emptySet()) },
+            getCanonicalName = { this.tuning.toString() },
+            prefs = TunerPreferences(
+                stringLayout = StringLayout.SIDE_BY_SIDE
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview
 @Composable
 private fun SemitonesScreenshot() {
     AppTheme {
@@ -185,35 +214,7 @@ private fun SemitonesScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { this.tuning.toString() },
             prefs = TunerPreferences(
-                stringLayout = StringLayout.SIDE_BY_SIDE,
                 displayType = TuningDisplayType.SEMITONES
-            ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
-@Composable
-private fun CentsScreenshot() {
-    AppTheme {
-        TunerScreen(
-            compact = false,
-            expanded = false,
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
-            noteOffset = remember { mutableDoubleStateOf(-0.42) },
-            selectedString = 3,
-            selectedNote = -29,
-            tuned = BooleanArray(6) { false },
-            noteTuned = false,
-            autoDetect = false,
-            chromatic = false,
-            favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
-            prefs = TunerPreferences(
-                displayType = TuningDisplayType.CENTS
             ),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -244,7 +245,7 @@ private fun BlackThemeScreenshot() {
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
             tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
-            noteOffset = remember { mutableDoubleStateOf(-0.2) },
+            noteOffset = remember { mutableDoubleStateOf(-0.42) },
             selectedString = 3,
             selectedNote = -29,
             tuned = BooleanArray(6) { it==5 || it==4 },
@@ -254,7 +255,8 @@ private fun BlackThemeScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { this.tuning.toString() },
             prefs = TunerPreferences(
-                useBlackTheme = true
+                useBlackTheme = true,
+                displayType = TuningDisplayType.CENTS
             ),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -315,7 +317,7 @@ private fun TabletScreenshot() {
             tuningSelectorOpen = false,
             configurePanelOpen = false,
             true,
-            {}, {}, {}, {},{},{},{}, {}, {},{},{},{},{},{},{},{},{},{}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
