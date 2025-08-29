@@ -478,7 +478,7 @@ fun TuningList(
                 FavouritableTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
             }
         }
-        if (instrumentFilter == null && categoryFilter == null || categoryFilter == Category.MISC) {
+        if (instrumentFilter == null && (categoryFilter == null || categoryFilter == Category.MISC)) {
             item(Category.MISC.toString()) {
                 SectionLabel(Category.MISC.getLocalisedName(), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
