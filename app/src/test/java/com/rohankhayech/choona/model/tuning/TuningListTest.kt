@@ -352,9 +352,7 @@ class TuningListTest {
         testScope.backgroundScope.launch {
             tuningList.currentSaved.collect {}
         }
-        testScope.backgroundScope.launch {
-            tuningList.custom.collect {}
-        }
+        testScope.advanceUntilIdle()
 
         // Test default value.
         assertFalse(tuningList.currentSaved.value)
@@ -367,12 +365,12 @@ class TuningListTest {
         assertFalse(tuningList.currentSaved.value)
 
         // Test equiv in custom.
-        tuningList.addCustom("Saved", new)
+        val named = tuningList.addCustom("Saved", new)
         testScope.advanceUntilIdle()
         assertTrue(tuningList.currentSaved.value)
 
         // Test remove custom.
-        tuningList.removeCustom(tuningList.custom.value.first().tuning)
+        tuningList.removeCustom(named)
         testScope.advanceUntilIdle()
         assertFalse(tuningList.currentSaved.value)
 
