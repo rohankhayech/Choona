@@ -41,6 +41,7 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
 
@@ -54,10 +55,13 @@ import com.rohankhayech.music.Tuning
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
+ * @param selectedNote The index of the currently selected note in chromatic mode.
  * @param tuned Whether each string has been tuned.
- * @param autoDetect Whether the tuner will automatically detect the currently playing string.
+ * @param noteTuned Whether the currently detected note in chromatic mode has been tuned.
+ * @param autoDetect Whether the tuner will automatically detect the currently playing string/note.
+ * @param chromatic Whether the tuner is in chromatic mode.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
  * @param tuningList State holder for the tuning list.
  * @param tuningSelectorOpen Whether the tuning selection panel is open.
@@ -66,6 +70,8 @@ import com.rohankhayech.music.Tuning
  * @param onEditModeChanged Called when the edit mode is toggled.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
+ * @param onSelectChromatic Called when the chromatic mode is selected.
+ * @param onSelectNote Called when a note is selected in chromatic mode.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
  * @param onTuneUpTuning Called when the tuning is tuned up.
@@ -76,6 +82,7 @@ import com.rohankhayech.music.Tuning
  * @param onSettingsPressed Called when the settings button is pressed.
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
+ * @param onSelectChromaticFromList Called when the chromatic mode is selected from the selection panel.
  * @param onDismissTuningSelector Called when the tuning selection screen is dismissed.
  * @param onDismissConfigurePanel Called when the screen is dismissed.
  *
@@ -86,13 +93,16 @@ fun MainLayout(
     windowSizeClass: WindowSizeClass,
     compact: Boolean,
     expanded: Boolean,
-    tuning: Tuning,
+    tuning: TuningEntry,
     noteOffset: State<Double?>,
     selectedString: Int,
+    selectedNote: Int,
     tuned: BooleanArray,
+    noteTuned: Boolean,
     autoDetect: Boolean,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    chromatic: Boolean,
+    favTunings: State<Set<TuningEntry>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
@@ -101,6 +111,8 @@ fun MainLayout(
     onEditModeChanged: (Boolean) -> Unit,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
+    onSelectChromatic: () -> Unit,
+    onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -111,6 +123,7 @@ fun MainLayout(
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
+    onSelectChromaticFromList: () -> Unit,
     onDismissTuningSelector: () -> Unit,
     onDismissConfigurePanel: () -> Unit,
 ) {
@@ -124,13 +137,18 @@ fun MainLayout(
                     tuning,
                     noteOffset,
                     selectedString,
+                    selectedNote,
                     tuned,
+                    noteTuned,
                     autoDetect,
+                    chromatic,
                     favTunings,
-                    customTunings,
+                    getCanonicalName,
                     prefs,
                     onSelectString,
                     onSelectTuning,
+                    onSelectChromatic,
+                    onSelectNote,
                     onTuneUpString,
                     onTuneDownString,
                     onTuneUpTuning,
@@ -155,6 +173,7 @@ fun MainLayout(
                         pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                         backIcon = null,
                         onSelect = onSelectTuningFromList,
+                        onSelectChromatic = onSelectChromaticFromList,
                         onDismiss = {}
                     )
                 }
@@ -173,13 +192,18 @@ fun MainLayout(
                 tuning,
                 noteOffset,
                 selectedString,
+                selectedNote,
                 tuned,
+                noteTuned,
                 autoDetect,
+                chromatic,
                 favTunings,
-                customTunings,
+                getCanonicalName,
                 prefs,
                 onSelectString,
                 onSelectTuning,
+                onSelectChromatic,
+                onSelectNote,
                 onTuneUpString,
                 onTuneDownString,
                 onTuneUpTuning,
@@ -200,13 +224,15 @@ fun MainLayout(
         ) {
             ConfigureTuningScreen(
                 tuning = tuning,
+                chromatic,
+                selectedNote = selectedNote,
                 favTunings = favTunings,
-                customTunings = customTunings,
-                onSelectTuning = onSelectTuning,
+                getCanonicalName = getCanonicalName,
                 onTuneUpString = onTuneUpString,
                 onTuneDownString = onTuneDownString,
                 onTuneUpTuning = onTuneUpTuning,
                 onTuneDownTuning = onTuneDownTuning,
+                onSelectNote = onSelectNote,
                 onOpenTuningSelector = onOpenTuningSelector,
                 onDismiss = onDismissConfigurePanel,
                 onSettingsPressed = onSettingsPressed
@@ -222,6 +248,7 @@ fun MainLayout(
                 backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
                 pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                 onSelect = onSelectTuningFromList,
+                onSelectChromatic = onSelectChromaticFromList,
                 onDismiss = onDismissTuningSelector,
             )
         }

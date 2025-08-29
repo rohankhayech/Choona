@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,9 +66,8 @@ public final class GuitarString implements Iterable<Double>, Comparable<GuitarSt
      * @param rootNoteIndex The note index corresponding to the string's root note.
      */
     private GuitarString(String rootNote, int rootNoteIndex) {
-        int rootLen = rootNote.length();
-        this.root = rootNote.substring(0, rootLen-1);
-        this.octave = Integer.parseInt(rootNote.substring(rootLen-1));
+        this.root = Notes.getRootNote(rootNote);
+        this.octave = Notes.getOctave(rootNote);
         this.rootNoteIndex = rootNoteIndex;
     }
 

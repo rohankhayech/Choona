@@ -19,47 +19,32 @@
 package com.rohankhayech.choona.view.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.android.util.ui.theme.m3.harmonised
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.view.theme.PreviewWrapper
-import com.rohankhayech.choona.view.theme.extColors
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning
 
@@ -213,9 +198,8 @@ private fun InlineStringControls(
 }
 
 /**
- * Component displaying the specified [strings] inline horizontally and allowing selection of a string for tuning.
+ * Component displaying the specified strings inline horizontally and allowing selection of a string for tuning.
  * @param tuning Current guitar tuning used for comparison.
- * @param strings Strings to display in this selector and their indexes within the tuning. Defaults to [tuning].
  * @param selectedString Index of the selected string in the tuning.
  * @param tuned Whether each string has been tuned.
  * @param onSelect Called when a string is selected.
@@ -226,40 +210,18 @@ private fun InlineStringControls(
 fun CompactStringSelector(
     modifier: Modifier = Modifier,
     tuning: Tuning,
-    strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) }.reversed() },
     selectedString: Int,
     tuned: BooleanArray,
     onSelect: (Int) -> Unit,
 ) {
-    val scrollState = rememberScrollState()
-
-    val selectedStringButtonPosition = with(LocalDensity.current) {
-        remember(tuning, selectedString) {
-            (72.dp * (strings.size -1 - selectedString)).toPx()
-        }
-    }
-    LaunchedEffect(key1 = selectedString) {
-        scrollState.animateScrollTo(selectedStringButtonPosition.toInt())
-    }
-
-    Row(
-        modifier = modifier.horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(8.dp))
-        strings.forEach {
-            val (index, string) = it
-            StringSelectionButton(
-                index = index,
-                string = string,
-                selected = selectedString == index,
-                tuned = tuned[index],
-                onSelect = onSelect
-            )
-        }
-        Spacer(Modifier.width(8.dp))
-    }
+    ScrollableButtonRow(
+        modifier = modifier,
+        items = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs.toFullString()) } },
+        selectedIndex = selectedString,
+        activatedButtons = tuned,
+        reversed = true,
+        onSelect = onSelect
+    )
 }
 
 /**
@@ -326,43 +288,13 @@ private fun StringSelectionButton(
     selected: Boolean,
     onSelect: (Int) -> Unit,
 ) {
-    // Animate content color by selected and tuned state.
-    val contentColor by animateColorAsState(
-        if (selected) {
-            if (tuned) MaterialTheme.extColors.green.onContainer.harmonised()
-            else MaterialTheme.colorScheme.onTertiaryContainer
-        }
-        else if (tuned) MaterialTheme.extColors.green.color.harmonised()
-        else LocalContentColor.current,
-        label = "String Button Content Color"
+    NoteSelectionButton(
+        index = index,
+        label = string.toFullString(),
+        tuned = tuned,
+        selected = selected,
+        onSelect = onSelect
     )
-
-    // Animate background color by selected state.
-    val backgroundColor by animateColorAsState(
-        if (selected) {
-            if (tuned) MaterialTheme.extColors.green.container.harmonised()
-            else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.60f)
-        }
-        else MaterialTheme.colorScheme.background,
-        label = "String Button Background Color"
-    )
-
-    // Selection Button
-    OutlinedButton(
-        modifier = Modifier.defaultMinSize(84.dp, 48.dp),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = backgroundColor,
-            contentColor = contentColor
-        ),
-        border = ButtonDefaults.outlinedButtonBorder()
-            .copy(brush = SolidColor(
-                if (selected) contentColor.copy(alpha = 0.38f)
-                else MaterialTheme.colorScheme.outlineVariant
-            )),
-        onClick = remember(onSelect, index) { { onSelect(index) } }
-    ) {
-        Text(string.toFullString(), modifier = Modifier.padding(4.dp))
-    }
 }
 
 // Previews

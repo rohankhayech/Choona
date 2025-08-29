@@ -57,16 +57,17 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.Tuning
 
 /**
  * Row UI component displaying and allowing selection and retuning of the current tuning.
  *
+ * @param modifier Modifier to be applied to the selector.
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param enabled Whether the selector is enabled. Defaults to true.
  * @param openDirect Whether to open the tuning selection screen directly instead of the favourites dropdown.
  * @param onSelect Called when a tuning is selected.
@@ -81,13 +82,13 @@ import com.rohankhayech.music.Tuning
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
-    favTunings: State<Set<Tuning>>,
-    customTunings: State<Set<Tuning>>,
+    tuning: TuningEntry,
+    favTunings: State<Set<TuningEntry>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
-    onSelect: (Tuning) -> Unit,
+    onSelect: (TuningEntry) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
@@ -100,11 +101,11 @@ fun TuningSelector(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (editModeEnabled) {
+            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
                 // Tune Down Button
                 IconButton(
                     onClick = onTuneDown,
-                    enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
                 }
@@ -115,7 +116,7 @@ fun TuningSelector(
             ExposedDropdownMenuBox(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = if (!editModeEnabled) 16.dp else 0.dp),
+                    .padding(horizontal = if (!editModeEnabled || tuning is TuningEntry.InstrumentTuning) 16.dp else 0.dp),
                 expanded = expanded && enabled,
                 onExpandedChange = {
                     if (openDirect) onOpenTuningSelector()
@@ -126,7 +127,7 @@ fun TuningSelector(
                 CurrentTuningField(
                     modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
                     tuning = tuning,
-                    customTunings = customTunings,
+                    getCanonicalName,
                     expanded = expanded,
                     showExpanded = enabled,
                     compact
@@ -144,7 +145,7 @@ fun TuningSelector(
                                     modifier = Modifier.padding(vertical = 8.dp),
                                     tuning = tuningOption,
                                     fontWeight = FontWeight.Normal,
-                                    customTunings = customTunings
+                                    getCanonicalName = getCanonicalName
                                 )
                             },
                             onClick = {
@@ -164,11 +165,11 @@ fun TuningSelector(
                 }
             }
 
-            if (editModeEnabled) {
+            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
                 // Tune Up Button
                 IconButton(
                     onClick = onTuneUp,
-                    enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.tune_up))
                 }
@@ -181,7 +182,7 @@ fun TuningSelector(
  * Outlined dropdown box field showing the current tuning.
  *
  * @param tuning The current guitar tuning.
- * @param customTunings Set of custom tunings added by the user.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param expanded Whether the dropdown box is expanded.
  * @param showExpanded Whether to show the expanded state.
  * @param compact Whether to show the compact version of the tuning.
@@ -190,8 +191,8 @@ fun TuningSelector(
 @Composable
 private fun CurrentTuningField(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
-    customTunings: State<Set<Tuning>>,
+    tuning: TuningEntry,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
     expanded: Boolean,
     showExpanded: Boolean,
     compact: Boolean
@@ -211,7 +212,13 @@ private fun CurrentTuningField(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TuningItem(modifier = Modifier.weight(1f), compact = compact, tuning = tuning, customTunings = customTunings, fontWeight = FontWeight.Bold)
+            TuningItem(
+                modifier = Modifier.weight(1f),
+                compact = compact,
+                tuning = tuning,
+                getCanonicalName = getCanonicalName,
+                fontWeight = FontWeight.Bold
+            )
             if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         }
     }
@@ -221,11 +228,11 @@ private fun CurrentTuningField(
  * UI component displaying the name and strings of the specified tuning.
  *
  * @param modifier The modifier to apply to this layout.
+ * @param compact Whether to show the compact version of the tuning.
  * @param tuning The tuning to display.
  * @param fontWeight The font weight of the tuning name text.
- * @param customTunings Set of custom tunings added by the user.
  * @param horizontalAlignment The horizontal alignment of the text.
- * @param compact Whether to show the compact version of the tuning.
+ * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  *
  * @author Rohan Khayech
  */
@@ -233,26 +240,32 @@ private fun CurrentTuningField(
 fun TuningItem(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
-    tuning: Tuning,
+    tuning: TuningEntry,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    customTunings: State<Set<Tuning>>,
+    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
 ) {
-    val tuningName = remember(tuning, customTunings) {
-        if (tuning.hasName()) {
-            tuning.name
-        } else {
-            tuning.findEquivalentIn(customTunings.value + Tunings.TUNINGS)?.name
-                ?: tuning.toString()
-        }
+    val tuningName = when (tuning) {
+        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
+        is TuningEntry.InstrumentTuning ->
+            if (tuning.tuning.hasName()) {
+                tuning.tuning.name
+            } else {
+                tuning.getCanonicalName()
+            }
     }
 
     val strings = remember(tuning) {
-        tuning.strings
-            .reversed()
-            .joinToString(
+        tuning.tuning?.strings
+            ?.reversed()
+            ?.joinToString(
                 separator = if (!compact) ", " else "",
             ) { if (compact) it.toString() else it.toFullString() }
+    } ?: ""
+
+    val desc = when (tuning) {
+        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
+        is TuningEntry.InstrumentTuning -> strings
     }
 
     Column(
@@ -268,7 +281,7 @@ fun TuningItem(
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            strings,
+            desc,
             style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -283,16 +296,16 @@ private fun Preview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
             onTuneUp = {},
             onOpenTuningSelector = {},
             editModeEnabled = true,
-            compact = false
+            compact = false,
+            getCanonicalName = { this.tuning.toString() }
         )
     }
 }
@@ -303,9 +316,9 @@ private fun EditOffPreview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            favTunings = remember { mutableStateOf(setOf(Tuning.STANDARD, Tuning.DROP_D)) },
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
+            getCanonicalName = { this.tuning.toString() },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
@@ -324,8 +337,8 @@ private fun TuningItemPreview() {
     PreviewWrapper {
         TuningItem(
             Modifier.padding(8.dp),
-            tuning = Tuning.STANDARD,
-            customTunings = remember { mutableStateOf(emptySet()) },
+            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            getCanonicalName = { this.tuning.toString() },
             fontWeight = FontWeight.Bold
         )
     }

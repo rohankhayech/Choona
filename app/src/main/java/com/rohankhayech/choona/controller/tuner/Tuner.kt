@@ -25,6 +25,8 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.pitch.AMDF
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchDetectionResult
+import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
+import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.model.error.TunerException
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.music.Notes
@@ -79,6 +81,12 @@ class Tuner(
     /** Index of the currently selected string within the tuning. */
     val selectedString = _selectedString.asStateFlow()
 
+    /** Mutable backing property for [selectedNote]. */
+    private val _selectedNote = MutableStateFlow(Notes.getIndex("E2"))
+
+    /** The index of the currently selected note. */
+    val selectedNote = _selectedNote.asStateFlow()
+
     /** Mutable backing property for [noteOffset] */
     private val _noteOffset = MutableStateFlow<Double?>(null)
 
@@ -96,6 +104,18 @@ class Tuner(
 
     /** Whether each string has been tuned. */
     val tuned = _tuned.asStateFlow()
+
+    /** Mutable backing property for [noteTuned]. */
+    private val _noteTuned = MutableStateFlow(false)
+
+    /** Whether the currently playing chromatic note is tuned. */
+    val noteTuned = _noteTuned.asStateFlow()
+
+    /** Mutable backing property for [chromatic]. */
+    private val _chromatic = MutableStateFlow(false)
+
+    /** Whether the tuner is currently in chromatic mode, or instrument mode. */
+    val chromatic = _chromatic.asStateFlow()
 
     /** Whether the tuner is currently running. */
     private var running = false
@@ -118,6 +138,9 @@ class Tuner(
 
     /** Sets the guitar tuning for comparison. */
     fun setTuning(tuning: Tuning) {
+        if (chromatic.value) {
+            setChromatic(false)
+        }
         _tuning.update {
             updateTunedStatus(it, tuning)
             tuning
@@ -176,18 +199,45 @@ class Tuner(
         } else false
     }
 
+    /**
+     * Selects the note to tune to in chromatic mode.
+     * @param noteIndex The index of the note to select, must be between [LOWEST_NOTE] and [HIGHEST_NOTE].
+     */
+    fun selectNote(noteIndex: Int) {
+        require(noteIndex in LOWEST_NOTE..HIGHEST_NOTE) { "Invalid note index." }
+        if (selectedNote.value != noteIndex) {
+            _noteTuned.update { false }
+        }
+        _selectedNote.update { noteIndex }
+        _autoDetect.update { false }
+    }
 
     /**
      * Sets the [tuned] value of the [nth][n] string.
+     * If in chromatic mode, sets the [noteTuned] value instead.
      */
     fun setTuned(n: Int = selectedString.value, tuned: Boolean = true) {
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
-        _tuned.update { old -> old.clone().also { it[n] = tuned } }
+        if (chromatic.value) {
+            _noteTuned.update { tuned }
+        } else {
+            _tuned.update { old -> old.clone().also { it[n] = tuned } }
+        }
     }
 
     /** Sets whether the tuner will automatically detect the currently playing string. */
     fun setAutoDetect(on: Boolean) {
         _autoDetect.update { on }
+    }
+
+    /** Sets whether the tuner is in chromatic mode or instrument mode. */
+    fun setChromatic(on: Boolean = true) {
+        // Reset tuned state.
+        _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
+        _noteTuned.update { false }
+
+        // Set chromatic or instrument mode
+        _chromatic.update { on }
     }
 
     /**
@@ -218,13 +268,22 @@ class Tuner(
             // Calc note playing.
             val notePlaying = Notes.getOffsetFromA4(result.pitch.toDouble())
 
-            // Detect closest string.
+            // Detect closest string/note in auto mode.
             if (autoDetect.value) {
-                _selectedString.update {
-                    tuning.value.getStringNum(
-                        tuning.value.minBy { abs(it.getNoteIndex(0) - notePlaying) }
-                    )
+                if (chromatic.value) {
+                    val closestNote = notePlaying.roundToInt()
+                    if (selectedNote.value != closestNote) {
+                        _noteTuned.update { false }
+                    }
+                    _selectedNote.update { closestNote }
+                } else {
+                    _selectedString.update {
+                        tuning.value.getStringNum(
+                            tuning.value.minBy { abs(it.getNoteIndex(0) - notePlaying) }
+                        )
+                    }
                 }
+
             }
 
             // Update note offset.
@@ -236,8 +295,13 @@ class Tuner(
 
     /** Returns the offset between the specified [note][notePlaying] and the root note of the selected string. */
     private fun calcNoteOffset(notePlaying: Double): Double {
-        val str = tuning.value.getString(_selectedString.value)
-        return notePlaying - str.getNoteIndex(0)
+        val noteIndex = if (chromatic.value) {
+            selectedNote.value
+        } else {
+            val str = tuning.value.getString(selectedString.value)
+            str.getNoteIndex(0)
+        }
+        return notePlaying - noteIndex
     }
 
     /**
