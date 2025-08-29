@@ -9,6 +9,7 @@ Guitar tuner application for Android with support for custom tunings.
 - Automatic detection of which string is playing.
 - Choose from 20+ common guitar, bass and ukulele tunings.
 - Save and tune to custom tunings with any combination of strings.
+- Tune anything to any note with chromatic tuning mode.
 - Display tuning offset in semitones or cents for improved accuracy.
 - Plays sounds to indicate how a string should sound and when it is in tune.
 - Keep track of your favourite tunings.
