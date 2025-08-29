@@ -21,7 +21,13 @@ package com.rohankhayech.choona.model.tuning
 import java.util.Objects
 import java.util.SortedMap
 import android.content.Context
+import android.content.Intent
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
+import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
+import com.rohankhayech.choona.view.activity.TunerActivity
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
@@ -181,6 +187,37 @@ class TuningList(
      */
     fun saveTunings(context: Context) {
         TuningFileIO.saveTunings(context, favourites.value, _custom.value, current.value, pinned.value)
+        setTuningShortcuts(context)
+    }
+
+    private fun setTuningShortcuts(context: Context) {
+        ShortcutManagerCompat.removeAllDynamicShortcuts(context)
+        favourites.value
+            .take(ShortcutManagerCompat.getMaxShortcutCountPerActivity(context))
+            .map {
+            ShortcutInfoCompat.Builder(context, it.key)
+                .setShortLabel(
+                    when (it) {
+                        is TuningEntry.InstrumentTuning -> it.getCanonicalName()
+                        is TuningEntry.ChromaticTuning -> context.getString(R.string.chromatic)
+                    }
+                )
+                .setLongLabel(when (it) {
+                    is TuningEntry.InstrumentTuning -> "${it.getCanonicalName()} (${it.tuning})"
+                    is TuningEntry.ChromaticTuning -> context.getString(R.string.chromatic)
+                })
+                .setIcon(IconCompat.createWithResource(context, R.drawable.baseline_tune_24))
+                .setIntent(Intent(context, TunerActivity::class.java)
+                    .setAction(Intent.ACTION_VIEW)
+                    .putExtra(
+                        TunerActivity.EXTRA_LAUNCHED_TUNING,
+                        TuningFileIO.encodeTuning(it)
+                    )
+                )
+                .build()
+            }.let {
+                ShortcutManagerCompat.setDynamicShortcuts(context, it)
+            }
     }
 
     /**

@@ -26,6 +26,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -52,6 +53,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.rohankhayech.choona.R
+import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.controller.midi.MidiController
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
@@ -77,6 +79,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.billthefarmer.mididriver.GeneralMidiConstants
+import org.json.JSONException
 
 /**
  * Activity that allows the user to select a tuning and tune their guitar, displaying a comparison of played notes
@@ -85,6 +88,11 @@ import org.billthefarmer.mididriver.GeneralMidiConstants
  * @author Rohan Khayech
  */
 class TunerActivity : ComponentActivity() {
+
+    companion object {
+        /** Activity intent extra for the launched tuning. */
+        const val EXTRA_LAUNCHED_TUNING = "launched_tuning"
+    }
 
     /** View model used to hold the current tuner state. */
     private val vm: TunerActivityViewModel by viewModels()
@@ -138,15 +146,17 @@ class TunerActivity : ComponentActivity() {
                 vm.setEditMode(preferences.editModeDefault)
 
                 // Switch to initial tuning
-                when(preferences.initialTuning) {
-                    InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
-                        is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
-                        is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
-                    }
-                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
-                        when (it) {
-                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                if (!intent.hasExtra(EXTRA_LAUNCHED_TUNING)) {
+                    when (preferences.initialTuning) {
+                        InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
+                            is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
                             is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+                        InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
+                            when (it) {
+                                is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                                is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                            }
                         }
                     }
                 }
@@ -314,6 +324,25 @@ class TunerActivity : ComponentActivity() {
         // Call superclass.
         super.onResume()
 
+        // Get launched tuning from the intent if launched from a shortcut.
+        if (intent.action == Intent.ACTION_VIEW) {
+            val launchTuningExtra = intent.getStringExtra(EXTRA_LAUNCHED_TUNING)
+            if (launchTuningExtra != null) {
+                // Parse, switch to and return the launched tuning.
+                try {
+                    TuningFileIO.parseTuning(launchTuningExtra).let {
+                        // Switch to launched tuning
+                        when (it) {
+                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                            is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+                    }
+                } catch (_: JSONException) {
+                    Toast.makeText(this, R.string.invalid_tuning, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         // Start midi driver.
         midi.start()
 
@@ -334,6 +363,9 @@ class TunerActivity : ComponentActivity() {
 
         // Stop midi driver.
         midi.stop()
+
+        // Clear launched tuning from intent
+        intent.removeExtra(EXTRA_LAUNCHED_TUNING)
 
         // Call superclass.
         super.onPause()

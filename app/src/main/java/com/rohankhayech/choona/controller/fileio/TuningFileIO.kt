@@ -147,7 +147,7 @@ object TuningFileIO {
         try {
             for (tuning in tunings) {
                 // Encode the tuning to JSON.
-                val tuningObj = encodeTuning(tuning)
+                val tuningObj = encodeTuningToJSON(tuning)
 
                 // Add the tuning to the JSON array.
                 tuningsArr.put(tuningObj)
@@ -195,12 +195,22 @@ object TuningFileIO {
     private fun encodeInitialTunings(lastUsed: TuningEntry?, initial: TuningEntry?): String {
         try {
             val tuningsObj = JSONObject()
-            lastUsed?.let {tuningsObj.put("lastUsed", encodeTuning(it)) }
-            initial?.let {tuningsObj.put("initial", encodeTuning(it)) }
+            lastUsed?.let {tuningsObj.put("lastUsed", encodeTuningToJSON(it)) }
+            initial?.let {tuningsObj.put("initial", encodeTuningToJSON(it)) }
             return tuningsObj.toString()
         } catch (e: JSONException) {
             throw TuningIOException("Tunings could not be saved: " + e.message, e)
         }
+    }
+
+    /**
+     * Parses the tuning from the specified JSON string.
+     * @param tuningJSON The JSON string representation of the tuning.
+     * @return The tuning represented by the JSON object.
+     */
+    @Throws(JSONException::class)
+    fun parseTuning(tuningJSON: String): TuningEntry {
+        return parseTuning(JSONObject(tuningJSON))
     }
 
     /**
@@ -242,11 +252,22 @@ object TuningFileIO {
     /**
      * Encodes the specified tuning to JSON.
      * @param tuningEntry The tuning to encode.
+     * @return A JSON string representation of the tuning.
+     * @throws JSONException If there is an error encoding the tuning to JSON.
+     */
+    @Throws(JSONException::class)
+    fun encodeTuning(tuningEntry: TuningEntry): String {
+        return encodeTuningToJSON(tuningEntry).toString()
+    }
+
+    /**
+     * Encodes the specified tuning to JSON.
+     * @param tuningEntry The tuning to encode.
      * @return A JSON object representation of the tuning.
      * @throws JSONException If there is an error encoding the tuning to JSON.
      */
     @Throws(JSONException::class)
-    private fun encodeTuning(tuningEntry: TuningEntry): JSONObject {
+    private fun encodeTuningToJSON(tuningEntry: TuningEntry): JSONObject {
         // Create a new JSON object for the tuning.
         val tuningObj = JSONObject()
 
