@@ -112,9 +112,10 @@ fun TuningDisplay(
 
     // Calculate meter position.
     val meterPosition by animateFloatAsState(
-        targetValue = remember(offset) { derivedStateOf {
+        targetValue = remember(offset, showNote) { derivedStateOf {
+            val semitoneRange = if (showNote) 0.5 else 4
             if (offset != null) {
-                (offset.toFloat() / 4f).coerceIn(-1f..1f)
+                (offset.toFloat() / semitoneRange.toFloat()).coerceIn(-1f..1f)
             } else {
                 0f
             }
@@ -490,7 +491,7 @@ private fun InTuneNotePreview() {
 @Composable
 private fun NoteCentsPreview() {
     PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.CENTS, showNote = true) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.3) }, displayType = TuningDisplayType.CENTS, showNote = true) {}
     }
 }
 
@@ -498,6 +499,6 @@ private fun NoteCentsPreview() {
 @Composable
 private fun NoteSemitonesPreview() {
     PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(27.0) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
+        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.5) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
     }
 }
