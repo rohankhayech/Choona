@@ -1,0 +1,8 @@
+Minor release adding chromatic tuning mode and Android 16 support.
+
+Features Added:
+- Tune anything to any note with chromatic tuning mode.
+- Added support for themed app icons.
+
+Changes:
+- Added support for Android 16.
