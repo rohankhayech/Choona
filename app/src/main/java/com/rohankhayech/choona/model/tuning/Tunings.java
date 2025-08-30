@@ -74,6 +74,8 @@ public final class Tunings {
     public static final Tuning ALL_4TH = add(Tuning.fromString("All 4th", GUITAR, MISC, "F4 C4 G3 D3 A2 E2"));
     public static final Tuning NST = add(Tuning.fromString("New Standard Tuning", GUITAR, MISC, "G4 E4 A3 D3 G2 C2"));
     public static final Tuning UKULELE_STANDARD = add(Tuning.fromString("Standard", UKULELE, Category.COMMON, "A4 E4 C4 G4"));
+    public static final Tuning SEVEN_STRING = add(Tuning.fromString("7-String", GUITAR, Category.EXTENDED, "E4 B3 G3 D3 A2 E2 B1"));
+    public static final Tuning TWELVE_STRING = add(Tuning.fromString("12-String", GUITAR, Category.EXTENDED, "E4 E4 B3 B3 G3 G4 D3 D4 A2 A3 E2 E3"));
 
     /** Adds the specified tuning to the list and returns it. */
     private static Tuning add(Tuning tuning) {

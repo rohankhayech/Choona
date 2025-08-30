@@ -278,6 +278,7 @@ class TuningListTest {
             Category.COMMON to true,
             Category.POWER to false,
             Category.OPEN to false,
+            Category.EXTENDED to false,
             Category.MISC to false
         )
         tuningList.filterBy(instrument = Instrument.BASS)

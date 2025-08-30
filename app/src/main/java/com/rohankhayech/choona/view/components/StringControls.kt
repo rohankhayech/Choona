@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.view.components
 
+import kotlin.math.ceil
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -129,7 +130,7 @@ private fun SideBySideStringControls(
         val splitTuning = remember(tuning) {
             tuning.mapIndexed { n, gs -> Pair(n, gs) }
                 .reversed()
-                .chunked(tuning.numStrings()/2)
+                .chunked(ceil(tuning.numStrings().toDouble()/2.0).toInt())
         }
 
         InlineStringControls(
@@ -167,7 +168,7 @@ private fun SideBySideStringControls(
  * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
-private fun InlineStringControls(
+fun InlineStringControls(
     tuning: Tuning,
     strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
     selectedString: Int?,
@@ -187,7 +188,7 @@ private fun InlineStringControls(
                 index = index,
                 string = string,
                 selected = selectedString == index,
-                tuned = tuned?.get(index) ?: false,
+                tuned = tuned?.get(index) == true,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,
@@ -350,7 +351,16 @@ private fun CompactPreview() {
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
+        StringControl(
+            index = 0,
+            string = GuitarString.E2,
+            selected = false,
+            tuned = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            editModeEnabled = true
+        )
     }
 }
 
@@ -388,6 +398,15 @@ private fun DynamicButtonStatesPreview() {
 @Composable
 private fun LargeFontPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
+        StringControl(
+            index = 0,
+            string = GuitarString.D2.higherString(),
+            selected = false,
+            tuned = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            editModeEnabled = true
+        )
     }
 }
