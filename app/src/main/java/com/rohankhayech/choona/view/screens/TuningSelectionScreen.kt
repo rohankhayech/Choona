@@ -112,6 +112,7 @@ import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
 import com.rohankhayech.choona.model.tuning.Tunings
 import com.rohankhayech.choona.view.theme.AppTheme
+import com.rohankhayech.choona.view.util.getLocalisedName
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
@@ -830,17 +831,6 @@ private fun LazyItemScope.TuningItem(
     }
 }
 
-/** @return The localised name of this instrument. */
-@Composable
-fun Instrument.getLocalisedName(): String {
-    return stringResource(when (this) {
-        Instrument.GUITAR -> R.string.instr_guitar
-        Instrument.BASS -> R.string.instr_bass
-        Instrument.UKULELE -> R.string.instr_ukulele
-        else -> R.string.instr_other
-    })
-}
-
 /** @return The localised name of this category. */
 @Composable
 fun Category?.getLocalisedName(): String {
@@ -848,6 +838,7 @@ fun Category?.getLocalisedName(): String {
         Category.COMMON -> R.string.tun_cat_common
         Category.POWER -> R.string.tun_cat_power
         Category.OPEN -> R.string.tun_cat_open
+        Category.EXTENDED -> R.string.tun_cat_extended
         else -> R.string.tun_cat_misc
     })
 }
