@@ -149,29 +149,36 @@ fun AboutScreen(
 
             SectionLabel(stringResource(R.string.help_feedback))
             LinkListItem(text = stringResource(R.string.send_feedback), url = "https://github.com/rohankhayech/Choona/issues/new/choose")
-            LinkListItem(text = stringResource(R.string.rate_app), url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona")
 
-            AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
-                ListItem(
-                    headlineContent =  { Text(stringResource(R.string.pref_review_opt_out)) },
-                    supportingContent =  { Text(stringResource(R.string.pref_review_opt_out_desc)) },
-                    trailingContent = {
-                        val optedOutMsg = stringResource(R.string.review_opted_out)
-                        Switch(
-                            checked = !prefs.showReviewPrompt,
-                            onCheckedChange = {
-                                onReviewOptOut()
-
-                                coroutineScope.launch {
-                                    snackbarHost.showSnackbar(
-                                        message = optedOutMsg,
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
-                        )
-                    }
+            @Suppress("KotlinConstantConditions")
+            if (BuildConfig.FLAVOR == "play") {
+                LinkListItem(
+                    text = stringResource(R.string.rate_app),
+                    url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona"
                 )
+
+                AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.pref_review_opt_out)) },
+                        supportingContent = { Text(stringResource(R.string.pref_review_opt_out_desc)) },
+                        trailingContent = {
+                            val optedOutMsg = stringResource(R.string.review_opted_out)
+                            Switch(
+                                checked = !prefs.showReviewPrompt,
+                                onCheckedChange = {
+                                    onReviewOptOut()
+
+                                    coroutineScope.launch {
+                                        snackbarHost.showSnackbar(
+                                            message = optedOutMsg,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
             }
         }
     }

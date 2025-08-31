@@ -91,7 +91,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
 
-
     // Google Play
     "playImplementation"(libs.review.ktx)
 
