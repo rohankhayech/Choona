@@ -1,7 +1,7 @@
-name: Build and Upload Android Apk on Release
+name: Build and Upload Android APK on Release
 on:
   release:
-    types: [created]
+    types: [released]
 
 jobs:
   build:
@@ -22,12 +22,12 @@ jobs:
       run: chmod +x ./gradlew
     
     - name: Build APK
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleOpenRelease
     
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
       with:
-        releaseDirectory: app/build/outputs/apk/release
+        releaseDirectory: app/open/release
         signingKeyBase64: ${{ secrets.KEYSTORE }}
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.STORE_PASS }}
@@ -40,5 +40,5 @@ jobs:
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: app/build/outputs/apk/release/app-release-unsigned-signed.apk
-        asset_name: Choona-Android-${{ github.event.release.tag_name }}.apk
+        asset_name: Choona-Android-Open-${{ github.event.release.tag_name }}.apk
         asset_content_type: application/vnd.android.package-archive
