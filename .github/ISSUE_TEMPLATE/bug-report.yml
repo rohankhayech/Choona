@@ -21,7 +21,7 @@ body:
     id: steps
     attributes:
       label: To reproduce
-      description: Steps to reproduce the behavior:
+      description: "Steps to reproduce the behavior:"
       placeholder: |
         1. Go to '...'
         2. Click on '....'
