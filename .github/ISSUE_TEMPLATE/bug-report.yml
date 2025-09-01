@@ -59,7 +59,6 @@ body:
       label: Build Type
       description: "Found in Choona's About settings page."
       placeholder: Play Store / Open Source
-    - type: input
   - type: textarea
     id: extra
     attributes:
