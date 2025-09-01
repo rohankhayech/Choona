@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+//noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -121,11 +123,25 @@ fun AboutScreen(
         ) {
             // Version and Copyright
             SectionLabel(stringResource(R.string.about))
-            Text(
-                "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}\n© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
+                Text(
+                    "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}",
+                    modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    stringResource(
+                        R.string.dist_desc,
+                        stringResource(R.string.dist_platform)
+                    ),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlpha.medium)
+                )
+                Text(
+                    "© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
+                    modifier = Modifier.padding(bottom = 16.dp).padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             HorizontalDivider()
 
             // License

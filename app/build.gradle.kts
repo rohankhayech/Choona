@@ -61,7 +61,6 @@ android {
         }
         create("open") {
             dimension = "dist"
-            versionNameSuffix = "-open"
         }
     }
 
