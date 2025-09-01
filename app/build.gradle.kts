@@ -34,7 +34,7 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
         targetSdk = 36
-        versionCode = 13
+        versionCode = 14
         versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -49,6 +49,18 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
+        }
+    }
+
+    flavorDimensions("dist" )
+
+    productFlavors {
+        create("play") {
+            dimension = "dist"
+            isDefault = true
+        }
+        create("open") {
+            dimension = "dist"
         }
     }
 
@@ -77,7 +89,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.review.ktx)
+
+    // Google Play
+    "playImplementation"(libs.review.ktx)
 
     // Compose
     val composeBOM = platform(libs.androidx.compose.bom)
