@@ -1,44 +1,47 @@
-name: Build and Upload Android Apk on Release
+name: Build and Upload Android APK on Release
 on:
   release:
-    types: [created]
+    types: [released]
+permissions:
+  contents: write
 
 jobs:
   build:
     name: Build and Sign APK
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-    
-    - name: Build APK
-      run: ./gradlew assembleRelease
-    
-    - name: Sign APK
-      uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: app/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.KEYSTORE }}
-        alias: ${{ secrets.KEY_ALIAS }}
-        keyStorePassword: ${{ secrets.STORE_PASS }}
-        keyPassword: ${{ secrets.KEY_PASS }}
-        
-    - name: Upload APK to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: app/build/outputs/apk/release/app-release-unsigned-signed.apk
-        asset_name: Choona-Android-${{ github.event.release.tag_name }}.apk
-        asset_content_type: application/vnd.android.package-archive
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleOpenRelease
+
+      - name: Sign APK
+        id: sign-apk
+        uses: ilharp/sign-android-release@v2
+        with:
+          releaseDir: app/build/outputs/apk/open/release
+          signingKey: ${{ secrets.KEYSTORE }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.STORE_PASS }}
+          keyPassword: ${{ secrets.KEY_PASS }}
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.sign-apk.outputs.signedFile }}
+          asset_name: Choona-Android-Open-${{ github.event.release.tag_name }}.apk
+          asset_content_type: application/vnd.android.package-archive
