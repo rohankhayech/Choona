@@ -9,6 +9,7 @@ Guitar tuner application for Android with support for custom tunings.
 - Automatic detection of which string is playing.
 - Choose from 20+ common guitar, bass and ukulele tunings.
 - Save and tune to custom tunings with any combination of strings.
+- Tune anything to any note with chromatic tuning mode.
 - Display tuning offset in semitones or cents for improved accuracy.
 - Plays sounds to indicate how a string should sound and when it is in tune.
 - Keep track of your favourite tunings.
@@ -26,7 +27,7 @@ Guitar tuner application for Android with support for custom tunings.
   </summary>
   <br>
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03-selection.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04-custom.jpg" width=20%>
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-semitones.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06-cents.jpg" width=20%> 
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-chromatic.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06-semitones.jpg" width=20%> 
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/07-settings.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/08-black_theme.jpg" width=20%>
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/09-splitscreen.jpg" width="20%"> 
   <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/10-tablet.jpg" width=40%>

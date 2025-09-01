@@ -115,5 +115,6 @@
     <string name="pref_review_opt_out_desc">Don\'t ask me to review the app again.</string>
     <string name="rate_app">Rate and review</string>
     <string name="review_opted_out">You won\'t be asked to review the app again.</string>
+    <string name="dist_desc">%1$s Build</string>
     <string name="invalid_tuning">The selected tuning is no longer available.</string>
 </resources>

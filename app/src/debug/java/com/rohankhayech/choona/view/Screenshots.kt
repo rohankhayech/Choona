@@ -214,9 +214,10 @@ private fun SemitonesScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { this.tuning.toString() },
             prefs = TunerPreferences(
-                displayType = TuningDisplayType.SEMITONES
+                displayType = TuningDisplayType.SEMITONES,
+                stringLayout = StringLayout.SIDE_BY_SIDE
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
     }
 }

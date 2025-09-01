@@ -44,17 +44,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
+import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.controller.midi.MidiController
+import com.rohankhayech.choona.controller.play.ReviewController
+import com.rohankhayech.choona.controller.play.ReviewControllerImpl
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -112,8 +112,8 @@ class TunerActivity : ComponentActivity() {
     /** Callback used to dismiss configure tuning panel when the back button is pressed. */
     private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
 
-    /** Google Play review manager. */
-    private lateinit var manager: ReviewManager
+    /** Google Play review controller. */
+    private lateinit var reviewController: ReviewController
 
     /**
      * Called when activity is created.
@@ -176,7 +176,7 @@ class TunerActivity : ComponentActivity() {
             dismissTuningSelector()
         }
 
-        manager = ReviewManagerFactory.create(this)
+        reviewController = ReviewControllerImpl(this)
 
         // Set UI content.
         setContent {
@@ -224,18 +224,21 @@ class TunerActivity : ComponentActivity() {
                     }
 
                     // Launch review prompt after tuning if conditions met.
-                    var askedForReview by rememberSaveable { mutableStateOf(false) }
-                    LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
-                        if (
-                            !askedForReview  // Only ask once per app session.
-                            && prefs.showReviewPrompt  // Do not ask if user has disabled.
-                            && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
-                            && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
-                            && Math.random() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
-                        ) {
-                            delay(1000)
-                            launchReviewPrompt()
-                            askedForReview = true
+                    @Suppress("KotlinConstantConditions")
+                    if (BuildConfig.FLAVOR == "play") {
+                        var askedForReview by rememberSaveable { mutableStateOf(false) }
+                        LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
+                            if (
+                                !askedForReview  // Only ask once per app session.
+                                && prefs.showReviewPrompt  // Do not ask if user has disabled.
+                                && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
+                                && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
+                                && Math.random() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
+                            ) {
+                                delay(1000)
+                                launchReviewPrompt()
+                                askedForReview = true
+                            }
                         }
                     }
 
@@ -523,10 +526,9 @@ class TunerActivity : ComponentActivity() {
 
     /** Opens the tuner settings activity. */
     private fun openSettings() {
-        val pinnedName = when (val current = vm.tuningList.current.value) {
-            is TuningEntry.InstrumentTuning -> current.tuning.fullName
+        val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
+            is TuningEntry.InstrumentTuning -> pinned.tuning.fullName
             is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
-            null -> null
         }
 
         val intent = Intent(this, SettingsActivity::class.java)
@@ -546,25 +548,7 @@ class TunerActivity : ComponentActivity() {
 
     /** Launches a prompt for the user to review the app on Google Play. */
     private fun launchReviewPrompt() {
-        val request = manager.requestReviewFlow()
-        request.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val reviewInfo = task.result
-                manager.launchReviewFlow(this, reviewInfo)
-                    .addOnCompleteListener {
-                        // Increment launches counter.
-                        lifecycleScope.launch {
-                            tunerPreferenceDataStore.edit { prefs ->
-                                prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY] = (
-                                    (prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0)
-                                        + 1
-                                ).toString()
-                            }
-                        }
-
-                    }
-            }
-        }
+        reviewController.launchReviewPrompt()
     }
 }
 
