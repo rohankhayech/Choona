@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+//noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -121,11 +123,25 @@ fun AboutScreen(
         ) {
             // Version and Copyright
             SectionLabel(stringResource(R.string.about))
-            Text(
-                "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}\n© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
+                Text(
+                    "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}",
+                    modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    stringResource(
+                        R.string.dist_desc,
+                        stringResource(R.string.dist_platform)
+                    ),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlpha.medium)
+                )
+                Text(
+                    "© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
+                    modifier = Modifier.padding(bottom = 16.dp).padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             HorizontalDivider()
 
             // License
@@ -149,29 +165,36 @@ fun AboutScreen(
 
             SectionLabel(stringResource(R.string.help_feedback))
             LinkListItem(text = stringResource(R.string.send_feedback), url = "https://github.com/rohankhayech/Choona/issues/new/choose")
-            LinkListItem(text = stringResource(R.string.rate_app), url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona")
 
-            AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
-                ListItem(
-                    headlineContent =  { Text(stringResource(R.string.pref_review_opt_out)) },
-                    supportingContent =  { Text(stringResource(R.string.pref_review_opt_out_desc)) },
-                    trailingContent = {
-                        val optedOutMsg = stringResource(R.string.review_opted_out)
-                        Switch(
-                            checked = !prefs.showReviewPrompt,
-                            onCheckedChange = {
-                                onReviewOptOut()
-
-                                coroutineScope.launch {
-                                    snackbarHost.showSnackbar(
-                                        message = optedOutMsg,
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
-                        )
-                    }
+            @Suppress("KotlinConstantConditions")
+            if (BuildConfig.FLAVOR == "play") {
+                LinkListItem(
+                    text = stringResource(R.string.rate_app),
+                    url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona"
                 )
+
+                AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.pref_review_opt_out)) },
+                        supportingContent = { Text(stringResource(R.string.pref_review_opt_out_desc)) },
+                        trailingContent = {
+                            val optedOutMsg = stringResource(R.string.review_opted_out)
+                            Switch(
+                                checked = !prefs.showReviewPrompt,
+                                onCheckedChange = {
+                                    onReviewOptOut()
+
+                                    coroutineScope.launch {
+                                        snackbarHost.showSnackbar(
+                                            message = optedOutMsg,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
             }
         }
     }
