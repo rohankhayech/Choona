@@ -50,9 +50,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.BuildConfig
 import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.ReviewController
-import com.rohankhayech.choona.controller.ReviewControllerImpl
 import com.rohankhayech.choona.controller.midi.MidiController
+import com.rohankhayech.choona.controller.play.ReviewController
+import com.rohankhayech.choona.controller.play.ReviewControllerImpl
 import com.rohankhayech.choona.controller.tuner.Tuner
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -305,7 +305,7 @@ class TunerActivity : ComponentActivity() {
                 } else {
                     TunerErrorScreen(error, ::openSettings)
                 }
-                }
+            }
         }
 
         // Keep the screen on while tuning.

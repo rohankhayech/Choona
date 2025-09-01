@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.play
 
 import androidx.activity.ComponentActivity
 import androidx.datastore.preferences.core.edit
@@ -46,8 +46,8 @@ class ReviewControllerImpl(private val context: ComponentActivity): ReviewContro
                         // Increment launches counter.
                         context.lifecycleScope.launch {
                             context.tunerPreferenceDataStore.edit { prefs ->
-                                prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY] = (
-                                    (prefs[TunerPreferences.REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0)
+                                prefs[TunerPreferences.Companion.REVIEW_PROMPT_LAUNCHES_KEY] = (
+                                    (prefs[TunerPreferences.Companion.REVIEW_PROMPT_LAUNCHES_KEY]?.toIntOrNull() ?: 0)
                                         + 1
                                     ).toString()
                             }

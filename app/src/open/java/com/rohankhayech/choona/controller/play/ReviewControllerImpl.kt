@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.controller
+package com.rohankhayech.choona.controller.play
 
 import androidx.activity.ComponentActivity
 
