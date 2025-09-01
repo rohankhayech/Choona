@@ -35,7 +35,7 @@ body:
     attributes:
       label: Device
       placeholder: Samsung Galaxy S25
-    validation:
+    validations:
       required: true
   - type: input
     id: android
@@ -43,7 +43,7 @@ body:
       label: Android Version
       description: "Found in your device's About settings page."
       placeholder: Android 16
-    validation:
+    validations:
       required: true
   - type: input
     id: version
@@ -51,7 +51,7 @@ body:
       label: App Version
       description: "Found in Choona's About settings page."
       placeholder: v1.5.1
-    validation:
+    validations:
       required: true
   - type: input
     id: buildtype
