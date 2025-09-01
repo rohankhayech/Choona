@@ -54,7 +54,7 @@ body:
     validation:
       required: true
   - type: input
-    id: build-type
+    id: buildtype
     attributes:
       label: Build Type
       description: "Found in Choona's About settings page."
