@@ -2,7 +2,7 @@ Guitar tuner with support for custom tunings.
 
 <b>FEATURES:</b>
 
-Listens as you play a string and indicates whether it is in-tune.
+- Listens as you play a string and indicates whether it is in-tune.
 - Displays the amount to tune each string up/down to reach the correct pitch.
 - Automatic detection of which string is playing.
 - Choose from 20+ common guitar, bass and ukulele tunings.
