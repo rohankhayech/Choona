@@ -354,7 +354,7 @@ class TunerActivity : ComponentActivity() {
     /** Plays the string selection sound for the specified [string]. */
     private fun playStringSelectSound(string: Int) {
         midi.playNote(
-            0, // TODO: Refactor MIDI controller?
+            string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
             150,
             vm.tuner.tuning.value.instrument.midiInstrument
