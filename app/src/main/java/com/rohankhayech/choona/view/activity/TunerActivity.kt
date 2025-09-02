@@ -353,33 +353,39 @@ class TunerActivity : ComponentActivity() {
 
     /** Plays the string selection sound for the specified [string]. */
     private fun playStringSelectSound(string: Int) {
-        midi.playNote(
-            string,
-            MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150,
-            vm.tuner.tuning.value.instrument.midiInstrument
-        )
+        lifecycleScope.launch {
+            midi.playNote(
+                string,
+                MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
+                150,
+                vm.tuner.tuning.value.instrument.midiInstrument
+            )
+        }
     }
 
     /** Plays the note selection sound for the specified [noteIndex]. */
     private fun playNoteSelectSound(noteIndex: Int) {
-        midi.playNote(
-            0,
-            MidiController.noteIndexToMidi(noteIndex),
-            150,
-            Instrument.GUITAR.midiInstrument
-        )
+        lifecycleScope.launch {
+            midi.playNote(
+                0,
+                MidiController.noteIndexToMidi(noteIndex),
+                150,
+                Instrument.GUITAR.midiInstrument
+            )
+        }
     }
 
     /** Plays the in tune sound for the selected string. */
     private fun playInTuneSound() {
         val string = vm.tuner.selectedString.value
-        midi.playNote(
-            string,
-            MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex) + 12,
-            50,
-            GeneralMidiConstants.MARIMBA
-        )
+        lifecycleScope.launch {
+            midi.playNote(
+                string,
+                MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex) + 12,
+                50,
+                GeneralMidiConstants.MARIMBA
+            )
+        }
     }
 
     /**
