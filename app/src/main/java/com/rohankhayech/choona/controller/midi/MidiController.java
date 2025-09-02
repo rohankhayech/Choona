@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2023 Rohan Khayech
+ * Copyright (C) 2025 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,15 +98,18 @@ public final class MidiController {
     public void playNote(int string, int midiNote, long duration, byte instrument) {
         stopNote(string);
 
+        // Set channel
+        final byte channel = (byte)(string < 9 ? string : string+1); // Channel 9 is reserved for percussion, skip it.
+
         // Play note.
         synchronized (stringMutex[string]) {
             stringThread[string] = new Thread(() -> {
                 try {
-                    setInstrument(string, instrument);
+                    setInstrument(channel, instrument);
 
                     // Send note on event
                     byte[] event = new byte[3];
-                    event[0] = (byte) (MidiConstants.NOTE_ON | (byte) string); // Status byte and channel
+                    event[0] = (byte) (MidiConstants.NOTE_ON | channel); // Status byte and channel
                     event[1] = (byte) midiNote; // Pitch (midi note number)
                     event[2] = (byte) 0x7F; // Velocity
                     midiDriver.write(event);
@@ -120,7 +123,7 @@ public final class MidiController {
                         // Stop the note playing after duration or interrupted.
                         // Send note off event.
                         byte[] event = new byte[3];
-                        event[0] = (byte) (MidiConstants.NOTE_OFF | (byte) string); // Status byte and channel
+                        event[0] = (byte) (MidiConstants.NOTE_OFF | channel); // Status byte and channel
                         event[1] = (byte) midiNote; // Pitch (midi note number)
                         event[2] = (byte) 0x00; // Velocity
                         midiDriver.write(event);
@@ -169,5 +172,4 @@ public final class MidiController {
     private boolean isNotePlaying(int string) {
         return stringThread[string] != null;
     }
-
 }
