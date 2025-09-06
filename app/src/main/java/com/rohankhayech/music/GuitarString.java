@@ -143,13 +143,13 @@ public final class GuitarString implements Iterable<Double>, Comparable<GuitarSt
     /** @return A guitar string with a root note one semitone lower than this string. */
     public GuitarString lowerString() {
         int lowerNoteIndex = rootNoteIndex-1;
-        return GuitarString.fromRootNote(Notes.getSymbol(lowerNoteIndex), ()->lowerNoteIndex);
+        return GuitarString.fromRootNoteIndex(lowerNoteIndex);
     }
 
     /** @return A guitar string with a root note one semitone lower than this string. */
     public GuitarString higherString() {
         int higherNoteIndex = rootNoteIndex+1;
-        return GuitarString.fromRootNote(Notes.getSymbol(higherNoteIndex), ()->higherNoteIndex);
+        return GuitarString.fromRootNoteIndex(higherNoteIndex);
     }
 
     @Override
@@ -204,6 +204,15 @@ public final class GuitarString implements Iterable<Double>, Comparable<GuitarSt
     @Override
     public int compareTo(GuitarString o) {
         return this.rootNoteIndex - o.rootNoteIndex;
+    }
+
+    /**
+     * Returns a guitar string with the specified root note.
+     * @param noteIndex The index of the root note.
+     * @return The corresponding guitar string.
+     */
+    public static GuitarString fromRootNoteIndex(int noteIndex) {
+        return fromRootNote(Notes.getSymbol(noteIndex), ()-> noteIndex );
     }
 
     /**

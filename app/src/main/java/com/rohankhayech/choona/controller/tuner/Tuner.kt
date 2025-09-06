@@ -27,7 +27,9 @@ import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
+import com.rohankhayech.choona.controller.util.alsoIfTrue
 import com.rohankhayech.choona.model.error.TunerException
+import com.rohankhayech.choona.model.tuning.TuningEditor
 import com.rohankhayech.choona.view.PermissionHandler
 import com.rohankhayech.music.Notes
 import com.rohankhayech.music.Tuning
@@ -45,7 +47,7 @@ import kotlinx.coroutines.flow.update
  */
 class Tuner(
     tuning: Tuning = Tuning.STANDARD
-) {
+): TuningEditor(tuning) {
 
     companion object {
 
@@ -68,12 +70,6 @@ class Tuner(
         /** Index of the highest detectable note. */
         val HIGHEST_NOTE = Notes.getIndex("B4")
     }
-
-    /** Mutable backing property for [tuning]. */
-    private val _tuning = MutableStateFlow(tuning)
-
-    /** Guitar tuning used for comparison. */
-    val tuning = _tuning.asStateFlow()
 
     /** Mutable backing property for [selectedString]. */
     private val _selectedString = MutableStateFlow(0)
@@ -151,52 +147,36 @@ class Tuner(
     }
 
     /** Tunes all strings in the tuning up by one semitone */
-    fun tuneUp(): Boolean {
-        return if (tuning.value.max().rootNoteIndex < HIGHEST_NOTE) {
-            _tuning.update { it.higherTuning() }
+    override fun tuneUp(): Boolean {
+        return super.tuneUp().alsoIfTrue {
             _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
-            true
-        } else false
+        }
     }
 
     /** Tunes all strings in the tuning down by one semitone */
-    fun tuneDown(): Boolean {
-        return if (tuning.value.min().rootNoteIndex > LOWEST_NOTE) {
-            _tuning.update { it.lowerTuning() }
+    override fun tuneDown(): Boolean {
+        return super.tuneDown().alsoIfTrue {
             _tuned.update { BooleanArray(tuning.value.numStrings()) { false } }
-            true
-        } else false
+        }
     }
 
     /** Tunes the [nth][n] string in the tuning up by one semitone.
      * @return False if the string could not be tuned any lower, true otherwise.
      */
-    fun tuneStringUp(n: Int): Boolean {
-        require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
-
-        return if (tuning.value.getString(n).rootNoteIndex < HIGHEST_NOTE) {
-            _tuning.update { tuning ->
-                tuning.withString(n, tuning.getString(n).higherString())
-            }
+    override fun tuneStringUp(n: Int): Boolean {
+        return super.tuneStringUp(n).alsoIfTrue {
             setTuned(n, false)
-            true
-        } else false
+        }
     }
 
     /**
      * Tunes the [nth][n] string in the tuning down by one semitone.
      * @return False if the string could not be tuned any lower, true otherwise.
      */
-    fun tuneStringDown(n: Int): Boolean {
-        require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
-
-        return if (tuning.value.getString(n).rootNoteIndex > LOWEST_NOTE) {
-            _tuning.update { tuning ->
-                tuning.withString(n, tuning.getString(n).lowerString())
-            }
+    override fun tuneStringDown(n: Int): Boolean {
+        return super.tuneStringUp(n).alsoIfTrue {
             setTuned(n, false)
-            true
-        } else false
+        }
     }
 
     /**
