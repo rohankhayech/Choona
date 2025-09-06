@@ -96,8 +96,10 @@ import com.rohankhayech.music.Tuning
 fun EditTuningScreen(
     new: Boolean,
     tuning: Tuning,
-    onAddLowString: () -> Unit,
-    onAddHighString: () -> Unit,
+    existingTuningName: String?,
+    onSetString: (n: Int, noteIndex: Int) -> Unit,
+    onAddLowString: (noteIndex: Int) -> Unit,
+    onAddHighString: (noteIndex: Int) -> Unit,
     onRemoveLowString: () -> Unit,
     onRemoveHighString: () -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -105,7 +107,7 @@ fun EditTuningScreen(
     onTuneUpTuning: () -> Unit,
     onTuneDownTuning: () -> Unit,
     onCancel: () -> Unit,
-    onSave: () -> Unit,
+    onSave: () -> Unit
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -161,16 +163,18 @@ fun EditTuningScreen(
             )
 
             // Delete button.
-            TextButton(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onClick = {},
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Icon(Icons.Default.Delete, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Delete")
+            if (!new) {
+                TextButton(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    onClick = {},
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Icon(Icons.Default.Delete, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Delete")
+                }
             }
         }
     }
@@ -181,8 +185,8 @@ fun EditTuningScreen(
 fun EditTuningDialog(
     new: Boolean,
     tuning: Tuning,
-    onAddLowString: () -> Unit,
-    onAddHighString: () -> Unit,
+    onAddLowString: (Int) -> Unit,
+    onAddHighString: (Int) -> Unit,
     onRemoveLowString: () -> Unit,
     onRemoveHighString: () -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -232,7 +236,7 @@ fun EditTuningDialog(
                 Text("Save")
             }
         },
-        dismissButton = {
+        dismissButton = if (!new) {{
             // Delete button.
             TextButton(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -245,7 +249,7 @@ fun EditTuningDialog(
                 Spacer(Modifier.width(8.dp))
                 Text("Delete")
             }
-        }
+        }} else null
     )
 }
 
@@ -256,8 +260,8 @@ fun EditTuningForm(
     name: String,
     instrument: Instrument,
     tuning: Tuning,
-    onAddLowString: () -> Unit,
-    onAddHighString: () -> Unit,
+    onAddLowString: (Int) -> Unit,
+    onAddHighString: (Int) -> Unit,
     onRemoveLowString: () -> Unit,
     onRemoveHighString: () -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -379,7 +383,7 @@ fun EditTuningForm(
 
 @Composable
 fun AddRemoveRow(
-    onAddString: () -> Unit,
+    onAddString: (Int) -> Unit,
     onRemoveString: () -> Unit
 ) {
     Row(
@@ -399,7 +403,7 @@ fun AddRemoveRow(
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             ),
-            onClick = onAddString
+            onClick = { onAddString(0) }
         ) {
             Icon(Icons.Default.Add, "Add String", modifier = Modifier.size(20.dp),)
         }
@@ -423,7 +427,9 @@ private fun Preview() {
             onTuneUpTuning = {},
             onTuneDownTuning = {},
             onCancel = {},
-            onSave = {}
+            onSave = {},
+            existingTuningName = "",
+            onSetString = {_,_->}
         )
     }
 }
@@ -454,7 +460,7 @@ private fun DialogPreview() {
 private fun TrueDarkPreview() {
     AppTheme(fullBlack = true) {
         EditTuningScreen(
-            new = false,
+            new = true,
             tuning = Tunings.BASS_STANDARD,
             onAddLowString = {},
             onAddHighString = {},
@@ -465,7 +471,9 @@ private fun TrueDarkPreview() {
             onTuneUpTuning = {},
             onTuneDownTuning = {},
             onCancel = {},
-            onSave = {}
+            onSave = {},
+            existingTuningName = null,
+            onSetString = {_,_->}
         )
     }
 }
