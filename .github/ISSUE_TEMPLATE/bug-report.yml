@@ -5,6 +5,11 @@ labels: [bug]
 assignees:
   - rohankhayech
 body:
+  - type: markdown
+    attributes:
+      value: |
+        "### Bug Report"
+        Report a problem with the app.
   - type: textarea
     id: desc
     attributes:
