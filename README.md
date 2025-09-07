@@ -56,7 +56,7 @@ Choona can also be downloaded and installed directly:
 > Depending on your device, you may have to enable installing apps from unknown sources for your device or browser app in your phone's settings.
 
 ### Alternative App Stores
-The F/LOSS build of Choona is also available on various F-Droid clients via the IzzyOnDroid repository:
+Choona is also available on various F-Droid clients via the IzzyOnDroid repository:
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/com.rohankhayech.choona">
   <img alt="Get it on IzzyOnDroid" src="https://codeberg.org/IzzyOnDroid/repo/media/branch/master/assets/IzzyOnDroid.png" width="20%" />
