@@ -405,10 +405,13 @@ class TunerActivity : ComponentActivity() {
 
     /** Plays the in tune sound for the selected string. */
     private fun playInTuneSound() {
-        val string = vm.tuner.selectedString.value
+        val string = if (vm.tuner.chromatic.value) 0 else vm.tuner.selectedString.value
+        val noteIndex = if (vm.tuner.chromatic.value) vm.tuner.selectedNote.value
+            else vm.tuner.tuning.value.getString(string).rootNoteIndex
+
         midi.playNote(
             string,
-            MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex) + 12,
+            MidiController.noteIndexToMidi(noteIndex) + 12,
             50,
             GeneralMidiConstants.MARIMBA
         )
