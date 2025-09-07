@@ -22,11 +22,8 @@ import java.io.IOException
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
@@ -38,6 +35,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.StringLayout
 import com.rohankhayech.choona.model.preferences.TunerPreferences
@@ -48,12 +53,10 @@ import com.rohankhayech.choona.view.screens.LicencesScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen
 import com.rohankhayech.choona.view.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 /**
  * Activity that allows the user to select their preferences for the guitar tuner.
@@ -70,12 +73,6 @@ class SettingsActivity : ComponentActivity() {
     /** View model used to interact with the users preferences. */
     private lateinit var vm: SettingsActivityViewModel
 
-    /** Callback used to dismiss about screen when the back button is pressed. */
-    private lateinit var dismissAboutScreenOnBack: OnBackPressedCallback
-
-    /** Callback used to dismiss licences screen when the back button is pressed. */
-    private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
-
     /** Called when the activity is created. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,85 +87,60 @@ class SettingsActivity : ComponentActivity() {
             SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra(EXTRA_PINNED) ?: "")
         )[SettingsActivityViewModel::class.java]
 
-        // Setup custom back navigation.
-        dismissAboutScreenOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.screen.value >= Screen.ABOUT
-        ) {
-            dismissAboutScreen()
-        }
-        dismissLicencesScreenOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.screen.value >= Screen.LICENCES
-        ) {
-            dismissLicencesScreen()
-        }
-
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            val screen by vm.screen.collectAsStateWithLifecycle()
+            val backStack = rememberNavBackStack(Screen.Settings)
 
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
-                AnimatedContent(
-                    targetState = screen,
+                NavDisplay(
+                    backStack,
+                    onBack = { backStack.removeLastOrNull() },
+                    entryDecorators = listOf(
+                        rememberSceneSetupNavEntryDecorator(),
+                        rememberSavedStateNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
                     transitionSpec = {
-                        if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
-                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
-                        } else {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
-                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
-                        }
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                     },
-                    label = "Screen"
-                ) {
-                    when (it) {
-                        Screen.SETTINGS -> SettingsScreen(
-                            prefs = prefs,
-                            pinnedTuning = vm.pinnedTuning,
-                            onSelectDisplayType = vm::setDisplayType,
-                            onSelectStringLayout = vm::setStringLayout,
-                            onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                            onEnableInTuneSound = vm::setEnableInTuneSound,
-                            onToggleEditModeDefault = vm::toggleEditModeDefault,
-                            onSetUseBlackTheme = vm::setUseBlackTheme,
-                            onSetUseDynamicColor = vm::setUseDynamicColor,
-                            onSelectInitialTuning = vm::setInitialTuning,
-                            onAboutPressed = ::openAboutScreen,
-                            onBackPressed = ::finish
-                        )
-                        Screen.ABOUT -> AboutScreen(
-                            prefs,
-                            onLicencesPressed = ::openLicencesScreen,
-                            onBackPressed = ::dismissAboutScreen,
-                            onReviewOptOut = vm::optOutOfReviewPrompt
-                        )
-                        Screen.LICENCES -> LicencesScreen(onBackPressed = ::dismissLicencesScreen)
+                    popTransitionSpec = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                    },
+                    entryProvider = entryProvider {
+                        entry<Screen.Settings> {
+                            SettingsScreen(
+                                prefs = prefs,
+                                pinnedTuning = vm.pinnedTuning,
+                                onSelectDisplayType = vm::setDisplayType,
+                                onSelectStringLayout = vm::setStringLayout,
+                                onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                                onEnableInTuneSound = vm::setEnableInTuneSound,
+                                onToggleEditModeDefault = vm::toggleEditModeDefault,
+                                onSetUseBlackTheme = vm::setUseBlackTheme,
+                                onSetUseDynamicColor = vm::setUseDynamicColor,
+                                onSelectInitialTuning = vm::setInitialTuning,
+                                onAboutPressed = { backStack.add(Screen.About) },
+                                onBackPressed = ::finish
+                            )
+                        }
+                        entry<Screen.About> {
+                            AboutScreen(
+                                prefs,
+                                onLicencesPressed = { backStack.add(Screen.Licences) },
+                                onBackPressed = { backStack.removeLastOrNull() },
+                                onReviewOptOut = vm::optOutOfReviewPrompt
+                            )
+                        }
+                        entry<Screen.Licences> {
+                            LicencesScreen(onBackPressed = { backStack.removeLastOrNull() })
+                        }
                     }
-                }
+                )
             }
         }
-    }
-
-    /** Opens the about screen and enables custom back behaviour. */
-    private fun openAboutScreen() {
-        dismissAboutScreenOnBack.isEnabled = true
-        vm.setScreen(Screen.ABOUT)
-    }
-
-    private fun dismissAboutScreen() {
-        dismissAboutScreenOnBack.isEnabled = false
-        vm.setScreen(Screen.SETTINGS)
-    }
-
-    /** Opens the licences screen and enables custom back behaviour. */
-    private fun openLicencesScreen() {
-        dismissLicencesScreenOnBack.isEnabled = true
-        vm.setScreen(Screen.LICENCES)
-    }
-
-    private fun dismissLicencesScreen() {
-        dismissLicencesScreenOnBack.isEnabled = false
-        vm.setScreen(Screen.ABOUT)
     }
 }
 
@@ -184,12 +156,6 @@ private class SettingsActivityViewModel(
     private val dataStore: DataStore<Preferences>,
     val pinnedTuning: String
 ) : ViewModel() {
-
-    /** Mutable backing property for [screen]. */
-    private val _screen = MutableStateFlow(Screen.SETTINGS)
-
-    /** The currently visible screen. */
-    val screen = _screen.asStateFlow()
 
     /** Flow containing the users preferences. */
     val prefs: Flow<TunerPreferences> = dataStore.data
@@ -250,11 +216,6 @@ private class SettingsActivityViewModel(
         }
     }
 
-    /** Sets the visible [screen]. */
-    fun setScreen(screen: Screen) {
-        _screen.update { screen }
-    }
-
     /**
      * Factory class used to instantiate the view model with a reference to the data store.
      *
@@ -278,8 +239,12 @@ private class SettingsActivityViewModel(
     }
 }
 
-private enum class Screen {
-    SETTINGS,
-    ABOUT,
-    LICENCES
+@Serializable
+private sealed class Screen: NavKey {
+    @Serializable
+    data object Settings: Screen()
+    @Serializable
+    data object About: Screen()
+    @Serializable
+    data object Licences: Screen()
 }
