@@ -58,7 +58,9 @@ Choona can also be downloaded and installed directly:
 ### Alternative App Stores
 The F/LOSS build of Choona is also available on various F-Droid clients via the IzzyOnDroid repository:
 
-<img alt="Get it on IzzyOnDroid" src="https://codeberg.org/IzzyOnDroid/repo/media/branch/master/assets/IzzyOnDroid.png" width="20%" />
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.rohankhayech.choona">
+  <img alt="Get it on IzzyOnDroid" src="https://codeberg.org/IzzyOnDroid/repo/media/branch/master/assets/IzzyOnDroid.png" width="20%" />
+</a>
 
 > The 3D Android in the IzzyOnDroid logo is licensed to the public domain.
 > The background of the IzzyOnDroid logo is a registered trademark by IzzySoft.
