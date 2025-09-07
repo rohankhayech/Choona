@@ -37,6 +37,9 @@ Guitar tuner application for Android with support for custom tunings.
 ## Installation
 Choona is available for Android devices running Android 7.0 Nougat and above.
 
+### Recommended
+The best way to install Choona is via the Google Play Store:
+
 <a href='https://play.google.com/store/apps/details?id=com.rohankhayech.choona&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
   <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width=20%/>
 </a>
@@ -44,12 +47,21 @@ Choona is available for Android devices running Android 7.0 Nougat and above.
 > Google Play and the Google Play logo are trademarks of Google LLC.
 
 ### Manual Installation
+Choona can also be downloaded and installed directly:
 
 1. Find the latest release [here](https://github.com/rohankhayech/Choona/releases/latest).
 2. Download the `.apk` file onto your Android device.
 3. Open the downloaded file and follow the prompts to install the app.
 
 > Depending on your device, you may have to enable installing apps from unknown sources for your device or browser app in your phone's settings.
+
+### Alternative App Stores
+The F/LOSS build of Choona is also available on various F-Droid clients via the IzzyOnDroid repository:
+
+<img alt="Get it on IzzyOnDroid" src="https://codeberg.org/IzzyOnDroid/repo/media/branch/master/assets/IzzyOnDroid.png" width="20%" />
+
+> The 3D Android in the IzzyOnDroid logo is licensed to the public domain.
+> The background of the IzzyOnDroid logo is a registered trademark by IzzySoft.
 
 ## License and Copyright
 Copyright © 2025 Rohan Khayech
