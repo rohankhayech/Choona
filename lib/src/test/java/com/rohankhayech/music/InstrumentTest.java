@@ -16,11 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.rohankhayech.music;
 
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
+import static org.junit.Assert.assertEquals;
+
+import org.billthefarmer.mididriver.GeneralMidiConstants;
+import org.junit.Test;
+
+public class InstrumentTest {
+
+    private final Instrument instrument = Instrument.BASS;
+
+    @Test
+    public void testGetName() {
+        assertEquals("Bass", instrument.getName());
+    }
+
+    @Test
+    public void testGetDefaultNumStrings() {
+        assertEquals(4, instrument.getDefaultNumStrings());
+    }
+
+    @Test
+    public void getMidiInstrument() {
+        assertEquals(GeneralMidiConstants.ELECTRIC_BASS_FINGER, instrument.getMidiInstrument());
+    }
 }
