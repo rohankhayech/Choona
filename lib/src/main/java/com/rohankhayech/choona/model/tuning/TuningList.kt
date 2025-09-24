@@ -51,7 +51,7 @@ class TuningList(
 ) {
 
     /** Mutable backing property for [current]. */
-    private val _current = MutableStateFlow<com.rohankhayech.choona.model.tuning.TuningEntry?>(initialCurrentTuning?.let { TuningEntry.InstrumentTuning(it) })
+    private val _current = MutableStateFlow<TuningEntry?>(initialCurrentTuning?.let { TuningEntry.InstrumentTuning(it) })
 
     /** The current tuning, or null if N/A. */
     val current = _current.asStateFlow()
@@ -275,10 +275,10 @@ class TuningList(
             this.tuning?.hasEquivalentIn(instrFavs.value) == true
     }
 
-    /** @return The name of this tuning if it is saved as a built-in or custom tuning. */
-    fun TuningEntry.InstrumentTuning.getCanonicalName(): String {
-        return this.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
-            ?: this.tuning.toString()
+    /** @return The name of the specified [tuning] if it is saved as a built-in or custom tuning. */
+    fun getCanonicalName(tuning: TuningEntry.InstrumentTuning): String {
+        return tuning.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
+            ?: tuning.tuning.toString()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@file:JvmName("LibColorKt")
 package com.rohankhayech.choona.view.theme
 
 import androidx.compose.runtime.Immutable

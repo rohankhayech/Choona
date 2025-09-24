@@ -102,7 +102,7 @@ fun MainLayout(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,
