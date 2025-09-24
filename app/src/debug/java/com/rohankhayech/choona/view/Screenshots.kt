@@ -69,7 +69,7 @@ private fun TunerScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -94,7 +94,7 @@ private fun InTuneScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
@@ -185,7 +185,7 @@ private fun ChromaticScreenshot() {
             autoDetect = true,
             chromatic = true,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
@@ -212,7 +212,7 @@ private fun SemitonesScreenshot() {
             autoDetect = false,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.SEMITONES,
                 stringLayout = StringLayout.SIDE_BY_SIDE
@@ -254,7 +254,7 @@ private fun BlackThemeScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 useBlackTheme = true,
                 displayType = TuningDisplayType.CENTS
@@ -282,7 +282,7 @@ private fun SplitScreenScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -312,7 +312,7 @@ private fun TabletScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             tuningList = tunings,
             tuningSelectorOpen = false,

@@ -416,15 +416,15 @@ class TuningListTest {
     fun testGetCanonicalName() {
         with (tuningList) {
             // Test built in
-            assertEquals(Tunings.HALF_STEP_DOWN.name, TuningEntry.InstrumentTuning(Tuning.STANDARD.lowerTuning()).getCanonicalName())
+            assertEquals(Tunings.HALF_STEP_DOWN.name, getCanonicalName(TuningEntry.InstrumentTuning(Tuning.STANDARD.lowerTuning())))
 
             // Test custom with name
             val new = Tuning.fromString("E2")
-            assertEquals("E", TuningEntry.InstrumentTuning(new).getCanonicalName())
+            assertEquals("E", getCanonicalName(TuningEntry.InstrumentTuning(new)))
             val named = addCustom("Named", new)
-            assertEquals("Named", TuningEntry.InstrumentTuning(new).getCanonicalName())
+            assertEquals("Named", getCanonicalName(TuningEntry.InstrumentTuning(new)))
             removeCustom(named)
-            assertEquals("E", TuningEntry.InstrumentTuning(new).getCanonicalName())
+            assertEquals("E", getCanonicalName(TuningEntry.InstrumentTuning(new)))
         }
     }
 }

@@ -94,18 +94,18 @@ dependencies {
     "playImplementation"(libs.review.ktx)
 
     // Compose
-    val composeBOM = platform(libs.androidx.compose.bom)
+    val composeBOM = platform(libs.compose.bom)
     implementation(composeBOM)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.animation)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.animation)
-    implementation(libs.ui.tooling)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.ui.tooling)
     implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.material3.window.size)
+    implementation(libs.compose.material3.window.size)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Audio
@@ -122,16 +122,16 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.json.json)
+    testImplementation(libs.json)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(composeBOM)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 
     // Debug
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 aboutLibraries {

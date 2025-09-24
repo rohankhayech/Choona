@@ -158,7 +158,7 @@ fun TunerScreen(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -393,7 +393,7 @@ private fun TunerBodyScaffold(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
@@ -698,7 +698,7 @@ private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
     tuning: TuningEntry,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -803,7 +803,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,

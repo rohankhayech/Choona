@@ -49,6 +49,9 @@ android {
         compose = true
         buildConfig = true
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 kotlin {
@@ -65,6 +68,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Compose
     val composeBOM = platform(libs.compose.bom)
@@ -76,6 +80,7 @@ dependencies {
     implementation(libs.compose.animation)
     implementation(libs.compose.animation)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
 
     // Audio
     implementation(libs.tarsos.dsp.core)
@@ -87,8 +92,11 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
 
     // Debug
     debugImplementation(libs.compose.ui.tooling)
