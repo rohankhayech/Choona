@@ -82,8 +82,8 @@ kotlin {
 }
 
 dependencies {
-    // Local
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    // Project
+    implementation(project(":lib"))
 
     // Android
     implementation(libs.androidx.core.ktx)
