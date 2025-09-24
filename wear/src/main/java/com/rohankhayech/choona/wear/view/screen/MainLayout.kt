@@ -21,8 +21,14 @@ package com.rohankhayech.choona.wear.view.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import com.rohankhayech.choona.model.preferences.InitialTuningType
 import com.rohankhayech.choona.model.preferences.TunerPreferences
 import com.rohankhayech.choona.model.tuning.TuningEntry
 import com.rohankhayech.choona.model.tuning.TuningList
@@ -81,6 +87,41 @@ fun MainLayout(
             getCanonicalName,
             onTuned,
             onOpenConfigurePanel
+        )
+    }
+    AnimatedVisibility(
+        visible = configurePanelOpen && !tuningSelectorOpen,
+        enter = slideInVertically { it/2 },
+        exit = slideOutVertically { it }
+    ) {
+        ConfigureTuningScreen(
+            tuning = tuning,
+            chromatic,
+            selectedNote = selectedNote,
+            favTunings = favTunings,
+            getCanonicalName = getCanonicalName,
+            onTuneUpString = onTuneUpString,
+            onTuneDownString = onTuneDownString,
+            onTuneUpTuning = onTuneUpTuning,
+            onTuneDownTuning = onTuneDownTuning,
+            onSelectNote = onSelectNote,
+            onOpenTuningSelector = onOpenTuningSelector,
+            onDismiss = onDismissConfigurePanel,
+            onSettingsPressed = {}
+        )
+    }
+    AnimatedVisibility(
+        visible = tuningSelectorOpen,
+        enter = slideInVertically { it/2 },
+        exit = slideOutVertically { it }
+    ) {
+        TuningListScreen(
+            tuningList = tuningList,
+            backIcon = if (configurePanelOpen) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
+            pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
+            onSelect = onSelectTuning,
+            onSelectChromatic = onSelectChromatic,
+            onDismiss = onDismissTuningSelector,
         )
     }
 }
