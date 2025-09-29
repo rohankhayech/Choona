@@ -19,5 +19,5 @@ If you have any enquiries related to this privacy policy or the Choona app, feel
 - This data consists of a user-entered star rating and free text review.
 - The data is encrypted and used in a public review associated with their Google account on the Play Store.
 - Users can delete their reviews in their Google Play Store account or Google Account.
-- This data is handled by Google in accordance with [this policy](https://play.google/comment-posting-policy/), and not by the Choona app itself.`  
+- This data is handled by Google in accordance with [this policy](https://play.google/comment-posting-policy/), and not by the Choona app itself.
 - This data is only collected in builds of the app distributed on the Play Store.
