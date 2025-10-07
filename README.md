@@ -65,6 +65,10 @@ Choona is also available on various F-Droid clients via the IzzyOnDroid reposito
 > The 3D Android in the IzzyOnDroid logo is licensed to the public domain.
 > The background of the IzzyOnDroid logo is a registered trademark by IzzySoft.
 
+> [!NOTE]
+> If downloading the app from other sources than Google Play or the latest release here on GitHub, it is recommended to [verify](SECURITY.md#verification) it before installation.
+> This ensures the downloaded app is an official copy of Choona.
+
 ## License and Copyright
 Copyright © 2025 Rohan Khayech
 
