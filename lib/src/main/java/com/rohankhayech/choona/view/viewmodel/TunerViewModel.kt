@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 /** View model used to hold the current tuner and UI state. */
 class TunerViewModel : ViewModel() {
     /** Tuner used for audio processing and note comparison. */
