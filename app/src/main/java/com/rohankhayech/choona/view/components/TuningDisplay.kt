@@ -37,8 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.SliderDefaults.InactiveTrackAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.GraphicEq
@@ -87,6 +85,8 @@ import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.choona.view.theme.Red500
 import com.rohankhayech.choona.view.theme.Yellow500
 import com.rohankhayech.music.Notes
+
+const val SliderInactiveTrackAlpha = 0.24f
 
 /**
  * UI component consisting of a visual meter and
@@ -238,7 +238,7 @@ private fun TuningMeter(
  */
 private fun DrawScope.drawMeter(
     indicatorColor: Color,
-    trackColor: Color = indicatorColor.copy(alpha = InactiveTrackAlpha),
+    trackColor: Color = indicatorColor.copy(alpha = SliderInactiveTrackAlpha),
     indicatorPosition: Float,
     indicatorSize: Float,
 ) {
