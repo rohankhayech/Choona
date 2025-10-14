@@ -23,9 +23,6 @@ import kotlin.math.sign
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,12 +51,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -86,8 +79,6 @@ import com.rohankhayech.choona.view.theme.Red500
 import com.rohankhayech.choona.view.theme.Yellow500
 import com.rohankhayech.music.Notes
 
-const val SliderInactiveTrackAlpha = 0.24f
-
 /**
  * UI component consisting of a visual meter and
  * text label displaying the current tuning [offset][noteOffset].
@@ -111,18 +102,7 @@ fun TuningDisplay(
     val offset = noteOffset.value
 
     // Calculate meter position.
-    val meterPosition by animateFloatAsState(
-        targetValue = remember(offset, showNote) { derivedStateOf {
-            val semitoneRange = if (showNote) 0.5 else 4
-            if (offset != null) {
-                (offset.toFloat() / semitoneRange.toFloat()).coerceIn(-1f..1f)
-            } else {
-                0f
-            }
-        }
-        }.value,
-        label = "Tuning Meter Position"
-    )
+    val meterPosition by animateTuningMeterIndicatorPosition(offset, showNote)
     val absPosition = abs(meterPosition)
 
     // Calculate colour of meter and label.
@@ -156,16 +136,9 @@ fun TuningDisplay(
         label = "Tuning Meter Color"
     )
 
-    val inTune = offset != null && abs(offset) < Tuner.TUNED_OFFSET_THRESHOLD
+    val inTune = isInTune(offset)
 
-    val indicatorSize by animateFloatAsState(
-        targetValue = if (inTune) 1f else 2/180f,
-        animationSpec = if (inTune) tween(Tuner.TUNED_SUSTAIN_TIME-50, 50) else spring(),
-        finishedListener = {
-            if(it == 1f) { onTuned() }
-        },
-        label = "Tuning Indicator Size"
-    )
+    val indicatorSize by animateTuningMeterIndicatorSize(inTune, onTuned)
 
     // Content
     Row(
@@ -226,57 +199,6 @@ private fun TuningMeter(
     ) {
         labelContent()
     }
-}
-
-/**
- * Draws a circular meter with a variable-size indicator and background track.
- *
- * @param indicatorColor Color of the indicator.
- * @param trackColor Color of the background track. Defaults to a faded copy of the indicator color.
- * @param indicatorPosition Position of the indicator on the track, as a percentage value from -1.0 (leftmost) to 1.0 (rightmost).
- * @param indicatorSize Size of the indicator as a percentage value from 0.0 (no width) to 1.0 (full width of meter).
- */
-private fun DrawScope.drawMeter(
-    indicatorColor: Color,
-    trackColor: Color = indicatorColor.copy(alpha = SliderInactiveTrackAlpha),
-    indicatorPosition: Float,
-    indicatorSize: Float,
-) {
-    // Arc size
-    val strokeWidth = 20.dp.toPx()
-    val arcSize = size.copy(height = size.height*2 - strokeWidth*2, width = size.width - strokeWidth)
-    val offset = Offset(strokeWidth/2, strokeWidth/2)
-
-    // Background Track
-    drawArc(
-        color = trackColor,
-        startAngle = -180f,
-        sweepAngle = 180f,
-        size = arcSize,
-        topLeft = offset,
-        style = Stroke(
-            width = strokeWidth,
-            cap = StrokeCap.Round
-        ),
-        useCenter = false
-    )
-
-    // Indicator
-    val startAngle = -90f
-    val indicatorSpan = indicatorSize * 180f
-    val indicatorAngle = indicatorPosition * (90f - (indicatorSpan/2)) - (indicatorSpan/2)
-    drawArc(
-        color = indicatorColor,
-        startAngle = startAngle + indicatorAngle,
-        sweepAngle = indicatorSpan,
-        size = arcSize,
-        topLeft = offset,
-        style = Stroke(
-            width = strokeWidth,
-            cap = StrokeCap.Round
-        ),
-        useCenter = false
-    )
 }
 
 /**
