@@ -138,7 +138,6 @@ fun TuningDisplay(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        //AccidentalIcon(R.drawable.music_accidental_flat, contentDescription = "Flat")
         TuningMeter(
             indicatorPosition = meterPosition,
             indicatorSize = indicatorSize,
@@ -150,7 +149,6 @@ fun TuningDisplay(
                 showNote = showNote
             )
         }
-        //AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
     }
 }
 
@@ -206,7 +204,7 @@ private fun NoteDisplay(noteIndex: Int, color: Color) {
         Text( // Root Note
             color = color,
             text = Notes.getRootNote(Notes.getSymbol(noteIndex)),
-            style = MaterialTheme.typography.displayMedium
+            style = MaterialTheme.typography.displayLarge
         )
         Text( // Octave
             color = color,
@@ -241,7 +239,9 @@ private fun TuningMeterLabel(
             imageVector = Icons.Default.GraphicEq,
             contentDescription = null
         )
-        Text(text = stringResource(R.string.listening))
+        LabelTextRow {
+            Text(text = stringResource(R.string.listening))
+        }
 
     // In Tune
     } else if (abs(noteOffset) < Tuner.TUNED_OFFSET_THRESHOLD) {
@@ -257,7 +257,9 @@ private fun TuningMeterLabel(
                 contentDescription = null
             )
         }
-        Text(text = stringResource(R.string.in_tune))
+        LabelTextRow {
+            Text(text = stringResource(R.string.in_tune))
+        }
 
     // Out of Tune
     } else {
@@ -267,24 +269,46 @@ private fun TuningMeterLabel(
 
         if (showNote) {
             NoteDisplay(noteIndex = noteIndex, color = color)
-            Text(text = when (displayType) {
-                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
-                TuningDisplayType.SEMITONES -> "$formattedOffset ${stringResource(R.string.semitones)}"
-                TuningDisplayType.CENTS -> "$formattedOffset ${stringResource(R.string.cents)}"
-            })
+            LabelTextRow {
+                Text(text = when (displayType) {
+                    TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
+                    TuningDisplayType.SEMITONES -> "$formattedOffset ${stringResource(R.string.semitones)}"
+                    TuningDisplayType.CENTS -> "$formattedOffset ${stringResource(R.string.cents)}"
+                })
+            }
         } else {
             Text( // Offset Value
                 color = color,
                 text = formattedOffset,
                 style = MaterialTheme.typography.displayLarge
             )
-            Text(text = when (displayType) {
-                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
-                TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
-                TuningDisplayType.CENTS -> stringResource(R.string.cents)
-            })
+            LabelTextRow {
+                Text(
+                    text = when (displayType) {
+                        TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(
+                            R.string.tune_up
+                        )
+
+                        TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
+                        TuningDisplayType.CENTS -> stringResource(R.string.cents)
+                    }
+                )
+            }
         }
 
+    }
+}
+
+@Composable
+private fun LabelTextRow(text: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AccidentalIcon(R.drawable.music_accidental_flat, contentDescription = "Flat")
+        text()
+        AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
     }
 }
 
@@ -343,7 +367,7 @@ private fun YellowPreview() {
             noteIndex = -29,
             noteOffset = remember { mutableDoubleStateOf(2.07) },
             displayType = TuningDisplayType.SEMITONES,
-            showNote = false
+            showNote = true
         ) {}
     }
 }
