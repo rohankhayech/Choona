@@ -924,7 +924,9 @@ private fun Preview() {
             custom = setOf(customTuning, favCustomTuning),
             instrumentFilter = Instrument.BASS,
             categoryFilter = null,
-            instrumentFilters = remember { mutableStateOf(Instrument.entries.dropLast(1).associateWith { true }) },
+            instrumentFilters = remember { mutableStateOf(
+                Instrument
+                    .entries.dropLast(1).associateWith { true }) },
             categoryFilters = remember { mutableStateOf(Category.entries.associateWith { true }) },
             backIcon = Icons.Default.Close,
             deletedTuning = MutableSharedFlow(),
