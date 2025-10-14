@@ -49,9 +49,6 @@ android {
         compose = true
         buildConfig = true
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 kotlin {
@@ -79,7 +76,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.animation)
     implementation(libs.compose.animation)
-    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)
 
     // Audio
