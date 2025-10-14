@@ -1,0 +1,4 @@
+Patch release with minor bugfix.
+
+Fixes:
+- Fixed the incorrect note being played when in-tune in chromatic mode.

@@ -5,7 +5,7 @@ datastorePreferencesVersion = "1.1.7"
 jsonVersion = "20250517"
 kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeCompose = "2.9.3"
-androidUtils = "v0.6.1"
+androidUtils = "v0.7.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.2.10"
 coreKtx = "1.17.0"
@@ -30,7 +30,6 @@ androidx-material3-window-size = { module = "androidx.compose.material3:material
 animation = { module = "androidx.compose.animation:animation" }
 json-json = { module = "org.json:json", version.ref = "jsonVersion" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
-androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview", version.ref = "androidUtils" }
 tarsos-dsp-core = { module = "be.tarsos.dsp:core", version.ref = "tarsosDSPCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -46,6 +45,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme-m3", version.ref = "androidUtils" }
 androidutils-layout = { module = "com.github.rohankhayech.AndroidUtils:layout", version.ref = "androidUtils" }
+androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview-m3", version.ref = "androidUtils" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "reviewKtx" }
 
