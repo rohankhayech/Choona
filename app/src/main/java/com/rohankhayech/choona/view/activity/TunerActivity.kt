@@ -55,7 +55,6 @@ import kotlinx.coroutines.delay
  */
 class TunerActivity : BaseTunerActivity() {
 
-
     /** Google Play review controller. */
     private lateinit var reviewController: ReviewController
 
