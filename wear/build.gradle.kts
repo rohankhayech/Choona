@@ -81,11 +81,12 @@ dependencies {
     implementation(libs.compose.wear.foundation)
     implementation(libs.compose.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.compose.material.icons.extended)
 
     // Utility
     implementation(libs.androidutils.preview)
     implementation(libs.androidutils.layout)
+
     // Testing
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
