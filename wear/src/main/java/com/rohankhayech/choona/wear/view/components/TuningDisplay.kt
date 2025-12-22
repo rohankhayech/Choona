@@ -59,16 +59,16 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.LocalContentColor
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.view.components.animateTuningMeterIndicatorPosition
-import com.rohankhayech.choona.view.components.animateTuningMeterIndicatorSize
-import com.rohankhayech.choona.view.components.drawMeter
-import com.rohankhayech.choona.view.components.isInTune
-import com.rohankhayech.choona.view.theme.Green500
-import com.rohankhayech.choona.view.theme.Red500
-import com.rohankhayech.choona.view.theme.Yellow500
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorPosition
+import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorSize
+import com.rohankhayech.choona.lib.view.components.drawMeter
+import com.rohankhayech.choona.lib.view.components.isInTune
+import com.rohankhayech.choona.lib.view.theme.Green500
+import com.rohankhayech.choona.lib.view.theme.Red500
+import com.rohankhayech.choona.lib.view.theme.Yellow500
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
 import com.rohankhayech.music.Notes
 

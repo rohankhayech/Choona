@@ -83,10 +83,10 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.input.RemoteInputIntentHelper
 import androidx.wear.input.wearableExtender
 import androidx.wear.tooling.preview.devices.WearDevices
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.music.Instrument

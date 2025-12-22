@@ -45,8 +45,8 @@ import androidx.wear.compose.material3.Text
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
+import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
+import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
 import com.rohankhayech.choona.wear.view.theme.extColors
 import com.rohankhayech.music.Notes

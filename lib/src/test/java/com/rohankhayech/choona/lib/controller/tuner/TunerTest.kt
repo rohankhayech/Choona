@@ -67,7 +67,7 @@ class TunerTest {
         for (i in 0..4) {
             try {
                 assertTrue(tuner.tuned.value[i])
-            } catch (e: AssertionError) {
+            } catch (_: AssertionError) {
                 fail("String $i should be tuned")
             }
         }

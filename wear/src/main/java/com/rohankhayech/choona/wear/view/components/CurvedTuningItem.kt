@@ -43,8 +43,8 @@ import androidx.wear.compose.foundation.size
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.curvedText
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 
 /**
  * UI component displaying the name and strings of the specified tuning.

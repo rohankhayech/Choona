@@ -45,9 +45,9 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.NoteSelector
 import com.rohankhayech.choona.wear.view.components.StringControls
 import com.rohankhayech.choona.wear.view.components.VerticalTuningItem

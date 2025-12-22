@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning

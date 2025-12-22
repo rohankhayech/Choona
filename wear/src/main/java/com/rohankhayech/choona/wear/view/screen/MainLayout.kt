@@ -28,10 +28,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import com.rohankhayech.choona.model.preferences.InitialTuningType
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
 
 @Composable

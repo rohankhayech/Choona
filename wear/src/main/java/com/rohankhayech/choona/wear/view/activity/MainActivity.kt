@@ -27,10 +27,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.timeTextCurvedText
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.view.activity.BaseTunerActivity
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.wear.view.screen.MainLayout
 import com.rohankhayech.choona.wear.view.screen.PermissionScreen
 import com.rohankhayech.choona.wear.view.theme.AppTheme
