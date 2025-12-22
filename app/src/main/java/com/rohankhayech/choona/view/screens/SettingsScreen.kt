@@ -57,6 +57,7 @@ import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.R as AppR
 
 /**
  * A UI screen that displays and allows selection of the user's tuner preferences.
@@ -119,12 +120,12 @@ fun SettingsScreen(
                 .windowInsetsPadding(WindowInsets.safeDrawing)
         ) {
             // String layout selection.
-            SectionLabel(title = stringResource(R.string.pref_string_layout))
+            SectionLabel(title = stringResource(AppR.string.pref_string_layout))
 
             // Inline
             ListItem(
-                headlineContent = { Text(stringResource(R.string.pref_string_layout_inline)) },
-                supportingContent = { Text(stringResource(R.string.pref_string_layout_inline_desc)) },
+                headlineContent = { Text(stringResource(AppR.string.pref_string_layout_inline)) },
+                supportingContent = { Text(stringResource(AppR.string.pref_string_layout_inline_desc)) },
                 trailingContent = {
                     RadioButton(
                         selected = prefs.stringLayout == StringLayout.INLINE,
@@ -136,8 +137,8 @@ fun SettingsScreen(
 
             // Side by Side
             ListItem(
-                headlineContent =  { Text(stringResource(R.string.pref_string_layout_side_by_side)) },
-                supportingContent =  { Text(stringResource(R.string.pref_string_layout_side_by_side_desc)) },
+                headlineContent =  { Text(stringResource(AppR.string.pref_string_layout_side_by_side)) },
+                supportingContent =  { Text(stringResource(AppR.string.pref_string_layout_side_by_side_desc)) },
                 trailingContent = {
                     RadioButton(
                         selected = prefs.stringLayout == StringLayout.SIDE_BY_SIDE,
@@ -252,13 +253,13 @@ fun SettingsScreen(
             HorizontalDivider()
 
             // Display preferences
-            SectionLabel(title = stringResource(R.string.prefs_display))
+            SectionLabel(title = stringResource(AppR.string.prefs_display))
 
             // Dynamic color theme
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.pref_use_dynamic_color)) },
-                    supportingContent = { Text(stringResource(R.string.pref_use_dynamic_color_desc)) },
+                    headlineContent = { Text(stringResource(AppR.string.pref_use_dynamic_color)) },
+                    supportingContent = { Text(stringResource(AppR.string.pref_use_dynamic_color_desc)) },
                     trailingContent = {
                         Switch(
                             checked = prefs.useDynamicColor,
@@ -272,8 +273,8 @@ fun SettingsScreen(
 
             // Full black theme
             ListItem(
-                headlineContent =  { Text(stringResource(R.string.pref_use_black_theme)) },
-                supportingContent =  { Text(stringResource(R.string.pref_use_black_theme_desc))},
+                headlineContent =  { Text(stringResource(AppR.string.pref_use_black_theme)) },
+                supportingContent =  { Text(stringResource(AppR.string.pref_use_black_theme_desc))},
                 trailingContent = {
                     Switch(
                         checked = prefs.useBlackTheme,
@@ -284,8 +285,8 @@ fun SettingsScreen(
             )
 
             ListItem(
-                headlineContent =  { Text(stringResource(R.string.pref_edit_mode_default)) },
-                supportingContent =  { Text(stringResource(R.string.pref_edit_mode_default_desc)) },
+                headlineContent =  { Text(stringResource(AppR.string.pref_edit_mode_default)) },
+                supportingContent =  { Text(stringResource(AppR.string.pref_edit_mode_default_desc)) },
                 trailingContent = {
                     Switch(
                         checked = prefs.editModeDefault,
