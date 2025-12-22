@@ -64,6 +64,7 @@ fun MainLayout(
     onOpenConfigurePanel: () -> Unit,
     onDismissTuningSelector: () -> Unit,
     onDismissConfigurePanel: () -> Unit,
+    onSettingsPressed: () -> Unit
 ) {
     AnimatedVisibility(
         visible = !tuningSelectorOpen && !configurePanelOpen,
@@ -107,7 +108,7 @@ fun MainLayout(
             onSelectNote = onSelectNote,
             onOpenTuningSelector = onOpenTuningSelector,
             onDismiss = onDismissConfigurePanel,
-            onSettingsPressed = {}
+            onSettingsPressed = onSettingsPressed
         )
     }
     AnimatedVisibility(

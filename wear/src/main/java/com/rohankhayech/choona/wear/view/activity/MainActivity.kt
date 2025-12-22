@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.wear.view.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import androidx.wear.compose.material3.timeTextCurvedText
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.wear.view.screen.MainLayout
 import com.rohankhayech.choona.wear.view.screen.PermissionScreen
@@ -93,7 +95,8 @@ class MainActivity : BaseTunerActivity() {
                             onSelectTuning = ::selectTuning,
                             onSelectChromatic = ::selectChromatic,
                             onDismissTuningSelector = ::dismissTuningSelector,
-                            onDismissConfigurePanel = ::dismissConfigurePanel
+                            onDismissConfigurePanel = ::dismissConfigurePanel,
+                            onSettingsPressed = ::openSettings
                         )
                     } else {
                         val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
@@ -106,5 +109,17 @@ class MainActivity : BaseTunerActivity() {
                 }
             }
         }
+    }
+
+    /** Opens the tuner settings activity. */
+    private fun openSettings() {
+        val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
+            is TuningEntry.InstrumentTuning -> pinned.tuning.fullName
+            is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+        }
+
+        val intent = Intent(this, SettingsActivity::class.java)
+        intent.putExtra(BaseSettingsActivity.EXTRA_PINNED, pinnedName)
+        startActivity(intent)
     }
 }

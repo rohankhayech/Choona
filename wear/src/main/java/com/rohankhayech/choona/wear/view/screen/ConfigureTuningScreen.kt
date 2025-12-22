@@ -19,12 +19,8 @@
 package com.rohankhayech.choona.wear.view.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
@@ -37,10 +33,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
@@ -89,48 +89,64 @@ fun ConfigureTuningScreen(
     onDismiss: () -> Unit,
     onSettingsPressed: () -> Unit,
 ) {
-    val scrollState = rememberScrollState()
+    val listState = rememberScalingLazyListState()
     ScreenScaffold(
-        scrollState = scrollState,
+        scrollState = listState,
     ) { padding ->
-        Column(
+        ScalingLazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(padding)
-                .padding(vertical = 16.dp),
+                .fillMaxSize(),
+            contentPadding = padding,
+            state = listState,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(stringResource(R.string.configure_tuning), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
-            Row {
-                Button(onClick = onOpenTuningSelector) {
-                    VerticalTuningItem(
-                        tuning = tuning,
-                        getCanonicalName = getCanonicalName
+            item {
+                ListHeader {
+                    Text(
+                        stringResource(R.string.configure_tuning),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
                     )
                 }
-                IconButton(
-                    onClick = onDismiss
-                ) {
-                    Icon(Icons.Default.Done, null)
+            }
+            item {
+                Row {
+                    Button(onClick = onOpenTuningSelector) {
+                        VerticalTuningItem(
+                            tuning = tuning,
+                            getCanonicalName = getCanonicalName
+                        )
+                    }
+                    IconButton(
+                        onClick = onDismiss
+                    ) {
+                        Icon(Icons.Default.Done, null)
+                    }
                 }
             }
-            if (chromatic) {
-                NoteSelector(
-                    selectedNoteIndex = selectedNote,
-                    tuned = false,
-                    onSelect = onSelectNote
-                )
-            } else {
-                StringControls(
-                    tuning = tuning.tuning!!,
-                    selectedString = null,
-                    tuned = null,
-                    onSelect = {},
-                    onTuneDown = onTuneDownString,
-                    onTuneUp = onTuneUpString,
-                )
+            item {
+                if (chromatic) {
+                    NoteSelector(
+                        selectedNoteIndex = selectedNote,
+                        tuned = false,
+                        onSelect = onSelectNote
+                    )
+                } else {
+                    StringControls(
+                        tuning = tuning.tuning!!,
+                        selectedString = null,
+                        tuned = null,
+                        onSelect = {},
+                        onTuneDown = onTuneDownString,
+                        onTuneUp = onTuneUpString,
+                    )
+                }
+            }
+            item {
+                FilledTonalButton(onClick = onSettingsPressed) {
+                    Text(stringResource(R.string.tuner_settings))
+                }
             }
         }
     }
