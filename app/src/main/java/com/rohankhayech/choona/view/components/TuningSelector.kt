@@ -125,7 +125,8 @@ fun TuningSelector(
             ) {
                 // Current Tuning
                 CurrentTuningField(
-                    modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
+                    modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(
+                        ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled),
                     tuning = tuning,
                     getCanonicalName,
                     expanded = expanded,
