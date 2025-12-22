@@ -32,9 +32,8 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 28
         targetSdk = 35
-        versionCode = 14
-        versionName = "1.5.2"
         versionCode = 15
+        versionName = "1.6.0"
     }
 
     buildTypes {
