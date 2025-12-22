@@ -58,7 +58,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mikepenz.aboutlibraries.ui.compose.android.rememberLibraries
+import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
@@ -241,7 +241,7 @@ fun LicencesScreen(
             )
         }
     ) { padding ->
-        val libs by rememberLibraries()
+        val libs by produceLibraries()
         LibrariesContainer(
             libraries = libs,
             modifier = Modifier
