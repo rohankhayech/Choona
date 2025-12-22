@@ -51,8 +51,7 @@ android {
             versionNameSuffix = "-dev"
         }
     }
-
-    flavorDimensions("dist" )
+    flavorDimensions += listOf("dist")
 
     productFlavors {
         create("play") {
