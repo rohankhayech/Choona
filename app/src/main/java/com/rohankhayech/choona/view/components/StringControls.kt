@@ -42,8 +42,8 @@ import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.GuitarString
 import com.rohankhayech.music.Tuning

@@ -49,11 +49,11 @@ import androidx.compose.ui.res.stringResource
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.InitialTuningType
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning

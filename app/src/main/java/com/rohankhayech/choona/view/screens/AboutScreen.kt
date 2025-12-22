@@ -63,12 +63,13 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.BuildConfig
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import kotlinx.coroutines.launch
+import com.rohankhayech.choona.R as AppR
 
 const val ContentAlphaMedium = 0.60f
 
@@ -131,7 +132,7 @@ fun AboutScreen(
                 Text(
                     stringResource(
                         R.string.dist_desc,
-                        stringResource(R.string.dist_platform)
+                        stringResource(AppR.string.dist_platform)
                     ),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,

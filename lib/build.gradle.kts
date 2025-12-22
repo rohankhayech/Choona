@@ -25,7 +25,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rohankhayech.choona"
+    namespace = "com.rohankhayech.choona.lib"
     compileSdk = 36
 
     defaultConfig {

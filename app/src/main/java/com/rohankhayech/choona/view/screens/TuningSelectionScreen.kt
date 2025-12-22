@@ -107,10 +107,10 @@ import com.rohankhayech.android.util.ui.theme.StatusBarColor
 import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning

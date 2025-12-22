@@ -70,13 +70,17 @@ import com.rohankhayech.android.util.ui.preview.LargeFontPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonisedWith
 import com.rohankhayech.android.util.ui.theme.m3.isDynamicColor
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.view.theme.Green500
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorPosition
+import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorSize
+import com.rohankhayech.choona.lib.view.components.drawMeter
+import com.rohankhayech.choona.lib.view.components.isInTune
+import com.rohankhayech.choona.lib.view.theme.Green500
+import com.rohankhayech.choona.lib.view.theme.Red500
+import com.rohankhayech.choona.lib.view.theme.Yellow500
 import com.rohankhayech.choona.view.theme.PreviewWrapper
-import com.rohankhayech.choona.view.theme.Red500
-import com.rohankhayech.choona.view.theme.Yellow500
 import com.rohankhayech.music.Notes
 
 /**

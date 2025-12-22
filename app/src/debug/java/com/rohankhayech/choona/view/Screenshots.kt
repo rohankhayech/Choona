@@ -34,12 +34,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.CompactOrientationPreview
 import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.TabletThemePreview
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.SaveTuningDialog
 import com.rohankhayech.choona.view.screens.SettingsScreen
@@ -93,7 +93,7 @@ private fun InTuneScreenshot() {
             noteTuned = true, // Implied by "InTune"
             autoDetect = true,
             chromatic = false,
-            favTunings = remember { mutableStateOf(emptySet()) },
+            favTunings = remember { mutableStateOf(emptySet<TuningEntry>()) },
             getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
