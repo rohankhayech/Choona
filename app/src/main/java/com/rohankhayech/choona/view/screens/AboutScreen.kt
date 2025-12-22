@@ -31,8 +31,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,7 +58,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mikepenz.aboutlibraries.ui.compose.android.rememberLibraries
+import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
@@ -71,6 +69,8 @@ import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVI
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import kotlinx.coroutines.launch
+
+const val ContentAlphaMedium = 0.60f
 
 /**
  * UI screen displaying version, copyright and license information about the app.
@@ -135,7 +135,7 @@ fun AboutScreen(
                     ),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlpha.medium)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlphaMedium)
                 )
                 Text(
                     "© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
@@ -241,7 +241,7 @@ fun LicencesScreen(
             )
         }
     ) { padding ->
-        val libs by rememberLibraries()
+        val libs by produceLibraries()
         LibrariesContainer(
             libraries = libs,
             modifier = Modifier
