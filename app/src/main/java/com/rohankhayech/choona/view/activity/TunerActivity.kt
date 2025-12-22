@@ -41,6 +41,7 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerErrorScreen
@@ -199,7 +200,7 @@ class TunerActivity : BaseTunerActivity() {
         }
 
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra(SettingsActivity.EXTRA_PINNED, pinnedName)
+        intent.putExtra(BaseSettingsActivity.EXTRA_PINNED, pinnedName)
         startActivity(intent)
     }
 
