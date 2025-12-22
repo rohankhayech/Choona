@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Choona - Guitar Tuner
+  ~ Copyright (C) 2025 Rohan Khayech
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="pref_string_layout">String Layout</string>
+    <string name="pref_string_layout_inline">Inline</string>
+    <string name="pref_string_layout_inline_desc">For most electric guitars.</string>
+    <string name="pref_string_layout_side_by_side">Side by side</string>
+    <string name="pref_string_layout_side_by_side_desc">For most acoustic guitars.</string>
+    <string name="prefs_display">Theme and Display</string>
+    <string name="pref_use_black_theme">Use true dark theme when in dark mode</string>
+    <string name="pref_use_black_theme_desc">Optimised for AMOLED displays.</string>
+    <string name="pref_edit_mode_default">Enable editing by default</string>
+    <string name="pref_edit_mode_default_desc">Enable editing tunings on app launch.</string>
+    <string name="toggle_edit_mode">Toggle Editing</string>
+    <string name="pref_use_dynamic_color">Use dynamic colour theme</string>
+    <string name="pref_use_dynamic_color_desc">Use colours from your device theme.</string>
+    <string name="pref_review_opt_out">Opt-out of review prompts</string>
+    <string name="pref_review_opt_out_desc">Don\'t ask me to review the app again.</string>
+    <string name="rate_app">Rate and review</string>
+    <string name="review_opted_out">You won\'t be asked to review the app again.</string>
+    <string name="dist_desc">%1$s Build</string>
+</resources>

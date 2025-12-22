@@ -112,6 +112,7 @@ import com.rohankhayech.choona.view.components.TuningItem
 import com.rohankhayech.choona.view.components.TuningSelector
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.R as AppR
 
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
@@ -674,7 +675,7 @@ private fun AppBarActions(
         ) {
             Icon(
                 imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
-                contentDescription = stringResource(R.string.toggle_edit_mode)
+                contentDescription = stringResource(AppR.string.toggle_edit_mode)
             )
         }
     }
