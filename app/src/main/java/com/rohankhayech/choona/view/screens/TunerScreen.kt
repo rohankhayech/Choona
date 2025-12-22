@@ -98,11 +98,11 @@ import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
 import com.rohankhayech.choona.view.components.NoteSelector

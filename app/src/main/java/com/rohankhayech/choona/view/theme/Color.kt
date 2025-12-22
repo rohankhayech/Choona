@@ -25,6 +25,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.trueDark
+import com.rohankhayech.choona.lib.view.theme.Blue700
+import com.rohankhayech.choona.lib.view.theme.ColorFamily
+import com.rohankhayech.choona.lib.view.theme.ExtendedColorScheme
+import com.rohankhayech.choona.lib.view.theme.Green500
+import com.rohankhayech.choona.lib.view.theme.Green700
+import com.rohankhayech.choona.lib.view.theme.backgroundDark
+import com.rohankhayech.choona.lib.view.theme.errorContainerDark
+import com.rohankhayech.choona.lib.view.theme.errorDark
+import com.rohankhayech.choona.lib.view.theme.onBackgroundDark
+import com.rohankhayech.choona.lib.view.theme.onErrorContainerDark
+import com.rohankhayech.choona.lib.view.theme.onErrorDark
+import com.rohankhayech.choona.lib.view.theme.onPrimaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.onPrimaryDark
+import com.rohankhayech.choona.lib.view.theme.onSecondaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.onSecondaryDark
+import com.rohankhayech.choona.lib.view.theme.onSurfaceDark
+import com.rohankhayech.choona.lib.view.theme.onSurfaceVariantDark
+import com.rohankhayech.choona.lib.view.theme.onTertiaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.onTertiaryDark
+import com.rohankhayech.choona.lib.view.theme.outlineDark
+import com.rohankhayech.choona.lib.view.theme.outlineVariantDark
+import com.rohankhayech.choona.lib.view.theme.primaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.primaryDark
+import com.rohankhayech.choona.lib.view.theme.secondaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.secondaryDark
+import com.rohankhayech.choona.lib.view.theme.surfaceContainerDark
+import com.rohankhayech.choona.lib.view.theme.surfaceContainerHighDark
+import com.rohankhayech.choona.lib.view.theme.surfaceContainerLowDark
+import com.rohankhayech.choona.lib.view.theme.tertiaryContainerDark
+import com.rohankhayech.choona.lib.view.theme.tertiaryDark
 
 private val primaryLight = Green500
 private val onPrimaryLight = Color(0xFFFFFFFF)

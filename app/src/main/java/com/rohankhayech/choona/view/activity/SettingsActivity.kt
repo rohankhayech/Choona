@@ -38,11 +38,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import com.rohankhayech.choona.model.preferences.InitialTuningType
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.preferences.tunerPreferenceDataStore
 import com.rohankhayech.choona.view.screens.AboutScreen
 import com.rohankhayech.choona.view.screens.LicencesScreen
 import com.rohankhayech.choona.view.screens.SettingsScreen

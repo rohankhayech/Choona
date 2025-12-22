@@ -45,8 +45,8 @@ import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonised
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
+import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
+import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.choona.view.theme.extColors
 import com.rohankhayech.music.Notes

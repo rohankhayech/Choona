@@ -35,12 +35,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.choona.BuildConfig
-import com.rohankhayech.choona.R
 import com.rohankhayech.choona.controller.play.ReviewController
 import com.rohankhayech.choona.controller.play.ReviewControllerImpl
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
-import com.rohankhayech.choona.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.view.screens.TunerPermissionScreen
