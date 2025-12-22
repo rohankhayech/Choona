@@ -1,7 +1,5 @@
 [versions]
-aboutLibraries = "12.2.4"
-agp = "8.12.2"
-datastorePreferencesVersion = "1.1.7"
+aboutLibraries = "13.2.1"
 agp = "8.12.3"
 datastorePreferencesVersion = "1.2.0"
 jsonVersion = "20250517"
