@@ -97,7 +97,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -257,13 +256,14 @@ fun TuningSelectionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Collect deleted tuning events and show snackbar.
-    val context = LocalContext.current
-    LaunchedEffect(deletedTuning, context, snackbarHostState) {
+    val message = stringResource(R.string.deleted_tuning)
+    val actionLabel = stringResource(R.string.undo)
+    LaunchedEffect(deletedTuning, message, actionLabel, snackbarHostState) {
         deletedTuning.collectLatest {
             // Show deleted tuning snackbar.
             val result = snackbarHostState.showSnackbar(
-                message = context.getString(R.string.deleted_tuning, it.fullName),
-                actionLabel = context.getString(R.string.undo),
+                message = String.format(message, it.fullName),
+                actionLabel = actionLabel,
                 duration = SnackbarDuration.Long
             )
             // Undo action
@@ -676,19 +676,15 @@ private fun LazyItemScope.CustomTuningItem(
     onSelect: (TuningEntry) -> Unit,
     onDelete: (Tuning) -> Unit,
 ) {
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { dismissValue ->
-            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                onDelete(tuning.tuning)
-                true
-            } else false
-        }
-    )
+    val dismissState = rememberSwipeToDismissBoxState()
 
     SwipeToDismissBox(
         modifier = Modifier.animateItem(),
         state = dismissState,
         enableDismissFromStartToEnd = false,
+        onDismiss = {
+            onDelete(tuning.tuning)
+        },
         backgroundContent = {
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
