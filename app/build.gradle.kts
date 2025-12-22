@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries)
+    alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -34,8 +35,8 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.5.2"
+        versionCode = 15
+        versionName = "1.5.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,8 +52,7 @@ android {
             versionNameSuffix = "-dev"
         }
     }
-
-    flavorDimensions("dist" )
+    flavorDimensions += listOf("dist")
 
     productFlavors {
         create("play") {
@@ -147,8 +147,6 @@ aboutLibraries {
     }
 
     library {
-        // Enable the duplication mode, allows to merge, or link dependencies which relate
-        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.LINK
         // Configure the duplication rule, to match "duplicates" with
         duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
     }
