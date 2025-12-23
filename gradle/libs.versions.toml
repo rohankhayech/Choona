@@ -25,6 +25,7 @@ wearInput = "1.2.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
+aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core-android", version.ref = "aboutLibraries" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 androidx-wear-input = { module = "androidx.wear:wear-input", version.ref = "wearInput" }
 compose-animation = { module = "androidx.compose.animation:animation" }

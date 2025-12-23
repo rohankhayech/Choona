@@ -22,10 +22,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.aboutLibraries)
+    alias(libs.plugins.aboutLibraries.android)
 }
 
 android {
     namespace = "com.rohankhayech.choona.wear"
+
     compileSdk = 36
 
     defaultConfig {
@@ -87,6 +90,10 @@ dependencies {
     implementation(libs.androidutils.preview)
     implementation(libs.androidutils.layout)
 
+    // Open Source Licenses
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.core)
+
     // Testing
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
@@ -94,4 +101,22 @@ dependencies {
     // Debug
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
+}
+
+aboutLibraries {
+    collect {
+        // Disables fetching of "remote" funding information. Uses the API of supported source hosts
+        fetchRemoteFunding = false
+    }
+
+    export {
+        // Allows to exclude some fields from the generated meta data field.
+        // If the class name is specified, the field is only excluded for that class; without a class name, the exclusion is global.
+        excludeFields.addAll("generated", "funding", "scm", "website")
+    }
+
+    library {
+        // Configure the duplication rule, to match "duplicates" with
+        duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
+    }
 }

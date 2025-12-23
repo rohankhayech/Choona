@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -33,11 +34,12 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import androidx.wear.tooling.preview.devices.WearDevices
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.wear.BuildConfig
+import com.rohankhayech.choona.wear.view.components.LibrariesContainer
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
-
 
 @Composable
 fun AboutScreen(
@@ -53,20 +55,36 @@ fun AboutScreen(
             contentPadding = padding
         ) {
             // Version and Copyright
-            item { ListHeader { Text(stringResource(R.string.about)) } }
             item {
                 ListHeader {
                     Text(
-                        "${stringResource(R.string.app_name)} v${BuildConfig.VERSION_NAME}",
+                        "${stringResource(R.string.about)}\n${stringResource(R.string.app_name)}",
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
             }
             item {
                 Text(
-                    "© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
+                    "v${BuildConfig.VERSION_NAME}",
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                Text(
+                    "Wear Build",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                Text(
+                    "© ${stringResource(R.string.copyright)} 2025\nRohan Khayech",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -122,37 +140,32 @@ private fun LinkButton(text: String, url: String) {
 @Composable
 fun LicencesScreen(
 ) {
-    val listState = rememberScalingLazyListState()
+    val listState = rememberScalingLazyListState(
+        initialCenterItemIndex = 0
+    )
 
     ScreenScaffold(
         scrollState = listState
     ) { padding ->
-        ScalingLazyColumn(
-            state = listState,
-            contentPadding = padding
-        ) {
-            /*val libs by produceLibraries()
         LibrariesContainer(
-            libraries = libs,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .consumeWindowInsets(padding)
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-        )*/
-        }
+            listState,
+            contentPadding = padding
+        )
     }
 }
 
 /** Preview */
-@Preview
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Preview(device = WearDevices.LARGE_ROUND, showSystemUi = true)
+@Preview(device = WearDevices.SQUARE, showSystemUi = true)
 @Composable
 private fun Preview() {
-    AppTheme { AboutScreen({}) }
+    AppTheme { AboutScreen {} }
 }
 
-/** Preview */
-@Preview
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Preview(device = WearDevices.LARGE_ROUND, showSystemUi = true)
+@Preview(device = WearDevices.SQUARE, showSystemUi = true)
 @Composable
 private fun LicensesPreview() {
     AppTheme { LicencesScreen() }
