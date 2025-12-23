@@ -233,6 +233,8 @@ fun TuningSelectionScreen(
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
 
+    var showDeleteDialogFor by rememberSaveable { mutableStateOf<Tuning?>(null) }
+
     ScreenScaffold(
         scrollState = listState,
     ) { padding ->
@@ -256,7 +258,7 @@ fun TuningSelectionScreen(
             onSave = { showSaveDialog = true },
             onFavouriteSet = onFavouriteSet,
             onSelect = onSelect,
-            onDelete = onDelete,
+            onDelete = { showDeleteDialogFor = it },
             onPin = onPin,
             onUnpin = onUnpin
         )
@@ -273,6 +275,21 @@ fun TuningSelectionScreen(
             },
             onDismiss = {
                 showSaveDialog = false
+            }
+        )
+    }
+
+    // Delete dialog.
+    showDeleteDialogFor?.let {
+        DeleteTuningDialog(
+            visible = true,
+            tuning = it,
+            onDelete = { tuning ->
+                onDelete(tuning)
+                showDeleteDialogFor = null
+            },
+            onDismiss = {
+                showDeleteDialogFor = null
             }
         )
     }
@@ -975,6 +992,49 @@ fun SaveTuningDialog(
             }
         }
     }
+}
+
+/**
+ * Dialog allowing the user to delete the specified saved tuning.
+ *
+ * @param tuning The tuning to delete.
+ * @param onDelete Called when save button is pressed. Provides the deleted tuning.
+ * @param onDismiss Called when the delete dialog is dismissed.
+ */
+@Composable
+fun DeleteTuningDialog(
+    visible: Boolean,
+    tuning: Tuning,
+    onDelete: (Tuning) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        confirmButton = {
+            Button(colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ), onClick = { onDelete(tuning) }) {
+                Text(text = stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        },
+        onDismissRequest = onDismiss,
+        visible = visible,
+        title = { Text(
+            "${stringResource(R.string.delete)} ${tuning.name}?"
+        )},
+        icon = {
+            Icon(
+                Icons.Default.Delete,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = null
+            )
+        }
+    )
 }
 
 // Previews
