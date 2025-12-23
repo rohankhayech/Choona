@@ -37,7 +37,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.ListHeader
@@ -92,6 +92,11 @@ fun ConfigureTuningScreen(
     val listState = rememberScalingLazyListState()
     ScreenScaffold(
         scrollState = listState,
+        edgeButton = {
+            EdgeButton(onClick = onSettingsPressed) {
+                Text(stringResource(R.string.tuner_settings))
+            }
+        }
     ) { padding ->
         ScalingLazyColumn(
             modifier = Modifier
@@ -141,11 +146,6 @@ fun ConfigureTuningScreen(
                         onTuneDown = onTuneDownString,
                         onTuneUp = onTuneUpString,
                     )
-                }
-            }
-            item {
-                FilledTonalButton(onClick = onSettingsPressed) {
-                    Text(stringResource(R.string.tuner_settings))
                 }
             }
         }

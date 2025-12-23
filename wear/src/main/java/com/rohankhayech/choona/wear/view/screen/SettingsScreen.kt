@@ -28,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AppScaffold
-import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.RadioButton
@@ -81,7 +82,15 @@ fun SettingsScreen(
     val listState = rememberScalingLazyListState()
 
     ScreenScaffold(
-        scrollState = listState
+        scrollState = listState,
+        edgeButton = {
+            EdgeButton(
+                buttonSize = EdgeButtonSize.Large,
+                onClick = onAboutPressed
+            ) {
+                Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}")
+            }
+        }
     ) { padding ->
         ScalingLazyColumn(
             state = listState,
@@ -189,15 +198,6 @@ fun SettingsScreen(
                     if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // About
-            item { SectionLabel(stringResource(R.string.about)) }
-            item {
-                Button(
-                    onClick = onAboutPressed,
-                    label = { Text("${stringResource(R.string.about)} ${stringResource(R.string.app_name)}") }
                 )
             }
         }
