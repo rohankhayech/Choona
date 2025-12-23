@@ -19,17 +19,19 @@
 package com.rohankhayech.choona.wear.view.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 
 /** UI component displaying a list section label with [title] text. */
 @Composable
-fun SectionLabel(title: String) {
+fun SectionLabel(title: String, modifier: Modifier = Modifier) {
     ListSubHeader {
         Text(
             text = title,
             color = MaterialTheme.colorScheme.secondary,
+            modifier = modifier
         )
     }
 }

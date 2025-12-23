@@ -25,19 +25,19 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PushPin
@@ -56,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,27 +69,31 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AlertDialog
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.LocalContentColor
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
-import androidx.wear.compose.material3.TextToggleButton
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.input.RemoteInputIntentHelper
 import androidx.wear.input.wearableExtender
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
+import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.wear.view.theme.extColors
 import com.rohankhayech.music.Instrument
 import com.rohankhayech.music.Tuning
 import com.rohankhayech.music.Tuning.Category
@@ -335,9 +340,16 @@ fun TuningList(
     }
     val pinnedIsStandard = remember(pinned) { pinned.tuning?.equivalentTo(Tunings.STANDARD) == true }
 
-    ScalingLazyColumn(modifier = modifier, contentPadding = padding, state = listState, autoCentering = AutoCenteringParams(
-        itemIndex = 2
-    )
+    ScalingLazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            top = padding.calculateTopPadding(),
+            bottom = padding.calculateBottomPadding()
+        ),
+        state = listState,
+        autoCentering = AutoCenteringParams(
+            itemIndex = 2
+        )
     ) {
         item {
             ListHeader {
@@ -483,15 +495,28 @@ private fun FilterBar(
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit
 ) {
-    Column {
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState()),
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val instrListState = rememberLazyListState()
+        // Center the selected button.
+        if (instrumentFilter != null) {
+            val index = instrumentFilters.value.keys.indexOf(instrumentFilter)
+            if (index >= 0) {
+                LazyListAutoScroll(
+                    instrListState,
+                    index,
+                    ItemScrollPosition.Center
+                )
+            }
+        }
+        LazyRow(
+            state = instrListState,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            Spacer(Modifier.width(8.dp))
-            instrumentFilters.value.forEach { filter ->
+            items(instrumentFilters.value.entries.toList()) { filter ->
                 TuningFilterChip(
                     filter = filter.key,
                     filterText = filter.key.getLocalisedName(),
@@ -500,18 +525,27 @@ private fun FilterBar(
                     onSelect = onSelectInstrument
                 )
             }
-
-            Spacer(Modifier.width(8.dp))
         }
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .windowInsetsPadding(WindowInsets.safeDrawing),
+
+        val catListState = rememberLazyListState()
+        // Center the selected button.
+        if (categoryFilter != null) {
+            val index = categoryFilters.value.keys.indexOf(categoryFilter)
+            if (index >= 0) {
+                LazyListAutoScroll(
+                    catListState,
+                    index,
+                    ItemScrollPosition.Center
+                )
+            }
+        }
+        LazyRow(
+            state = catListState,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            Spacer(Modifier.width(8.dp))
-            categoryFilters.value.forEach { filter ->
+            items(categoryFilters.value.entries.toList()) { filter ->
                 TuningFilterChip(
                     filter = filter.key,
                     filterText = filter.key.getLocalisedName(),
@@ -520,7 +554,6 @@ private fun FilterBar(
                     onSelect = onSelectCategory
                 )
             }
-            Spacer(Modifier.width(8.dp))
         }
     }
 }
@@ -542,12 +575,34 @@ private fun <T> TuningFilterChip(
     selected: Boolean,
     onSelect: (T?) -> Unit
 ) {
-    TextToggleButton(
+    // Animate content color by selected and tuned state.
+    val contentColor by animateColorAsState(
+        if (selected) MaterialTheme.extColors.green.onContainer
+        else LocalContentColor.current,
+        label = "Filter Chip Content Color"
+    )
+
+    // Animate background color by selected state.
+    val backgroundColor by animateColorAsState(
+        if (selected) MaterialTheme.extColors.green.container
+        else MaterialTheme.colorScheme.surfaceContainerLow,
+        label = "Filter Chip Background Color"
+    )
+
+    Button(
+        modifier = Modifier.height(32.dp),
         enabled = enabled,
-        checked = selected,
-        onCheckedChange = { if (it) onSelect(filter) else onSelect(null) }
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            contentColor = contentColor
+        ),
+        onClick = remember(onSelect, filter, selected) {{ if (selected) onSelect(null) else onSelect(filter) }}
     ) {
-        Text(filterText)
+        Text(
+            filterText,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -738,6 +793,7 @@ private fun TuningItem(
     var expanded by remember { mutableStateOf(false) }
 
     Column(
+        Modifier.padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -778,17 +834,17 @@ fun Instrument.getLocalisedName(): String {
 @Composable
 fun Category?.getLocalisedName(): String {
     return stringResource(when (this) {
-                              Category.COMMON -> R.string.tun_cat_common
-                              Category.POWER -> R.string.tun_cat_power
-                              Category.OPEN -> R.string.tun_cat_open
-                              else -> R.string.tun_cat_misc
-                          })
+        Category.COMMON -> R.string.tun_cat_common
+        Category.POWER -> R.string.tun_cat_power
+        Category.OPEN -> R.string.tun_cat_open
+        else -> R.string.tun_cat_misc
+    })
 }
 
 /** UI component displaying a tuning category label with [title] text. */
 @Composable
 private fun CategoryLabel(title: String) {
-    SectionLabel(title = title)
+    SectionLabel(title = title, modifier = Modifier.padding(horizontal = 16.dp))
 }
 
 /**
