@@ -24,22 +24,21 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.Star
@@ -71,8 +70,10 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.ListHeader
@@ -627,13 +628,13 @@ private fun CurrentTuningItem(
     onSelect: (TuningEntry) -> Unit,
     onPinnedSet: (TuningEntry, Boolean) -> Unit
 ) {
+    val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
     TuningItem(
         tuning = tuning,
         onSelect = onSelect,
-        trailing = {
-            val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
-            Row {
-                AnimatedVisibility(!standard && (pinned || (saved && pinnedInitial)), enter = fadeIn(), exit = fadeOut()) {
+        trailing = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved)) {{
+            if(!standard && (pinned || (saved && pinnedInitial))) {
+                item {
                     IconToggleButton(
                         enabled = pinnedInitial,
                         checked = pinned,
@@ -651,8 +652,9 @@ private fun CurrentTuningItem(
                         )
                     }
                 }
-
-                if (tuning is TuningEntry.InstrumentTuning && !saved) {
+            }
+            if (tuning is TuningEntry.InstrumentTuning && !saved) {
+                item {
                     IconButton(
                         onClick = { onSave(tuning.tuning) }
                     ) {
@@ -663,7 +665,7 @@ private fun CurrentTuningItem(
                     }
                 }
             }
-        }
+        }} else null
     )
 }
 
@@ -690,15 +692,56 @@ private fun CustomTuningItem(
     onSelect: (TuningEntry) -> Unit,
     onDelete: (Tuning) -> Unit,
 ) {
-    FavouritableTuningItem(
-        tuning = tuning,
-        favourited = favourited,
-        pinned = pinned,
-        pinnedInitial = pinnedInitial,
-        onFavouriteSet = onFavouriteSet,
-        onSelect = onSelect,
-        onUnpin = onUnpin
-    )
+    val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
+    TuningItem(tuning = tuning, onSelect = onSelect) {
+        if (pinned && !standard) {
+            item {
+                IconToggleButton(
+                    enabled = pinnedInitial,
+                    checked = true,
+                    colors = IconToggleButtonDefaults.colors(
+                        checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    onCheckedChange = { onUnpin() }
+                ) {
+                    Icon(
+                        Icons.Default.PushPin,
+                        contentDescription = stringResource(R.string.unpin)
+                    )
+                }
+            }
+        }
+        item {
+            IconToggleButton(
+                checked = favourited,
+                onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+                colors = IconToggleButtonDefaults.colors(
+                    checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            ) {
+                Icon(
+                    if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
+                    contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+                )
+            }
+        }
+        item {
+            FilledIconButton(
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                onClick = { onDelete(tuning.tuning) }
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete)
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -722,10 +765,10 @@ private fun FavouritableTuningItem(
     onSelect: (TuningEntry) -> Unit,
     onUnpin: () -> Unit
 ) {
-    TuningItem(tuning = tuning, onSelect = onSelect, {
-        val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
-        Row {
-            AnimatedVisibility(pinned && !standard, enter = fadeIn(), exit = fadeOut()) {
+    val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
+    TuningItem(tuning = tuning, onSelect = onSelect) {
+        if (pinned && !standard) {
+            item {
                 IconToggleButton(
                     enabled = pinnedInitial,
                     checked = true,
@@ -741,6 +784,8 @@ private fun FavouritableTuningItem(
                     )
                 }
             }
+        }
+        item {
             IconToggleButton(
                 checked = favourited,
                 onCheckedChange = { onFavouriteSet(tuning, !favourited) },
@@ -755,7 +800,7 @@ private fun FavouritableTuningItem(
                 )
             }
         }
-    })
+    }
 }
 
 /**
@@ -769,13 +814,12 @@ private fun FavouritableTuningItem(
 private fun TuningItem(
     tuning: TuningEntry,
     onSelect: (TuningEntry) -> Unit,
-    trailing: (@Composable () -> Unit)? = null
+    trailing: (LazyListScope.() -> Unit)? = null
 ) {
     val name = when (tuning) {
         is TuningEntry.InstrumentTuning -> tuning.tuning.name
         is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
     }
-
 
     val strings = remember(tuning) {
         tuning.tuning?.strings
@@ -792,30 +836,44 @@ private fun TuningItem(
 
     var expanded by remember { mutableStateOf(false) }
 
-    Column(
-        Modifier.padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        TitleCard(
-            title = {
-                Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            subtitle = {
-                Text(desc)
+    TitleCard(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        title = {
+            Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        subtitle = {
+            Text(desc)
 
-            },
-            time = if (tuning is TuningEntry.InstrumentTuning) {
-                { Text("${tuning.tuning.instrument.getLocalisedName()} ‧ ${tuning.tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) }
-            } else null,
-            onClick = { onSelect(tuning) },
-            onLongClick = { expanded = !expanded }
-        )
-        AnimatedVisibility(expanded) {
-            Row {
-                trailing?.invoke()
+        },
+        time = if (tuning is TuningEntry.InstrumentTuning) {
+            { Text("${tuning.tuning.instrument.getLocalisedName()} ‧ ${tuning.tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) }
+        } else null,
+        onClick = { onSelect(tuning) },
+        onLongClick = { expanded = true }
+    )
+
+    AlertDialog(
+        modifier = Modifier.fillMaxSize(),
+        dismissButton = {
+            TextButton(onClick = { expanded = false }) {
+                Text(text = stringResource(R.string.nav_back))
             }
-        }
+        },
+        confirmButton = {},
+        onDismissRequest = { expanded = false },
+        visible = expanded && trailing != null,
+        title = {
+            Text(name)
+        },
+        verticalArrangement = Arrangement.Center,
+    ) {
+        item { LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            trailing?.invoke(this)
+        }}
     }
 }
 
