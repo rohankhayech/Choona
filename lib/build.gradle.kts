@@ -71,31 +71,22 @@ dependencies {
     val composeBOM = platform(libs.compose.bom)
     implementation(composeBOM)
     implementation(libs.compose.ui)
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
     implementation(libs.compose.animation)
-    implementation(libs.compose.animation)
-    implementation(libs.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)
 
     // Audio
     implementation(libs.tarsos.dsp.core)
 
-    // Utility
-    implementation(libs.androidutils.theme)
-    implementation(libs.androidutils.preview)
-    implementation(libs.androidutils.layout)
-
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.json)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
 
-    // Debug
+    // Tooling
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 }
