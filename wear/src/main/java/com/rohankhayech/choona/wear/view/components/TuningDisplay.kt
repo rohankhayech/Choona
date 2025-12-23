@@ -365,7 +365,7 @@ private fun YellowPreview() {
     PreviewWrapper(dynamicColor = true) {
         TuningDisplay(
             noteIndex = -29,
-            noteOffset = remember { mutableDoubleStateOf(2.07) },
+            noteOffset = remember { mutableDoubleStateOf(.2) },
             displayType = TuningDisplayType.SEMITONES,
             showNote = true
         ) {}

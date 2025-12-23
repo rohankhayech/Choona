@@ -81,28 +81,24 @@ dependencies {
 
     // Compose
     implementation(platform(libs.compose.bom))
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.wear.material3)
     implementation(libs.compose.wear.foundation)
-    implementation(libs.compose.wear.tooling.preview)
-    implementation(libs.androidx.activity.compose)
     implementation(libs.compose.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
 
     // Utility
-    implementation(libs.androidutils.preview)
     implementation(libs.androidutils.layout)
 
     // Open Source Licenses
-    implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.core)
 
     // Testing
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
 
-    // Debug
+    // Tooling / Preview
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.wear.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 }

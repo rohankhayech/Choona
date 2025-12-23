@@ -35,10 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
-import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
@@ -189,7 +189,7 @@ private fun StringSelectionButton(
 
 // Previews
 
-@ThemePreview
+@Preview
 @Composable
 fun InlinePreview() {
     PreviewWrapper {
@@ -204,7 +204,7 @@ fun InlinePreview() {
     }
 }
 
-@ThemePreview
+@Preview
 @Composable
 private fun CompactPreview() {
     PreviewWrapper {
@@ -217,7 +217,7 @@ private fun CompactPreview() {
     }
 }
 
-@ThemePreview
+@Preview
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
@@ -225,7 +225,7 @@ private fun StringControlPreview() {
     }
 }
 
-@ThemePreview
+@Preview
 @Composable
 private fun ButtonStatesPreview() {
     PreviewWrapper {
