@@ -17,16 +17,14 @@ activityCompose = "1.12.2"
 composeBom = "2025.12.01"
 reviewKtx = "2.0.2"
 material = "1.13.0"
-composeWearMaterial = "1.5.1"
-composeWearFoundation = "1.5.1"
+composeWear = "1.5.6"
 composeWearToolingPreview = "1.0.0"
-coreSplashscreen = "1.0.1"
+coreSplashscreen = "1.2.0"
 wearInput = "1.2.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
 aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core-android", version.ref = "aboutLibraries" }
-aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 androidx-wear-input = { module = "androidx.wear:wear-input", version.ref = "wearInput" }
 compose-animation = { module = "androidx.compose.animation:animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,8 +52,8 @@ androidutils-layout = { module = "com.github.rohankhayech.AndroidUtils:layout", 
 androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview-m3", version.ref = "androidUtils" }
 review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "reviewKtx" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-compose-wear-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeWearMaterial" }
-compose-wear-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeWearFoundation" }
+compose-wear-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeWear" }
+compose-wear-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeWear" }
 compose-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "composeWearToolingPreview" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
