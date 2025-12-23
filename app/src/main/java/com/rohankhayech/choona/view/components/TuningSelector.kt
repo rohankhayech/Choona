@@ -55,9 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.controller.tuner.Tuner
-import com.rohankhayech.choona.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.view.theme.PreviewWrapper
 import com.rohankhayech.music.Tuning
 
@@ -244,7 +244,7 @@ fun TuningItem(
     tuning: TuningEntry,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
 ) {
     val tuningName = when (tuning) {
         is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
@@ -252,7 +252,7 @@ fun TuningItem(
             if (tuning.tuning.hasName()) {
                 tuning.tuning.name
             } else {
-                tuning.getCanonicalName()
+                getCanonicalName(tuning)
             }
     }
 
@@ -298,7 +298,10 @@ private fun Preview() {
         TuningSelector(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
+            favTunings = remember { mutableStateOf(setOf(
+                TuningEntry.InstrumentTuning(Tuning.STANDARD),
+                TuningEntry.InstrumentTuning(Tuning.DROP_D)
+            )) },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
@@ -318,7 +321,10 @@ private fun EditOffPreview() {
         TuningSelector(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
+            favTunings = remember { mutableStateOf(setOf(
+                TuningEntry.InstrumentTuning(Tuning.STANDARD),
+                TuningEntry.InstrumentTuning(Tuning.DROP_D)
+            )) },
             getCanonicalName = { this.tuning.toString() },
             openDirect = false,
             onSelect = {},
@@ -339,7 +345,7 @@ private fun TuningItemPreview() {
         TuningItem(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             fontWeight = FontWeight.Bold
         )
     }

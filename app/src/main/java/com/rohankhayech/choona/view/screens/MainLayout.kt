@@ -39,10 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
-import com.rohankhayech.choona.model.preferences.InitialTuningType
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.music.Tuning
 
 /**
@@ -102,7 +102,7 @@ fun MainLayout(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     tuningSelectorOpen: Boolean,

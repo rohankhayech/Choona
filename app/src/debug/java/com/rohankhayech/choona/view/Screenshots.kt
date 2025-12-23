@@ -34,12 +34,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.CompactOrientationPreview
 import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.TabletThemePreview
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.TuningList
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.view.screens.MainLayout
 import com.rohankhayech.choona.view.screens.SaveTuningDialog
 import com.rohankhayech.choona.view.screens.SettingsScreen
@@ -69,7 +69,7 @@ private fun TunerScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -93,8 +93,8 @@ private fun InTuneScreenshot() {
             noteTuned = true, // Implied by "InTune"
             autoDetect = true,
             chromatic = false,
-            favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            favTunings = remember { mutableStateOf(emptySet<TuningEntry>()) },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
         )
@@ -185,7 +185,7 @@ private fun ChromaticScreenshot() {
             autoDetect = true,
             chromatic = true,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
@@ -212,7 +212,7 @@ private fun SemitonesScreenshot() {
             autoDetect = false,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.SEMITONES,
                 stringLayout = StringLayout.SIDE_BY_SIDE
@@ -254,7 +254,7 @@ private fun BlackThemeScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 useBlackTheme = true,
                 displayType = TuningDisplayType.CENTS
@@ -282,7 +282,7 @@ private fun SplitScreenScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
         )
@@ -312,7 +312,7 @@ private fun TabletScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             tuningList = tunings,
             tuningSelectorOpen = false,

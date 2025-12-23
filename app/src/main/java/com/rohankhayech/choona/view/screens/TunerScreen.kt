@@ -98,11 +98,11 @@ import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.android.util.ui.theme.m3.vibrantContainer
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.StringLayout
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.tuning.TuningEntry
-import com.rohankhayech.choona.model.tuning.Tunings
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.StringLayout
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.view.components.CompactNoteSelector
 import com.rohankhayech.choona.view.components.CompactStringSelector
 import com.rohankhayech.choona.view.components.NoteSelector
@@ -112,6 +112,7 @@ import com.rohankhayech.choona.view.components.TuningItem
 import com.rohankhayech.choona.view.components.TuningSelector
 import com.rohankhayech.choona.view.theme.AppTheme
 import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.R as AppR
 
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
@@ -158,7 +159,7 @@ fun TunerScreen(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -393,7 +394,7 @@ private fun TunerBodyScaffold(
     autoDetect: Boolean,
     chromatic: Boolean,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
@@ -674,7 +675,7 @@ private fun AppBarActions(
         ) {
             Icon(
                 imageVector = if (editModeEnabled) Icons.Default.EditOff else Icons.Default.Edit,
-                contentDescription = stringResource(R.string.toggle_edit_mode)
+                contentDescription = stringResource(AppR.string.toggle_edit_mode)
             )
         }
     }
@@ -698,7 +699,7 @@ private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
     tuning: TuningEntry,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -803,7 +804,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,

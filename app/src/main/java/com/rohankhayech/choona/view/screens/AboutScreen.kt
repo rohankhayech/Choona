@@ -63,12 +63,13 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.BuildConfig
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.preferences.TunerPreferences
-import com.rohankhayech.choona.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.view.components.SectionLabel
 import com.rohankhayech.choona.view.theme.AppTheme
 import kotlinx.coroutines.launch
+import com.rohankhayech.choona.R as AppR
 
 const val ContentAlphaMedium = 0.60f
 
@@ -130,8 +131,8 @@ fun AboutScreen(
                 )
                 Text(
                     stringResource(
-                        R.string.dist_desc,
-                        stringResource(R.string.dist_platform)
+                        AppR.string.dist_desc,
+                        stringResource(AppR.string.dist_platform)
                     ),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
@@ -169,16 +170,16 @@ fun AboutScreen(
             @Suppress("KotlinConstantConditions")
             if (BuildConfig.FLAVOR == "play") {
                 LinkListItem(
-                    text = stringResource(R.string.rate_app),
+                    text = stringResource(AppR.string.rate_app),
                     url = "https://play.google.com/store/apps/details?id=com.rohankhayech.choona"
                 )
 
                 AnimatedVisibility(prefs.reviewPromptLaunches in 1..REVIEW_PROMPT_ATTEMPTS && (prefs.showReviewPrompt)) {
                     ListItem(
-                        headlineContent = { Text(stringResource(R.string.pref_review_opt_out)) },
-                        supportingContent = { Text(stringResource(R.string.pref_review_opt_out_desc)) },
+                        headlineContent = { Text(stringResource(AppR.string.pref_review_opt_out)) },
+                        supportingContent = { Text(stringResource(AppR.string.pref_review_opt_out_desc)) },
                         trailingContent = {
-                            val optedOutMsg = stringResource(R.string.review_opted_out)
+                            val optedOutMsg = stringResource(AppR.string.review_opted_out)
                             Switch(
                                 checked = !prefs.showReviewPrompt,
                                 onCheckedChange = {
