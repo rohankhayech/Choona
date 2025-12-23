@@ -67,7 +67,7 @@ class TunerTest {
         for (i in 0..4) {
             try {
                 assertTrue(tuner.tuned.value[i])
-            } catch (e: AssertionError) {
+            } catch (_: AssertionError) {
                 fail("String $i should be tuned")
             }
         }
@@ -93,7 +93,14 @@ class TunerTest {
         }
 
         // Test highest.
-        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        tuner.setTuning(
+            Tuning(
+                GuitarString.A2,
+                GuitarString.fromRootNote(
+                    Notes.getSymbol(Tuner.HIGHEST_NOTE - 1)
+                )
+            )
+        )
         assertTrue(tuner.tuneUp())
         assertFalse(tuner.tuneUp())
 
@@ -112,7 +119,14 @@ class TunerTest {
         }
 
         // Test lowest.
-        tuner.setTuning(Tuning(GuitarString.A2, GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        tuner.setTuning(
+            Tuning(
+                GuitarString.A2,
+                GuitarString.fromRootNote(
+                    Notes.getSymbol(Tuner.LOWEST_NOTE + 1)
+                )
+            )
+        )
         assertTrue(tuner.tuneDown())
         assertFalse(tuner.tuneDown())
     }
@@ -130,7 +144,7 @@ class TunerTest {
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringUp(6) }
 
         // Test highest.
-        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE-1))))
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.HIGHEST_NOTE - 1))))
         assertTrue(tuner.tuneStringUp(0))
         assertFalse(tuner.tuneStringUp(0))
     }
@@ -148,7 +162,7 @@ class TunerTest {
         assertThrows(IllegalArgumentException::class.java) { tuner.tuneStringDown(6) }
 
         // Test lowest.
-        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE+1))))
+        tuner.setTuning(Tuning(GuitarString.fromRootNote(Notes.getSymbol(Tuner.LOWEST_NOTE + 1))))
         assertTrue(tuner.tuneStringDown(0))
         assertFalse(tuner.tuneStringDown(0))
     }

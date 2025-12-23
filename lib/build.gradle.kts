@@ -63,7 +63,6 @@ dependencies {
 
     // Android
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
