@@ -19,12 +19,9 @@
 package com.rohankhayech.choona.wear.view.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.MaterialTheme
@@ -52,47 +50,51 @@ fun PermissionScreen(
     ScreenScaffold(
         scrollState = scrollState,
     ) { contentPadding ->
-        Column(
+        val title: String
+        val rationale: String
+        val buttonLabel: String
+        val buttonAction: () -> Unit
+        if (canRequest) {
+            title = stringResource(R.string.permission_needed)
+            rationale = stringResource(R.string.tuner_audio_permission_rationale)
+            buttonLabel = stringResource(R.string.request_permission)
+            buttonAction = onRequestPermission
+        } else {
+            title = stringResource(R.string.permission_denied)
+            rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
+            buttonLabel = stringResource(R.string.open_permission_settings)
+            buttonAction = onOpenPermissionSettings
+        }
+
+        ScalingLazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(scrollState)
-                .padding(contentPadding)
-                .padding(16.dp)
-            ,
+                .padding(horizontal = 16.dp),
+            contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val title: String
-            val rationale: String
-            val buttonLabel: String
-            val buttonAction: () -> Unit
-            if (canRequest) {
-                title = stringResource(R.string.permission_needed)
-                rationale = stringResource(R.string.tuner_audio_permission_rationale)
-                buttonLabel = stringResource(R.string.request_permission)
-                buttonAction = onRequestPermission
-            } else {
-                title = stringResource(R.string.permission_denied)
-                rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
-                buttonLabel = stringResource(R.string.open_permission_settings)
-                buttonAction = onOpenPermissionSettings
+            // Title
+            item {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
             }
-
-            Text( // Title
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                // Rationale
-                text = rationale,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-            )
+            // Rationale
+            item {
+                Text(
+                    text = rationale,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                )
+            }
             // Action Button
-            Button(modifier = Modifier.padding(top = 8.dp), onClick = buttonAction) {
-                Text(buttonLabel, textAlign = TextAlign.Center)
+            item {
+                Button(modifier = Modifier.padding(top = 8.dp), onClick = buttonAction) {
+                    Text(buttonLabel, textAlign = TextAlign.Center)
+                }
             }
         }
     }
