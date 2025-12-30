@@ -42,9 +42,9 @@ import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
-import com.rohankhayech.music.Tuning
 
 /**
  * A UI screen that displays and allows selection of the user's tuner preferences.

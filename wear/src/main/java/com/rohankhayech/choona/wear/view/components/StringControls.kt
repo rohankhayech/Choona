@@ -41,9 +41,9 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.tuning.GuitarString
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
-import com.rohankhayech.music.GuitarString
-import com.rohankhayech.music.Tuning
 
 /**
  * Component displaying each string in the current [tuning] and allowing selection of a string for tuning.
@@ -53,7 +53,6 @@ import com.rohankhayech.music.Tuning
  * @param onSelect Called when a string is selected.
  * @param onTuneDown Called when a string is tuned down.
  * @param onTuneUp Called when a string is tuned up.
- * @param editModeEnabled Whether edit mode is enabled.
  *
  * @author Rohan Khayech
  */
@@ -126,7 +125,6 @@ fun CompactStringSelector(
  * @param onSelect Called when the string is selected.
  * @param onTuneDown Called when the string is tuned down.
  * @param onTuneUp Called when the string is tuned up.
- * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
 private fun StringControl(

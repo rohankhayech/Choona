@@ -51,6 +51,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.Notes
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.CompactNoteSelector
@@ -58,7 +59,6 @@ import com.rohankhayech.choona.wear.view.components.CompactStringSelector
 import com.rohankhayech.choona.wear.view.components.CurvedTuningItem
 import com.rohankhayech.choona.wear.view.components.TuningDisplay
 import com.rohankhayech.choona.wear.view.theme.AppTheme
-import com.rohankhayech.music.Notes
 
 @Composable
 fun TunerScreen(

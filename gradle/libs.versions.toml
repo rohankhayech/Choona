@@ -16,7 +16,6 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
 composeBom = "2025.12.01"
 reviewKtx = "2.0.2"
-material = "1.13.0"
 composeWear = "1.5.6"
 composeWearToolingPreview = "1.0.0"
 coreSplashscreen = "1.2.0"
@@ -53,7 +52,6 @@ androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview-
 androidutils-theme-wear = { module = "com.github.rohankhayech.AndroidUtils:theme-wear", version.ref = "androidUtils" }
 androidutils-preview-wear = { module = "com.github.rohankhayech.AndroidUtils:preview-wear", version.ref = "androidUtils" }
 review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "reviewKtx" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 compose-wear-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeWear" }
 compose-wear-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeWear" }
 compose-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "composeWearToolingPreview" }

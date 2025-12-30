@@ -89,15 +89,15 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tunings.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.choona.wear.view.theme.extColors
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
-import com.rohankhayech.music.Tuning.Category
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
