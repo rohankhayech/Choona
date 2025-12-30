@@ -191,7 +191,7 @@ private fun Preview() {
             chromatic = false,
             selectedNote = -29,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.toString() },
+            getCanonicalName = { it.tuning.toString() },
             onTuneUpString = {},
             onTuneDownString = {},
             onTuneUpTuning = {},

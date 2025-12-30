@@ -804,7 +804,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.toString() },
+            getCanonicalName = { it.tuning.toString() },
             prefs,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,

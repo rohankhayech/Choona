@@ -345,7 +345,7 @@ private fun TuningItemPreview() {
         TuningItem(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            getCanonicalName = { it.toString() },
+            getCanonicalName = { it.tuning.toString() },
             fontWeight = FontWeight.Bold
         )
     }
