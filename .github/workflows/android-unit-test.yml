@@ -3,10 +3,10 @@ name: Unit Test
 on:
   push:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
+    paths: [ 'app/**', 'lib/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
   pull_request:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
+    paths: [ 'app/**', 'lib/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
 
 jobs:
   build:
