@@ -18,9 +18,6 @@
 
 package com.rohankhayech.choona.lib.model.tuning
 
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
-
 /**
  * Object defining common guitar tunings.
  * @author Rohan Khayech

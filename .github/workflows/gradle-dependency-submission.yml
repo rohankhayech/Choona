@@ -7,7 +7,7 @@ on:
       - '**.gradle'
       - '**.gradle.kts'
       - '**.versions.toml'
-      - 'app/libs/**'
+      - 'lib/libs/**'
       - '.github/workflows/gradle-dependency-submission.yml'
 
 jobs:

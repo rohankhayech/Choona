@@ -19,10 +19,10 @@
 package com.rohankhayech.choona.lib.controller.tuner
 
 import be.tarsos.dsp.pitch.PitchDetectionResult
+import com.rohankhayech.choona.lib.model.tuning.GuitarString
+import com.rohankhayech.choona.lib.model.tuning.Notes
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
-import com.rohankhayech.music.GuitarString
-import com.rohankhayech.music.Notes
-import com.rohankhayech.music.Tuning
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

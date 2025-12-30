@@ -17,8 +17,8 @@
  */
 package com.rohankhayech.choona.lib.controller.fileio
 
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.music.Tuning
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert

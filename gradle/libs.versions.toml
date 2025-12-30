@@ -2,7 +2,7 @@
 aboutLibraries = "14.0.0-a02"
 agp = "8.12.3"
 datastorePreferencesVersion = "1.2.0"
-jsonVersion = "20250517"
+jsonVersion = "20251224"
 kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeCompose = "2.10.0"
 androidUtils = "v0.8.0"
@@ -64,5 +64,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
 aboutLibraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
