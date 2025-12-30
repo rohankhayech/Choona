@@ -5,7 +5,7 @@ datastorePreferencesVersion = "1.2.0"
 jsonVersion = "20250517"
 kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeCompose = "2.10.0"
-androidUtils = "v0.7.0"
+androidUtils = "v0.8.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.3.0"
 coreKtx = "1.17.0"
@@ -50,6 +50,8 @@ compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4
 androidutils-theme = { module = "com.github.rohankhayech.AndroidUtils:theme-m3", version.ref = "androidUtils" }
 androidutils-layout = { module = "com.github.rohankhayech.AndroidUtils:layout", version.ref = "androidUtils" }
 androidutils-preview = { module = "com.github.rohankhayech.AndroidUtils:preview-m3", version.ref = "androidUtils" }
+androidutils-theme-wear = { module = "com.github.rohankhayech.AndroidUtils:theme-wear", version.ref = "androidUtils" }
+androidutils-preview-wear = { module = "com.github.rohankhayech.AndroidUtils:preview-wear", version.ref = "androidUtils" }
 review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "reviewKtx" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 compose-wear-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeWear" }

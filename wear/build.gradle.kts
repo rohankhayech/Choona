@@ -88,6 +88,8 @@ dependencies {
 
     // Utility
     implementation(libs.androidutils.layout)
+    implementation(libs.androidutils.theme.wear)
+    implementation(libs.androidutils.preview.wear)
 
     // Open Source Licenses
     implementation(libs.aboutlibraries.compose.wear.m3)
