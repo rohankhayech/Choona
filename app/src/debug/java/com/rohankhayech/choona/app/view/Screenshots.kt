@@ -40,14 +40,14 @@ import com.rohankhayech.choona.app.view.screens.SettingsScreen
 import com.rohankhayech.choona.app.view.screens.TunerScreen
 import com.rohankhayech.choona.app.view.screens.TuningSelectionScreen
 import com.rohankhayech.choona.app.view.theme.AppTheme
+import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.Notes
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tunings
-import com.rohankhayech.music.Notes
-import com.rohankhayech.music.Tuning
 
 // Previews for generating screenshots.
 

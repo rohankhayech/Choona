@@ -19,7 +19,6 @@
 package com.rohankhayech.choona.lib.model.tuning
 
 import androidx.compose.runtime.Immutable
-import com.rohankhayech.music.Tuning
 
 /**
  * Represents an instrument or chromatic tuning option selectable for tuning.

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.music;
+package com.rohankhayech.choona.lib.model.tuning;
 
 import java.util.Arrays;
 import java.util.Collections;

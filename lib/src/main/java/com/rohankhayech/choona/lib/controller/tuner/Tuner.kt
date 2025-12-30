@@ -28,9 +28,9 @@ import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.lib.model.error.TunerException
+import com.rohankhayech.choona.lib.model.tuning.Notes
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.view.PermissionHandler
-import com.rohankhayech.music.Notes
-import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

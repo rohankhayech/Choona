@@ -49,7 +49,7 @@ import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.app.view.theme.extColors
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
-import com.rohankhayech.music.Notes
+import com.rohankhayech.choona.lib.model.tuning.Notes
 
 /** Octave of the lowest note detectable by the tuner. */
 private val LOWEST_OCTAVE = Notes.getOctave(Notes.getSymbol(LOWEST_NOTE))

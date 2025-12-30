@@ -108,12 +108,12 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tunings.TuningList
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tunings
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
-import com.rohankhayech.music.Tuning.Category
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest

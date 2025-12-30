@@ -109,9 +109,9 @@ import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
-import com.rohankhayech.music.Tuning
 import com.rohankhayech.choona.app.R as AppR
 
 /**

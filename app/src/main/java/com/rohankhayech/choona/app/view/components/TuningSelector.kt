@@ -58,8 +58,8 @@ import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.music.Tuning
 
 /**
  * Row UI component displaying and allowing selection and retuning of the current tuning.

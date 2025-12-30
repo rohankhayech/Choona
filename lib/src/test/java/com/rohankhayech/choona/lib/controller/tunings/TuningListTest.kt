@@ -16,11 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.lib.model.tuning
+package com.rohankhayech.choona.lib.controller.tunings
 
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
-import com.rohankhayech.music.Tuning.Category
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch

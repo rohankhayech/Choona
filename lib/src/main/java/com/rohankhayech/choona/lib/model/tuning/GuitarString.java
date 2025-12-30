@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.music;
+package com.rohankhayech.choona.lib.model.tuning;
 
 import androidx.compose.runtime.Immutable;
 
@@ -173,13 +173,13 @@ public final class GuitarString implements Iterable<Double>, Comparable<GuitarSt
      */
     @Override
     public Iterator<Double> iterator() {
-        return new Iterator<Double>() {
+        return new Iterator<>() {
 
             int fret = 0;
 
             @Override
             public boolean hasNext() {
-                return fret<FRETS;
+                return fret < FRETS;
             }
 
             @Override

@@ -45,8 +45,8 @@ import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
-import com.rohankhayech.music.GuitarString
-import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.lib.model.tuning.GuitarString
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 
 /**
  * Component displaying each string in the current [tuning] and allowing selection of a string for tuning.

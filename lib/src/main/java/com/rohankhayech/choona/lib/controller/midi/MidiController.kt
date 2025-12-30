@@ -18,7 +18,7 @@
 package com.rohankhayech.choona.lib.controller.midi
 
 import kotlin.experimental.or
-import com.rohankhayech.music.Notes
+import com.rohankhayech.choona.lib.model.tuning.Notes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

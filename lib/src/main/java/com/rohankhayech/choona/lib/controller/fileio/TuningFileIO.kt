@@ -21,9 +21,9 @@ import java.io.IOException
 import java.util.Objects
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject

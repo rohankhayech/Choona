@@ -35,11 +35,11 @@ import com.rohankhayech.choona.lib.controller.midi.MidiController
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.PermissionHandler
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first

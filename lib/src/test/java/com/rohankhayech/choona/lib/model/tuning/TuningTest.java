@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.music;
+package com.rohankhayech.choona.lib.model.tuning;
 
-import static com.rohankhayech.music.Tuning.DEFAULT_INSTRUMENT;
+import static com.rohankhayech.choona.lib.model.tuning.Tuning.DEFAULT_INSTRUMENT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -267,11 +267,11 @@ public final class TuningTest {
         Tuning standard = new Tuning("Standard", Instrument.GUITAR, Tuning.Category.COMMON, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
         assertEquals("Tunings were not equal.", Tuning.STANDARD, standard);
         Tuning eadgbe = new Tuning(Instrument.GUITAR, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-        assertNotEquals("", eadgbe, Tuning.STANDARD);
+        assertNotEquals("", Tuning.STANDARD, eadgbe);
         Tuning bass = new Tuning("Standard", Instrument.BASS, Tuning.Category.COMMON, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-        assertNotEquals("", bass, Tuning.STANDARD);
+        assertNotEquals("", Tuning.STANDARD, bass);
         Tuning diffCat = new Tuning("Standard", Instrument.GUITAR, null, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-        assertNotEquals("", diffCat, Tuning.STANDARD);
+        assertNotEquals("", Tuning.STANDARD, diffCat);
     }
 
     @Test

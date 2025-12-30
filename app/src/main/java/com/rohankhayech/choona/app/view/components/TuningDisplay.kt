@@ -74,6 +74,7 @@ import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.Notes
 import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorPosition
 import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorSize
 import com.rohankhayech.choona.lib.view.components.drawMeter
@@ -81,7 +82,6 @@ import com.rohankhayech.choona.lib.view.components.isInTune
 import com.rohankhayech.choona.lib.view.theme.Green500
 import com.rohankhayech.choona.lib.view.theme.Red500
 import com.rohankhayech.choona.lib.view.theme.Yellow500
-import com.rohankhayech.music.Notes
 
 /**
  * UI component consisting of a visual meter and

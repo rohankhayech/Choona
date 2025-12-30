@@ -56,7 +56,7 @@ import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
-import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.app.R as AppR
 
 /**

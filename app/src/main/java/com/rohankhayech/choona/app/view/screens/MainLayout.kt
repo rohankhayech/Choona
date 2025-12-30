@@ -39,11 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
+import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.TuningList
-import com.rohankhayech.music.Tuning
 
 /**
  * Layout composable for the main tuning screen.
