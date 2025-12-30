@@ -34,7 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.rohankhayech.choona.BuildConfig
+import com.rohankhayech.choona.app.BuildConfig
 import com.rohankhayech.choona.app.controller.play.ReviewController
 import com.rohankhayech.choona.app.controller.play.ReviewControllerImpl
 import com.rohankhayech.choona.app.view.screens.MainLayout
