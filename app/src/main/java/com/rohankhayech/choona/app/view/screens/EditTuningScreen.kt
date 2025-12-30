@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.view.screens
+package com.rohankhayech.choona.app.view.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -71,13 +71,13 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.TabletThemePreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.choona.R
-import com.rohankhayech.choona.model.tuning.Tunings
-import com.rohankhayech.choona.view.components.InlineStringControls
-import com.rohankhayech.choona.view.theme.AppTheme
-import com.rohankhayech.choona.view.util.getLocalisedName
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.app.view.components.InlineStringControls
+import com.rohankhayech.choona.app.view.theme.AppTheme
+import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.view.util.getLocalisedName
 
 /**
  * UI screen used to tune individual strings and the tuning

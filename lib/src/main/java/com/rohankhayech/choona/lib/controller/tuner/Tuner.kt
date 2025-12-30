@@ -27,9 +27,9 @@ import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
-import com.rohankhayech.choona.controller.util.alsoIfTrue
+import com.rohankhayech.choona.lib.controller.tunings.TuningEditor
+import com.rohankhayech.choona.lib.controller.util.alsoIfTrue
 import com.rohankhayech.choona.lib.model.error.TunerException
-import com.rohankhayech.choona.model.tuning.TuningEditor
 import com.rohankhayech.choona.lib.model.tuning.Notes
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.view.PermissionHandler

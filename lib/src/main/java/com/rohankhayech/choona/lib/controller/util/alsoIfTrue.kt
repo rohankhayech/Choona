@@ -16,20 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.view.util
+package com.rohankhayech.choona.lib.controller.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.rohankhayech.choona.R
-import com.rohankhayech.music.Instrument
-
-/** @return The localised name of this instrument. */
-@Composable
-fun Instrument.getLocalisedName(): String {
-    return stringResource(when (this) {
-        Instrument.GUITAR -> R.string.instr_guitar
-        Instrument.BASS -> R.string.instr_bass
-        Instrument.UKULELE -> R.string.instr_ukulele
-        else -> R.string.instr_other
-    })
+/**
+ * Calls the specified function [block] with `this` value as its argument, only if `this` boolean is true.
+ * @return `this` value.
+ *
+ * @see also for detailed usage information.
+ * @author Rohan Khayech
+ */
+fun Boolean.alsoIfTrue(block: () -> Unit): Boolean {
+    return also { if (it) block() }
 }

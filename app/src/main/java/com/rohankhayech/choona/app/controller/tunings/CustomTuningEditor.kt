@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.model.tuning
+package com.rohankhayech.choona.app.controller.tunings
 
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.HIGHEST_NOTE
-import com.rohankhayech.choona.controller.tuner.Tuner.Companion.LOWEST_NOTE
-import com.rohankhayech.music.GuitarString
-import com.rohankhayech.music.Instrument
-import com.rohankhayech.music.Tuning
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.controller.tunings.TuningEditor
+import com.rohankhayech.choona.lib.model.tuning.GuitarString
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -50,30 +51,44 @@ class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean)
     fun addLowString(noteIndex: Int) {
         requireValidNoteIndex(noteIndex)
         require(tuning.value.numStrings() < 12)
-        _tuning.update { Tuning(it.name, it.instrument, null, it.strings.plusElement(GuitarString.fromRootNoteIndex(noteIndex))) }
+        _tuning.update {
+            Tuning(
+                it.name,
+                it.instrument,
+                null,
+                it.strings.plusElement(GuitarString.fromRootNoteIndex(noteIndex))
+            )
+        }
     }
 
     fun addHighString(noteIndex: Int) {
         requireValidNoteIndex(noteIndex)
         require(tuning.value.numStrings() < 12)
-        _tuning.update { Tuning(it.name, it.instrument, null, listOf(GuitarString.fromRootNoteIndex(noteIndex)).plus(it.strings)) }
+        _tuning.update {
+            Tuning(
+                it.name,
+                it.instrument,
+                null,
+                listOf(GuitarString.fromRootNoteIndex(noteIndex)).plus(it.strings)
+            )
+        }
     }
 
     fun removeLowString() {
         require(tuning.value.numStrings() > 1)
         _tuning.update {
-            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings()-1))
+            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
         }
     }
 
     fun removeHighString() {
         require(tuning.value.numStrings() > 1)
         _tuning.update {
-            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings()-1))
+            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
         }
     }
 
     fun requireValidNoteIndex(noteIndex: Int) {
-        require(noteIndex in LOWEST_NOTE .. HIGHEST_NOTE)
+        require(noteIndex in Tuner.Companion.LOWEST_NOTE..Tuner.Companion.HIGHEST_NOTE)
     }
 }
