@@ -31,6 +31,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.choona.app.view.screens.AboutScreen
 import com.rohankhayech.choona.app.view.screens.LicencesScreen
@@ -64,6 +65,7 @@ class SettingsActivity : BaseSettingsActivity() {
                     backStack,
                     onBack = { backStack.removeLastOrNull() },
                     entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator()
                     ),
                     transitionSpec = {
