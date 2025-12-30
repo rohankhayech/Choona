@@ -106,6 +106,7 @@ import com.rohankhayech.android.util.ui.theme.StatusBarColor
 import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
+import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
@@ -403,7 +404,7 @@ fun TuningList(
         // Current Tuning
         current?.let {
             item("cur") {
-                SectionLabel(
+                SectionTitle(
                     stringResource(R.string.tuning_list_current),
                     Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
                 )
@@ -423,7 +424,7 @@ fun TuningList(
         }
 
         if (pinnedInitial && !currentPinned && !pinnedInFavs && !pinnedIsStandard) {
-            item("pinned") { SectionLabel(stringResource(R.string.tuning_list_pinned)) }
+            item("pinned") { SectionTitle(stringResource(R.string.tuning_list_pinned)) }
             item("pinned-${pinned.key}"
             ) {
                 FavouritableTuningItem(tuning = pinned, favourited = false, pinned = true, pinnedInitial = true, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
@@ -432,7 +433,7 @@ fun TuningList(
 
         // Favourite Tunings
         if (favourites.isNotEmpty()) {
-            item("favs") { SectionLabel(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
+            item("favs") { SectionTitle(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(favsList, key = { "fav-${it.key}" }) {
                 val isPinned = remember(pinned) { it == pinned || it.tuning?.equivalentTo(pinned.tuning) == true }
                 FavouritableTuningItem(tuning = it, favourited = true, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
@@ -441,7 +442,7 @@ fun TuningList(
 
         // Custom Tunings
         if (custom.isNotEmpty()) {
-            item("cus") { SectionLabel(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
+            item("cus") { SectionTitle(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(customList, key = { it.key }) {
                 val favourited = it.isFavourite()
                 val isPinned = remember(pinned) { it.tuning.equivalentTo(pinned.tuning) }
@@ -451,7 +452,7 @@ fun TuningList(
 
         // All Tunings
         item("all") {
-            SectionLabel(stringResource(R.string.all_tunings), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
+            SectionTitle(stringResource(R.string.all_tunings), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
         }
         stickyHeader("filter-bar") {
             var stuck by remember { mutableStateOf(false) }
@@ -470,7 +471,7 @@ fun TuningList(
 
         tunings.forEach { group ->
             item(group.toString()) {
-                SectionLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
+                SectionTitle("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
             items(group.value, key = { it.key }) {
                 val favourited = it.isFavourite()
@@ -480,7 +481,7 @@ fun TuningList(
         }
         if (instrumentFilter == null && (categoryFilter == null || categoryFilter == Category.MISC)) {
             item(Category.MISC.toString()) {
-                SectionLabel(Category.MISC.getLocalisedName(), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
+                SectionTitle(Category.MISC.getLocalisedName(), Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
             item(key = "chromatic") {
                 FavouritableTuningItem(
@@ -850,7 +851,7 @@ fun Category?.getLocalisedName(): String {
 
 /** UI component displaying a tuning category label with [title] text. */
 @Composable
-private fun LazyItemScope.SectionLabel(title: String, modifier: Modifier = Modifier) {
+private fun LazyItemScope.SectionTitle(title: String, modifier: Modifier = Modifier) {
     SectionLabel(modifier = modifier.animateItem(), title = title)
 }
 
