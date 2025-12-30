@@ -174,7 +174,7 @@ class Tuner(
      * @return False if the string could not be tuned any lower, true otherwise.
      */
     override fun tuneStringDown(n: Int): Boolean {
-        return super.tuneStringUp(n).alsoIfTrue {
+        return super.tuneStringDown(n).alsoIfTrue {
             setTuned(n, false)
         }
     }
