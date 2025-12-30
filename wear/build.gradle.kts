@@ -90,7 +90,7 @@ dependencies {
     implementation(libs.androidutils.layout)
 
     // Open Source Licenses
-    implementation(libs.aboutlibraries.compose.core)
+    implementation(libs.aboutlibraries.compose.wear.m3)
 
     // Testing
     androidTestImplementation(platform(libs.compose.bom))

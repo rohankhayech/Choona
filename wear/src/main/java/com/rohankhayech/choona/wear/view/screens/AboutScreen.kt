@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.wear.view.screen
+package com.rohankhayech.choona.wear.view.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -35,9 +36,10 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
+import com.mikepenz.aboutlibraries.ui.compose.wear.LibrariesContainer
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.wear.BuildConfig
-import com.rohankhayech.choona.wear.view.components.LibrariesContainer
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 
@@ -147,9 +149,17 @@ fun LicencesScreen(
     ScreenScaffold(
         scrollState = listState
     ) { padding ->
+        val libs by produceLibraries()
         LibrariesContainer(
-            listState,
-            contentPadding = padding
+            libs,
+            contentPadding = padding,
+            header = {
+                item {
+                    ListHeader {
+                        Text(stringResource(R.string.third_party_licences))
+                    }
+                }
+            }
         )
     }
 }

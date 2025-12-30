@@ -1,5 +1,5 @@
 [versions]
-aboutLibraries = "13.2.1"
+aboutLibraries = "14.0.0-a02"
 agp = "8.12.3"
 datastorePreferencesVersion = "1.2.0"
 jsonVersion = "20250517"
@@ -24,7 +24,7 @@ wearInput = "1.2.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
-aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core-android", version.ref = "aboutLibraries" }
+aboutlibraries-compose-wear-m3 = { module = "com.mikepenz:aboutlibraries-compose-wear-m3", version.ref = "aboutLibraries" }
 androidx-wear-input = { module = "androidx.wear:wear-input", version.ref = "wearInput" }
 compose-animation = { module = "androidx.compose.animation:animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
