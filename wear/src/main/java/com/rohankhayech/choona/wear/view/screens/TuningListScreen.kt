@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.wear.view.screen
+package com.rohankhayech.choona.wear.view.screens
 
 import android.app.RemoteInput
 import android.content.Intent

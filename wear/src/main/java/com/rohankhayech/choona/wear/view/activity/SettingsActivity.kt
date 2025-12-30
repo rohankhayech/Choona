@@ -34,9 +34,9 @@ import androidx.wear.compose.material3.timeTextCurvedText
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
-import com.rohankhayech.choona.wear.view.screen.AboutScreen
-import com.rohankhayech.choona.wear.view.screen.LicencesScreen
-import com.rohankhayech.choona.wear.view.screen.SettingsScreen
+import com.rohankhayech.choona.wear.view.screens.AboutScreen
+import com.rohankhayech.choona.wear.view.screens.LicencesScreen
+import com.rohankhayech.choona.wear.view.screens.SettingsScreen
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 /**

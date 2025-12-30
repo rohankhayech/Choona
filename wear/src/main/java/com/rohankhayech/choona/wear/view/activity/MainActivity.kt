@@ -33,8 +33,8 @@ import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
-import com.rohankhayech.choona.wear.view.screen.MainLayout
-import com.rohankhayech.choona.wear.view.screen.PermissionScreen
+import com.rohankhayech.choona.wear.view.screens.MainLayout
+import com.rohankhayech.choona.wear.view.screens.PermissionScreen
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 class MainActivity : BaseTunerActivity() {
