@@ -321,10 +321,7 @@ private fun EditOffPreview() {
         TuningSelector(
             Modifier.padding(8.dp),
             tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            favTunings = remember { mutableStateOf(setOf(
-                TuningEntry.InstrumentTuning(Tuning.STANDARD),
-                TuningEntry.InstrumentTuning(Tuning.DROP_D)
-            )) },
+            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
             getCanonicalName = { it.tuning.toString() },
             openDirect = false,
             onSelect = {},

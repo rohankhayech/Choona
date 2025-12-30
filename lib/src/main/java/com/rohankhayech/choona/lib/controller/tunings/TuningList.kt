@@ -24,6 +24,7 @@ import android.content.Context
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.CoroutineScope
@@ -78,14 +79,14 @@ class TuningList(
     val instrFavs = _favourites.map { favs ->
         favs.filterIsInstance<TuningEntry.InstrumentTuning>()
             .map {it.tuning}
-    }.stateIn(coroutineScope, SharingStarted.Companion.Eagerly, listOf(Tuning.STANDARD))
+    }.stateIn(coroutineScope, SharingStarted.Eagerly, listOf(Tuning.STANDARD))
 
     /** Mutable backing property for [custom]. */
     private val _custom = MutableStateFlow<Set<Tuning>>(emptySet())
 
     /** Set of custom tunings added by the user. */
     val custom = _custom.map { c -> c.map { TuningEntry.InstrumentTuning(it) }.toSet() }
-        .stateIn(coroutineScope, SharingStarted.Companion.WhileSubscribed(5000), emptySet())
+        .stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     /** Mutable backing property for [pinned]. */
     private val _pinned = MutableStateFlow<TuningEntry>(TuningEntry.InstrumentTuning(Tuning.STANDARD))
@@ -112,7 +113,7 @@ class TuningList(
     val instrumentFilter = _instrumentFilter.asStateFlow()
 
     /** Mutable backing property for [categoryFilter]. */
-    private val _categoryFilter = MutableStateFlow<Tuning.Category?>(null)
+    private val _categoryFilter = MutableStateFlow<Category?>(null)
 
     /** Current filter for tuning category. */
     val categoryFilter = _categoryFilter.asStateFlow()
@@ -126,14 +127,14 @@ class TuningList(
             (instrument == null || it.tuning.instrument == instrument)
                 && (category == null || it.tuning.category == category)
         }.groupAndSort()
-    }.stateIn(coroutineScope, SharingStarted.Companion.WhileSubscribed(5000), TUNINGS.groupAndSort())
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), TUNINGS.groupAndSort())
 
     /** Available category filters and their enabled states. */
     val categoryFilters = instrumentFilter.map { instrument ->
-        Tuning.Category.entries.associateWith {
+        Category.entries.associateWith {
             it.isValidFilterWith(instrument)
         }
-    }.stateIn(coroutineScope, SharingStarted.Companion.WhileSubscribed(5000), Tuning.Category.entries.associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Category.entries.associateWith { true })
 
     /** Available instrument filters and their enabled states. */
     val instrumentFilters = categoryFilter.map { category ->
@@ -142,12 +143,12 @@ class TuningList(
             .associateWith {
                 it.isValidFilterWith(category)
             }
-    }.stateIn(coroutineScope, SharingStarted.Companion.WhileSubscribed(5000), Instrument.entries.dropLast(1).associateWith { true })
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), Instrument.entries.dropLast(1).associateWith { true })
 
     /** Whether the current tuning has been saved (or is a built-in tuning). */
     val currentSaved = combine(current, _custom) { current, custom ->
         current is TuningEntry.ChromaticTuning || current?.tuning?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
-    }.stateIn(coroutineScope, SharingStarted.Companion.WhileSubscribed(5000), true)
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), true)
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
@@ -262,7 +263,7 @@ class TuningList(
      */
     fun filterBy(
         instrument: Instrument? = instrumentFilter.value,
-        category: Tuning.Category? = categoryFilter.value
+        category: Category? = categoryFilter.value
     ) {
         if (instrument?.isValidFilterWith(category) == false) {
             throw IllegalArgumentException("$instrument and $category are not compatible filters.")
@@ -316,7 +317,7 @@ class TuningList(
          *
          * @return Map of tuning groups and their list of tunings.
          */
-        fun Collection<TuningEntry.InstrumentTuning>.groupAndSort(): SortedMap<Pair<Instrument, Tuning.Category?>, List<TuningEntry.InstrumentTuning>> {
+        fun Collection<TuningEntry.InstrumentTuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<TuningEntry.InstrumentTuning>> {
             return groupBy {
                 it.tuning.instrument to it.tuning.category
             }.toSortedMap(
@@ -325,12 +326,12 @@ class TuningList(
         }
 
         /** @return True if this instrument filter is compatible with the specified category filter. */
-        private fun Instrument.isValidFilterWith(category: Tuning.Category?): Boolean {
+        private fun Instrument.isValidFilterWith(category: Category?): Boolean {
             return category == null || GROUPED_TUNINGS.contains(this to category)
         }
 
         /** @return True if this category filter is compatible with the specified instrument filter. */
-        private fun Tuning.Category.isValidFilterWith(instrument: Instrument?): Boolean {
+        private fun Category.isValidFilterWith(instrument: Instrument?): Boolean {
             return instrument == null || GROUPED_TUNINGS.contains(instrument to this)
         }
     }
