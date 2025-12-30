@@ -21,13 +21,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "com.rohankhayech.choona"
+    namespace = "com.rohankhayech.choona.app"
 
     compileSdk = 36
 
@@ -70,20 +69,20 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 
 dependencies {
-    // Local
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    // Project
+    implementation(project(":lib"))
 
     // Android
     implementation(libs.androidx.core.ktx)
@@ -94,18 +93,13 @@ dependencies {
     "playImplementation"(libs.review.ktx)
 
     // Compose
-    val composeBOM = platform(libs.androidx.compose.bom)
+    val composeBOM = platform(libs.compose.bom)
     implementation(composeBOM)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.animation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.material3.window.size)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.animation)
-    implementation(libs.ui.tooling)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.material3.window.size)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Audio
@@ -117,21 +111,21 @@ dependencies {
     implementation(libs.androidutils.layout)
 
     // Open Source Licenses
-    implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.m3)
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.json.json)
+    testImplementation(libs.json)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(composeBOM)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 
-    // Debug
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Tooling / Preview
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 aboutLibraries {
