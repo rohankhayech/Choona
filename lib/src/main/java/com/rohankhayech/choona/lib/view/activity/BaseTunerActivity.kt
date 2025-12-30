@@ -55,6 +55,11 @@ import org.billthefarmer.mididriver.GeneralMidiConstants
  * @author Rohan Khayech
  */
 abstract class BaseTunerActivity : ComponentActivity() {
+    companion object {
+        /** Activity intent extra for the launched tuning. */
+        const val EXTRA_LAUNCHED_TUNING = "launched_tuning"
+    }
+
     /** View model used to hold the current tuner state. */
     protected val vm: TunerViewModel by viewModels()
 
@@ -103,15 +108,18 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 vm.setEditMode(preferences.editModeDefault)
 
                 // Switch to initial tuning
-                when(preferences.initialTuning) {
-                    InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
-                        is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
-                        is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
-                    }
-                    InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
-                        when (it) {
-                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                if (!intent.hasExtra(EXTRA_LAUNCHED_TUNING)) {
+                    when (preferences.initialTuning) {
+                        InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
+                            is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
                             is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+
+                        InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
+                            when (it) {
+                                is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                                is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                            }
                         }
                     }
                 }

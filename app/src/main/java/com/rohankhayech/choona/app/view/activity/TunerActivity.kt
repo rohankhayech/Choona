@@ -22,6 +22,7 @@ import kotlin.random.Random
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -34,6 +35,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.choona.app.BuildConfig
 import com.rohankhayech.choona.app.controller.play.ReviewController
@@ -43,12 +47,15 @@ import com.rohankhayech.choona.app.view.screens.TunerErrorScreen
 import com.rohankhayech.choona.app.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import kotlinx.coroutines.delay
+import org.json.JSONException
+import com.rohankhayech.choona.app.R as AppR
 
 /**
  * Activity that allows the user to select a tuning and tune their guitar, displaying a comparison of played notes
@@ -190,6 +197,76 @@ class TunerActivity : BaseTunerActivity() {
                     TunerErrorScreen(error, ::openSettings)
                 }
             }
+        }
+    }
+
+    /**
+     * Called when the activity is paused but still visible.
+     */
+    override fun onResume() {
+        super.onResume()
+
+        // Get launched tuning from the intent if launched from a shortcut.
+        if (intent.action == Intent.ACTION_VIEW) {
+            val launchTuningExtra = intent.getStringExtra(EXTRA_LAUNCHED_TUNING)
+            if (launchTuningExtra != null) {
+                // Parse, switch to and return the launched tuning.
+                try {
+                    TuningFileIO.parseTuning(launchTuningExtra).let {
+                        // Switch to launched tuning
+                        when (it) {
+                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                            is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        }
+                    }
+                } catch (_: JSONException) {
+                    Toast.makeText(this, AppR.string.invalid_tuning, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    /**
+     * Called when the activity is no longer visible.
+     */
+    override fun onStop() {
+        setTuningShortcuts()
+        super.onStop()
+    }
+
+    private fun setTuningShortcuts() {
+        ShortcutManagerCompat.removeAllDynamicShortcuts(this)
+
+        with (vm.tuningList) {
+            favourites.value
+                .take(ShortcutManagerCompat.getMaxShortcutCountPerActivity(this@TunerActivity))
+                .map {
+                    ShortcutInfoCompat.Builder(this@TunerActivity, it.key)
+                        .setShortLabel(
+                            when (it) {
+                                is TuningEntry.InstrumentTuning -> getCanonicalName(it)
+                                is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+                            }
+                        )
+                        .setLongLabel(
+                            when (it) {
+                                is TuningEntry.InstrumentTuning -> "${getCanonicalName(it)} (${it.tuning})"
+                                is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+                            }
+                        )
+                        .setIcon(IconCompat.createWithResource(this@TunerActivity, R.drawable.baseline_tune_24))
+                        .setIntent(
+                            Intent(this@TunerActivity, TunerActivity::class.java)
+                                .setAction(Intent.ACTION_VIEW)
+                                .putExtra(
+                                    EXTRA_LAUNCHED_TUNING,
+                                    TuningFileIO.encodeTuning(it)
+                                )
+                        )
+                        .build()
+                }.let {
+                    ShortcutManagerCompat.setDynamicShortcuts(this@TunerActivity, it)
+                }
         }
     }
 
