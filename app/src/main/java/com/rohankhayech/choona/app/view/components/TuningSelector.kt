@@ -84,7 +84,7 @@ fun TuningSelector(
     modifier: Modifier = Modifier,
     tuning: TuningEntry,
     favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
@@ -193,7 +193,7 @@ fun TuningSelector(
 private fun CurrentTuningField(
     modifier: Modifier = Modifier,
     tuning: TuningEntry,
-    getCanonicalName: TuningEntry.InstrumentTuning.() -> String,
+    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     expanded: Boolean,
     showExpanded: Boolean,
     compact: Boolean
@@ -309,7 +309,7 @@ private fun Preview() {
             onOpenTuningSelector = {},
             editModeEnabled = true,
             compact = false,
-            getCanonicalName = { this.tuning.toString() }
+            getCanonicalName = { it.tuning.toString() }
         )
     }
 }
@@ -325,7 +325,7 @@ private fun EditOffPreview() {
                 TuningEntry.InstrumentTuning(Tuning.STANDARD),
                 TuningEntry.InstrumentTuning(Tuning.DROP_D)
             )) },
-            getCanonicalName = { this.tuning.toString() },
+            getCanonicalName = { it.tuning.toString() },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},

@@ -199,8 +199,8 @@ private val extendedLight = ExtendedColorScheme(
         primaryLight,
         onPrimaryLight,
         primaryContainerLight,
-        onPrimaryContainerLight,
-    ),
+        onPrimaryContainerLight
+    )
 )
 
 /** Extra dark theme colors. */
@@ -209,6 +209,6 @@ private val extendedDark = ExtendedColorScheme(
         primaryDark,
         onPrimaryDark,
         primaryContainerDark,
-        primaryContainerLight,
+        onPrimaryContainerDark
     )
 )

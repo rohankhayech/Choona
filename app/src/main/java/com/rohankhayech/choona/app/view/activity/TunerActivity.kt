@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.app.view.activity
 
+import kotlin.random.Random
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -128,7 +129,7 @@ class TunerActivity : BaseTunerActivity() {
                                 && prefs.showReviewPrompt  // Do not ask if user has disabled.
                                 && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
                                 && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
-                                && Math.random() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
+                                && Random.nextDouble() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
                             ) {
                                 delay(1000)
                                 launchReviewPrompt()
