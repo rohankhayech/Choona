@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,12 @@ import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 
 /**
+ * Max number of strings that can be displayed inline.
+ * Tunings with more strings will always be displayed side-by-side.
+ */
+private const val MAX_INLINE_STRINGS = 7
+
+/**
  * Component displaying each string in the current [tuning] and allowing selection of a string for tuning.
  * @param inline Whether to display the string controls inline or side-by-side.
  * @param tuning Current guitar tuning used for comparison.
@@ -79,7 +85,7 @@ fun StringControls(
             .horizontalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
-        if (inline) {
+        if (inline && tuning.numStrings() <= MAX_INLINE_STRINGS) {
             InlineStringControls(
                 tuning = tuning,
                 selectedString = selectedString,
