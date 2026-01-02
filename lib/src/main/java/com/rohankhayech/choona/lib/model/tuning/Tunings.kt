@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,35 +39,37 @@ object Tunings {
     /** A list of common guitar tunings.  */
     val TUNINGS: Set<Tuning> = tunings
 
-    val STANDARD: Tuning = add(Tuning.STANDARD)
-    val HALF_STEP_DOWN: Tuning = add(Tuning.fromString("Half Step Down", GUITAR, COMMON, "D#4 A#3 F#3 C#3 G#2 D#2"))
-    val WHOLE_STEP_DOWN: Tuning = add(Tuning.fromString("Whole Step Down", GUITAR, COMMON, "D4 A3 F3 C3 G2 D2"))
-    val DROP_D: Tuning = add(Tuning.DROP_D)
-    val DOUBLE_DROP_D: Tuning = add(Tuning.fromString("Double Drop D", GUITAR, POWER, "D4 B3 G3 D3 A2 D2"))
-    val BASS_STANDARD: Tuning = add(Tuning.fromString("Standard", BASS, COMMON, "G2 D2 A1 E1"))
-    val BASS_DROP_D: Tuning = add(Tuning.fromString("Drop D", BASS, COMMON, "G2 D2 A1 D1"))
-    val BASS_E_FLAT: Tuning = add(Tuning.fromString("E Flat", BASS, COMMON, "F#2 C#2 G#1 D#1"))
-    val D_MODAL: Tuning = add(Tuning.fromString("D Modal", GUITAR, POWER, "D4 A3 G3 D3 A2 D2"))
-    val DOUBLE_DADDY: Tuning = add(Tuning.fromString("Double Daddy", GUITAR, POWER, "D4 A3 D3 D3 A2 D2"))
-    val DROP_CS: Tuning = add(Tuning.fromString("Drop C#", GUITAR, POWER, "D#4 A#3 F#3 C#3 G#2 C#2"))
-    val DROP_C: Tuning = add(Tuning.fromString("Drop C", GUITAR, POWER, "D4 A3 F3 C3 G2 C2"))
-    val DROP_B: Tuning = add(Tuning.fromString("Drop B", GUITAR, POWER, "C#4 G#3 E3 B2 F#2 B1"))
-    val DROP_A: Tuning = add(Tuning.fromString("Drop A", GUITAR, POWER, "B3 F#3 D3 A2 E2 A1"))
-    val OPEN_C: Tuning = add(Tuning.fromString("Open C", GUITAR, OPEN, "E4 C4 G3 C3 G2 C2"))
-    val OPEN_E: Tuning = add(Tuning.fromString("Open E", GUITAR, OPEN, "E4 B3 G#3 E3 B2 E2"))
-    val OPEN_F: Tuning = add(Tuning.fromString("Open F", GUITAR, OPEN, "F4 A3 F3 C3 F2 C2"))
-    val OPEN_G: Tuning = add(Tuning.fromString("Open G", GUITAR, OPEN, "D4 B3 G3 D3 G2 D2"))
-    val OPEN_A: Tuning = add(Tuning.fromString("Open A", GUITAR, OPEN, "E4 C#4 A3 E3 A2 E2"))
-    val OPEN_AM: Tuning = add(Tuning.fromString("Open Am", GUITAR, OPEN, "E4 C4 A3 E3 A2 E2"))
-    val OPEN_EM: Tuning = add(Tuning.fromString("Open Em", GUITAR, OPEN, "E4 B3 G3 E3 B2 E2"))
-    val OPEN_D: Tuning = add(Tuning.fromString("Open D", GUITAR, OPEN, "D4 A3 F#3 D3 A2 D2"))
-    val OPEN_DM: Tuning = add(Tuning.fromString("Open Dm", GUITAR, OPEN, "D4 A3 F3 D3 A2 D2"))
-    val G_MODAL: Tuning = add(Tuning.fromString("G Modal", GUITAR, MISC, "D4 C4 G3 D3 G2 D2"))
-    val ALL_4TH: Tuning = add(Tuning.fromString("All 4th", GUITAR, MISC, "F4 C4 G3 D3 A2 E2"))
-    val NST: Tuning = add(Tuning.fromString("New Standard Tuning", GUITAR, MISC, "G4 E4 A3 D3 G2 C2"))
-    val UKULELE_STANDARD: Tuning = add(Tuning.fromString("Standard", UKULELE, COMMON, "A4 E4 C4 G4"))
-    val SEVEN_STRING: Tuning = add(Tuning.fromString("7-String", GUITAR, EXTENDED, "E4 B3 G3 D3 A2 E2 B1"))
-    val TWELVE_STRING: Tuning = add(Tuning.fromString("12-String", GUITAR, EXTENDED, "E4 E4 B3 B3 G3 G4 D3 D4 A2 A3 E2 E3"))
+    val STANDARD = add(Tuning.STANDARD)
+    val HALF_STEP_DOWN = add(Tuning.fromString("Half Step Down", GUITAR, COMMON, "D#4 A#3 F#3 C#3 G#2 D#2"))
+    val WHOLE_STEP_DOWN = add(Tuning.fromString("Whole Step Down", GUITAR, COMMON, "D4 A3 F3 C3 G2 D2"))
+    val DROP_D = add(Tuning.DROP_D)
+    val DOUBLE_DROP_D = add(Tuning.fromString("Double Drop D", GUITAR, POWER, "D4 B3 G3 D3 A2 D2"))
+    val BASS_STANDARD = add(Tuning.fromString("Standard", BASS, COMMON, "G2 D2 A1 E1"))
+    val BASS_DROP_D = add(Tuning.fromString("Drop D", BASS, COMMON, "G2 D2 A1 D1"))
+    val BASS_E_FLAT = add(Tuning.fromString("E Flat", BASS, COMMON, "F#2 C#2 G#1 D#1"))
+    val BASS_HIGH_C = add(Tuning.fromString("High C", BASS, EXTENDED, "C3 G2 D2 A1 E1"))
+    val D_MODAL = add(Tuning.fromString("D Modal", GUITAR, POWER, "D4 A3 G3 D3 A2 D2"))
+    val DOUBLE_DADDY = add(Tuning.fromString("Double Daddy", GUITAR, POWER, "D4 A3 D3 D3 A2 D2"))
+    val DROP_CS = add(Tuning.fromString("Drop C#", GUITAR, POWER, "D#4 A#3 F#3 C#3 G#2 C#2"))
+    val DROP_C = add(Tuning.fromString("Drop C", GUITAR, POWER, "D4 A3 F3 C3 G2 C2"))
+    val DROP_B = add(Tuning.fromString("Drop B", GUITAR, POWER, "C#4 G#3 E3 B2 F#2 B1"))
+    val DROP_A = add(Tuning.fromString("Drop A", GUITAR, POWER, "B3 F#3 D3 A2 E2 A1"))
+    val OPEN_C = add(Tuning.fromString("Open C", GUITAR, OPEN, "E4 C4 G3 C3 G2 C2"))
+    val OPEN_E = add(Tuning.fromString("Open E", GUITAR, OPEN, "E4 B3 G#3 E3 B2 E2"))
+    val OPEN_F = add(Tuning.fromString("Open F", GUITAR, OPEN, "F4 A3 F3 C3 F2 C2"))
+    val OPEN_G = add(Tuning.fromString("Open G", GUITAR, OPEN, "D4 B3 G3 D3 G2 D2"))
+    val OPEN_A = add(Tuning.fromString("Open A", GUITAR, OPEN, "E4 C#4 A3 E3 A2 E2"))
+    val OPEN_AM = add(Tuning.fromString("Open Am", GUITAR, OPEN, "E4 C4 A3 E3 A2 E2"))
+    val OPEN_EM = add(Tuning.fromString("Open Em", GUITAR, OPEN, "E4 B3 G3 E3 B2 E2"))
+    val OPEN_D = add(Tuning.fromString("Open D", GUITAR, OPEN, "D4 A3 F#3 D3 A2 D2"))
+    val OPEN_DM = add(Tuning.fromString("Open Dm", GUITAR, OPEN, "D4 A3 F3 D3 A2 D2"))
+    val G_MODAL = add(Tuning.fromString("G Modal", GUITAR, MISC, "D4 C4 G3 D3 G2 D2"))
+    val ALL_4TH = add(Tuning.fromString("All 4th", GUITAR, MISC, "F4 C4 G3 D3 A2 E2"))
+    val NST = add(Tuning.fromString("New Standard Tuning", GUITAR, MISC, "G4 E4 A3 D3 G2 C2"))
+    val UKULELE_STANDARD = add(Tuning.fromString("Standard", UKULELE, COMMON, "A4 E4 C4 G4"))
+    val SEVEN_STRING = add(Tuning.fromString("7-String", GUITAR, EXTENDED, "E4 B3 G3 D3 A2 E2 B1"))
+    val EIGHT_STRING = add(Tuning.fromString("8-String", GUITAR, EXTENDED, "E4 B3 G3 D3 A2 E2 B1 F#1"))
+    val TWELVE_STRING = add(Tuning.fromString("12-String", GUITAR, EXTENDED, "E4 E4 B3 B3 G3 G4 D3 D4 A2 A3 E2 E3"))
 
     /** Adds the specified tuning to the list and returns it. */
     private fun add(tuning: Tuning): Tuning {
