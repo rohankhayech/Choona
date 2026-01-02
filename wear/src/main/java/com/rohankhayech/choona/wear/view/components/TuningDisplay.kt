@@ -61,11 +61,11 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.lib.view.components.animateTuningMeterColor
-import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorPosition
-import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorSize
-import com.rohankhayech.choona.lib.view.components.drawMeter
-import com.rohankhayech.choona.lib.view.components.isInTune
+import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterColor
+import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterIndicatorPosition
+import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterIndicatorWidth
+import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.drawMeter
+import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.isInTune
 import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
 
 /**
@@ -104,7 +104,7 @@ fun TuningDisplay(
 
     val inTune = isInTune(offset)
 
-    val indicatorSize by animateTuningMeterIndicatorSize(inTune, onTuned)
+    val indicatorSize by animateTuningMeterIndicatorWidth(inTune, onTuned)
 
     // Content
     Row(
