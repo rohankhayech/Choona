@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ Choona - Guitar Tuner
-  ~ Copyright (C) 2025 Rohan Khayech
+  ~ Copyright (C) 2026 Rohan Khayech
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -46,6 +46,9 @@
     <string name="pref_enable_string_select_sound_desc">Play a note sound when strings are selected.</string>
     <string name="pref_enable_in_tune_sound">Play in-tune sound</string>
     <string name="pref_enable_in_tune_sound_desc">Play a sound once the string is in tune.</string>
+    <string name="prefs_display">Theme and Display</string>
+    <string name="pref_use_dynamic_color">Use dynamic colour theme</string>
+    <string name="pref_use_dynamic_color_desc">Use colours from your device theme.</string>
     <string name="nav_back">Back</string>
     <string name="open_tuning_selector">More…</string>
     <string name="select_tuning">Select Tuning</string>
