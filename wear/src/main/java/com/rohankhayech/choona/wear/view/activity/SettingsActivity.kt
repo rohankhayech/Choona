@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class SettingsActivity : BaseSettingsActivity() {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
             val screen by vm.screen.collectAsStateWithLifecycle()
 
-            AppTheme {
+            AppTheme(dynamicColor = prefs.useDynamicColor) {
                 AppScaffold(
                     timeText = {
                         val appName = stringResource(R.string.app_name)
@@ -83,11 +83,8 @@ class SettingsActivity : BaseSettingsActivity() {
                                 prefs = prefs,
                                 pinnedTuning = vm.pinnedTuning,
                                 onSelectDisplayType = vm::setDisplayType,
-                                onSelectStringLayout = vm::setStringLayout,
                                 onEnableStringSelectSound = vm::setEnableStringSelectSound,
                                 onEnableInTuneSound = vm::setEnableInTuneSound,
-                                onToggleEditModeDefault = vm::toggleEditModeDefault,
-                                onSetUseBlackTheme = vm::setUseBlackTheme,
                                 onSetUseDynamicColor = vm::setUseDynamicColor,
                                 onSelectInitialTuning = vm::setInitialTuning,
                                 onAboutPressed = ::openAboutScreen,

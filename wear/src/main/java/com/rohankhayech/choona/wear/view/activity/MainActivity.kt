@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,11 @@ class MainActivity : BaseTunerActivity() {
 
         setContent {
             val granted by ph.granted.collectAsStateWithLifecycle()
-            AppTheme {
+            val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
+
+            AppTheme(
+                dynamicColor = prefs.useDynamicColor
+            ) {
                 AppScaffold(
                     timeText = {
                         val appName = stringResource(R.string.app_name)
@@ -53,7 +57,6 @@ class MainActivity : BaseTunerActivity() {
                     }
                 ) {
                     if (granted) {
-                        val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
                         // Collect state.
                         val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
                         val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()

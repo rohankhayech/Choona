@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package com.rohankhayech.choona.lib.view.components
 
 import kotlin.math.abs
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -29,10 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.view.theme.Green500
+import com.rohankhayech.choona.lib.view.theme.Red500
+import com.rohankhayech.choona.lib.view.theme.Yellow500
 
 const val SliderInactiveTrackAlpha = 0.24f
 
@@ -112,6 +118,43 @@ fun animateTuningMeterIndicatorSize(inTune: Boolean, onTuned: () -> Unit): State
             if(it == 1f) { onTuned() }
         },
         label = "Tuning Indicator Size"
+    )
+}
+
+@Composable
+fun animateTuningMeterColor(
+    meterPosition: Float,
+    onBack: Color,
+    back: Color,
+    dynamicColors: Boolean,
+    harmonisedWith: Color.() -> Color
+): State<Color> {
+    val absPosition = abs(meterPosition)
+
+    return animateColorAsState(
+        targetValue = run {
+            val green = Green500
+            val yellow = Yellow500
+            val red = Red500
+
+            remember(absPosition, dynamicColors, harmonisedWith) { derivedStateOf {
+                (if (absPosition != 0f) {
+                    // Gradient from green to red based on offset.
+                    if (absPosition < 0.5) {
+                        lerp(green, yellow, absPosition * 2f)
+                    } else {
+                        lerp(yellow, red, (absPosition - 0.5f) * 2f)
+                    }
+                } else {
+                    // Listening color.
+                    onBack.copy(alpha = 0.2f).compositeOver(back)
+                }).run {
+                    if (dynamicColors) harmonisedWith()
+                    else this
+                }
+            }}.value
+        },
+        label = "Tuning Meter Color"
     )
 }
 

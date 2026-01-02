@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +97,6 @@ import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
-import com.rohankhayech.choona.wear.view.theme.extColors
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -595,14 +594,14 @@ private fun <T> TuningFilterChip(
 ) {
     // Animate content color by selected and tuned state.
     val contentColor by animateColorAsState(
-        if (selected) MaterialTheme.extColors.green.onContainer
+        if (selected) MaterialTheme.colorScheme.onPrimaryContainer
         else LocalContentColor.current,
         label = "Filter Chip Content Color"
     )
 
     // Animate background color by selected state.
     val backgroundColor by animateColorAsState(
-        if (selected) MaterialTheme.extColors.green.container
+        if (selected) MaterialTheme.colorScheme.primaryContainer
         else MaterialTheme.colorScheme.surfaceContainerLow,
         label = "Filter Chip Background Color"
     )

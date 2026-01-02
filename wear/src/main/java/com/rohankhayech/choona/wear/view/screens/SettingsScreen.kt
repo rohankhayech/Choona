@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -39,7 +40,6 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
-import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -51,13 +51,10 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
  *
  * @param prefs The tuner preferences.
  * @param pinnedTuning The full name of the currently pinned tuning.
- * @param onSelectStringLayout Called when the user selects a string control layout.
  * @param onSelectDisplayType Called when the user selects a tuning display type.
  * @param onEnableStringSelectSound Called when the user toggles the string select sound.
  * @param onEnableInTuneSound Called when the user toggles the in-tune sound.
- * @param onSetUseBlackTheme Called when the user toggles the full black theme.
  * @param onSetUseDynamicColor Called when the user toggles the dynamic color feature.
- * @param onToggleEditModeDefault Called when the user toggles the edit mode feature.
  * @param onSelectInitialTuning Called when the user selects the initial tuning type.
  * @param onAboutPressed Called when the user presses the about option.
  * @param onBackPressed Called when the user presses the back navigation button.
@@ -68,13 +65,10 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
 fun SettingsScreen(
     prefs: TunerPreferences,
     pinnedTuning: String,
-    onSelectStringLayout: (StringLayout) -> Unit,
     onSelectDisplayType: (TuningDisplayType) -> Unit,
     onEnableStringSelectSound: (Boolean) -> Unit,
     onEnableInTuneSound: (Boolean) -> Unit,
-    onSetUseBlackTheme: (Boolean) -> Unit,
     onSetUseDynamicColor: (Boolean) -> Unit,
-    onToggleEditModeDefault: (Boolean) -> Unit,
     onSelectInitialTuning: (InitialTuningType) -> Unit,
     onAboutPressed: () -> Unit,
     onBackPressed: () -> Unit,
@@ -200,6 +194,22 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
+            // Display preferences
+            item {
+                SectionLabel(title = stringResource(R.string.prefs_display))
+            }
+
+            // Dynamic color theme
+            item {
+                SwitchButton(
+                    label = { Text(stringResource(R.string.pref_use_dynamic_color)) },
+                    secondaryLabel = { Text(stringResource(R.string.pref_use_dynamic_color_desc)) },
+                    checked = prefs.useDynamicColor,
+                    onCheckedChange = onSetUseDynamicColor,
+                    modifier = Modifier.clickable { onSetUseDynamicColor(!prefs.useDynamicColor) }
+                )
+            }
         }
     }
 }
@@ -216,12 +226,9 @@ private fun Preview() {
                 prefs = TunerPreferences(),
                 pinnedTuning = Tuning.STANDARD.fullName,
                 onSelectDisplayType = {},
-                onSelectStringLayout = {},
                 onEnableStringSelectSound = {},
                 onEnableInTuneSound = {},
-                onSetUseBlackTheme = {},
                 onSetUseDynamicColor = {},
-                onToggleEditModeDefault = {},
                 onSelectInitialTuning = {},
                 onAboutPressed = {},
                 onBackPressed = {}

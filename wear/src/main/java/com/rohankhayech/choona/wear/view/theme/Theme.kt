@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 package com.rohankhayech.choona.wear.view.theme
 
 import androidx.compose.runtime.Composable
-import androidx.wear.compose.material3.MaterialTheme
+import com.rohankhayech.android.util.ui.theme.wear.DynamicMaterialTheme
 
 /**
  * Theme for the app.
@@ -32,8 +32,9 @@ fun AppTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = DarkColorScheme,
+    DynamicMaterialTheme(
+        colorScheme = AppColorScheme,
+        dynamicColor = dynamicColor,
         content = content
     )
 }
@@ -43,5 +44,5 @@ fun PreviewWrapper(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    AppTheme { content() }
+    AppTheme(dynamicColor, content)
 }

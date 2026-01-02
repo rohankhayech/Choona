@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@ package com.rohankhayech.choona.wear.view.theme
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.material3.MaterialTheme
-import com.rohankhayech.choona.lib.view.theme.ColorFamily
 import com.rohankhayech.choona.lib.view.theme.ExtendedColorScheme
 import com.rohankhayech.choona.lib.view.theme.errorContainerDark
 import com.rohankhayech.choona.lib.view.theme.errorDark
+import com.rohankhayech.choona.lib.view.theme.extendedDark
 import com.rohankhayech.choona.lib.view.theme.onErrorContainerDark
 import com.rohankhayech.choona.lib.view.theme.onErrorDark
 import com.rohankhayech.choona.lib.view.theme.onPrimaryContainerDark
@@ -48,7 +48,7 @@ import com.rohankhayech.choona.lib.view.theme.tertiaryContainerDark
 import com.rohankhayech.choona.lib.view.theme.tertiaryDark
 
 /** Dark M3 Color Scheme for the application. */
-val DarkColorScheme = ColorScheme(
+val AppColorScheme = ColorScheme(
     primary = primaryDark,
     onPrimary = onPrimaryDark,
     primaryContainer = primaryContainerDark,
@@ -74,16 +74,7 @@ val DarkColorScheme = ColorScheme(
     surfaceContainerHigh = surfaceContainerHighDark
 )
 /** Extra colors for the app. */
+@Suppress("UnusedReceiverParameter")
 val MaterialTheme.extColors: ExtendedColorScheme
     @Composable
     get() = extendedDark
-
-/** Extra dark theme colors. */
-private val extendedDark = ExtendedColorScheme(
-    green = ColorFamily(
-        primaryDark,
-        onPrimaryDark,
-        primaryContainerDark,
-        onPrimaryContainerDark,
-    )
-)

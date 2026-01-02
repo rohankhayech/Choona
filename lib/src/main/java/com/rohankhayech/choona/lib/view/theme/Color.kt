@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,4 +67,14 @@ data class ColorFamily(
     val onColor: Color,
     val container: Color,
     val onContainer: Color
+)
+
+/** Extra dark theme colors. */
+val extendedDark = ExtendedColorScheme(
+    green = ColorFamily(
+        primaryDark,
+        onPrimaryDark,
+        primaryContainerDark,
+        onPrimaryContainerDark
+    )
 )

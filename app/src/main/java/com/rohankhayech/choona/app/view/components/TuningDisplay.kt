@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import kotlin.math.abs
 import kotlin.math.sign
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +42,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,8 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -75,13 +71,11 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.tuning.Notes
+import com.rohankhayech.choona.lib.view.components.animateTuningMeterColor
 import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorPosition
 import com.rohankhayech.choona.lib.view.components.animateTuningMeterIndicatorSize
 import com.rohankhayech.choona.lib.view.components.drawMeter
 import com.rohankhayech.choona.lib.view.components.isInTune
-import com.rohankhayech.choona.lib.view.theme.Green500
-import com.rohankhayech.choona.lib.view.theme.Red500
-import com.rohankhayech.choona.lib.view.theme.Yellow500
 
 /**
  * UI component consisting of a visual meter and
@@ -107,38 +101,15 @@ fun TuningDisplay(
 
     // Calculate meter position.
     val meterPosition by animateTuningMeterIndicatorPosition(offset, showNote)
-    val absPosition = abs(meterPosition)
 
     // Calculate colour of meter and label.
-    val color by animateColorAsState(
-        targetValue = run {
-            val green = Green500
-            val yellow = Yellow500
-            val red = Red500
-            val onBack = MaterialTheme.colorScheme.onBackground
-            val back = MaterialTheme.colorScheme.background
-            val themeColors = MaterialTheme.colorScheme
-            val dynamicColors = MaterialTheme.isDynamicColor
-
-            remember(absPosition, themeColors, dynamicColors) { derivedStateOf {
-                (if (absPosition != 0f) {
-                    // Gradient from green to red based on offset.
-                    if (absPosition < 0.5) {
-                        lerp(green, yellow, absPosition * 2f)
-                    } else {
-                        lerp(yellow, red, (absPosition - 0.5f) * 2f)
-                    }
-                } else {
-                    // Listening color.
-                    onBack.copy(alpha = 0.2f).compositeOver(back)
-                }).run {
-                    if (dynamicColors) harmonisedWith(themeColors)
-                    else this
-                }
-            }}.value
-        },
-        label = "Tuning Meter Color"
-    )
+    val themeColors = MaterialTheme.colorScheme
+    val color by animateTuningMeterColor(
+        meterPosition,
+        onBack = MaterialTheme.colorScheme.onBackground,
+        back = MaterialTheme.colorScheme.background,
+        dynamicColors = MaterialTheme.isDynamicColor
+    ) { harmonisedWith(themeColors) }
 
     val inTune = isInTune(offset)
 

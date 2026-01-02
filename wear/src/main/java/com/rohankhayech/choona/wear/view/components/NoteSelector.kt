@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
+import com.rohankhayech.android.util.ui.theme.wear.harmonised
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.lib.model.tuning.Notes
@@ -237,10 +238,10 @@ fun NoteSelectionButton(
     // Animate content color by selected and tuned state.
     val contentColor by animateColorAsState(
         if (selected) {
-            if (tuned) MaterialTheme.extColors.green.onContainer
+            if (tuned) MaterialTheme.extColors.green.onContainer.harmonised()
             else MaterialTheme.colorScheme.onTertiaryContainer
         }
-        else if (tuned) MaterialTheme.extColors.green.color
+        else if (tuned) MaterialTheme.extColors.green.color.harmonised()
         else LocalContentColor.current,
         label = "String Button Content Color"
     )
@@ -248,8 +249,8 @@ fun NoteSelectionButton(
     // Animate background color by selected state.
     val backgroundColor by animateColorAsState(
         if (selected) {
-            if (tuned) MaterialTheme.extColors.green.container
-            else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.60f)
+            if (tuned) MaterialTheme.extColors.green.container.harmonised()
+            else MaterialTheme.colorScheme.tertiaryContainer
         }
         else MaterialTheme.colorScheme.surfaceContainerLow,
         label = "String Button Background Color"
