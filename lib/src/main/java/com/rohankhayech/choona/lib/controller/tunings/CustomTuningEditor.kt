@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.app.controller.tunings
+package com.rohankhayech.choona.lib.controller.tunings
 
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
-import com.rohankhayech.choona.lib.controller.tunings.TuningEditor
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean): TuningEditor(tuning.tuning) {
+const val MAX_STRINGS = 12
+
+class CustomTuningEditor(
+    tuning: TuningEntry.InstrumentTuning,
+    tuningList: TuningList,
+    coroutineScope: CoroutineScope,
+    val oldTuning: Tuning? = null
+): TuningEditor(tuning.tuning) {
     private val _name = MutableStateFlow(tuning.name)
 
     val name = _name.asStateFlow()
@@ -36,6 +48,16 @@ class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean)
     fun setName(name: String) {
         _name.update { name }
     }
+
+    /** The equivalent built in tuning if one matches, `null` otherwise. */
+    private val builtIn = _tuning.map { t ->
+        t.findEquivalentIn(Tunings.TUNINGS)
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** The equivalent built in tuning if one matches, `null` otherwise. */
+    val equiv = combine(_tuning, tuningList.custom) { t, custom ->
+        t.findEquivalentIn(custom.map {tunings -> tunings.tuning} + Tunings.TUNINGS)
+    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun setInstrument(instrument: Instrument) {
         _tuning.update {
@@ -50,7 +72,7 @@ class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean)
 
     fun addLowString(noteIndex: Int) {
         requireValidNoteIndex(noteIndex)
-        require(tuning.value.numStrings() < 12)
+        require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
             Tuning(
                 it.name,
@@ -63,7 +85,7 @@ class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean)
 
     fun addHighString(noteIndex: Int) {
         requireValidNoteIndex(noteIndex)
-        require(tuning.value.numStrings() < 12)
+        require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
             Tuning(
                 it.name,
@@ -77,7 +99,7 @@ class CustomTuningEditor(tuning: TuningEntry.InstrumentTuning, val new: Boolean)
     fun removeLowString() {
         require(tuning.value.numStrings() > 1)
         _tuning.update {
-            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
+            Tuning(it.name, it.instrument, null, it.strings.take(it.numStrings() - 1))
         }
     }
 
