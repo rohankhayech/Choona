@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
@@ -85,9 +84,9 @@ import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.input.RemoteInputIntentHelper
 import androidx.wear.input.wearableExtender
-import androidx.wear.tooling.preview.devices.WearDevices
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
+import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Instrument
@@ -1038,9 +1037,7 @@ fun DeleteTuningDialog(
 
 // Previews
 
-@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
-@Preview(device = WearDevices.LARGE_ROUND, showSystemUi = true)
-@Preview(device = WearDevices.SQUARE, showSystemUi = true)
+@WearSizePreview
 @Composable
 private fun Preview() {
     val currentTuning = TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD.higherTuning())
