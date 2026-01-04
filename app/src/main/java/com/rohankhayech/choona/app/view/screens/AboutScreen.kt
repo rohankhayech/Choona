@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,7 +139,7 @@ fun AboutScreen(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlphaMedium)
                 )
                 Text(
-                    "© ${stringResource(R.string.copyright)} 2025 Rohan Khayech",
+                    "© ${stringResource(R.string.copyright)} ${BuildConfig.BUILD_YEAR} Rohan Khayech",
                     modifier = Modifier.padding(bottom = 16.dp).padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )
