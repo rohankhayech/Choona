@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.choona.app.view.screens.AboutScreen
 import com.rohankhayech.choona.app.view.screens.LicencesScreen
 import com.rohankhayech.choona.app.view.screens.SettingsScreen
@@ -51,46 +52,53 @@ class SettingsActivity : BaseSettingsActivity() {
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            val screen by vm.screen.collectAsStateWithLifecycle()
 
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
-                AnimatedContent(
-                    targetState = screen,
+                NavDisplay(
+                    backStack = vm.backStack,
+                    onBack = vm::navBack,
                     transitionSpec = {
-                        if (targetState > initialState) {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
-                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
-                        } else {
-                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
-                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
-                        }
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                     },
-                    label = "Screen"
-                ) {
-                    when (it) {
-                        Screen.SETTINGS -> SettingsScreen(
-                            prefs = prefs,
-                            pinnedTuning = vm.pinnedTuning,
-                            onSelectDisplayType = vm::setDisplayType,
-                            onSelectStringLayout = vm::setStringLayout,
-                            onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                            onEnableInTuneSound = vm::setEnableInTuneSound,
-                            onToggleEditModeDefault = vm::toggleEditModeDefault,
-                            onSetUseBlackTheme = vm::setUseBlackTheme,
-                            onSetUseDynamicColor = vm::setUseDynamicColor,
-                            onSelectInitialTuning = vm::setInitialTuning,
-                            onAboutPressed = ::openAboutScreen,
-                            onBackPressed = ::finish
-                        )
-                        Screen.ABOUT -> AboutScreen(
-                            prefs,
-                            onLicencesPressed = ::openLicencesScreen,
-                            onBackPressed = ::dismissAboutScreen,
-                            onReviewOptOut = vm::optOutOfReviewPrompt
-                        )
-                        Screen.LICENCES -> LicencesScreen(onBackPressed = ::dismissLicencesScreen)
+                    popTransitionSpec = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                    },
+                    predictivePopTransitionSpec = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                    },
+                    entryProvider = entryProvider {
+                        entry<Screen.Settings> {
+                            SettingsScreen(
+                                prefs = prefs,
+                                pinnedTuning = vm.pinnedTuning,
+                                onSelectDisplayType = vm::setDisplayType,
+                                onSelectStringLayout = vm::setStringLayout,
+                                onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                                onEnableInTuneSound = vm::setEnableInTuneSound,
+                                onToggleEditModeDefault = vm::toggleEditModeDefault,
+                                onSetUseBlackTheme = vm::setUseBlackTheme,
+                                onSetUseDynamicColor = vm::setUseDynamicColor,
+                                onSelectInitialTuning = vm::setInitialTuning,
+                                onAboutPressed = { vm.navTo(Screen.About) },
+                                onBackPressed = ::finish
+                            )
+                        }
+                        entry<Screen.About> {
+                            AboutScreen(
+                                prefs,
+                                onLicencesPressed = { vm.navTo(Screen.Licences) },
+                                onBackPressed = vm::navBack,
+                                onReviewOptOut = vm::optOutOfReviewPrompt
+                            )
+                        }
+                        entry<Screen.Licences> {
+                            LicencesScreen(onBackPressed = vm::navBack)
+                        }
                     }
-                }
+                )
             }
         }
     }

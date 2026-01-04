@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import java.time.LocalDateTime
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -23,6 +24,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization.plugin)
 }
 
 android {
@@ -38,6 +40,8 @@ android {
         versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BUILD_YEAR", "\"${buildYear()}\"")
     }
 
     buildTypes {
@@ -88,6 +92,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.kotlinx.serialization)
 
     // Google Play
     "playImplementation"(libs.review.ktx)
@@ -144,4 +151,8 @@ aboutLibraries {
         // Configure the duplication rule, to match "duplicates" with
         duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
     }
+}
+
+fun buildYear(): String {
+    return LocalDateTime.now().year.toString()
 }

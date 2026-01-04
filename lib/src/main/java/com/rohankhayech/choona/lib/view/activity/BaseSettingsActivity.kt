@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@ package com.rohankhayech.choona.lib.view.activity
 import java.io.IOException
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -30,18 +28,18 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.preferences.tunerPreferenceDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 /**
  * Activity that allows the user to select their preferences for the guitar tuner.
@@ -58,12 +56,6 @@ abstract class BaseSettingsActivity : ComponentActivity() {
     /** View model used to interact with the users preferences. */
     protected lateinit var vm: SettingsActivityViewModel
 
-    /** Callback used to dismiss about screen when the back button is pressed. */
-    private lateinit var dismissAboutScreenOnBack: OnBackPressedCallback
-
-    /** Callback used to dismiss licences screen when the back button is pressed. */
-    private lateinit var dismissLicencesScreenOnBack: OnBackPressedCallback
-
     /** Called when the activity is created. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,40 +65,6 @@ abstract class BaseSettingsActivity : ComponentActivity() {
             this,
             SettingsActivityViewModel.Factory(tunerPreferenceDataStore, intent.getStringExtra(EXTRA_PINNED) ?: "")
         )[SettingsActivityViewModel::class.java]
-
-        // Setup custom back navigation.
-        dismissAboutScreenOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.screen.value >= Screen.ABOUT
-        ) {
-            dismissAboutScreen()
-        }
-        dismissLicencesScreenOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.screen.value >= Screen.LICENCES
-        ) {
-            dismissLicencesScreen()
-        }
-    }
-
-    /** Opens the about screen and enables custom back behaviour. */
-    protected fun openAboutScreen() {
-        dismissAboutScreenOnBack.isEnabled = true
-        vm.setScreen(Screen.ABOUT)
-    }
-
-    protected fun dismissAboutScreen() {
-        dismissAboutScreenOnBack.isEnabled = false
-        vm.setScreen(Screen.SETTINGS)
-    }
-
-    /** Opens the licences screen and enables custom back behaviour. */
-    protected fun openLicencesScreen() {
-        dismissLicencesScreenOnBack.isEnabled = true
-        vm.setScreen(Screen.LICENCES)
-    }
-
-    protected fun dismissLicencesScreen() {
-        dismissLicencesScreenOnBack.isEnabled = false
-        vm.setScreen(Screen.ABOUT)
     }
 
     /**
@@ -122,11 +80,11 @@ abstract class BaseSettingsActivity : ComponentActivity() {
         val pinnedTuning: String
     ) : ViewModel() {
 
-        /** Mutable backing property for [screen]. */
-        private val _screen = MutableStateFlow(Screen.SETTINGS)
+        /** Mutable backing property for [backStack]. */
+        private val _backStack: NavBackStack<Screen> = NavBackStack(Screen.Settings)
 
-        /** The currently visible screen. */
-        val screen = _screen.asStateFlow()
+        /* Navigation back-stack for the Settings activity. */
+        val backStack: List<Screen> = _backStack
 
         /** Flow containing the users preferences. */
         val prefs: Flow<TunerPreferences> = dataStore.data
@@ -187,9 +145,23 @@ abstract class BaseSettingsActivity : ComponentActivity() {
             }
         }
 
-        /** Sets the visible [screen]. */
-        fun setScreen(screen: Screen) {
-            _screen.update { screen }
+        /**
+         * Navigates to the specified [screen].
+         * Pushes the specified [screen] to the top of the back-stack,
+         * if it is not already the active screen.
+         */
+        fun navTo(screen: Screen) {
+            if (_backStack.last() != screen) _backStack.add(screen)
+        }
+
+        /**
+         * Navigates back to the previous screen in the back-stack,
+         * if one exists.
+         */
+        fun navBack() {
+            if (_backStack.size > 1) {
+                _backStack.removeLastOrNull()
+            }
         }
 
         /**
@@ -215,9 +187,13 @@ abstract class BaseSettingsActivity : ComponentActivity() {
         }
     }
 
-    protected enum class Screen {
-        SETTINGS,
-        ABOUT,
-        LICENCES
+    /**
+     * Navigation entries for the screens in the SettingsActivity.
+     */
+    @Serializable
+    sealed class Screen: NavKey {
+        @Serializable data object Settings: Screen()
+        @Serializable data object About: Screen()
+        @Serializable data object Licences: Screen()
     }
 }
