@@ -34,7 +34,7 @@ android {
     defaultConfig {
         applicationId = "com.rohankhayech.choona"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 2
         versionName = "1.6.0-wear-alpha.1"
     }
