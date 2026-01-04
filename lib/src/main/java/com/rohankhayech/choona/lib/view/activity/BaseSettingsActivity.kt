@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 /**
  * Activity that allows the user to select their preferences for the guitar tuner.
@@ -76,6 +79,12 @@ abstract class BaseSettingsActivity : ComponentActivity() {
         private val dataStore: DataStore<Preferences>,
         val pinnedTuning: String
     ) : ViewModel() {
+
+        /** Mutable backing property for [backStack]. */
+        private val _backStack: NavBackStack<Screen> = NavBackStack(Screen.Settings)
+
+        /* Navigation back-stack for the Settings activity. */
+        val backStack: List<Screen> = _backStack
 
         /** Flow containing the users preferences. */
         val prefs: Flow<TunerPreferences> = dataStore.data
@@ -137,6 +146,25 @@ abstract class BaseSettingsActivity : ComponentActivity() {
         }
 
         /**
+         * Navigates to the specified [screen].
+         * Pushes the specified [screen] to the top of the back-stack,
+         * if it is not already the active screen.
+         */
+        fun navTo(screen: Screen) {
+            if (_backStack.last() != screen) _backStack.add(screen)
+        }
+
+        /**
+         * Navigates back to the previous screen in the back-stack,
+         * if one exists.
+         */
+        fun navBack() {
+            if (_backStack.size > 1) {
+                _backStack.removeLastOrNull()
+            }
+        }
+
+        /**
          * Factory class used to instantiate the view model with a reference to the data store.
          *
          * @param dataStore Data store object used to access and edit the user's preferences.
@@ -157,5 +185,15 @@ abstract class BaseSettingsActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Navigation entries for the screens in the SettingsActivity.
+     */
+    @Serializable
+    sealed class Screen: NavKey {
+        @Serializable data object Settings: Screen()
+        @Serializable data object About: Screen()
+        @Serializable data object Licences: Screen()
     }
 }

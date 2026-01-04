@@ -24,7 +24,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.kotlin.serialization.plugin)
 }
 
 android {
@@ -92,11 +92,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.kotlinx.serialization.core)
-    implementation(libs.androidx.material3.adaptive.navigation3)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.kotlinx.serialization)
 
     // Google Play
     "playImplementation"(libs.review.ktx)

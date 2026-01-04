@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.choona.app.view.screens.AboutScreen
 import com.rohankhayech.choona.app.view.screens.LicencesScreen
@@ -39,7 +34,6 @@ import com.rohankhayech.choona.app.view.screens.SettingsScreen
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
-import kotlinx.serialization.Serializable
 
 /**
  * Activity that allows the user to select their preferences for the guitar tuner.
@@ -58,21 +52,20 @@ class SettingsActivity : BaseSettingsActivity() {
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            val backStack: NavBackStack<NavKey> = rememberNavBackStack(Screen.Settings)
 
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 NavDisplay(
-                    backStack,
-                    onBack = { backStack.removeLastOrNull() },
-                    entryDecorators = listOf(
-                        rememberSaveableStateHolderNavEntryDecorator(),
-                        rememberViewModelStoreNavEntryDecorator()
-                    ),
+                    backStack = vm.backStack,
+                    onBack = vm::navBack,
                     transitionSpec = {
                         slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
                             slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                     },
                     popTransitionSpec = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                    },
+                    predictivePopTransitionSpec = {
                         slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
                             slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                     },
@@ -89,34 +82,24 @@ class SettingsActivity : BaseSettingsActivity() {
                                 onSetUseBlackTheme = vm::setUseBlackTheme,
                                 onSetUseDynamicColor = vm::setUseDynamicColor,
                                 onSelectInitialTuning = vm::setInitialTuning,
-                                onAboutPressed = { backStack.add(Screen.About) },
+                                onAboutPressed = { vm.navTo(Screen.About) },
                                 onBackPressed = ::finish
                             )
                         }
                         entry<Screen.About> {
                             AboutScreen(
                                 prefs,
-                                onLicencesPressed = { backStack.add(Screen.Licences) },
-                                onBackPressed = { backStack.removeLastOrNull() },
+                                onLicencesPressed = { vm.navTo(Screen.Licences) },
+                                onBackPressed = vm::navBack,
                                 onReviewOptOut = vm::optOutOfReviewPrompt
                             )
                         }
                         entry<Screen.Licences> {
-                            LicencesScreen(onBackPressed = { backStack.removeLastOrNull() })
+                            LicencesScreen(onBackPressed = vm::navBack)
                         }
                     }
                 )
             }
         }
-    }
-
-    @Serializable
-    private sealed class Screen: NavKey {
-        @Serializable
-        data object Settings: Screen()
-        @Serializable
-        data object About: Screen()
-        @Serializable
-        data object Licences: Screen()
     }
 }
