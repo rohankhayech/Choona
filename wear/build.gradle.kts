@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.aboutLibraries.android)
+    alias(libs.plugins.kotlin.serialization.plugin)
 }
 
 android {
@@ -34,7 +35,7 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 28
         targetSdk = 35
-        versionCode = 15
+        versionCode = 2
         versionName = "1.6.0-wear-alpha.1"
     }
 
@@ -76,12 +77,15 @@ dependencies {
     // Android
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.wear.input)
 
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.wear.material3)
     implementation(libs.compose.wear.foundation)
+    implementation(libs.compose.wear.navigation3)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)
 

@@ -140,8 +140,7 @@ private fun LinkButton(text: String, url: String) {
 
 
 @Composable
-fun LicencesScreen(
-) {
+fun LicencesScreen() {
     val listState = rememberScalingLazyListState(
         initialCenterItemIndex = 0
     )

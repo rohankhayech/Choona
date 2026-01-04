@@ -18,19 +18,19 @@
 
 package com.rohankhayech.choona.wear.view.activity
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.timeTextCurvedText
+import androidx.wear.compose.navigation3.rememberSwipeDismissableSceneStrategy
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
@@ -49,14 +49,9 @@ class SettingsActivity : BaseSettingsActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            enableEdgeToEdge()
-        }
-
         // Set UI content.
         setContent {
             val prefs by vm.prefs.collectAsStateWithLifecycle(TunerPreferences())
-            val screen by vm.screen.collectAsStateWithLifecycle()
 
             AppTheme(dynamicColor = prefs.useDynamicColor) {
                 AppScaffold(
@@ -65,39 +60,41 @@ class SettingsActivity : BaseSettingsActivity() {
                         TimeText { time -> timeTextCurvedText("$appName ‧ $time") }
                     }
                 ) {
-                    AnimatedContent(
-                        targetState = screen,
+                    NavDisplay(
+                        backStack = vm.backStack,
+                        onBack = vm::navBack,
+                        sceneStrategy = rememberSwipeDismissableSceneStrategy(),
                         transitionSpec = {
-                            if (targetState > initialState) {
-                                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
-                                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
-                            } else {
-                                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
-                                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
-                            }
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                         },
-                        label = "Screen"
-                    ) {
-                        when (it) {
-                            Screen.SETTINGS -> SettingsScreen(
-                                prefs = prefs,
-                                pinnedTuning = vm.pinnedTuning,
-                                onSelectDisplayType = vm::setDisplayType,
-                                onEnableStringSelectSound = vm::setEnableStringSelectSound,
-                                onEnableInTuneSound = vm::setEnableInTuneSound,
-                                onSetUseDynamicColor = vm::setUseDynamicColor,
-                                onSelectInitialTuning = vm::setInitialTuning,
-                                onAboutPressed = ::openAboutScreen,
-                                onBackPressed = ::finish
-                            )
-
-                            Screen.ABOUT -> AboutScreen(
-                                onLicencesPressed = ::openLicencesScreen
-                            )
-
-                            Screen.LICENCES -> LicencesScreen()
+                        popTransitionSpec = {
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith
+                                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                        },
+                        entryProvider = entryProvider {
+                            entry<Screen.Settings> {
+                                SettingsScreen(
+                                    prefs = prefs,
+                                    pinnedTuning = vm.pinnedTuning,
+                                    onSelectDisplayType = vm::setDisplayType,
+                                    onEnableStringSelectSound = vm::setEnableStringSelectSound,
+                                    onEnableInTuneSound = vm::setEnableInTuneSound,
+                                    onSetUseDynamicColor = vm::setUseDynamicColor,
+                                    onSelectInitialTuning = vm::setInitialTuning,
+                                    onAboutPressed = { vm.navTo(Screen.About) },
+                                )
+                            }
+                            entry<Screen.About> {
+                                AboutScreen(
+                                    onLicencesPressed = { vm.navTo(Screen.Licences) },
+                                )
+                            }
+                            entry<Screen.Licences> {
+                                LicencesScreen()
+                            }
                         }
-                    }
+                    )
                 }
             }
         }

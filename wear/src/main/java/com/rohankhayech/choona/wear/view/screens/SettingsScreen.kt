@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.ListHeader
@@ -56,7 +58,6 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
  * @param onSetUseDynamicColor Called when the user toggles the dynamic color feature.
  * @param onSelectInitialTuning Called when the user selects the initial tuning type.
  * @param onAboutPressed Called when the user presses the about option.
- * @param onBackPressed Called when the user presses the back navigation button.
  *
  * @author Rohan Khayech
  */
@@ -69,8 +70,7 @@ fun SettingsScreen(
     onEnableInTuneSound: (Boolean) -> Unit,
     onSetUseDynamicColor: (Boolean) -> Unit,
     onSelectInitialTuning: (InitialTuningType) -> Unit,
-    onAboutPressed: () -> Unit,
-    onBackPressed: () -> Unit,
+    onAboutPressed: () -> Unit
 ) {
     val listState = rememberScalingLazyListState()
 
@@ -209,6 +209,15 @@ fun SettingsScreen(
                     modifier = Modifier.clickable { onSetUseDynamicColor(!prefs.useDynamicColor) }
                 )
             }
+
+            // Temporary fix for back nav not working
+            // TODO: Remove when back nav fixed
+            item {
+                val activity = LocalActivity.current
+                Button(onClick = activity!!::finish) {
+                    Text("Back")
+                }
+            }
         }
     }
 }
@@ -227,8 +236,7 @@ private fun Preview() {
                 onEnableInTuneSound = {},
                 onSetUseDynamicColor = {},
                 onSelectInitialTuning = {},
-                onAboutPressed = {},
-                onBackPressed = {}
+                onAboutPressed = {}
             )
         }
     }

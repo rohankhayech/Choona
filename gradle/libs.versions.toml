@@ -19,7 +19,7 @@ reviewKtx = "2.0.2"
 nav3Core = "1.0.0"
 kotlinSerialization = "2.3.0"
 kotlinxSerializationCore = "1.9.0"
-composeWear = "1.5.6"
+composeWear = "1.6.0-alpha07"
 composeWearToolingPreview = "1.0.0"
 coreSplashscreen = "1.2.0"
 wearInput = "1.2.0"
@@ -60,6 +60,7 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 compose-wear-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeWear" }
 compose-wear-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeWear" }
+compose-wear-navigation3 = { group = "androidx.wear.compose", name = "compose-navigation3", version.ref = "composeWear" }
 compose-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "composeWearToolingPreview" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
