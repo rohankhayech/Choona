@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -253,13 +253,13 @@ fun SettingsScreen(
             HorizontalDivider()
 
             // Display preferences
-            SectionLabel(title = stringResource(AppR.string.prefs_display))
+            SectionLabel(title = stringResource(R.string.prefs_display))
 
             // Dynamic color theme
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
                 ListItem(
-                    headlineContent = { Text(stringResource(AppR.string.pref_use_dynamic_color)) },
-                    supportingContent = { Text(stringResource(AppR.string.pref_use_dynamic_color_desc)) },
+                    headlineContent = { Text(stringResource(R.string.pref_use_dynamic_color)) },
+                    supportingContent = { Text(stringResource(R.string.pref_use_dynamic_color_desc)) },
                     trailingContent = {
                         Switch(
                             checked = prefs.useDynamicColor,
