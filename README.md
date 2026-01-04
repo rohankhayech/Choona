@@ -70,7 +70,7 @@ Choona is also available on various F-Droid clients via the IzzyOnDroid reposito
 > This ensures the downloaded app is an official copy of Choona.
 
 ## License and Copyright
-Copyright © 2025 Rohan Khayech
+Copyright © 2026 Rohan Khayech
 
 Choona is licensed under the GNU General Public License v3.0.
 See [LICENSE](LICENSE) for the full license terms.
