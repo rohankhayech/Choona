@@ -70,6 +70,7 @@ import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences.Companion.REVIEW_PROMPT_ATTEMPTS
 import kotlinx.coroutines.launch
 import com.rohankhayech.choona.app.R as AppR
+import com.rohankhayech.choona.lib.BuildConfig as LibBuildConfig
 
 const val ContentAlphaMedium = 0.60f
 
@@ -139,7 +140,7 @@ fun AboutScreen(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlphaMedium)
                 )
                 Text(
-                    "© ${stringResource(R.string.copyright)} ${BuildConfig.BUILD_YEAR} Rohan Khayech",
+                    "© ${stringResource(R.string.copyright)} ${LibBuildConfig.BUILD_YEAR} Rohan Khayech",
                     modifier = Modifier.padding(bottom = 16.dp).padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )

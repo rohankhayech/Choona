@@ -41,6 +41,7 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.wear.BuildConfig
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.lib.BuildConfig as LibBuildConfig
 
 @Composable
 fun AboutScreen(
@@ -82,7 +83,7 @@ fun AboutScreen(
             }
             item {
                 Text(
-                    "© ${stringResource(R.string.copyright)} 2025\nRohan Khayech",
+                    "© ${stringResource(R.string.copyright)} ${LibBuildConfig.BUILD_YEAR}\nRohan Khayech",
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
