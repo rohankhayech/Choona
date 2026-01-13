@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -484,7 +484,7 @@ private fun TunerBodyScaffold(
                 tuning = tuning,
                 favTunings = favTunings,
                 getCanonicalName,
-                openDirect = false,
+                openDirect = expanded,
                 onSelect = {
                     if (it is TuningEntry.InstrumentTuning) {
                         onSelectTuning(it.tuning)
@@ -495,7 +495,6 @@ private fun TunerBodyScaffold(
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                enabled = !expanded,
                 editModeEnabled = editModeEnabled,
                 compact = compact
             )
