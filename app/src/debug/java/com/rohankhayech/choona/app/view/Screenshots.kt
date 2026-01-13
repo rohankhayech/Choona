@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ import com.rohankhayech.choona.lib.model.tuning.Notes
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
 // Previews for generating screenshots.
 
@@ -300,6 +301,7 @@ private fun TabletScreenshot() {
 
     AppTheme {
         MainLayout(
+            backStack = listOf(Screen.Tuner, Screen.TuningSelection),
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 891.dp)),
             compact = false,
             expanded = true,
@@ -315,10 +317,8 @@ private fun TabletScreenshot() {
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
             tuningList = tunings,
-            tuningSelectorOpen = false,
-            configurePanelOpen = false,
             true,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

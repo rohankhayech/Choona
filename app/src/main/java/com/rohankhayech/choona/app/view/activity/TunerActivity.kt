@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,8 +91,6 @@ class TunerActivity : BaseTunerActivity() {
                     val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
                     val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
                     val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
-                    val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
-                    val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
                     val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
                     val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
@@ -110,13 +108,19 @@ class TunerActivity : BaseTunerActivity() {
                     }
 
                     // Dismiss configure panel if no longer compact.
-                    LaunchedEffect(compact, configurePanelOpen) {
-                        if (configurePanelOpen && !compact) dismissConfigurePanel()
+                    LaunchedEffect(compact) {
+                        if (!compact) vm.dismissConfigurePanel()
                     }
 
-                    // Dismiss tuning selector when switching to expanded view.
-                    LaunchedEffect(expanded, tuningSelectorOpen) {
-                        if (tuningSelectorOpen && expanded) dismissTuningSelector()
+                    // Open tuning selector when switching to expanded view.
+                    LaunchedEffect(expanded) {
+                        vm.setExpanded(expanded)
+                        if (expanded) {
+                            checkAndStartTuner()
+                            vm.openTuningSelector()
+                        } else {
+                            checkAndStopTuner()
+                        }
                     }
 
                     // Launch review prompt after tuning if conditions met.
@@ -140,6 +144,7 @@ class TunerActivity : BaseTunerActivity() {
 
                     // Display UI content.
                     MainLayout(
+                        backStack = vm.backStack,
                         windowSizeClass = windowSizeClass,
                         compact = compact,
                         expanded = expanded,
@@ -155,8 +160,6 @@ class TunerActivity : BaseTunerActivity() {
                         getCanonicalName = vm.tuningList::getCanonicalName,
                         prefs = prefs,
                         tuningList = vm.tuningList,
-                        tuningSelectorOpen = tuningSelectorOpen,
-                        configurePanelOpen = configurePanelOpen,
                         onSelectString = ::selectString,
                         onSelectTuning = ::setTuning,
                         onSelectChromatic = vm.tuner::setChromatic,
@@ -170,10 +173,9 @@ class TunerActivity : BaseTunerActivity() {
                         onOpenTuningSelector = ::openTuningSelector,
                         onSettingsPressed = ::openSettings,
                         onConfigurePressed = ::openConfigurePanel,
-                        onSelectTuningFromList = ::selectTuning,
-                        onSelectChromaticFromList = ::selectChromatic,
-                        onDismissTuningSelector = ::dismissTuningSelector,
-                        onDismissConfigurePanel = ::dismissConfigurePanel,
+                        onSelectTuningFromList = ::selectTuningFromList,
+                        onSelectChromaticFromList = ::selectChromaticFromList,
+                        onBack = ::navBack,
                         onEditModeChanged = vm::setEditMode,
                         editModeEnabled = editModeEnabled
                     )

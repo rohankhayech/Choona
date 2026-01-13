@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -288,6 +288,7 @@ fun TuningSelectionScreen(
                     TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.background)
                 } else {
                     TopAppBarDefaults.topAppBarColors()
+                    // TODO: Fix wrong colour/elevation when displayed as a side panel in expanded layout.
                 },
                 scrollBehavior = scrollBehavior,
             )

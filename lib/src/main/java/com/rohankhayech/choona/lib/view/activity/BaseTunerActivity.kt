@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@ import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.lifecycleScope
@@ -66,12 +64,6 @@ abstract class BaseTunerActivity : ComponentActivity() {
 
     /** User preferences for the tuner. */
     protected lateinit var prefs: Flow<TunerPreferences>
-
-    /** Callback used to dismiss tuning selection screen when the back button is pressed. */
-    private lateinit var dismissTuningSelectorOnBack: OnBackPressedCallback
-
-    /** Callback used to dismiss configure tuning panel when the back button is pressed. */
-    private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
 
     /**
      * Called when activity is created.
@@ -118,19 +110,6 @@ abstract class BaseTunerActivity : ComponentActivity() {
             }
         }
 
-        // Setup custom back navigation.
-        dismissConfigurePanelOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.configurePanelOpen.value,
-        ) {
-            dismissConfigurePanel()
-        }
-
-        dismissTuningSelectorOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.tuningSelectorOpen.value
-        ) {
-            dismissTuningSelector()
-        }
-
         // Keep the screen on while tuning.
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
@@ -148,13 +127,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         midi.start()
 
         // Start the tuner if no panels are open.
-        if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch (_: Exception) {
-                // Catch and ignore, error will be displayed in the UI.
-            }
-        }
+        checkAndStartTuner()
     }
 
     /**
@@ -266,42 +239,26 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * Opens the configure tuning panel, and stops the tuner.
      */
     protected fun openConfigurePanel() {
-        dismissConfigurePanelOnBack.isEnabled = true
         vm.openConfigurePanel()
-        vm.tuner.stop()
+        checkAndStopTuner()
     }
 
     /**
      * Opens the tuning selection screen, and stops the tuner.
      */
     protected fun openTuningSelector() {
-        dismissTuningSelectorOnBack.isEnabled = true
         vm.openTuningSelector()
-        vm.tuner.stop()
+        checkAndStopTuner()
     }
 
     /**
-     * Dismisses the tuning selection screen and restarts the tuner if no other panel is open.
+     * Navigates back and restarts the tuner if no other panel is open.
      */
-    protected fun dismissTuningSelector() {
-        dismissTuningSelectorOnBack.isEnabled = false
-        vm.dismissTuningSelector()
-        if (!vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch(_: Exception) {}
-        }
-    }
+    protected fun navBack() {
+        vm.navBack()
 
-    /** Dismisses the configure panel and restarts the tuner if no other panel is open. */
-    protected fun dismissConfigurePanel() {
-        dismissConfigurePanelOnBack.isEnabled = false
-        vm.dismissConfigurePanel()
-        if (!vm.tuningSelectorOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch (_: Exception) {}
-        }
+        // Start tuner if no other panel is open.
+        checkAndStartTuner()
     }
 
     /**
@@ -309,41 +266,41 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * selection screen, restarts the tuner if no other panel is open,
      * and recreates the MIDI driver if necessary.
      */
-    protected fun selectTuning(tuning: Tuning) {
-        // Consume back stack entry.
-        dismissTuningSelectorOnBack.isEnabled = false
-
+    protected fun selectTuningFromList(tuning: Tuning) {
         // Recreate MIDI driver if number of strings different.
         checkAndRecreateMidiDriver(tuning)
 
         // Select the tuning.
-        vm.selectTuning(tuning)
+        vm.selectTuningFromList(tuning)
 
         // Start tuner if no other panel is open.
-        if (!vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch(_: Exception) {}
-        }
+        checkAndStartTuner()
     }
 
     /**
      * Sets chromatic mode on as selected on the tuning selection screen
      * and restarts the tuner if no other panel is open.
      */
-    protected open fun selectChromatic() {
-        // Consume back stack entry.
-        dismissTuningSelectorOnBack.isEnabled = false
-
+    protected fun selectChromaticFromList() {
         // Select the tuning.
-        vm.selectChromatic()
+        vm.selectChromaticFromList()
 
         // Start tuner if no other panel is open.
-        if (!vm.configurePanelOpen.value) {
+        checkAndStartTuner()
+    }
+
+    /** Starts tuner if no other panel is open above it. */
+    protected fun checkAndStartTuner() {
+        if (vm.isTunerScreenOpen()) {
             try {
                 vm.tuner.start(ph)
             } catch(_: Exception) {}
         }
+    }
+
+    /** Stops tuner if a panel is open above it. */
+    protected fun checkAndStopTuner() {
+        if (!vm.isTunerScreenOpen()) vm.tuner.stop()
     }
 
     /**

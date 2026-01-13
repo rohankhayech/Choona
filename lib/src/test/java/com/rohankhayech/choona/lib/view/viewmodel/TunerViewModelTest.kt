@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package com.rohankhayech.choona.lib.view.viewmodel
 
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -51,43 +52,48 @@ class TunerViewModelTest {
     @Test
     fun testInitial() {
         assertEquals(TuningEntry.InstrumentTuning(vm.tuner.tuning.value), vm.tuningList.current.value)
-        assertFalse(vm.tuningSelectorOpen.value)
-        assertFalse(vm.configurePanelOpen.value)
+        assertTrue(vm.backStack.size == 1)
+        assertTrue(vm.backStack.last() == Screen.Tuner)
         assertFalse(vm.editModeEnabled.value)
     }
 
     @Test
     fun testOpenTuningSelector() {
         vm.openTuningSelector()
-        assertTrue(vm.tuningSelectorOpen.value)
+        assertTrue(vm.backStack.size == 2)
+        assertTrue(vm.backStack.last() == Screen.TuningSelection)
     }
 
     @Test
     fun testOpenConfigurePanel() {
         vm.openConfigurePanel()
-        assertTrue(vm.configurePanelOpen.value)
+        assertTrue(vm.backStack.size == 2)
+        assertTrue(vm.backStack.last() == Screen.ConfigureTuning)
     }
 
     @Test
-    fun testDismissTuningSelector() {
+    fun testNavBack() {
         vm.openTuningSelector()
-        vm.dismissTuningSelector()
-        assertFalse(vm.tuningSelectorOpen.value)
+        vm.navBack()
+        assertTrue(vm.backStack.size == 1)
+        assertTrue(vm.backStack.last() == Screen.Tuner)
     }
 
     @Test
     fun testDismissConfigurePanel() {
         vm.openConfigurePanel()
         vm.dismissConfigurePanel()
-        assertFalse(vm.configurePanelOpen.value)
+        assertTrue(vm.backStack.size == 1)
+        assertTrue(vm.backStack.last() == Screen.Tuner)
     }
 
     @Test
     fun testSelectTuning() {
         vm.openTuningSelector()
-        vm.selectTuning(Tuning.DROP_D)
+        vm.selectTuningFromList(Tuning.DROP_D)
         testDispatcher.scheduler.runCurrent()
-        assertFalse(vm.tuningSelectorOpen.value)
+        assertTrue(vm.backStack.size == 1)
+        assertTrue(vm.backStack.last() == Screen.Tuner)
         assertEquals(Tuning.DROP_D, vm.tuner.tuning.value)
         assertEquals(TuningEntry.InstrumentTuning(Tuning.DROP_D), vm.tuningList.current.value)
     }
@@ -130,8 +136,9 @@ class TunerViewModelTest {
     @Test
     fun testSelectChromatic() {
         vm.openTuningSelector()
-        vm.selectChromatic()
-        assertFalse(vm.tuningSelectorOpen.value)
+        vm.selectChromaticFromList()
+        assertTrue(vm.backStack.size == 1)
+        assertTrue(vm.backStack.last() == Screen.Tuner)
         assertTrue(vm.tuner.chromatic.value)
     }
 }
