@@ -34,10 +34,10 @@ import com.rohankhayech.choona.lib.model.tuning.Tuning.Category.POWER
 @Suppress("unused")
 object Tunings {
     /** Internal list of common guitar tunings.  */
-    private val tunings: MutableSet<Tuning> = LinkedHashSet()
+    private val tunings: MutableSet<InstrumentTuning> = LinkedHashSet()
 
     /** A list of common guitar tunings.  */
-    val TUNINGS: Set<Tuning> = tunings
+    val TUNINGS: Set<InstrumentTuning> = tunings
 
     val STANDARD = add(Tuning.STANDARD)
     val HALF_STEP_DOWN = add(Tuning.fromString("Half Step Down", GUITAR, COMMON, "D#4 A#3 F#3 C#3 G#2 D#2"))
@@ -73,7 +73,7 @@ object Tunings {
     val TWELVE_STRING = add(Tuning.fromString("12-String", GUITAR, EXTENDED, "E4 E4 B3 B3 G3 G4 D3 D4 A2 A3 E2 E3"))
 
     /** Adds the specified tuning to the list and returns it. */
-    private fun add(tuning: Tuning): Tuning {
+    private fun add(tuning: InstrumentTuning): InstrumentTuning {
         tunings.add(tuning)
         return tuning
     }

@@ -40,10 +40,7 @@ import java.util.stream.Collectors;
  * @author Rohan Khayech
  */
 @Immutable
-public final class Tuning implements Iterable<GuitarString> {
-
-    /** The standard name of this tuning. */
-    private final String name;
+public final class InstrumentTuning extends SuperTuning implements Iterable<GuitarString> {
 
     /** The set of strings used for this tuning. */
     private final List<GuitarString> strings;
@@ -53,9 +50,6 @@ public final class Tuning implements Iterable<GuitarString> {
 
     /** The default instrument for tunings. */
     public static final Instrument DEFAULT_INSTRUMENT = Instrument.GUITAR;
-
-    /** The category of tuning. */
-    private final Category category;
 
     /**
      * @return The number of strings in this tuning.
@@ -69,7 +63,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified array of strings or any string is null.
      */
-    public Tuning(GuitarString... strings) {
+    public InstrumentTuning(GuitarString... strings) {
         this(DEFAULT_INSTRUMENT, strings);
     }
 
@@ -79,7 +73,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified instrument, array of strings or any string is null.
      */
-    public Tuning(Instrument instrument, GuitarString... strings) {
+    public InstrumentTuning(Instrument instrument, GuitarString... strings) {
         this(null, instrument, null, strings);
     }
 
@@ -91,7 +85,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified instrument, array of strings or any string is null.
      */
-    public Tuning(String name, Instrument instrument, Category category, GuitarString... strings) {
+    public InstrumentTuning(String name, Instrument instrument, Category category, GuitarString... strings) {
         this(name, instrument, category, Arrays.asList(
             Objects.requireNonNull(strings, "Array of strings cannot be null.")
         ));
@@ -103,7 +97,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified list of strings or any string is null.
      */
-    public Tuning(Instrument instrument, List<GuitarString> strings) {
+    public InstrumentTuning(Instrument instrument, List<GuitarString> strings) {
         this(null, instrument, null, strings);
     }
 
@@ -112,12 +106,10 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param name The name of the tuning.
      * @param o The tuning to copy.
      */
-    public Tuning(String name, Tuning o) {
-        Objects.requireNonNull(o);
-        this.name = name;
+    public InstrumentTuning(String name, @NonNull InstrumentTuning o) {
+        super(name, Objects.requireNonNull(o).category);
         this.strings = o.strings;
         this.instrument = o.instrument;
-        this.category = o.category;
     }
 
     /**
@@ -128,7 +120,9 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param strings The guitar strings to include in this tuning, from high to low. (eg. EBGDAE)
      * @throws NullPointerException If the specified list of strings or any string is null.
      */
-    public Tuning(String name, Instrument instrument, Category category, List<GuitarString> strings) {
+    public InstrumentTuning(String name, Instrument instrument, Category category, List<GuitarString> strings) {
+        super(name, category);
+
         // Check list of strings is not null.
         Objects.requireNonNull(strings, "List of strings cannot be null.");
         Objects.requireNonNull(instrument, "Instrument cannot be null.");
@@ -140,9 +134,7 @@ public final class Tuning implements Iterable<GuitarString> {
 
         // Initialise tuning.
         this.strings = new ArrayList<>(strings);
-        this.name = name;
         this.instrument = instrument;
-        this.category = category;
     }
 
     /**
@@ -184,53 +176,12 @@ public final class Tuning implements Iterable<GuitarString> {
         return strings.stream().filter(s->s.containsNote(pitch)).collect(Collectors.toList());
     }
 
-    /** @return True if this tuning is named, false otherwise. */
-    public boolean hasName() {
-        return name != null;
-    }
-
-    /**
-     * @return The standard name of this tuning, or the string representation if it is not named.
-     */
-    public @NonNull String getName() {
-        return hasName() ? name : toString();
-    }
-
-    /**
-     * @return The standard name of this tuning (if named) or an empty string.
-     */
-    public @NonNull String getNameOrBlank() {
-        return hasName() ? name : "";
-    }
-
-    /**
-     * @return The standard name of this tuning if named, null otherwise.
-     */
-    public @Nullable String getRawName() {
-        return name;
-    }
-
-    /**
-     * @return The standard name of this tuning (if named) including it's string representation.
-     */
-    public @NonNull String getFullName() {
-        return hasName() ? name + " (" + this + ")" : toString();
-    }
-
     /**
      * @return The instrument the tuning is for.
      */
     public Instrument getInstrument() {
         return instrument;
     }
-
-    /** @return True if this tuning has a category, false otherwise. */
-    public boolean hasCategory() {
-        return category != null;
-    }
-
-    /** @return The category of tuning. */
-    public Category getCategory() { return category; }
 
     /**
      * @return A human-readable java string representation of the guitar strings in this tuning, excluding octaves.
@@ -257,8 +208,8 @@ public final class Tuning implements Iterable<GuitarString> {
     }
 
     /** @return A tuning with all strings tuned one semitone lower than this tuning. */
-    public Tuning lowerTuning() {
-        return new Tuning(
+    public InstrumentTuning lowerTuning() {
+        return new InstrumentTuning(
             instrument,
             strings.stream()
                 .map(GuitarString::lowerString)
@@ -267,8 +218,8 @@ public final class Tuning implements Iterable<GuitarString> {
     }
 
     /** @return A tuning with all strings tuned one semitone higher than this tuning. */
-    public Tuning higherTuning() {
-        return new Tuning(
+    public InstrumentTuning higherTuning() {
+        return new InstrumentTuning(
             instrument,
             strings.stream()
                 .map(GuitarString::higherString)
@@ -284,39 +235,43 @@ public final class Tuning implements Iterable<GuitarString> {
      * @throws IndexOutOfBoundsException If the string number is invalid.
      * @throws NullPointerException If the specified string is null.
      */
-    public Tuning withString(int n, GuitarString string) {
+    public InstrumentTuning withString(int n, GuitarString string) {
         Objects.requireNonNull(string);
         List<GuitarString> newList = new ArrayList<>(strings);
         newList.set(n, string);
-        return new Tuning(null, instrument, null, newList);
+        return new InstrumentTuning(null, instrument, null, newList);
+    }
+
+    public String getKey() {
+        return instrument+"-["+toFullString()+"]";
     }
 
     /**
-     * Creates a Tuning object from a java string containing the root notes of each guitar string
+     * Creates a InstrumentTuning object from a java string containing the root notes of each guitar string
      * in the tuning.
      * @param tuningStr A java string containing the root notes of each guitar string
      *                  in the tuning, separated by spaces. This is the same format as
-     *                  returned by {@code Tuning.toFullString()}.;
+     *                  returned by {@code InstrumentTuning.toFullString()}.;
      * @return The corresponding guitar tuning.
      * @throws IllegalArgumentException If any of the root notes do not correspond to a defined standard string.
      */
-    public static Tuning fromString(String tuningStr) {
+    public static InstrumentTuning fromString(String tuningStr) {
         return fromString(null, DEFAULT_INSTRUMENT, null, tuningStr);
     }
 
     /**
-     * Creates a Tuning object from a java string containing the root notes of each guitar string
+     * Creates a InstrumentTuning object from a java string containing the root notes of each guitar string
      * in the tuning.
      * @param name Name of the tuning. Can be null.
      * @param instrument The instrument the tuning is for.
      * @param category The category of tuning.
      * @param tuningStr A java string containing the root notes of each guitar string
      *                  in the tuning, separated by spaces. This is the same format as
-     *                  returned by {@code Tuning.toFullString()}.;
+     *                  returned by {@code InstrumentTuning.toFullString()}.;
      * @return The corresponding guitar tuning.
      * @throws IllegalArgumentException If any of the root notes do not correspond to a defined standard string.
      */
-    public static Tuning fromString(String name, Instrument instrument, Category category, String tuningStr) {
+    public static InstrumentTuning fromString(String name, Instrument instrument, Category category, String tuningStr) {
         // Construct new tuning otherwise.
         String[] rootNotes = tuningStr.split(" ");
         GuitarString[] strings = new GuitarString[rootNotes.length];
@@ -324,7 +279,7 @@ public final class Tuning implements Iterable<GuitarString> {
             strings[i] = GuitarString.fromRootNote(rootNotes[i]);
         }
 
-        return new Tuning(name, instrument, category, strings);
+        return new InstrumentTuning(name, instrument, category, strings);
     }
 
     /**
@@ -340,13 +295,12 @@ public final class Tuning implements Iterable<GuitarString> {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof Tuning)) return false;
+        if (!(obj instanceof InstrumentTuning)) return false;
 
-        Tuning o = (Tuning)obj;
-        return Objects.equals(name, o.name)
+        InstrumentTuning o = (InstrumentTuning)obj;
+        return super.equals(o)
             && strings.equals(o.strings)
-            && instrument == o.instrument
-            && category == o.category;
+            && instrument == o.instrument;
     }
 
     /**
@@ -354,7 +308,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @param other The tuning to check equivalence with.
      * @return True if the other tuning has the same strings and isntrument as this tuning, false otherwise.
      */
-    public boolean equivalentTo(@Nullable Tuning other) {
+    public boolean equivalentTo(@Nullable InstrumentTuning other) {
         if (other == null) return false;
         return other == this || (strings.equals(other.strings) && instrument == other.instrument);
     }
@@ -365,9 +319,9 @@ public final class Tuning implements Iterable<GuitarString> {
      * @return True if the collection contains an equivalent tuning, false otherwise.
      * @throws NullPointerException If the collection of tunings is null.
      *
-     * @see #equivalentTo(Tuning)
+     * @see #equivalentTo(InstrumentTuning)
      */
-    public boolean hasEquivalentIn(@NonNull Collection<Tuning> tunings) {
+    public boolean hasEquivalentIn(@NonNull Collection<InstrumentTuning> tunings) {
         Objects.requireNonNull(tunings);
         return tunings.stream().anyMatch(this::equivalentTo);
     }
@@ -378,7 +332,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @return The equivalent tuning in the collection, or null if one is not found.
      * @throws NullPointerException If the collection of tunings is null.
      */
-    public Tuning findEquivalentIn(@NonNull Collection<Tuning> tunings) {
+    public InstrumentTuning findEquivalentIn(@NonNull Collection<InstrumentTuning> tunings) {
         Objects.requireNonNull(tunings);
         return tunings.stream()
             .filter(this::equivalentTo)
@@ -387,32 +341,15 @@ public final class Tuning implements Iterable<GuitarString> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, strings, instrument, category);
+        return Objects.hash(super.hashCode(), strings, instrument);
     }
-
-    /**
-     * Enum describing tuning categories.
-     */
-    public enum Category {
-        /** Common tuning. */
-        COMMON,
-        /** Power chord tuning. */
-        POWER,
-        /** Open chord tuning. */
-        OPEN,
-        /** Extended range tuning. */
-        EXTENDED,
-        /** Miscellaneous tuning. */
-        MISC
-    }
-
 
     // STANDARD TUNINGS
 
     /**
-     * Standard Tuning (EADGBE)
+     * Standard InstrumentTuning (EADGBE)
      */
-    public static final Tuning STANDARD = new Tuning(
+    public static final InstrumentTuning STANDARD = new InstrumentTuning(
         "Standard",
         Instrument.GUITAR,
         Category.COMMON,
@@ -424,8 +361,8 @@ public final class Tuning implements Iterable<GuitarString> {
         GuitarString.E2
     );
 
-    /** Drop-D Tuning (DADGBE) */
-    public static final Tuning DROP_D = new Tuning(
+    /** Drop-D InstrumentTuning (DADGBE) */
+    public static final InstrumentTuning DROP_D = new InstrumentTuning(
         "Drop D",
         Instrument.GUITAR,
         Category.COMMON,
