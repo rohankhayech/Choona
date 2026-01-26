@@ -61,7 +61,10 @@ import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
@@ -87,13 +90,13 @@ import com.rohankhayech.choona.lib.view.util.getLocalisedName
 @Composable
 fun TuningSelector(
     modifier: Modifier = Modifier,
-    tuning: TuningEntry,
-    favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    tuning: Tuning,
+    favTunings: State<Set<Tuning>>,
+    getCanonicalName: (InstrumentTuning) -> String,
     openDirect: Boolean,
     compact: Boolean,
     showExpanded: Boolean = !openDirect,
-    onSelect: (TuningEntry) -> Unit,
+    onSelect: (Tuning) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
     onOpenTuningSelector: () -> Unit,
@@ -106,29 +109,29 @@ fun TuningSelector(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
+            if (editModeEnabled && tuning is InstrumentTuning) {
                 // Tune Down Button
                 IconButton(
                     onClick = onTuneDown,
-                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
                 }
             }
 
-            // Tuning Display and Selection
+            // InstrumentTuning Display and Selection
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = if (!editModeEnabled || tuning is TuningEntry.InstrumentTuning) 16.dp else 0.dp),
+                    .padding(horizontal = if (!editModeEnabled || tuning is InstrumentTuning) 16.dp else 0.dp),
                 expanded = expanded && !openDirect,
                 onExpandedChange = {
                     if (openDirect) onOpenTuningSelector()
                     else expanded = it
                 }
             ) {
-                // Current Tuning
+                // Current InstrumentTuning
                 CurrentTuningField(
                     modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(
                         ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
@@ -171,11 +174,11 @@ fun TuningSelector(
                 }
             }
 
-            if (editModeEnabled && tuning is TuningEntry.InstrumentTuning) {
+            if (editModeEnabled && tuning is InstrumentTuning) {
                 // Tune Up Button
                 IconButton(
                     onClick = onTuneUp,
-                    enabled = remember(tuning) { derivedStateOf { tuning.tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                    enabled = remember(tuning) { derivedStateOf { tuning.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.tune_up))
                 }
@@ -197,8 +200,8 @@ fun TuningSelector(
 @Composable
 private fun CurrentTuningField(
     modifier: Modifier = Modifier,
-    tuning: TuningEntry,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    tuning: Tuning,
+    getCanonicalName: (InstrumentTuning) -> String,
     expanded: Boolean,
     showExpanded: Boolean,
     compact: Boolean
@@ -250,23 +253,24 @@ private fun CurrentTuningField(
 fun TuningItem(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
-    tuning: TuningEntry,
+    tuning: Tuning,
     fontWeight: FontWeight,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
 ) {
     val tuningName = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
-        is TuningEntry.InstrumentTuning ->
-            tuning.tuning.nameOrBlank.ifBlank {
+        is ChromaticTuning -> stringResource(R.string.chromatic)
+        is InstrumentTuning ->
+            tuning.nameOrBlank.ifBlank {
                 getCanonicalName(tuning)
             }
+        else -> tuning.name
     }
 
     val instrumentName = tuning.tuning?.instrument?.getLocalisedName()
 
     val strings = remember(tuning) {
-        tuning.tuning?.strings
+        (tuning as? InstrumentTuning)?.strings
             ?.reversed()
             ?.joinToString(
                 separator = if (!compact) ", " else "",
@@ -274,8 +278,9 @@ fun TuningItem(
     } ?: ""
 
     val desc = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
-        is TuningEntry.InstrumentTuning -> strings
+        is ChromaticTuning -> stringResource(R.string.chromatic_desc)
+        is InstrumentTuning -> strings
+        else -> ""
     }
 
     Column(
@@ -320,10 +325,10 @@ private fun Preview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            tuning = Tunings.STANDARD,
             favTunings = remember { mutableStateOf(setOf(
-                TuningEntry.InstrumentTuning(Tuning.STANDARD),
-                TuningEntry.InstrumentTuning(Tuning.DROP_D)
+                Tunings.STANDARD,
+                Tunings.DROP_D
             )) },
             openDirect = false,
             onSelect = {},
@@ -332,7 +337,7 @@ private fun Preview() {
             onOpenTuningSelector = {},
             editModeEnabled = true,
             compact = false,
-            getCanonicalName = { it.tuning.toString() }
+            getCanonicalName = { it.toString() }
         )
     }
 }
@@ -343,9 +348,9 @@ private fun EditOffPreview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = TuningEntry.ChromaticTuning,
-            favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
-            getCanonicalName = { it.tuning.toString() },
+            tuning = ChromaticTuning,
+            favTunings = remember { mutableStateOf(setOf(Tunings.STANDARD, Tunings.DROP_D)) },
+            getCanonicalName = { it.toString() },
             openDirect = false,
             onSelect = {},
             onTuneDown = {},
@@ -365,8 +370,8 @@ private fun TuningItemPreview() {
     PreviewWrapper {
         TuningItem(
             Modifier.padding(8.dp),
-            tuning = TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
-            getCanonicalName = { it.tuning.toString() },
+            tuning = Tunings.BASS_STANDARD,
+            getCanonicalName = { it.toString() },
             fontWeight = FontWeight.Bold
         )
     }

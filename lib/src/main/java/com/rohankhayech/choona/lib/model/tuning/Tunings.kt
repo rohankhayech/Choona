@@ -39,10 +39,10 @@ object Tunings {
     /** A list of common guitar tunings.  */
     val TUNINGS: Set<InstrumentTuning> = tunings
 
-    val STANDARD = add(Tuning.STANDARD)
+    @JvmField val STANDARD = add(Tuning.fromString("Standard", Instrument.GUITAR, Category.COMMON, "E4 B3 G3 D3 A2 E2"))
     val HALF_STEP_DOWN = add(Tuning.fromString("Half Step Down", GUITAR, COMMON, "D#4 A#3 F#3 C#3 G#2 D#2"))
     val WHOLE_STEP_DOWN = add(Tuning.fromString("Whole Step Down", GUITAR, COMMON, "D4 A3 F3 C3 G2 D2"))
-    val DROP_D = add(Tuning.DROP_D)
+    @JvmField val DROP_D = add(Tuning.fromString("Drop D", Instrument.GUITAR, Category.COMMON, "D4 B3 G3 D3 A2 D2"))
     val DOUBLE_DROP_D = add(Tuning.fromString("Double Drop D", GUITAR, POWER, "D4 B3 G3 D3 A2 D2"))
     val BASS_STANDARD = add(Tuning.fromString("Standard", BASS, COMMON, "G2 D2 A1 E1"))
     val BASS_DROP_D = add(Tuning.fromString("Drop D", BASS, COMMON, "G2 D2 A1 D1"))

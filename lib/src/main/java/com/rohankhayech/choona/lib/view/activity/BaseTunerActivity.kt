@@ -33,9 +33,9 @@ import com.rohankhayech.choona.lib.controller.midi.MidiController
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.tunerPreferenceDataStore
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
-import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.view.PermissionHandler
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel
 import kotlinx.coroutines.flow.Flow
@@ -102,8 +102,8 @@ abstract class BaseTunerActivity : ComponentActivity() {
                     }
                     InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
                         when (it) {
-                            is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(it.tuning)
-                            is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                            is InstrumentTuning-> vm.tuner.setTuning(it)
+                            is ChromaticTuning -> vm.tuner.setChromatic(true)
                         }
                     }
                 }
@@ -272,7 +272,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * Sets the current tuning to the [tuning] selected on the tuning
      * selection screen and restarts the tuner if no other panel is open.
      */
-    protected fun selectTuningFromList(tuning: Tuning) {
+    protected fun selectTuningFromList(tuning: InstrumentTuning) {
         // Select the tuning.
         vm.selectTuningFromList(tuning)
 

@@ -26,8 +26,8 @@ import androidx.navigation3.runtime.NavKey
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
-import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -67,16 +67,16 @@ class TunerViewModel : ViewModel() {
         // Update the tuning list when the tuner's tuning is updated.
         viewModelScope.launch {
             tuner.tuning.collect {
-                tuningList.setCurrent(TuningEntry.InstrumentTuning(it))
+                tuningList.setCurrent(it)
             }
         }
         viewModelScope.launch {
             tuner.chromatic.collect { chromatic ->
                 if (chromatic) {
-                    tuningList.setCurrent(TuningEntry.ChromaticTuning)
+                    tuningList.setCurrent(ChromaticTuning)
                 } else {
                     // If switching back to the same instrument tuning, the tuning flow above will not emit, so update here.
-                    tuningList.setCurrent(TuningEntry.InstrumentTuning(tuner.tuning.value))
+                    tuningList.setCurrent(tuner.tuning.value)
                 }
             }
         }
@@ -86,8 +86,8 @@ class TunerViewModel : ViewModel() {
             tuningList.current.collect {
                 it?.let {
                     when (it) {
-                        is TuningEntry.InstrumentTuning -> tuner.setTuning(it.tuning)
-                        is TuningEntry.ChromaticTuning -> tuner.setChromatic(true)
+                        is InstrumentTuning -> tuner.setTuning(it)
+                        is ChromaticTuning -> tuner.setChromatic(true)
                     }
                 }
             }
@@ -125,7 +125,7 @@ class TunerViewModel : ViewModel() {
     }
 
     /** Sets the current tuning to that selected in the tuning selection screen and dismisses it. */
-    fun selectTuningFromList(tuning: Tuning) {
+    fun selectTuningFromList(tuning: InstrumentTuning) {
         navBack()
         tuner.setTuning(tuning)
     }

@@ -61,7 +61,8 @@ import com.rohankhayech.choona.app.view.components.StringControls
 import com.rohankhayech.choona.app.view.components.TuningSelector
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 
 /**
@@ -87,11 +88,11 @@ import com.rohankhayech.choona.lib.model.tuning.Tunings
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigureTuningScreen(
-    tuning: TuningEntry,
+    tuning: Tuning,
     chromatic: Boolean,
     selectedNote: Int,
-    favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    favTunings: State<Set<Tuning>>,
+    getCanonicalName: (InstrumentTuning) -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -170,7 +171,7 @@ fun ConfigureTuningScreen(
                 StringControls(
                     Modifier.padding(vertical = 8.dp),
                     inline = true,
-                    tuning = tuning.tuning!!,
+                    tuning = tuning as InstrumentTuning,
                     selectedString = null,
                     tuned = null,
                     onSelect = {},
@@ -188,11 +189,11 @@ fun ConfigureTuningScreen(
 private fun Preview() {
     AppTheme {
         ConfigureTuningScreen(
-            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+            tuning = Tunings.HALF_STEP_DOWN,
             chromatic = false,
             selectedNote = -29,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             onTuneUpString = {},
             onTuneDownString = {},
             onTuneUpTuning = {},

@@ -22,6 +22,6 @@ import androidx.compose.runtime.Immutable
 
 /** The chromatic tuning mode. */
 @Immutable
-object ChromaticTuning: SuperTuning("Chromatic", Category.MISC) {
-    override fun getKey(): String = "chromatic"
+object ChromaticTuning: Tuning("Chromatic", Category.MISC) {
+    override val key: String = "chromatic"
 }

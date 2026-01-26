@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author Rohan Khayech
  */
 @Immutable
-public final class InstrumentTuning extends SuperTuning implements Iterable<GuitarString> {
+public final class InstrumentTuning extends Tuning implements Iterable<GuitarString> {
 
     /** The set of strings used for this tuning. */
     private final List<GuitarString> strings;
@@ -242,7 +242,7 @@ public final class InstrumentTuning extends SuperTuning implements Iterable<Guit
         return new InstrumentTuning(null, instrument, null, newList);
     }
 
-    public String getKey() {
+    public @NonNull String getKey() {
         return instrument+"-["+toFullString()+"]";
     }
 
@@ -343,34 +343,4 @@ public final class InstrumentTuning extends SuperTuning implements Iterable<Guit
     public int hashCode() {
         return Objects.hash(super.hashCode(), strings, instrument);
     }
-
-    // STANDARD TUNINGS
-
-    /**
-     * Standard InstrumentTuning (EADGBE)
-     */
-    public static final InstrumentTuning STANDARD = new InstrumentTuning(
-        "Standard",
-        Instrument.GUITAR,
-        Category.COMMON,
-        GuitarString.E4,
-        GuitarString.B3,
-        GuitarString.G3,
-        GuitarString.D3,
-        GuitarString.A2,
-        GuitarString.E2
-    );
-
-    /** Drop-D InstrumentTuning (DADGBE) */
-    public static final InstrumentTuning DROP_D = new InstrumentTuning(
-        "Drop D",
-        Instrument.GUITAR,
-        Category.COMMON,
-        GuitarString.E4,
-        GuitarString.B3,
-        GuitarString.G3,
-        GuitarString.D3,
-        GuitarString.A2,
-        GuitarString.D2
-    );
 }

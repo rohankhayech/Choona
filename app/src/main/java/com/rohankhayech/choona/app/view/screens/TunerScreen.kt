@@ -109,8 +109,8 @@ import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.app.R as AppR
 
@@ -156,7 +156,7 @@ fun TunerScreen(
     compact: Boolean = false,
     expanded: Boolean = false,
     windowSizeClass: WindowSizeClass,
-    tuning: TuningEntry,
+    tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -164,13 +164,13 @@ fun TunerScreen(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    favTunings: State<Set<Tuning>>,
+    getCanonicalName: (InstrumentTuning) -> String,
     prefs: TunerPreferences,
     canRequest: Boolean,
     error: Exception?,
     onSelectString: (Int) -> Unit,
-    onSelectTuning: (Tuning) -> Unit,
+    onSelectTuning: (InstrumentTuning) -> Unit,
     onSelectChromatic: () -> Unit,
     onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -327,7 +327,7 @@ fun TunerScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .padding(vertical = 8.dp),
-                                    tuning = tuning.tuning!!,
+                                    tuning = tuning as InstrumentTuning,
                                     selectedString = selectedString,
                                     tuned = tuned,
                                     onSelect = onSelectString,
@@ -411,7 +411,7 @@ private fun TunerBodyScaffold(
     padding: PaddingValues,
     compact: Boolean = false,
     expanded: Boolean,
-    tuning: TuningEntry,
+    tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -419,12 +419,12 @@ private fun TunerBodyScaffold(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    favTunings: State<Set<Tuning>>,
+    getCanonicalName: (InstrumentTuning) -> String,
     prefs: TunerPreferences,
     editModeEnabled: Boolean,
     onSelectString: (Int) -> Unit,
-    onSelectTuning: (Tuning) -> Unit,
+    onSelectTuning: (InstrumentTuning) -> Unit,
     onSelectChromatic: () -> Unit,
     onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -485,7 +485,7 @@ private fun TunerBodyScaffold(
                 StringControls(
                     modifier = modifier,
                     inline = inline,
-                    tuning = tuning.tuning!!,
+                    tuning = tuning as InstrumentTuning,
                     selectedString = selectedString,
                     tuned = tuned,
                     onSelect = onSelectString,
@@ -512,8 +512,8 @@ private fun TunerBodyScaffold(
                 getCanonicalName,
                 openDirect = expanded,
                 onSelect = {
-                    if (it is TuningEntry.InstrumentTuning) {
-                        onSelectTuning(it.tuning)
+                    if (it is InstrumentTuning) {
+                        onSelectTuning(it)
                     } else {
                         onSelectChromatic()
                     }
@@ -715,8 +715,8 @@ private fun AppBarActions(
 private fun CompactAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onConfigurePressed: () -> Unit,
-    tuning: TuningEntry,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    tuning: Tuning,
+    getCanonicalName: (InstrumentTuning) -> String,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -817,7 +817,7 @@ private fun BasePreview(
             compact,
             expanded = false,
             windowSizeClass,
-            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+            tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableDoubleStateOf(1.3) },
             selectedString = 1,
             selectedNote = -28,
@@ -826,7 +826,7 @@ private fun BasePreview(
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs,
             canRequest = canRequest,
             error = error,

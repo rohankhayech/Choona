@@ -18,11 +18,11 @@
 
 package com.rohankhayech.choona.lib.controller.tunings
 
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -60,8 +60,8 @@ class TuningListTest {
      */
     @Test
     fun testConstructor() {
-        val tl = TuningList(Tuning.STANDARD)
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tl.current.value)
+        val tl = TuningList(Tunings.STANDARD)
+        assertEquals(Tunings.STANDARD, tl.current.value)
     }
 
     /**
@@ -73,18 +73,18 @@ class TuningListTest {
         assertNull(tuningList.current.value)
 
         // Test not in list.
-        var new = Tuning.fromString("E2")
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
-        assertEquals(TuningEntry.InstrumentTuning(new), tuningList.current.value)
+        var new = InstrumentTuning.fromString("E2")
+        tuningList.setCurrent(new)
+        assertEquals(new, tuningList.current.value)
 
         // Test equiv in list.
-        new = Tuning.fromString("E4 B3 G3 D3 A2 E2")
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.current.value)
+        new = InstrumentTuning.fromString("E4 B3 G3 D3 A2 E2")
+        tuningList.setCurrent(new)
+        assertEquals(Tunings.STANDARD, tuningList.current.value)
 
         // Test chromatic.
-        tuningList.setCurrent(TuningEntry.ChromaticTuning)
-        assertEquals(TuningEntry.ChromaticTuning, tuningList.current.value)
+        tuningList.setCurrent(ChromaticTuning)
+        assertEquals(ChromaticTuning, tuningList.current.value)
     }
 
     /**
@@ -93,15 +93,17 @@ class TuningListTest {
     @Test
     fun testFavourites() {
         // Test default value.
-        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
+        assertEquals(setOf(Tunings.STANDARD, ChromaticTuning), tuningList.favourites.value)
 
         // Test set fav
-        tuningList.setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), true)
-        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning, TuningEntry.InstrumentTuning(Tuning.DROP_D)), tuningList.favourites.value)
+        tuningList.setFavourited(Tunings.DROP_D, true)
+        assertEquals(setOf(
+            Tunings.STANDARD, ChromaticTuning,
+                Tunings.DROP_D), tuningList.favourites.value)
 
         // Test set unfav
-        tuningList.setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), false)
-        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
+        tuningList.setFavourited(Tunings.DROP_D, false)
+        assertEquals(setOf(Tunings.STANDARD, ChromaticTuning), tuningList.favourites.value)
     }
 
     /**
@@ -118,37 +120,37 @@ class TuningListTest {
         }
 
         // Test default value.
-        assertEquals(emptySet<TuningEntry.InstrumentTuning>(), tuningList.custom.value)
+        assertEquals(emptySet<InstrumentTuning>(), tuningList.custom.value)
 
         // Setup
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        tuningList.setCurrent(Tunings.STANDARD)
 
         // Test add custom.
-        val new = Tuning.fromString("E2")
-        val named = Tuning.fromString("New", Tuning.DEFAULT_INSTRUMENT, null, "E2")
+        val new = InstrumentTuning.fromString("E2")
+        val named = InstrumentTuning.fromString("New", InstrumentTuning.DEFAULT_INSTRUMENT, null, "E2")
         tuningList.addCustom("New", new)
         testScope.advanceUntilIdle()
-        assertEquals(setOf(TuningEntry.InstrumentTuning(named)), tuningList.custom.value)
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.current.value)
+        assertEquals(setOf(named), tuningList.custom.value)
+        assertEquals(Tunings.STANDARD, tuningList.current.value)
         tuningList.removeCustom(named)
         testScope.advanceUntilIdle()
 
         // Test add custom with equiv current and pinned
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
-        tuningList.setPinned(TuningEntry.InstrumentTuning(new))
+        tuningList.setCurrent(new)
+        tuningList.setPinned(new)
         tuningList.addCustom("New", new)
         testScope.advanceUntilIdle()
-        assertEquals(TuningEntry.InstrumentTuning(named), tuningList.current.value)
-        assertEquals(TuningEntry.InstrumentTuning(named), tuningList.pinned.value)
+        assertEquals(named, tuningList.current.value)
+        assertEquals(named, tuningList.pinned.value)
 
         // Test remove custom
-        tuningList.setFavourited(TuningEntry.InstrumentTuning(named), true)
+        tuningList.setFavourited(named, true)
         tuningList.removeCustom(named)
         testScope.advanceUntilIdle()
-        assertEquals(emptySet<TuningEntry.InstrumentTuning>(), tuningList.custom.value)
-        assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
-        assertEquals(TuningEntry.InstrumentTuning(new), tuningList.current.value)
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.pinned.value)
+        assertEquals(emptySet<InstrumentTuning>(), tuningList.custom.value)
+        assertEquals(setOf(Tunings.STANDARD, ChromaticTuning), tuningList.favourites.value)
+        assertEquals(new, tuningList.current.value)
+        assertEquals(Tunings.STANDARD, tuningList.pinned.value)
     }
 
     /**
@@ -257,18 +259,18 @@ class TuningListTest {
         testScope.advanceUntilIdle()
         expectedInstr = mapOf(
             Pair(Instrument.GUITAR, Category.COMMON) to listOf(
-                TuningEntry.InstrumentTuning(Tuning.STANDARD),
-                TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
-                TuningEntry.InstrumentTuning(Tunings.WHOLE_STEP_DOWN),
-                TuningEntry.InstrumentTuning(Tunings.DROP_D)
+                Tunings.STANDARD,
+                Tunings.HALF_STEP_DOWN,
+                Tunings.WHOLE_STEP_DOWN,
+                Tunings.DROP_D
             ),
             Pair(Instrument.BASS, Category.COMMON) to listOf(
-                TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
-                TuningEntry.InstrumentTuning(Tunings.BASS_DROP_D),
-                TuningEntry.InstrumentTuning(Tunings.BASS_E_FLAT)
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
             ),
             Pair(Instrument.UKULELE, Category.COMMON) to listOf(
-                TuningEntry.InstrumentTuning(Tunings.UKULELE_STANDARD)
+                Tunings.UKULELE_STANDARD
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -278,9 +280,9 @@ class TuningListTest {
         testScope.advanceUntilIdle()
         expectedInstr = mapOf(
             Pair(Instrument.BASS, Category.COMMON) to listOf(
-                TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
-                TuningEntry.InstrumentTuning(Tunings.BASS_DROP_D),
-                TuningEntry.InstrumentTuning(Tunings.BASS_E_FLAT)
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -394,12 +396,12 @@ class TuningListTest {
     @Test
     fun testDeletedTuning() {
         // Add custom tunings.
-        val new = Tuning.fromString("E2")
-        val new2 = Tuning.fromString("E2")
+        val new = InstrumentTuning.fromString("E2")
+        val new2 = InstrumentTuning.fromString("E2")
         tuningList.addCustom("New", new)
 
         // Collect flow.
-        val deleted = mutableListOf<Tuning>()
+        val deleted = mutableListOf<InstrumentTuning>()
         testScope.backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {
             tuningList.deletedTuning.toList(deleted)
         }
@@ -421,7 +423,7 @@ class TuningListTest {
         val newList = TuningList()
         assertEquals(tuningList, newList)
 
-        newList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        newList.setCurrent(Tunings.STANDARD)
         assertNotEquals(tuningList, newList)
     }
 
@@ -435,15 +437,15 @@ class TuningListTest {
     /** Verifies the logic for grouping and sorting tunings by instrument and category. */
     @Test
     fun testGroupAndSort() {
-        val guitarCommon = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.GUITAR, Category.COMMON, "E2"))
-        val guitarCommon2 = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.GUITAR, Category.COMMON, "D2"))
-        val guitarOpen = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.GUITAR, Category.OPEN, "E2"))
-        val bassCommon = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.BASS, Category.COMMON, "E2"))
-        val bassPower = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.BASS, Category.POWER, "E2"))
+        val guitarCommon = InstrumentTuning.fromString("", Instrument.GUITAR, Category.COMMON, "D2")
+        val guitarCommon2 = InstrumentTuning.fromString("", Instrument.GUITAR, Category.COMMON, "D2")
+        val guitarOpen = InstrumentTuning.fromString("", Instrument.GUITAR, Category.OPEN, "E2")
+        val bassCommon = InstrumentTuning.fromString("", Instrument.BASS, Category.COMMON, "E2")
+        val bassPower = InstrumentTuning.fromString("", Instrument.BASS, Category.POWER, "E2")
 
         val tunings = listOf(bassPower, guitarCommon, guitarOpen, guitarCommon2, bassCommon)
 
-        val expectedGroups = mapOf<Pair<Instrument, Category?>, List<TuningEntry>>(
+        val expectedGroups = mapOf<Pair<Instrument, Category?>, List<InstrumentTuning>>(
             (Instrument.GUITAR to Category.COMMON) to listOf(guitarCommon, guitarCommon2),
             (Instrument.GUITAR to Category.OPEN) to listOf(guitarOpen),
             (Instrument.BASS to Category.COMMON) to listOf(bassCommon),
@@ -468,10 +470,10 @@ class TuningListTest {
         // Test default value.
         assertFalse(tuningList.currentSaved.value)
 
-        val new = Tuning.fromString("E2")
+        val new = InstrumentTuning.fromString("E2")
 
         // Test not in list.
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(new))
+        tuningList.setCurrent(new)
         testScope.advanceUntilIdle()
         assertFalse(tuningList.currentSaved.value)
 
@@ -486,12 +488,12 @@ class TuningListTest {
         assertFalse(tuningList.currentSaved.value)
 
         // Test equiv in built-in.
-        tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.DROP_D))
+        tuningList.setCurrent(Tunings.DROP_D)
         testScope.advanceUntilIdle()
         assertTrue(tuningList.currentSaved.value)
 
         // Test chromatic.
-        tuningList.setCurrent(TuningEntry.ChromaticTuning)
+        tuningList.setCurrent(ChromaticTuning)
         testScope.advanceUntilIdle()
         assertTrue(tuningList.currentSaved.value)
     }
@@ -502,25 +504,25 @@ class TuningListTest {
     fun testIsFavourite() {
         tuningList.run {
             // Test default value.
-            assertTrue(TuningEntry.InstrumentTuning(Tuning.STANDARD).isFavourite())
-            assertTrue(TuningEntry.ChromaticTuning.isFavourite())
-            assertFalse(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
+            assertTrue(Tunings.STANDARD.isFavourite())
+            assertTrue(ChromaticTuning.isFavourite())
+            assertFalse(Tunings.DROP_D.isFavourite())
 
             // Test set fav
-            setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), true)
+            setFavourited(Tunings.DROP_D, true)
             testScope.advanceUntilIdle()
-            assertTrue(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
+            assertTrue(Tunings.DROP_D.isFavourite())
 
             // Test set unfav
-            setFavourited(TuningEntry.InstrumentTuning(Tuning.DROP_D), false)
+            setFavourited(Tunings.DROP_D, false)
             testScope.advanceUntilIdle()
-            assertFalse(TuningEntry.InstrumentTuning(Tuning.DROP_D).isFavourite())
-            setFavourited(TuningEntry.InstrumentTuning(Tuning.STANDARD), false)
+            assertFalse(Tunings.DROP_D.isFavourite())
+            setFavourited(Tunings.STANDARD, false)
             testScope.advanceUntilIdle()
-            assertFalse(TuningEntry.InstrumentTuning(Tuning.STANDARD).isFavourite())
-            setFavourited(TuningEntry.ChromaticTuning, false)
+            assertFalse(Tunings.STANDARD.isFavourite())
+            setFavourited(ChromaticTuning, false)
             testScope.advanceUntilIdle()
-            assertFalse(TuningEntry.ChromaticTuning.isFavourite())
+            assertFalse(ChromaticTuning.isFavourite())
         }
     }
 
@@ -531,15 +533,16 @@ class TuningListTest {
     fun testGetCanonicalName() {
         with (tuningList) {
             // Test built in
-            assertEquals(Tunings.HALF_STEP_DOWN.name, getCanonicalName(TuningEntry.InstrumentTuning(Tuning.STANDARD.lowerTuning())))
+            assertEquals(Tunings.HALF_STEP_DOWN.name, getCanonicalName(
+                    Tunings.STANDARD.lowerTuning()))
 
             // Test custom with name
-            val new = Tuning.fromString("E2")
-            assertEquals("E", getCanonicalName(TuningEntry.InstrumentTuning(new)))
+            val new = InstrumentTuning.fromString("E2")
+            assertEquals("E", getCanonicalName(new))
             val named = addCustom("Named", new)
-            assertEquals("Named", getCanonicalName(TuningEntry.InstrumentTuning(new)))
+            assertEquals("Named", getCanonicalName(new))
             removeCustom(named)
-            assertEquals("E", getCanonicalName(TuningEntry.InstrumentTuning(new)))
+            assertEquals("E", getCanonicalName(new))
         }
     }
 }

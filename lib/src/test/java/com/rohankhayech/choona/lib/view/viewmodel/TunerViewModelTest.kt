@@ -18,6 +18,8 @@
 
 package com.rohankhayech.choona.lib.view.viewmodel
 
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
@@ -51,7 +53,7 @@ class TunerViewModelTest {
 
     @Test
     fun testInitial() {
-        assertEquals(TuningEntry.InstrumentTuning(vm.tuner.tuning.value), vm.tuningList.current.value)
+        assertEquals(vm.tuner.tuning.value, vm.tuningList.current.value)
         assertTrue(vm.backStack.size == 1)
         assertTrue(vm.backStack.last() == Screen.Tuner)
         assertFalse(vm.editModeEnabled.value)
@@ -90,38 +92,38 @@ class TunerViewModelTest {
     @Test
     fun testSelectTuning() {
         vm.openTuningSelector()
-        vm.selectTuningFromList(Tuning.DROP_D)
+        vm.selectTuningFromList(Tunings.DROP_D)
         testDispatcher.scheduler.runCurrent()
         assertTrue(vm.backStack.size == 1)
         assertTrue(vm.backStack.last() == Screen.Tuner)
-        assertEquals(Tuning.DROP_D, vm.tuner.tuning.value)
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.DROP_D), vm.tuningList.current.value)
+        assertEquals(Tunings.DROP_D, vm.tuner.tuning.value)
+        assertEquals(Tunings.DROP_D, vm.tuningList.current.value)
     }
 
     @Test
     fun testTuningSync() {
-        vm.tuner.setTuning(Tuning.DROP_D)
+        vm.tuner.setTuning(Tunings.DROP_D)
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.DROP_D), vm.tuningList.current.value)
-        vm.tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        assertEquals(Tunings.DROP_D, vm.tuningList.current.value)
+        vm.tuningList.setCurrent(Tunings.STANDARD)
         testDispatcher.scheduler.runCurrent()
-        assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+        assertEquals(Tunings.STANDARD, vm.tuner.tuning.value)
 
         vm.tuner.setChromatic()
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(TuningEntry.ChromaticTuning, vm.tuningList.current.value)
+        assertEquals(ChromaticTuning, vm.tuningList.current.value)
 
         vm.tuner.setChromatic(false)
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), vm.tuningList.current.value)
+        assertEquals(Tunings.STANDARD, vm.tuningList.current.value)
 
-        vm.tuningList.setCurrent(TuningEntry.ChromaticTuning)
+        vm.tuningList.setCurrent(ChromaticTuning)
         testDispatcher.scheduler.runCurrent()
         assertTrue(vm.tuner.chromatic.value)
 
-        vm.tuningList.setCurrent(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+        vm.tuningList.setCurrent(Tunings.STANDARD)
         testDispatcher.scheduler.runCurrent()
-        assertEquals(Tuning.STANDARD, vm.tuner.tuning.value)
+        assertEquals(Tunings.STANDARD, vm.tuner.tuning.value)
         assertFalse(vm.tuner.chromatic.value)
     }
 
