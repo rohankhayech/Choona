@@ -205,11 +205,11 @@ fun MainLayout(
             entry<Screen.TuningSelection> (
                 metadata = SupportingPaneSceneStrategy.supportingPane()
                     + NavDisplay.transitionSpec {
-                        slideIntoContainer(SlideDirection.Down) togetherWith fadeOut()
+                        slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
                     } + NavDisplay.popTransitionSpec {
-                        fadeIn() togetherWith slideOutOfContainer(SlideDirection.Up)
+                        fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
                     } + NavDisplay.predictivePopTransitionSpec {
-                        fadeIn() togetherWith slideOutOfContainer(SlideDirection.Up)
+                        fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
                     }
             ) {
                 Surface(tonalElevation = if (expanded && (!MaterialTheme.isTrueDark || MaterialTheme.isLight)) 1.dp else 0.dp) {
