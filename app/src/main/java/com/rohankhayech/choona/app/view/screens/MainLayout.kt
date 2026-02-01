@@ -129,11 +129,11 @@ fun MainLayout(
 ) {
     val sceneStrategy = rememberSupportingPaneSceneStrategy<Screen>(
         directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()).copy(
+            maxHorizontalPartitions = if (expanded) 2 else 1,
             maxVerticalPartitions = 1,
             horizontalPartitionSpacerSize =
                 if (expanded && MaterialTheme.isTrueDark && !MaterialTheme.isLight) DividerDefaults.Thickness else 0.dp
         )
-        // TODO: disable expanded on phone landscape
     )
 
     NavDisplay(
