@@ -383,7 +383,6 @@ private fun TabletScreenshot() {
             prefs = TunerPreferences(),
             tuningList = tunings,
             editModeEnabled = true,
-            canRequest = true,
             onEditModeChanged = {},
             onSelectString = {},
             onSelectTuning = {},
@@ -401,8 +400,6 @@ private fun TabletScreenshot() {
             onSelectTuningFromList = {},
             onSelectChromaticFromList = {},
             onBack = {},
-            onRequestPermission = {},
-            onOpenPermissionSettings = {}
         )
     }
 }
