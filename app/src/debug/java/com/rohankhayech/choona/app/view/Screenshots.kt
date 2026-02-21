@@ -190,7 +190,21 @@ private fun ChromaticScreenshot() {
             prefs = TunerPreferences(
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = false,
+            onEditModeChanged = {}
         )
     }
 }
@@ -218,7 +232,21 @@ private fun SemitonesScreenshot() {
                 displayType = TuningDisplayType.SEMITONES,
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = false,
+            onEditModeChanged = {}
         )
     }
 }
@@ -232,7 +260,16 @@ private fun SettingsScreenshot() {
                 enableInTuneSound = false
             ),
             pinnedTuning = "Standard",
-            {},{}, {},{},{},{},{}, {}, {}, {}
+            onSelectStringLayout = {},
+            onSelectDisplayType = {},
+            onEnableStringSelectSound = {},
+            onEnableInTuneSound = {},
+            onSetUseBlackTheme = {},
+            onSetUseDynamicColor = {},
+            onToggleEditModeDefault = {},
+            onSelectInitialTuning = {},
+            onAboutPressed = {},
+            onBackPressed = {}
         )
     }
 }
@@ -260,7 +297,21 @@ private fun BlackThemeScreenshot() {
                 useBlackTheme = true,
                 displayType = TuningDisplayType.CENTS
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = true,
+            onEditModeChanged = {}
         )
     }
 }
@@ -285,7 +336,21 @@ private fun SplitScreenScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = true,
+            onEditModeChanged = {}
         )
     }
 }
@@ -317,8 +382,27 @@ private fun TabletScreenshot() {
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
             tuningList = tunings,
-            true,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            editModeEnabled = true,
+            canRequest = true,
+            onEditModeChanged = {},
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            onSelectTuningFromList = {},
+            onSelectChromaticFromList = {},
+            onBack = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
