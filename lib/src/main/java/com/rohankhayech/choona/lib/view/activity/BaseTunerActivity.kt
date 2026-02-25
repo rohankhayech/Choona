@@ -86,6 +86,17 @@ abstract class BaseTunerActivity : ComponentActivity() {
         // Setup MIDI controller for note playback.
         midi = MidiController(vm.tuner.tuning.value.numStrings())
 
+        // Show/hide permission screen based on permission state.
+        lifecycleScope.launch {
+            ph.granted.collect {
+                if (it) {
+                    vm.dismissPermissionScreen()
+                } else {
+                    vm.showPermissionScreen()
+                }
+            }
+        }
+
         // Load tunings
         lifecycleScope.launch {
             val firstLoad = vm.tuningList.loadTunings(this@BaseTunerActivity)

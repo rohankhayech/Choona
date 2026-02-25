@@ -40,7 +40,6 @@ import com.rohankhayech.choona.app.controller.play.ReviewController
 import com.rohankhayech.choona.app.controller.play.ReviewControllerImpl
 import com.rohankhayech.choona.app.view.screens.MainLayout
 import com.rohankhayech.choona.app.view.screens.TunerErrorScreen
-import com.rohankhayech.choona.app.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
@@ -81,7 +80,8 @@ class TunerActivity : BaseTunerActivity() {
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
                 val granted by ph.granted.collectAsStateWithLifecycle()
                 val error by vm.tuner.error.collectAsStateWithLifecycle()
-                if (granted && error == null) {
+
+                if (error == null) {
                     // Collect state.
                     val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
                     val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
@@ -115,17 +115,19 @@ class TunerActivity : BaseTunerActivity() {
                     // Open tuning selector when switching to expanded view.
                     LaunchedEffect(expanded) {
                         vm.setExpanded(expanded)
-                        if (expanded) {
-                            checkAndStartTuner()
-                            vm.openTuningSelector()
-                        } else {
-                            checkAndStopTuner()
+                        if (granted) {
+                            if (expanded) {
+                                checkAndStartTuner()
+                                vm.openTuningSelector()
+                            } else {
+                                checkAndStopTuner()
+                            }
                         }
                     }
 
                     // Launch review prompt after tuning if conditions met.
                     @Suppress("KotlinConstantConditions")
-                    if (BuildConfig.FLAVOR == "play") {
+                    if (BuildConfig.FLAVOR == "play" && granted) {
                         var askedForReview by rememberSaveable { mutableStateOf(false) }
                         LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
                             if (
@@ -141,6 +143,8 @@ class TunerActivity : BaseTunerActivity() {
                             }
                         }
                     }
+
+                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
 
                     // Display UI content.
                     MainLayout(
@@ -177,16 +181,10 @@ class TunerActivity : BaseTunerActivity() {
                         onSelectChromaticFromList = ::selectChromaticFromList,
                         onBack = ::navBack,
                         onEditModeChanged = vm::setEditMode,
-                        editModeEnabled = editModeEnabled
-                    )
-                } else if (!granted) {
-                    // Audio permission not granted, show permission rationale.
-                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
-                    TunerPermissionScreen(
+                        editModeEnabled = editModeEnabled,
                         canRequest = firstRequest,
-                        onSettingsPressed = ::openSettings,
                         onRequestPermission = ph::request,
-                        onOpenPermissionSettings = ::openPermissionSettings,
+                        onOpenPermissionSettings = ::openPermissionSettings
                     )
                 } else {
                     TunerErrorScreen(error, ::openSettings)

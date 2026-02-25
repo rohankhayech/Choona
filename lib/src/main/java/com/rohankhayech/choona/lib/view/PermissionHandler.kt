@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,13 +42,16 @@ import kotlinx.coroutines.flow.updateAndGet
 @Stable
 class PermissionHandler(
     private val activity: ComponentActivity,
-    private val permission: String,
+    private val permission: String
 ) {
 
     /** Permission request launcher. */
-    private val launcher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        _granted.update { it }
-        _firstRequest.update { false }
+    private val launcher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { grant ->
+        _granted.update { grant }
+
+        if (!grant) {
+            _firstRequest.update { false }
+        }
     }
 
     /** Mutable backing property for [firstRequest]. */

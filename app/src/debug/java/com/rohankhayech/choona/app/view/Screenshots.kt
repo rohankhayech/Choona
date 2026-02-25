@@ -400,6 +400,9 @@ private fun TabletScreenshot() {
             onSelectTuningFromList = {},
             onSelectChromaticFromList = {},
             onBack = {},
+            canRequest = true,
+            onRequestPermission = {},
+            onOpenPermissionSettings = {},
         )
     }
 }

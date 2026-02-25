@@ -109,6 +109,7 @@ fun MainLayout(
     prefs: TunerPreferences,
     tuningList: TuningList,
     editModeEnabled: Boolean,
+    canRequest: Boolean,
     onEditModeChanged: (Boolean) -> Unit,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -125,7 +126,9 @@ fun MainLayout(
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
     onSelectChromaticFromList: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRequestPermission: () -> Unit,
+    onOpenPermissionSettings: () -> Unit
 ) {
     val sceneStrategy = rememberSupportingPaneSceneStrategy<Screen>(
         directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()).copy(
@@ -141,7 +144,6 @@ fun MainLayout(
         onBack = onBack,
         sceneStrategy = sceneStrategy,
         entryProvider = entryProvider {
-            // TODO: Fix transitions.
             entry<Screen.Tuner>(metadata = SupportingPaneSceneStrategy.mainPane()) {
                 TunerScreen(
                     compact,
@@ -222,6 +224,16 @@ fun MainLayout(
                         onDismiss = onBack
                     )
                 }
+            }
+
+            entry<Screen.Permission> {
+                // Audio permission not granted, show permission rationale.
+                TunerPermissionScreen(
+                    canRequest = canRequest,
+                    onSettingsPressed = onSettingsPressed,
+                    onRequestPermission = onRequestPermission,
+                    onOpenPermissionSettings = onOpenPermissionSettings,
+                )
             }
         }
     )

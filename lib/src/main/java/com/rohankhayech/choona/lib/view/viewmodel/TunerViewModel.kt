@@ -146,6 +146,18 @@ class TunerViewModel : ViewModel() {
     fun isTunerScreenOpen(): Boolean =
         backStack.last() == Screen.Tuner || _expanded.value && backStack.last() == Screen.TuningSelection
 
+    fun showPermissionScreen() {
+        _backStack.clear()
+        _backStack.add(Screen.Permission)
+    }
+
+    fun dismissPermissionScreen() {
+        if (backStack.first() == Screen.Permission) {
+            _backStack.add(Screen.Tuner)
+            _backStack.remove(Screen.Permission)
+        }
+    }
+
     /**
      * Navigation entries for the screens in the Tuner activity.
      */
@@ -154,5 +166,6 @@ class TunerViewModel : ViewModel() {
         @Serializable object Tuner: Screen()
         @Serializable object ConfigureTuning: Screen()
         @Serializable object TuningSelection: Screen()
+        @Serializable object Permission: Screen()
     }
 }
