@@ -2,6 +2,23 @@
 
 This file contains the relevant notices and licenses for the following 3rd party software used or included in this project:
 
+## Choona - Guitar Tuner by Rohan Khayech ([GNU General Public License v3.0](#gnu-general-public-license-v30))
+
+    Copyright (C) 2025 Rohan Khayech
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 ## Android Open Source Project ([Apache License, Version 2.0](#apache-license-version-20))
 This project uses various libraries part of the Android Open Source Project.
 
@@ -18,6 +35,10 @@ This project uses various libraries part of the Android Open Source Project.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+### Changes
+- Modifications to application branding.
+- Added tone generation and custom A4 pitch support.
 
 ## TarsosDSP by Joren Six ([GNU General Public License v3.0](#gnu-general-public-license-v30))
          _______                       _____   _____ _____        
