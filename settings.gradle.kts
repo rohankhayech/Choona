@@ -24,5 +24,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Choona"
+rootProject.name = "ChromaticTuner"
 include(":app")

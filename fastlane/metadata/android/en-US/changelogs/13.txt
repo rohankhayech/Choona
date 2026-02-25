@@ -1,1 +1,0 @@
-Patch release removing proprietary libraries from open-source distribution builds.

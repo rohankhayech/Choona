@@ -43,5 +43,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ steps.sign-apk.outputs.signedFile }}
-          asset_name: Choona-Android-Open-${{ github.event.release.tag_name }}.apk
+          asset_name: ChromaticTuner-Android-Open-${{ github.event.release.tag_name }}.apk
           asset_content_type: application/vnd.android.package-archive
