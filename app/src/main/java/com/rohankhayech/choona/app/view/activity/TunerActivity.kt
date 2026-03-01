@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,6 @@ import com.rohankhayech.choona.app.BuildConfig
 import com.rohankhayech.choona.app.controller.play.ReviewController
 import com.rohankhayech.choona.app.controller.play.ReviewControllerImpl
 import com.rohankhayech.choona.app.view.screens.MainLayout
-import com.rohankhayech.choona.app.view.screens.TunerErrorScreen
-import com.rohankhayech.choona.app.view.screens.TunerPermissionScreen
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
@@ -79,116 +77,113 @@ class TunerActivity : BaseTunerActivity() {
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
             AppTheme(fullBlack = prefs.useBlackTheme, dynamicColor = prefs.useDynamicColor) {
+                // Collect state.
                 val granted by ph.granted.collectAsStateWithLifecycle()
+                val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
                 val error by vm.tuner.error.collectAsStateWithLifecycle()
-                if (granted && error == null) {
-                    // Collect state.
-                    val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
-                    val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
-                    val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
-                    val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
-                    val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
-                    val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
-                    val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
-                    val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
-                    val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
-                    val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
-                    val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
-                    val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
+                val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
+                val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
+                val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
+                val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
+                val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
+                val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
+                val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
+                val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
+                val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
+                val editModeEnabled by vm.editModeEnabled.collectAsStateWithLifecycle()
 
-                    // Calculate window size/orientation
-                    val windowSizeClass = calculateWindowSizeClass(this)
+                // Calculate window size/orientation
+                val windowSizeClass = calculateWindowSizeClass(this)
 
-                    val compact = remember(windowSizeClass) {
-                        windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact &&
-                            windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
-                    }
+                val compact = remember(windowSizeClass) {
+                    windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact &&
+                        windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+                }
 
-                    val expanded = remember(windowSizeClass) {
-                        windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
-                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
-                    }
+                val expanded = remember(windowSizeClass) {
+                    windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded &&
+                        windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                }
 
-                    // Dismiss configure panel if no longer compact.
-                    LaunchedEffect(compact, configurePanelOpen) {
-                        if (configurePanelOpen && !compact) dismissConfigurePanel()
-                    }
+                // Dismiss configure panel if no longer compact.
+                LaunchedEffect(compact) {
+                    if (!compact) vm.dismissConfigurePanel()
+                }
 
-                    // Dismiss tuning selector when switching to expanded view.
-                    LaunchedEffect(expanded, tuningSelectorOpen) {
-                        if (tuningSelectorOpen && expanded) dismissTuningSelector()
-                    }
-
-                    // Launch review prompt after tuning if conditions met.
-                    @Suppress("KotlinConstantConditions")
-                    if (BuildConfig.FLAVOR == "play") {
-                        var askedForReview by rememberSaveable { mutableStateOf(false) }
-                        LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
-                            if (
-                                !askedForReview  // Only ask once per app session.
-                                && prefs.showReviewPrompt  // Do not ask if user has disabled.
-                                && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
-                                && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
-                                && Random.nextDouble() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
-                            ) {
-                                delay(1000)
-                                launchReviewPrompt()
-                                askedForReview = true
-                            }
+                // Open tuning selector when switching to expanded view.
+                LaunchedEffect(expanded) {
+                    vm.setExpanded(expanded)
+                    if (granted && error == null) {
+                        if (expanded) {
+                            checkAndStartTuner()
+                            vm.openTuningSelector()
+                        } else {
+                            checkAndStopTuner()
                         }
                     }
-
-                    // Display UI content.
-                    MainLayout(
-                        windowSizeClass = windowSizeClass,
-                        compact = compact,
-                        expanded = expanded,
-                        tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
-                        noteOffset = noteOffset,
-                        selectedString = selectedString,
-                        selectedNote = selectedNote,
-                        tuned = tuned,
-                        noteTuned = noteTuned,
-                        autoDetect = autoDetect,
-                        chromatic = chromatic,
-                        favTunings = favTunings,
-                        getCanonicalName = vm.tuningList::getCanonicalName,
-                        prefs = prefs,
-                        tuningList = vm.tuningList,
-                        tuningSelectorOpen = tuningSelectorOpen,
-                        configurePanelOpen = configurePanelOpen,
-                        onSelectString = ::selectString,
-                        onSelectTuning = ::setTuning,
-                        onSelectChromatic = vm.tuner::setChromatic,
-                        onSelectNote = ::selectNote,
-                        onTuneUpString = vm.tuner::tuneStringUp,
-                        onTuneDownString = vm.tuner::tuneStringDown,
-                        onTuneUpTuning = vm.tuner::tuneUp,
-                        onTuneDownTuning = vm.tuner::tuneDown,
-                        onAutoChanged = vm.tuner::setAutoDetect,
-                        onTuned = ::setTuned,
-                        onOpenTuningSelector = ::openTuningSelector,
-                        onSettingsPressed = ::openSettings,
-                        onConfigurePressed = ::openConfigurePanel,
-                        onSelectTuningFromList = ::selectTuning,
-                        onSelectChromaticFromList = ::selectChromatic,
-                        onDismissTuningSelector = ::dismissTuningSelector,
-                        onDismissConfigurePanel = ::dismissConfigurePanel,
-                        onEditModeChanged = vm::setEditMode,
-                        editModeEnabled = editModeEnabled
-                    )
-                } else if (!granted) {
-                    // Audio permission not granted, show permission rationale.
-                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
-                    TunerPermissionScreen(
-                        canRequest = firstRequest,
-                        onSettingsPressed = ::openSettings,
-                        onRequestPermission = ph::request,
-                        onOpenPermissionSettings = ::openPermissionSettings,
-                    )
-                } else {
-                    TunerErrorScreen(error, ::openSettings)
                 }
+
+                // Launch review prompt after tuning if conditions met.
+                @Suppress("KotlinConstantConditions")
+                if (BuildConfig.FLAVOR == "play" && granted) {
+                    var askedForReview by rememberSaveable { mutableStateOf(false) }
+                    LaunchedEffect(tuned, askedForReview, prefs.showReviewPrompt, prefs.reviewPromptLaunches) {
+                        if (
+                            !askedForReview  // Only ask once per app session.
+                            && prefs.showReviewPrompt  // Do not ask if user has disabled.
+                            && prefs.reviewPromptLaunches < REVIEW_PROMPT_ATTEMPTS // Only ask a maximum of 3 times.
+                            && tuned.all { it } // Only ask once all strings are in tune, as the user is likely finished using the app and satisfied.
+                            && Random.nextDouble() < REVIEW_PROMPT_CHANCE // Only ask 30% of the time.
+                        ) {
+                            delay(1000)
+                            launchReviewPrompt()
+                            askedForReview = true
+                        }
+                    }
+                }
+
+                // Display UI content.
+                MainLayout(
+                    backStack = vm.backStack,
+                    windowSizeClass = windowSizeClass,
+                    granted = granted,
+                    compact = compact,
+                    expanded = expanded,
+                    tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
+                    noteOffset = noteOffset,
+                    selectedString = selectedString,
+                    selectedNote = selectedNote,
+                    tuned = tuned,
+                    noteTuned = noteTuned,
+                    autoDetect = autoDetect,
+                    chromatic = chromatic,
+                    favTunings = favTunings,
+                    getCanonicalName = vm.tuningList::getCanonicalName,
+                    prefs = prefs,
+                    tuningList = vm.tuningList,
+                    error = error,
+                    onSelectString = ::selectString,
+                    onSelectTuning = ::setTuning,
+                    onSelectChromatic = vm.tuner::setChromatic,
+                    onSelectNote = ::selectNote,
+                    onTuneUpString = vm.tuner::tuneStringUp,
+                    onTuneDownString = vm.tuner::tuneStringDown,
+                    onTuneUpTuning = vm.tuner::tuneUp,
+                    onTuneDownTuning = vm.tuner::tuneDown,
+                    onAutoChanged = vm.tuner::setAutoDetect,
+                    onTuned = ::setTuned,
+                    onOpenTuningSelector = ::openTuningSelector,
+                    onSettingsPressed = ::openSettings,
+                    onConfigurePressed = ::openConfigurePanel,
+                    onSelectTuningFromList = ::selectTuningFromList,
+                    onSelectChromaticFromList = ::selectChromaticFromList,
+                    onBack = ::navBack,
+                    onEditModeChanged = vm::setEditMode,
+                    editModeEnabled = editModeEnabled,
+                    canRequest = firstRequest,
+                    onRequestPermission = ph::request,
+                    onOpenPermissionSettings = ::openPermissionSettings
+                )
             }
         }
     }
