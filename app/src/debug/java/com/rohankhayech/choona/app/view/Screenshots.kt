@@ -58,6 +58,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 private fun TunerScreenshot() {
     AppTheme {
         TunerScreen(
+            granted = true,
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
@@ -72,7 +73,25 @@ private fun TunerScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, true, {}
+            canRequest = true,
+            error = null,
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = true,
+            onEditModeChanged = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
@@ -83,6 +102,7 @@ private fun TunerScreenshot() {
 private fun InTuneScreenshot() {
     AppTheme {
         TunerScreen(
+            granted = true,
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
@@ -97,7 +117,25 @@ private fun InTuneScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, false, {}
+            canRequest = true,
+            error = null,
+            onSelectString = {},
+            onSelectTuning = {},
+            onSelectChromatic = {},
+            onSelectNote = {},
+            onTuneUpString = {},
+            onTuneDownString = {},
+            onTuneUpTuning = {},
+            onTuneDownTuning = {},
+            onAutoChanged = {},
+            onTuned = {},
+            onOpenTuningSelector = {},
+            onSettingsPressed = {},
+            onConfigurePressed = {},
+            editModeEnabled = false,
+            onEditModeChanged = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
@@ -204,7 +242,12 @@ private fun ChromaticScreenshot() {
             onSettingsPressed = {},
             onConfigurePressed = {},
             editModeEnabled = false,
-            onEditModeChanged = {}
+            onEditModeChanged = {},
+            canRequest = true,
+            onRequestPermission = {},
+            onOpenPermissionSettings = {},
+            error = null,
+            granted = true,
         )
     }
 }
@@ -215,6 +258,7 @@ private fun ChromaticScreenshot() {
 private fun SemitonesScreenshot() {
     AppTheme {
         TunerScreen(
+            granted = true,
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
@@ -232,6 +276,8 @@ private fun SemitonesScreenshot() {
                 displayType = TuningDisplayType.SEMITONES,
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
+            canRequest = true,
+            error = null,
             onSelectString = {},
             onSelectTuning = {},
             onSelectChromatic = {},
@@ -246,7 +292,9 @@ private fun SemitonesScreenshot() {
             onSettingsPressed = {},
             onConfigurePressed = {},
             editModeEnabled = false,
-            onEditModeChanged = {}
+            onEditModeChanged = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
@@ -280,6 +328,7 @@ private fun SettingsScreenshot() {
 private fun BlackThemeScreenshot() {
     AppTheme(fullBlack = true) {
         TunerScreen(
+            granted = true,
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
@@ -311,7 +360,11 @@ private fun BlackThemeScreenshot() {
             onSettingsPressed = {},
             onConfigurePressed = {},
             editModeEnabled = true,
-            onEditModeChanged = {}
+            onEditModeChanged = {},
+            canRequest = true,
+            onRequestPermission = {},
+            onOpenPermissionSettings = {},
+            error = null
         )
     }
 }
@@ -322,6 +375,7 @@ private fun BlackThemeScreenshot() {
 private fun SplitScreenScreenshot() {
     AppTheme(darkTheme = true) {
         TunerScreen(
+            granted = true,
             compact = true,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
@@ -336,6 +390,8 @@ private fun SplitScreenScreenshot() {
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { it.tuning.toString() },
             prefs = TunerPreferences(),
+            canRequest = true,
+            error = null,
             onSelectString = {},
             onSelectTuning = {},
             onSelectChromatic = {},
@@ -350,7 +406,9 @@ private fun SplitScreenScreenshot() {
             onSettingsPressed = {},
             onConfigurePressed = {},
             editModeEnabled = true,
-            onEditModeChanged = {}
+            onEditModeChanged = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
@@ -403,6 +461,8 @@ private fun TabletScreenshot() {
             canRequest = true,
             onRequestPermission = {},
             onOpenPermissionSettings = {},
+            error = null,
+            granted = true
         )
     }
 }

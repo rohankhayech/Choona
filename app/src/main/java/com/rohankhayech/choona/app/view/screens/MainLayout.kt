@@ -54,6 +54,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  *
  * @param backStack List of screens that have been navigated to.
  * @param windowSizeClass Size class of the activity window.
+ * @param granted Whether the audio permission has been granted.
  * @param compact Whether to use compact layout.
  * @param expanded Whether to use expanded layout.
  * @param tuning Guitar tuning used for comparison.
@@ -69,6 +70,8 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param prefs User preferences for the tuner.
  * @param tuningList State holder for the tuning list.
  * @param editModeEnabled Whether the edit mode is enabled.
+ * @param canRequest Whether the permission can be requested.
+ * @param error The error that has occurred.
  * @param onEditModeChanged Called when the edit mode is toggled.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
@@ -86,6 +89,8 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
  * @param onSelectChromaticFromList Called when the chromatic mode is selected from the selection panel.
  * @param onBack Called when the back button is pressed.
+ * @param onRequestPermission Called when the request permission button is pressed.
+ * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
  *
  * @author Rohan Khayech
  */
@@ -94,6 +99,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 fun MainLayout(
     backStack: List<Screen>,
     windowSizeClass: WindowSizeClass,
+    granted: Boolean,
     compact: Boolean,
     expanded: Boolean,
     tuning: TuningEntry,
@@ -110,6 +116,7 @@ fun MainLayout(
     tuningList: TuningList,
     editModeEnabled: Boolean,
     canRequest: Boolean,
+    error: Exception?,
     onEditModeChanged: (Boolean) -> Unit,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
@@ -146,6 +153,7 @@ fun MainLayout(
         entryProvider = entryProvider {
             entry<Screen.Tuner>(metadata = SupportingPaneSceneStrategy.mainPane()) {
                 TunerScreen(
+                    granted = granted,
                     compact,
                     expanded,
                     windowSizeClass,
@@ -160,6 +168,8 @@ fun MainLayout(
                     favTunings,
                     getCanonicalName,
                     prefs,
+                    canRequest = canRequest,
+                    error = error,
                     onSelectString,
                     onSelectTuning,
                     onSelectChromatic,
@@ -175,6 +185,8 @@ fun MainLayout(
                     onConfigurePressed,
                     editModeEnabled,
                     onEditModeChanged,
+                    onRequestPermission,
+                    onOpenPermissionSettings
                 )
             }
 
@@ -224,16 +236,6 @@ fun MainLayout(
                         onDismiss = onBack
                     )
                 }
-            }
-
-            entry<Screen.Permission> {
-                // Audio permission not granted, show permission rationale.
-                TunerPermissionScreen(
-                    canRequest = canRequest,
-                    onSettingsPressed = onSettingsPressed,
-                    onRequestPermission = onRequestPermission,
-                    onOpenPermissionSettings = onOpenPermissionSettings,
-                )
             }
         }
     )
