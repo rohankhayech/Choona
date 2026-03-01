@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +117,7 @@ import com.rohankhayech.choona.app.R as AppR
 /**
  * A UI screen that allows selection of a tuning and string and displays the current tuning status.
  *
+ * @param granted Whether the audio permission is granted.
  * @param compact Whether to use compact layout.
  * @param expanded Whether the current window is expanded width.
  * @param windowSizeClass Size class of the activity window.
@@ -128,6 +129,8 @@ import com.rohankhayech.choona.app.R as AppR
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param prefs User preferences for the tuner.
+ * @param canRequest Whether the permission can be requested.
+ * @param error The error to display.
  * @param onSelectString Called when a string is selected.
  * @param onSelectTuning Called when a tuning is selected.
  * @param onTuneUpString Called when a string is tuned up.
@@ -141,12 +144,15 @@ import com.rohankhayech.choona.app.R as AppR
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param editModeEnabled Whether tuning editing is enabled.
  * @param onEditModeChanged Called when the edit mode toggle button is pressed.
+ * @param onRequestPermission Called when the request permission button is pressed.
+ * @param onOpenPermissionSettings Called when the open permission settings button is pressed
  *
  * @author Rohan Khayech
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TunerScreen(
+    granted: Boolean,
     compact: Boolean = false,
     expanded: Boolean = false,
     windowSizeClass: WindowSizeClass,
@@ -161,6 +167,8 @@ fun TunerScreen(
     favTunings: State<Set<TuningEntry>>,
     getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     prefs: TunerPreferences,
+    canRequest: Boolean,
+    error: Exception?,
     onSelectString: (Int) -> Unit,
     onSelectTuning: (Tuning) -> Unit,
     onSelectChromatic: () -> Unit,
@@ -175,7 +183,9 @@ fun TunerScreen(
     onSettingsPressed: () -> Unit,
     onConfigurePressed: () -> Unit,
     editModeEnabled: Boolean,
-    onEditModeChanged: (Boolean) -> Unit
+    onEditModeChanged: (Boolean) -> Unit,
+    onRequestPermission: () -> Unit,
+    onOpenPermissionSettings: () -> Unit,
 ) {
     val scrollBehavior = if (!compact) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold (
@@ -195,139 +205,155 @@ fun TunerScreen(
             }
         }
     ) { padding ->
-        TunerBodyScaffold(
-            padding,
-            compact,
-            expanded,
-            tuning,
-            noteOffset,
-            selectedString,
-            selectedNote,
-            tuned,
-            noteTuned,
-            autoDetect,
-            chromatic,
-            favTunings,
-            getCanonicalName,
-            prefs,
-            editModeEnabled,
-            onSelectString,
-            onSelectTuning,
-            onSelectChromatic,
-            onSelectNote,
-            onTuneUpString,
-            onTuneDownString,
-            onTuneUpTuning,
-            onTuneDownTuning,
-            onAutoChanged,
-            onTuned,
-            onOpenTuningSelector,
+        if (error == null && granted) {
+            TunerBodyScaffold(
+                padding,
+                compact,
+                expanded,
+                tuning,
+                noteOffset,
+                selectedString,
+                selectedNote,
+                tuned,
+                noteTuned,
+                autoDetect,
+                chromatic,
+                favTunings,
+                getCanonicalName,
+                prefs,
+                editModeEnabled,
+                onSelectString,
+                onSelectTuning,
+                onSelectChromatic,
+                onSelectNote,
+                onTuneUpString,
+                onTuneDownString,
+                onTuneUpTuning,
+                onTuneDownTuning,
+                onAutoChanged,
+                onTuned,
+                onOpenTuningSelector,
 
-            // Portrait layout
-            portrait = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(padd)
-                        .consumeWindowInsets(padd)
-                        .windowInsetsPadding(WindowInsets.safeDrawing)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    tuningDisplay()
-                    stringControls(Modifier, prefs.stringLayout == StringLayout.INLINE)
-                    autoDetectSwitch(Modifier)
-                    tuningSelector(Modifier.padding(vertical = 8.dp))
-                }
-            },
+                // Portrait layout
+                portrait = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(padd)
+                            .consumeWindowInsets(padd)
+                            .windowInsetsPadding(WindowInsets.safeDrawing)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        tuningDisplay()
+                        stringControls(Modifier, prefs.stringLayout == StringLayout.INLINE)
+                        autoDetectSwitch(Modifier)
+                        tuningSelector(Modifier.padding(vertical = 8.dp))
+                    }
+                },
 
-            // Landscape layout
-            landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
-                Column (
-                    Modifier.fillMaxSize()
-                        .padding(padd)
-                        .consumeWindowInsets(padd)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Row(
-                        Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically,
+                // Landscape layout
+                landscape = { padd, tuningDisplay, stringControls, autoDetectSwitch, tuningSelector ->
+                    Column(
+                        Modifier.fillMaxSize()
+                            .padding(padd)
+                            .consumeWindowInsets(padd)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Row(
+                            Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxHeight()
+                                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)),
+                            ) {
+                                tuningDisplay()
+                            }
+                            stringControls(
+                                Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
+                                windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
+                                    && prefs.stringLayout == StringLayout.INLINE,
+                            )
+                        }
+                        Row(
+                            Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            tuningSelector(Modifier.weight(1f))
+                            autoDetectSwitch(Modifier.padding(end = 20.dp))
+                        }
+                    }
+                },
+
+                // Compact layout
+                compactLayout = { padd, tuningDisplay, _, autoDetectSwitch, _ ->
+                    Column(
+                        modifier = Modifier
+                            .padding(padd)
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Box(
-                            Modifier.fillMaxHeight().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center,
                         ) {
                             tuningDisplay()
                         }
-                        stringControls(
-                            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End)),
-                            windowSizeClass.heightSizeClass > WindowHeightSizeClass.Compact
-                                && prefs.stringLayout == StringLayout.INLINE,
-                        )
-                    }
-                    Row(
-                        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        tuningSelector(Modifier.weight(1f))
-                        autoDetectSwitch(Modifier.padding(end = 20.dp))
-                    }
-                }
-            },
-
-            // Compact layout
-            compactLayout = { padd, tuningDisplay, _, autoDetectSwitch, _ ->
-                Column(
-                    modifier = Modifier
-                        .padding(padd)
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState()),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        tuningDisplay()
-                    }
-                    Row(
-                        Modifier
-                            .height(72.dp)
-                            .padding(bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (chromatic) {
-                            CompactNoteSelector(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(vertical = 8.dp),
-                                selectedNoteIndex = selectedNote,
-                                tuned = noteTuned,
-                                onSelect = onSelectNote,
-                            )
-                        } else {
-                        CompactStringSelector(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(vertical = 8.dp),
-                            tuning = tuning.tuning!!,
-                            selectedString = selectedString,
-                            tuned = tuned,
-                            onSelect = onSelectString,
-                        )
-                        }
-                        VerticalDivider()
-                        Box(Modifier.padding(horizontal = 8.dp)) {
-                            autoDetectSwitch(Modifier)
+                        Row(
+                            Modifier
+                                .height(72.dp)
+                                .padding(bottom = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (chromatic) {
+                                CompactNoteSelector(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(vertical = 8.dp),
+                                    selectedNoteIndex = selectedNote,
+                                    tuned = noteTuned,
+                                    onSelect = onSelectNote,
+                                )
+                            } else {
+                                CompactStringSelector(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(vertical = 8.dp),
+                                    tuning = tuning.tuning!!,
+                                    selectedString = selectedString,
+                                    tuned = tuned,
+                                    onSelect = onSelectString,
+                                )
+                            }
+                            VerticalDivider()
+                            Box(Modifier.padding(horizontal = 8.dp)) {
+                                autoDetectSwitch(Modifier)
+                            }
                         }
                     }
                 }
-            }
-        )
+            )
+        } else if (error != null) {
+            TunerErrorBody(
+                padding,
+                error
+            )
+        } else {
+            TunerPermissionBody(
+                padding,
+                canRequest = canRequest,
+                onRequestPermission = onRequestPermission,
+                onOpenPermissionSettings = onOpenPermissionSettings
+            )
+        }
     }
 }
 
@@ -484,7 +510,7 @@ private fun TunerBodyScaffold(
                 tuning = tuning,
                 favTunings = favTunings,
                 getCanonicalName,
-                openDirect = false,
+                openDirect = expanded,
                 onSelect = {
                     if (it is TuningEntry.InstrumentTuning) {
                         onSelectTuning(it.tuning)
@@ -495,7 +521,6 @@ private fun TunerBodyScaffold(
                 onTuneDown = onTuneDownTuning,
                 onTuneUp = onTuneUpTuning,
                 onOpenTuningSelector = onOpenTuningSelector,
-                enabled = !expanded,
                 editModeEnabled = editModeEnabled,
                 compact = compact
             )
@@ -506,60 +531,56 @@ private fun TunerBodyScaffold(
 /**
  * UI screen shown to the user when the audio permission is not granted.
  *
+ * @param padding Padding to apply to the screen.
  * @param canRequest Whether the permission can be requested.
- * @param onSettingsPressed Called when the settings navigation button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
  */
 @Composable
-fun TunerPermissionScreen(
+fun TunerPermissionBody(
+    padding: PaddingValues,
     canRequest: Boolean,
-    onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit,
 ) {
-    Scaffold(
-        topBar = { AppBar(onSettingsPressed, false) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val title: String
-            val rationale: String
-            val buttonLabel: String
-            val buttonAction: () -> Unit
-            if (canRequest) {
-                title = stringResource(R.string.permission_needed)
-                rationale = stringResource(R.string.tuner_audio_permission_rationale)
-                buttonLabel = stringResource(R.string.request_permission)
-                buttonAction = onRequestPermission
-            } else {
-                title = stringResource(R.string.permission_denied)
-                rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
-                buttonLabel = stringResource(R.string.open_permission_settings)
-                buttonAction = onOpenPermissionSettings
-            }
+    Column(
+        modifier = Modifier
+            .padding(padding)
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val title: String
+        val rationale: String
+        val buttonLabel: String
+        val buttonAction: () -> Unit
+        if (canRequest) {
+            title = stringResource(R.string.permission_needed)
+            rationale = stringResource(R.string.tuner_audio_permission_rationale)
+            buttonLabel = stringResource(R.string.request_permission)
+            buttonAction = onRequestPermission
+        } else {
+            title = stringResource(R.string.permission_denied)
+            rationale = stringResource(R.string.tuner_audio_permission_rationale_denied)
+            buttonLabel = stringResource(R.string.open_permission_settings)
+            buttonAction = onOpenPermissionSettings
+        }
 
-            Text( // Title
-                text = title,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text( // Rationale
-                text = rationale,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(max = 256.dp)
-            )
-            // Action Button
-            Button(onClick = buttonAction) {
-                Text(buttonLabel, textAlign = TextAlign.Center)
-            }
+        Text( // Title
+            text = title,
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text( // Rationale
+            text = rationale,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 256.dp)
+        )
+        // Action Button
+        Button(onClick = buttonAction) {
+            Text(buttonLabel, textAlign = TextAlign.Center)
         }
     }
 }
@@ -567,51 +588,47 @@ fun TunerPermissionScreen(
 
 /**
  * UI screen shown to the user when the tuner has failed to start.
+ * @param padding Padding to apply to the screen.
  * @param error The error to display.
- * @param onSettingsPressed Called when the settings navigation button is pressed.
  */
 @Composable
-fun TunerErrorScreen(
+fun TunerErrorBody(
+    padding: PaddingValues,
     error: Exception?,
-    onSettingsPressed: () -> Unit,
 ) {
-    Scaffold(
-        topBar = { AppBar(onSettingsPressed, false) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text( // Title
-                text = stringResource(R.string.error_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.error
-            )
-            Text( // Rationale
-                text = stringResource(R.string.error_description),
+    Column(
+        modifier = Modifier
+            .padding(padding)
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text( // Title
+            text = stringResource(R.string.error_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.error
+        )
+        Text( // Rationale
+            text = stringResource(R.string.error_description),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 256.dp)
+        )
+        if (error?.message != null) {
+            Text( // Error message
+                text = error.message!!,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(max = 256.dp)
-            )
-            if (error?.message != null) {
-                Text( // Error message
-                    text = error.message!!,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.widthIn(max = 256.dp),
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-            Text( // Rationale
-                text = stringResource(R.string.error_action_call),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(max = 256.dp)
+                modifier = Modifier.widthIn(max = 256.dp),
+                color = MaterialTheme.colorScheme.error,
             )
         }
+        Text( // Rationale
+            text = stringResource(R.string.error_action_call),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 256.dp)
+        )
     }
 }
 
@@ -782,16 +799,21 @@ private fun AutoDetectSwitch(
 
 // PREVIEWS
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun BasePreview(
     compact: Boolean = false,
-    windowSizeClass: WindowSizeClass,
+    windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
     prefs: TunerPreferences = TunerPreferences(),
     trueDark: Boolean = false,
     dynamicColor: Boolean = false,
+    granted: Boolean = true,
+    canRequest: Boolean = true,
+    error: Exception? = null,
 ) {
     AppTheme(dynamicColor = dynamicColor, fullBlack = trueDark) {
         TunerScreen(
+            granted = granted,
             compact,
             expanded = false,
             windowSizeClass,
@@ -806,33 +828,29 @@ private fun BasePreview(
             favTunings = remember { mutableStateOf(emptySet()) },
             getCanonicalName = { it.tuning.toString() },
             prefs,
+            canRequest = canRequest,
+            error = error,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             editModeEnabled = true,
-            onEditModeChanged = {}
+            onEditModeChanged = {},
+            onRequestPermission = {},
+            onOpenPermissionSettings = {}
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @ThemePreview
 @Composable
 private fun TunerPreview() {
-    BasePreview(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-    )
+    BasePreview()
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @DarkPreview
 @Composable
 private fun TrueDarkPreview() {
-    BasePreview(
-        trueDark = true,
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp))
-    )
+    BasePreview(trueDark = true)
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @PreviewDynamicColors
 @Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
 @Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
@@ -840,20 +858,13 @@ private fun TrueDarkPreview() {
 @Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun DynamicPreview() {
-    BasePreview(
-        dynamicColor = true,
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-    )
+    BasePreview(dynamicColor = true)
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @CompactThemePreview
 @Composable
 private fun CompactPreview() {
-    BasePreview(
-        compact = true,
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1.dp, 1.dp)),
-    )
+    BasePreview(compact = true)
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -865,48 +876,28 @@ private fun LandscapePreview() {
     )
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @LargeFontPreview
 @Composable
 private fun LargeFontPreview() {
-    BasePreview(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-    )
+    BasePreview()
 }
 
 @Preview
 @Composable
 private fun PermissionRequestPreview() {
-    AppTheme {
-        TunerPermissionScreen(
-            canRequest = true,
-            onSettingsPressed = {},
-            onRequestPermission = {},
-            onOpenPermissionSettings = {}
-        )
-    }
+    BasePreview(granted = false)
 }
 
 @Preview
 @Composable
 private fun PermissionDeniedPreview() {
-    AppTheme {
-        TunerPermissionScreen(
-            canRequest = false,
-            onSettingsPressed = {},
-            onRequestPermission = {},
-            onOpenPermissionSettings = {}
-        )
-    }
+    BasePreview(granted = false, canRequest = false)
 }
 
 @Preview
 @Composable
 private fun ErrorPreview() {
-    AppTheme {
-        TunerErrorScreen (
-            error = Exception("Something went wrong."),
-            onSettingsPressed = {},
-        )
-    }
+    BasePreview(
+        error = Exception("Something went wrong."),
+    )
 }

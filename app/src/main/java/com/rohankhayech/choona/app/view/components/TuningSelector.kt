@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.DropdownMenuItem
@@ -68,7 +69,7 @@ import com.rohankhayech.choona.lib.model.tuning.TuningEntry
  * @param tuning The current guitar tuning.
  * @param favTunings Set of tunings marked as favourite by the user.
  * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
- * @param enabled Whether the selector is enabled. Defaults to true.
+ * @param showExpanded Whether to show the expanded state. Defaults to true.
  * @param openDirect Whether to open the tuning selection screen directly instead of the favourites dropdown.
  * @param onSelect Called when a tuning is selected.
  * @param onTuneDown Called when the tuning is tuned down.
@@ -85,9 +86,9 @@ fun TuningSelector(
     tuning: TuningEntry,
     favTunings: State<Set<TuningEntry>>,
     getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
-    enabled: Boolean = true,
     openDirect: Boolean,
     compact: Boolean,
+    showExpanded: Boolean = !openDirect,
     onSelect: (TuningEntry) -> Unit,
     onTuneDown: () -> Unit,
     onTuneUp: () -> Unit,
@@ -117,7 +118,7 @@ fun TuningSelector(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = if (!editModeEnabled || tuning is TuningEntry.InstrumentTuning) 16.dp else 0.dp),
-                expanded = expanded && enabled,
+                expanded = expanded && !openDirect,
                 onExpandedChange = {
                     if (openDirect) onOpenTuningSelector()
                     else expanded = it
@@ -126,17 +127,17 @@ fun TuningSelector(
                 // Current Tuning
                 CurrentTuningField(
                     modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(
-                        ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled),
+                        ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                     tuning = tuning,
                     getCanonicalName,
                     expanded = expanded,
-                    showExpanded = enabled,
+                    showExpanded = showExpanded,
                     compact
                 )
 
                 // Dropdown Menu
                 ExposedDropdownMenu(
-                    expanded = expanded && enabled,
+                    expanded = expanded && !openDirect,
                     onDismissRequest = { expanded = false }
                 ) {
                     for (tuningOption in favTunings.value) {
@@ -220,7 +221,11 @@ private fun CurrentTuningField(
                 getCanonicalName = getCanonicalName,
                 fontWeight = FontWeight.Bold
             )
-            if (showExpanded) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            if (showExpanded) {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            } else {
+                Icon(Icons.AutoMirrored.Default.ArrowRight, null)
+            }
         }
     }
 }
@@ -328,6 +333,7 @@ private fun EditOffPreview() {
             onTuneDown = {},
             onTuneUp = {},
             onOpenTuningSelector = {},
+            showExpanded = false,
             editModeEnabled = false,
             compact = false
         )
