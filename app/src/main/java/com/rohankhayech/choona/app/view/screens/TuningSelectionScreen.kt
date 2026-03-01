@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -118,6 +119,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * UI screen that allows the user to select a tuning for use,
@@ -675,54 +677,60 @@ private fun LazyItemScope.CustomTuningItem(
     onFavouriteSet: (TuningEntry, Boolean) -> Unit,
     onUnpin: () -> Unit,
     onSelect: (TuningEntry) -> Unit,
-    onDelete: (Tuning) -> Unit,
+    onDelete: (Tuning) -> Unit
 ) {
     val dismissState = rememberSwipeToDismissBoxState()
+    var visible by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
 
-    SwipeToDismissBox(
-        modifier = Modifier.animateItem(),
-        state = dismissState,
-        enableDismissFromStartToEnd = false,
-        onDismiss = {
-            onDelete(tuning.tuning)
-        },
-        backgroundContent = {
-            val color by animateColorAsState(
-                when (dismissState.targetValue) {
-                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                    else -> MaterialTheme.colorScheme.surfaceContainer
-                },
-                label = "Tuning Item Background Color"
-            )
-
-            Row (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color)
-                    .padding(end = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Icon(
-                    Icons.Default.DeleteForever,
-                    contentDescription = stringResource(R.string.delete),
-                    tint = when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onErrorContainer
-                        else -> MaterialTheme.colorScheme.onSurface
-                    }
+    if(visible) {
+        SwipeToDismissBox(
+            modifier = Modifier.animateItem(),
+            state = dismissState,
+            enableDismissFromStartToEnd = false,
+            onDismiss = { it -> coroutineScope.launch {
+                visible = false
+                dismissState.reset()
+                onDelete(tuning.tuning)
+            }},
+            backgroundContent = {
+                val color by animateColorAsState(
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                        else -> MaterialTheme.colorScheme.surfaceContainer
+                    },
+                    label = "Tuning Item Background Color"
                 )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color)
+                        .padding(end = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        contentDescription = stringResource(R.string.delete),
+                        tint = when (dismissState.targetValue) {
+                            SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onErrorContainer
+                            else -> MaterialTheme.colorScheme.onSurface
+                        }
+                    )
+                }
             }
+        ) {
+            FavouritableTuningItem(
+                tuning = tuning,
+                favourited = favourited,
+                pinned = pinned,
+                pinnedInitial = pinnedInitial,
+                onFavouriteSet = onFavouriteSet,
+                onUnpin = onUnpin,
+                onSelect = onSelect
+            )
         }
-    ) {
-        FavouritableTuningItem(
-            tuning = tuning,
-            favourited = favourited,
-            pinned = pinned,
-            pinnedInitial = pinnedInitial,
-            onFavouriteSet = onFavouriteSet,
-            onUnpin = onUnpin,
-            onSelect = onSelect
-        )
     }
 }
 
