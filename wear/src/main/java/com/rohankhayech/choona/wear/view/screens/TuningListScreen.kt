@@ -37,7 +37,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.SaveAs
@@ -53,7 +52,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -104,7 +102,6 @@ import kotlinx.coroutines.flow.SharedFlow
  * as well as managing favourite and custom tunings.
  *
  * @param tuningList State holder for the tuning list.
- * @param backIcon Icon used for the back navigation button.
  * @param pinnedInitial Whether the pinned tuning is used as the initial tuning.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onSelect Called when a tuning is selected.
@@ -116,7 +113,6 @@ import kotlinx.coroutines.flow.SharedFlow
 @Composable
 fun TuningListScreen(
     tuningList: TuningList,
-    backIcon: ImageVector?,
     pinnedInitial: Boolean,
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
@@ -147,7 +143,6 @@ fun TuningListScreen(
         categoryFilter = categoryFilter,
         instrumentFilters = instrumentFilters,
         categoryFilters = categoryFilters,
-        backIcon = backIcon,
         deletedTuning = tuningList.deletedTuning,
         isFavourite = { tuningList.run { this@TuningSelectionScreen.isFavourite() } },
         onSelectInstrument = { tuningList.filterBy(instrument = it) },
@@ -186,7 +181,6 @@ fun TuningListScreen(
  * @param categoryFilter Current filter for tuning category.
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
- * @param backIcon Icon used for the back navigation button.
  * @param deletedTuning Event indicating the specified tuning was deleted.
  * @param isFavourite Function that returns whether a tuning is marked as a favourite.
  * @param onSelectInstrument Called when an instrument filter is selected.
@@ -214,7 +208,6 @@ fun TuningSelectionScreen(
     categoryFilter: Category?,
     instrumentFilters: State<Map<Instrument, Boolean>>,
     categoryFilters: State<Map<Category, Boolean>>,
-    backIcon: ImageVector?,
     deletedTuning: SharedFlow<Tuning>,
     isFavourite: TuningEntry.() -> Boolean,
     onSelectInstrument: (Instrument?) -> Unit,
@@ -1058,7 +1051,6 @@ private fun Preview() {
                 categoryFilter = null,
                 instrumentFilters = remember { mutableStateOf(Instrument.entries.dropLast(1).associateWith { true }) },
                 categoryFilters = remember { mutableStateOf(Category.entries.associateWith { true }) },
-                backIcon = Icons.Default.Close,
                 deletedTuning = MutableSharedFlow(),
                 isFavourite = { this == favCustomTuning },
                 onSave = { _, _ -> },

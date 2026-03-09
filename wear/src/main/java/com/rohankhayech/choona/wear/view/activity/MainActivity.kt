@@ -34,7 +34,6 @@ import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.wear.view.screens.MainLayout
-import com.rohankhayech.choona.wear.view.screens.PermissionScreen
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 class MainActivity : BaseTunerActivity() {
@@ -44,7 +43,6 @@ class MainActivity : BaseTunerActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val granted by ph.granted.collectAsStateWithLifecycle()
             val prefs by prefs.collectAsStateWithLifecycle(initialValue = TunerPreferences())
 
             AppTheme(
@@ -56,59 +54,54 @@ class MainActivity : BaseTunerActivity() {
                         TimeText { time -> timeTextCurvedText("$appName ‧ $time") }
                     }
                 ) {
-                    if (granted) {
-                        // Collect state.
-                        val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
-                        val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
-                        val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
-                        val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
-                        val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
-                        val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
-                        val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
-                        val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
-                        val tuningSelectorOpen by vm.tuningSelectorOpen.collectAsStateWithLifecycle()
-                        val configurePanelOpen by vm.configurePanelOpen.collectAsStateWithLifecycle()
-                        val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
+                    // Collect state.
+                    val granted by ph.granted.collectAsStateWithLifecycle()
+                    val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
+                    val error by vm.tuner.error.collectAsStateWithLifecycle()
+                    val tuning by vm.tuner.tuning.collectAsStateWithLifecycle()
+                    val noteOffset = vm.tuner.noteOffset.collectAsStateWithLifecycle()
+                    val selectedString by vm.tuner.selectedString.collectAsStateWithLifecycle()
+                    val selectedNote by vm.tuner.selectedNote.collectAsStateWithLifecycle()
+                    val autoDetect by vm.tuner.autoDetect.collectAsStateWithLifecycle()
+                    val chromatic by vm.tuner.chromatic.collectAsStateWithLifecycle()
+                    val tuned by vm.tuner.tuned.collectAsStateWithLifecycle()
+                    val noteTuned by vm.tuner.noteTuned.collectAsStateWithLifecycle()
+                    val favTunings = vm.tuningList.favourites.collectAsStateWithLifecycle()
 
-                        MainLayout (
-                            tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
-                            noteOffset = noteOffset,
-                            selectedString = selectedString,
-                            selectedNote = selectedNote,
-                            tuned = tuned,
-                            noteTuned = noteTuned,
-                            autoDetect = autoDetect,
-                            chromatic = chromatic,
-                            favTunings = favTunings,
-                            getCanonicalName = vm.tuningList::getCanonicalName,
-                            prefs = prefs,
-                            tuningList = vm.tuningList,
-                            tuningSelectorOpen = tuningSelectorOpen,
-                            configurePanelOpen = configurePanelOpen,
-                            onSelectString = ::selectString,
-                            onSelectNote = ::selectNote,
-                            onTuneUpString = vm.tuner::tuneStringUp,
-                            onTuneDownString = vm.tuner::tuneStringDown,
-                            onTuneUpTuning = vm.tuner::tuneUp,
-                            onTuneDownTuning = vm.tuner::tuneDown,
-                            onAutoChanged = vm.tuner::setAutoDetect,
-                            onTuned = ::setTuned,
-                            onOpenTuningSelector = ::openTuningSelector,
-                            onOpenConfigurePanel = ::openConfigurePanel,
-                            onSelectTuning = ::selectTuning,
-                            onSelectChromatic = ::selectChromatic,
-                            onDismissTuningSelector = ::dismissTuningSelector,
-                            onDismissConfigurePanel = ::dismissConfigurePanel,
-                            onSettingsPressed = ::openSettings
-                        )
-                    } else {
-                        val firstRequest by ph.firstRequest.collectAsStateWithLifecycle()
-                        PermissionScreen(
-                            canRequest = firstRequest,
-                            onRequestPermission = ph::request,
-                            onOpenPermissionSettings = ::openPermissionSettings
-                        )
-                    }
+                    MainLayout(
+                        backStack = vm.backStack,
+                        granted = granted,
+                        tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
+                        noteOffset = noteOffset,
+                        selectedString = selectedString,
+                        selectedNote = selectedNote,
+                        tuned = tuned,
+                        noteTuned = noteTuned,
+                        autoDetect = autoDetect,
+                        chromatic = chromatic,
+                        favTunings = favTunings,
+                        getCanonicalName = vm.tuningList::getCanonicalName,
+                        prefs = prefs,
+                        tuningList = vm.tuningList,
+                        canRequest = firstRequest,
+                        error = error,
+                        onSelectString = ::selectString,
+                        onSelectNote = ::selectNote,
+                        onTuneUpString = vm.tuner::tuneStringUp,
+                        onTuneDownString = vm.tuner::tuneStringDown,
+                        onTuneUpTuning = vm.tuner::tuneUp,
+                        onTuneDownTuning = vm.tuner::tuneDown,
+                        onAutoChanged = vm.tuner::setAutoDetect,
+                        onTuned = ::setTuned,
+                        onOpenTuningSelector = ::openTuningSelector,
+                        onOpenConfigurePanel = ::openConfigurePanel,
+                        onSelectTuning = ::selectTuningFromList,
+                        onSelectChromatic = ::selectChromaticFromList,
+                        onBack = ::navBack,
+                        onSettingsPressed = ::openSettings,
+                        onRequestPermission = ph::request,
+                        onOpenPermissionSettings = ::openPermissionSettings
+                    )
                 }
             }
         }
