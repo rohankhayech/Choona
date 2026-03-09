@@ -1,5 +1,5 @@
 # Choona - Guitar Tuner
-Guitar tuner application for Android with support for custom tunings.
+Guitar tuner application for Android and WearOS with support for custom tunings.
 
 **Author:** Rohan Khayech
 
@@ -16,6 +16,7 @@ Guitar tuner application for Android with support for custom tunings.
 - Set a tuning to open automatically when the app starts, or keep the last used tuning.
 - Support for dark mode, true dark and device colour themes.
 - Support for multi-window and large screen devices.
+- Tune your instrument right from your wrist with full Wear OS support.
 
 ## Screenshots
 
@@ -35,7 +36,9 @@ Guitar tuner application for Android with support for custom tunings.
 </details>
 
 ## Installation
-Choona is available for Android devices running Android 7.0 Nougat and above.
+Choona is available for:
+- Android devices running Android 7.0 Nougat and above.
+- Wear OS devices running Android 9.0 Pie and above.
 
 ### Recommended
 The best way to install Choona is via the Google Play Store:
