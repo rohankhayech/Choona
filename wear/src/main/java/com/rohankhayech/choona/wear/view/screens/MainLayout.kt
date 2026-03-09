@@ -36,7 +36,6 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
 /**
  * Layout composable for the main tuning screen.
- * Handles layout of screens on different form factors.
  *
  * @param backStack List of screens that have been navigated to.
  * @param granted Whether the audio permission has been granted.

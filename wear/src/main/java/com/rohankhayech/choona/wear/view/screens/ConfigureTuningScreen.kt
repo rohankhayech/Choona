@@ -22,9 +22,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,12 +48,14 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.NoteSelector
 import com.rohankhayech.choona.wear.view.components.StringControls
 import com.rohankhayech.choona.wear.view.components.VerticalTuningItem
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.wear.R as WearR
 
 /**
  * UI screen used to tune individual strings and the tuning
@@ -126,6 +131,31 @@ fun ConfigureTuningScreen(
                         onClick = onDismiss
                     ) {
                         Icon(Icons.Default.Done, null)
+                    }
+                }
+            }
+            if (!chromatic) {
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = onTuneDownTuning,
+                            enabled = remember(tuning) { derivedStateOf { tuning.tuning!!.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                        ) {
+                            Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
+                        }
+                        Text(
+                            stringResource(WearR.string.tune),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        IconButton(
+                            onClick = onTuneUpTuning,
+                            enabled = remember(tuning) { derivedStateOf { tuning.tuning!!.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                        ) {
+                            Icon(Icons.Default.Add, stringResource(R.string.tune_up))
+                        }
                     }
                 }
             }
