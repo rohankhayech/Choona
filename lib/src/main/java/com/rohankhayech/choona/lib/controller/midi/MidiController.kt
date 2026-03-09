@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,9 @@ import org.billthefarmer.mididriver.MidiDriver
 
 /**
  * Controller class responsible for generating and sending MIDI events representing guitar notes.
- * @property numStrings The number of strings this controller can simultaneously play a note on.
- *
  * @author Rohan Khayech
  */
-class MidiController(val numStrings: Int) {
+class MidiController() {
 
     /** The system MIDI driver. */
     private var midiDriver: MidiDriver = MidiDriver.getInstance()

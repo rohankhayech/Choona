@@ -84,7 +84,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO)
 
         // Setup MIDI controller for note playback.
-        midi = MidiController(vm.tuner.tuning.value.numStrings())
+        midi = MidiController()
 
         // Load tunings
         lifecycleScope.launch {
@@ -97,12 +97,12 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
                     InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
-                        is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
+                        is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(vm.tuningList.pinned.value.tuning!!)
                         is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
                     }
                     InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
                         when (it) {
-                            is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                            is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(it.tuning)
                             is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
                         }
                     }
@@ -263,13 +263,9 @@ abstract class BaseTunerActivity : ComponentActivity() {
 
     /**
      * Sets the current tuning to the [tuning] selected on the tuning
-     * selection screen, restarts the tuner if no other panel is open,
-     * and recreates the MIDI driver if necessary.
+     * selection screen and restarts the tuner if no other panel is open.
      */
     protected fun selectTuningFromList(tuning: Tuning) {
-        // Recreate MIDI driver if number of strings different.
-        checkAndRecreateMidiDriver(tuning)
-
         // Select the tuning.
         vm.selectTuningFromList(tuning)
 
@@ -301,32 +297,6 @@ abstract class BaseTunerActivity : ComponentActivity() {
     /** Stops tuner if a panel is open above it. */
     protected fun checkAndStopTuner() {
         if (!vm.isTunerScreenOpen()) vm.tuner.stop()
-    }
-
-    /**
-     * Sets the current tuning to the [tuning] specified,
-     * and recreates the MIDI driver if necessary.
-     */
-    protected fun setTuning(tuning: Tuning) {
-        // Recreate MIDI driver if number of strings different.
-        checkAndRecreateMidiDriver(tuning)
-
-        // Select the tuning.
-        vm.tuner.setTuning(tuning)
-    }
-
-    /**
-     * Recreates the MIDI driver when the number of strings
-     * in the new tuning is different from the current tuning.
-     *
-     * @param newTuning The new selected tuning.
-     */
-    private fun checkAndRecreateMidiDriver(newTuning: Tuning) {
-        if (newTuning.numStrings() != vm.tuner.tuning.value.numStrings()) {
-            midi.stop()
-            midi = MidiController(newTuning.numStrings())
-            midi.start()
-        }
     }
 
     /** Opens the permission settings screen in the device settings. */
