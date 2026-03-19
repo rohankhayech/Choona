@@ -37,11 +37,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
@@ -52,6 +52,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,6 +62,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,25 +72,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.DarkPreview
-import com.rohankhayech.android.util.ui.preview.TabletThemePreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.components.InlineStringControls
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
+import kotlinx.coroutines.launch
 
 /**
  * UI screen used to tune individual strings and the tuning
  * itself up and down, as well as select from favourite tunings.
  *
  * @param tuning Guitar tuning used for comparison.
- * @param onTuneUpString Called when a string is tuned up.
- * @param onTuneDownString Called when a string is tuned down.
- * @param onTuneUpTuning Called when the tuning is tuned up.
- * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onTuneStringUp Called when a string is tuned up.
+ * @param onTuneStringDown Called when a string is tuned down.
+ * @param onTuneUp Called when the tuning is tuned up.
+ * @param onTuneDown Called when the tuning is tuned down.
  *
  * @author Rohan Khayech
  */
@@ -96,23 +100,26 @@ import com.rohankhayech.choona.lib.view.util.getLocalisedName
 fun EditTuningScreen(
     new: Boolean,
     tuning: Tuning,
-    existingTuningName: String?,
+    onNameChange: (String) -> Unit,
+    onInstrumentChange: (Instrument) -> Unit,
     onSetString: (n: Int, noteIndex: Int) -> Unit,
-    onAddLowString: (noteIndex: Int) -> Unit,
-    onAddHighString: (noteIndex: Int) -> Unit,
+    onAddLowString: () -> Unit,
+    onAddHighString: () -> Unit,
     onRemoveLowString: () -> Unit,
     onRemoveHighString: () -> Unit,
-    onTuneUpString: (Int) -> Unit,
-    onTuneDownString: (Int) -> Unit,
-    onTuneUpTuning: () -> Unit,
-    onTuneDownTuning: () -> Unit,
+    onTuneStringUp: (Int) -> Unit,
+    onTuneStringDown: (Int) -> Unit,
+    onTuneUp: () -> Unit,
+    onTuneDown: () -> Unit,
     onCancel: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onDelete: (() -> Unit)? = null
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold (
         Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             MediumTopAppBar(
                 title = {
@@ -142,31 +149,27 @@ fun EditTuningScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var name by remember { mutableStateOf("") }
-            var instrument by remember { mutableStateOf(Instrument.GUITAR) }
-
             EditTuningForm(
-                new = new,
-                name = name,
-                instrument = instrument,
+                name = tuning.name,
+                instrument = tuning.instrument,
                 tuning = tuning,
                 onAddLowString = onAddLowString,
                 onAddHighString = onAddHighString,
                 onRemoveLowString = onRemoveLowString,
                 onRemoveHighString = onRemoveHighString,
-                onTuneUpString = onTuneUpString,
-                onTuneDownString = onTuneDownString,
-                onTuneUpTuning = onTuneUpTuning,
-                onTuneDownTuning = onTuneDownTuning,
-                onNameChange = { name = it },
-                onInstrumentChange = { instrument = it }
+                onTuneUpString = onTuneStringUp,
+                onTuneDownString = onTuneStringDown,
+                onTuneUpTuning = onTuneUp,
+                onTuneDownTuning = onTuneDown,
+                onNameChange = onNameChange,
+                onInstrumentChange = onInstrumentChange
             )
 
             // Delete button.
             if (!new) {
                 TextButton(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    onClick = {},
+                    onClick =  { onDelete?.invoke() },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
@@ -182,86 +185,12 @@ fun EditTuningScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditTuningDialog(
-    new: Boolean,
-    tuning: Tuning,
-    onAddLowString: (Int) -> Unit,
-    onAddHighString: (Int) -> Unit,
-    onRemoveLowString: () -> Unit,
-    onRemoveHighString: () -> Unit,
-    onTuneUpString: (Int) -> Unit,
-    onTuneDownString: (Int) -> Unit,
-    onTuneUpTuning: () -> Unit,
-    onTuneDownTuning: () -> Unit,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = {
-            Text(if (new) "Add custom tuning" else "Edit Tuning")
-        },
-        text = {
-            Column(
-                Modifier
-                    .padding(horizontal = 24.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                var name by remember { mutableStateOf("") }
-                var instrument by remember { mutableStateOf(Instrument.GUITAR) }
-
-                EditTuningForm(
-                    new = new,
-                    name = name,
-                    instrument = instrument,
-                    tuning = tuning,
-                    onAddLowString = onAddLowString,
-                    onAddHighString = onAddHighString,
-                    onRemoveLowString = onRemoveLowString,
-                    onRemoveHighString = onRemoveHighString,
-                    onTuneUpString = onTuneUpString,
-                    onTuneDownString = onTuneDownString,
-                    onTuneUpTuning = onTuneUpTuning,
-                    onTuneDownTuning = onTuneDownTuning,
-                    onNameChange = { name = it },
-                    onInstrumentChange = { instrument = it }
-                )
-            }
-        },
-        confirmButton = {
-            // Save button.
-            Button(modifier = Modifier.padding(horizontal = 16.dp), onClick = onSave) {
-                Text("Save")
-            }
-        },
-        dismissButton = if (!new) {{
-            // Delete button.
-            TextButton(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onClick = {},
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Icon(Icons.Default.Delete, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Delete")
-            }
-        }} else null
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun EditTuningForm(
-    new: Boolean,
     name: String,
     instrument: Instrument,
     tuning: Tuning,
-    onAddLowString: (Int) -> Unit,
-    onAddHighString: (Int) -> Unit,
+    onAddLowString: () -> Unit,
+    onAddHighString: () -> Unit,
     onRemoveLowString: () -> Unit,
     onRemoveHighString: () -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -279,7 +208,7 @@ fun EditTuningForm(
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = "",
+            value = name,
             label = { Text("Name") },
             placeholder = { Text(tuning.name) },
             onValueChange = onNameChange
@@ -288,7 +217,7 @@ fun EditTuningForm(
         var instrExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = instrExpanded, onExpandedChange = { instrExpanded = it }) {
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                 leadingIcon = { Icon(painterResource(R.drawable.guitar_electric), null) },
                 value = instrument.getLocalisedName(),
                 label = { Text("Instrument") },
@@ -298,7 +227,7 @@ fun EditTuningForm(
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = instrExpanded
                     )
-                },
+                }
             )
             ExposedDropdownMenu(
                 expanded = instrExpanded,
@@ -383,7 +312,7 @@ fun EditTuningForm(
 
 @Composable
 fun AddRemoveRow(
-    onAddString: (Int) -> Unit,
+    onAddString: () -> Unit,
     onRemoveString: () -> Unit
 ) {
     Row(
@@ -403,7 +332,7 @@ fun AddRemoveRow(
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             ),
-            onClick = { onAddString(0) }
+            onClick = { onAddString() }
         ) {
             Icon(Icons.Default.Add, "Add String", modifier = Modifier.size(20.dp),)
         }
@@ -422,35 +351,15 @@ private fun Preview() {
             onAddHighString = {},
             onRemoveLowString = {},
             onRemoveHighString = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
+            onTuneStringUp = {},
+            onTuneStringDown = {},
+            onTuneUp = {},
+            onTuneDown = {},
             onCancel = {},
-            onSave = {},
-            existingTuningName = "",
-            onSetString = {_,_->}
-        )
-    }
-}
-
-@TabletThemePreview
-@Composable
-private fun DialogPreview() {
-    AppTheme {
-        EditTuningDialog(
-            new = false,
-            tuning = Tunings.BASS_STANDARD,
-            onAddLowString = {},
-            onAddHighString = {},
-            onRemoveLowString = {},
-            onRemoveHighString = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
-            onCancel = {},
-            onSave = {}
+            onSave = { true },
+            onSetString = {_,_->},
+            onNameChange = {},
+            onInstrumentChange = {}
         )
     }
 }
@@ -466,14 +375,15 @@ private fun TrueDarkPreview() {
             onAddHighString = {},
             onRemoveLowString = {},
             onRemoveHighString = {},
-            onTuneUpString = {},
-            onTuneDownString = {},
-            onTuneUpTuning = {},
-            onTuneDownTuning = {},
+            onTuneStringUp = {},
+            onTuneStringDown = {},
+            onTuneUp = {},
+            onTuneDown = {},
             onCancel = {},
             onSave = {},
-            existingTuningName = null,
-            onSetString = {_,_->}
+            onSetString = {_,_->},
+            onNameChange = {},
+            onInstrumentChange = {}
         )
     }
 }

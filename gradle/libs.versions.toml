@@ -5,6 +5,7 @@ datastorePreferencesVersion = "1.2.0"
 jsonVersion = "20251224"
 kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeCompose = "2.10.0"
+lifecycleViewmodelCompose = "2.10.0"
 androidUtils = "v0.8.0"
 tarsosDSPCore = "2.5"
 kotlin = "2.3.10"
@@ -27,6 +28,7 @@ compose-animation = { module = "androidx.compose.animation:animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }

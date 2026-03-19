@@ -177,6 +177,7 @@ class TunerActivity : BaseTunerActivity() {
                     onConfigurePressed = ::openConfigurePanel,
                     onSelectTuningFromList = ::selectTuningFromList,
                     onSelectChromaticFromList = ::selectChromaticFromList,
+                    onOpenTuningEditor = vm::openTuningEditor,
                     onBack = ::navBack,
                     onEditModeChanged = vm::setEditMode,
                     editModeEnabled = editModeEnabled,

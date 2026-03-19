@@ -36,7 +36,10 @@ import androidx.compose.material3.adaptive.navigation3.rememberSupportingPaneSce
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.android.util.ui.theme.m3.isLight
@@ -46,6 +49,7 @@ import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.viewmodel.EditTuningViewModel
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
 /**
@@ -88,6 +92,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param onConfigurePressed Called when the configure tuning button is pressed.
  * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
  * @param onSelectChromaticFromList Called when the chromatic mode is selected from the selection panel.
+ * @param onOpenTuningEditor Called when the edit tuning screen is opened.
  * @param onBack Called when the back button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -133,6 +138,7 @@ fun MainLayout(
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (Tuning) -> Unit,
     onSelectChromaticFromList: () -> Unit,
+    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
     onBack: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit
@@ -233,9 +239,42 @@ fun MainLayout(
                         pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                         onSelect = onSelectTuningFromList,
                         onSelectChromatic = onSelectChromaticFromList,
+                        onOpenTuningEditor = onOpenTuningEditor,
                         onDismiss = onBack
                     )
                 }
+            }
+
+            entry<Screen.EditTuning> { key ->
+                val editVM: EditTuningViewModel = viewModel(
+                    factory = EditTuningViewModel.provideFactory(key.tuning, key.new)
+                )
+                val editTuning by editVM.editor.tuning.collectAsStateWithLifecycle()
+
+                EditTuningScreen(
+                    new = key.new,
+                    tuning = editTuning,
+                    onNameChange = editVM::setName,
+                    onInstrumentChange = editVM.editor::setInstrument,
+                    onSetString = editVM.editor::setString,
+                    onAddLowString = editVM.editor::addLowString,
+                    onAddHighString = editVM.editor::addHighString,
+                    onRemoveLowString = editVM.editor::removeLowString,
+                    onRemoveHighString = editVM.editor::removeHighString,
+                    onTuneStringUp = editVM.editor::tuneStringUp,
+                    onTuneStringDown = editVM.editor::tuneStringDown,
+                    onTuneUp = editVM.editor::tuneUp,
+                    onTuneDown = editVM.editor::tuneDown,
+                    onCancel = onBack,
+                    onSave = {
+                        onBack()
+                    },
+                    onDelete = if (key.new) null else {
+                        {
+                            onBack()
+                        }
+                    }
+                )
             }
         }
     )

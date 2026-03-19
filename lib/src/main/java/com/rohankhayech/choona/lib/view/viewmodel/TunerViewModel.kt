@@ -141,6 +141,16 @@ class TunerViewModel : ViewModel() {
     }
 
     /**
+     * Opens the edit tuning screen for the given [tuning].
+     *
+     * @param tuning The tuning to edit.
+     * @param new Whether the tuning is a new custom tuning.
+     */
+    fun openTuningEditor(tuning: Tuning, new: Boolean) {
+        _backStack.add(Screen.EditTuning(tuning, new))
+    }
+
+    /**
      * @return Whether the tuner screen is open.
      */
     fun isTunerScreenOpen(): Boolean =
@@ -154,5 +164,6 @@ class TunerViewModel : ViewModel() {
         @Serializable object Tuner: Screen()
         @Serializable object ConfigureTuning: Screen()
         @Serializable object TuningSelection: Screen()
+        @Serializable data class EditTuning(val tuning: Tuning, val new: Boolean): Screen()
     }
 }

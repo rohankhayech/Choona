@@ -109,6 +109,7 @@ dependencies {
     implementation(libs.compose.adaptive.navigation3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Audio
     implementation(libs.tarsos.dsp.core)
