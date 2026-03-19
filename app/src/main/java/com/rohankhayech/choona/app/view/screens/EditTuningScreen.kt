@@ -126,7 +126,7 @@ fun EditTuningScreen(
     onTuneDown: () -> Unit,
     onCancel: () -> Unit,
     onSave: () -> Unit,
-    onDelete: (() -> Unit)? = null
+    onDelete: () -> Unit
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -181,6 +181,7 @@ fun EditTuningScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             EditTuningForm(
+                new = new,
                 name = name,
                 instrument = tuning.instrument,
                 tuning = tuning,
@@ -193,23 +194,9 @@ fun EditTuningScreen(
                 onTuneUpTuning = onTuneUp,
                 onTuneDownTuning = onTuneDown,
                 onNameChange = onNameChange,
-                onInstrumentChange = onInstrumentChange
+                onInstrumentChange = onInstrumentChange,
+                onDelete = onDelete
             )
-
-            // Delete button.
-            if (!new) {
-                TextButton(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    onClick =  { onDelete?.invoke() },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Icon(Icons.Default.Delete, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Delete")
-                }
-            }
         }
     }
 }
@@ -217,6 +204,7 @@ fun EditTuningScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTuningForm(
+    new: Boolean,
     name: String,
     instrument: Instrument,
     tuning: Tuning,
@@ -230,6 +218,7 @@ fun EditTuningForm(
     onTuneDownTuning: () -> Unit,
     onNameChange: (String) -> Unit,
     onInstrumentChange: (Instrument) -> Unit,
+    onDelete: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -264,7 +253,7 @@ fun EditTuningForm(
                 expanded = instrExpanded,
                 onDismissRequest = { instrExpanded = false }
             ) {
-                Instrument.entries.forEach { instr ->
+                Instrument.entries.take(Instrument.entries.size - 1).forEach { instr ->
                     DropdownMenuItem(
                         text = { Text(instr.getLocalisedName()) },
                         onClick = {
@@ -294,6 +283,7 @@ fun EditTuningForm(
                 )
 
                 AddRemoveRow(
+                    removeEnabled = tuning.numStrings() > 1,
                     onAddString = onAddHighString,
                     onRemoveString = onRemoveHighString
                 )
@@ -307,6 +297,7 @@ fun EditTuningForm(
                     editModeEnabled = true
                 )
                 AddRemoveRow(
+                    removeEnabled = tuning.numStrings() > 1,
                     onAddString = onAddLowString,
                     onRemoveString = onRemoveLowString
                 )
@@ -338,11 +329,25 @@ fun EditTuningForm(
                 }
             }
         }
+        // Delete button.
+        if (!new) {
+            TextButton(
+                onClick = onDelete,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Icon(Icons.Default.Delete, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Delete")
+            }
+        }
     }
 }
 
 @Composable
 fun AddRemoveRow(
+    removeEnabled: Boolean,
     onAddString: () -> Unit,
     onRemoveString: () -> Unit
 ) {
@@ -351,6 +356,7 @@ fun AddRemoveRow(
     ) {
         FilledTonalIconButton(
             modifier = Modifier.size(32.dp),
+            enabled = removeEnabled,
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
             ),
@@ -391,7 +397,8 @@ private fun Preview() {
             onSave = { },
             onSetString = {_,_->},
             onNameChange = {},
-            onInstrumentChange = {}
+            onInstrumentChange = {},
+            onDelete = {}
         )
     }
 }
@@ -416,7 +423,8 @@ private fun TrueDarkPreview() {
             onSave = {},
             onSetString = {_,_->},
             onNameChange = {},
-            onInstrumentChange = {}
+            onInstrumentChange = {},
+            onDelete = {}
         )
     }
 }

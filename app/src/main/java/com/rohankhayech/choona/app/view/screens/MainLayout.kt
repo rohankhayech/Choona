@@ -37,12 +37,14 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
@@ -158,10 +160,12 @@ fun MainLayout(
         )
     )
 
+    val dialogStrategy = remember { DialogSceneStrategy<Screen>() }
+
     NavDisplay(
         backStack,
         onBack = onBack,
-        sceneStrategy = sceneStrategy,
+        sceneStrategy = if (expanded) dialogStrategy then sceneStrategy else sceneStrategy,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(), // state preservation
             rememberViewModelStoreNavEntryDecorator(), // enable ViewModel scoping to the NavEntry
@@ -256,8 +260,7 @@ fun MainLayout(
             }
 
             entry<Screen.EditTuning> (
-                metadata = SupportingPaneSceneStrategy.extraPane()
-                    + NavDisplay.transitionSpec {
+                metadata = DialogSceneStrategy.dialog() + NavDisplay.transitionSpec {
                     slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
                 } + NavDisplay.popTransitionSpec {
                     fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
