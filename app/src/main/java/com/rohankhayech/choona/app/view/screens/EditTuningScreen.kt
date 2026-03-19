@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +117,9 @@ fun EditTuningScreen(
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    val snackbarHost = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold (
         Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHost) },
@@ -127,7 +130,22 @@ fun EditTuningScreen(
                 },
                 actions = {
                     // Save button.
-                    Button(modifier = Modifier.padding(horizontal = 16.dp), onClick = onSave) {
+                    Button(modifier = Modifier.padding(horizontal = 16.dp), onClick = {
+                        try {
+                            onSave()
+                        } catch (e: ExistingTuningException) {
+                            coroutineScope.launch {
+                                snackbarHost.showSnackbar(
+                                    message = "A ${
+                                        when (e.builtIn) {
+                                            true -> "built-in"
+                                            else -> "custom"
+                                        }
+                                    } tuning already exists as ${e.existingName}.",
+                                )
+                            }
+                        }
+                    }) {
                         Text("Save")
                     }
                 },

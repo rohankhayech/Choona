@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -228,6 +228,24 @@ class TuningList(
             _pinned.update { TuningEntry.InstrumentTuning(newTuning) }
         }
         return newTuning
+    }
+
+    /**
+     * Updates an existing custom [tuning] with the new [updatedTuning].
+     */
+    fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+        _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
+        if (current.value?.tuning?.equivalentTo(tuning) == true) {
+            _current.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        }
+        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
+            _pinned.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        }
+        _favourites.update {
+            if (it.contains(TuningEntry.InstrumentTuning(tuning))) {
+                it.minusElement(TuningEntry.InstrumentTuning(tuning)).plusElement(TuningEntry.InstrumentTuning(updatedTuning))
+            } else it
+        }
     }
 
     /**

@@ -267,10 +267,16 @@ fun MainLayout(
                     onTuneDown = editVM.editor::tuneDown,
                     onCancel = onBack,
                     onSave = {
+                        if (key.new) {
+                            tuningList.addCustom(editTuning.name, editVM.returnResult())
+                        } else {
+                            tuningList.updateCustom(key.tuning, editVM.returnResult())
+                        }
                         onBack()
                     },
                     onDelete = if (key.new) null else {
                         {
+                            onDelete
                             onBack()
                         }
                     }

@@ -22,43 +22,13 @@ import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.Tunings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 const val MAX_STRINGS = 12
 
 class CustomTuningEditor(
-    tuning: TuningEntry.InstrumentTuning,
-    tuningList: TuningList,
-    coroutineScope: CoroutineScope,
-    val oldTuning: Tuning? = null
-): TuningEditor(tuning.tuning) {
-    private val _name = MutableStateFlow(tuning.name)
-
-    val name = _name.asStateFlow()
-
-    fun setName(name: String) {
-        _name.update { name }
-    }
-
-    /** The equivalent built in tuning if one matches, `null` otherwise. */
-    private val builtIn = _tuning.map { t ->
-        t.findEquivalentIn(Tunings.TUNINGS)
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), null)
-
-    /** The equivalent built in tuning if one matches, `null` otherwise. */
-    val equiv = combine(_tuning, tuningList.custom) { t, custom ->
-        t.findEquivalentIn(custom.map {tunings -> tunings.tuning} + Tunings.TUNINGS)
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), null)
-
+    tuning: Tuning
+): TuningEditor(tuning) {
     fun setInstrument(instrument: Instrument) {
         _tuning.update {
             Tuning(it.name, instrument, null, it.strings)
@@ -70,28 +40,26 @@ class CustomTuningEditor(
         _tuning.update { it.withString(n, GuitarString.fromRootNoteIndex(noteIndex)) }
     }
 
-    fun addLowString(noteIndex: Int) {
-        requireValidNoteIndex(noteIndex)
+    fun addLowString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
             Tuning(
                 it.name,
                 it.instrument,
                 null,
-                it.strings.plusElement(GuitarString.fromRootNoteIndex(noteIndex))
+                it.strings.plusElement(it.strings.last())
             )
         }
     }
 
-    fun addHighString(noteIndex: Int) {
-        requireValidNoteIndex(noteIndex)
+    fun addHighString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
             Tuning(
                 it.name,
                 it.instrument,
                 null,
-                listOf(GuitarString.fromRootNoteIndex(noteIndex)).plus(it.strings)
+                listOf(it.strings.first()).plus(it.strings)
             )
         }
     }
