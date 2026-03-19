@@ -157,6 +157,52 @@ class TunerViewModel : ViewModel() {
         backStack.last() == Screen.Tuner || _expanded.value && backStack.last() == Screen.TuningSelection
 
     /**
+     * Saves the tuning from the editor.
+     *
+     * @param tuning The tuning to add/update
+     * @param key The navigation key for the edit screen.
+     */
+    fun onSaveFromEditor(tuning: Tuning, key: Screen.EditTuning) {
+        if (key.new) {
+            onAddFromEditor(tuning)
+        } else {
+            onUpdateFromEditor(key.tuning, tuning)
+        }
+    }
+
+    /**
+     * Adds the tuning from the editor as a new custom tuning.
+     *
+     * @param result The tuning result from the editor.
+     */
+    fun onAddFromEditor(result: Tuning) {
+        tuningList.addCustom(result.name, result)
+        navBack()
+    }
+
+    /**
+     * Updates an existing custom tuning from the editor.
+     * @param tuning The initial tuning to update.
+     * @param updatedTuning The tuning result from the editor.
+     */
+    fun onUpdateFromEditor(tuning: Tuning, updatedTuning: Tuning) {
+        tuningList.updateCustom(tuning, updatedTuning)
+        navBack()
+    }
+
+    /**
+     * Deletes the tuning from the editor.
+     *
+     * @param key The navigation key for the edit screen.
+     */
+    fun onDeleteFromEditor(key: Screen.EditTuning) {
+        if (!key.new) {
+            tuningList.removeCustom(key.tuning)
+            navBack()
+        }
+    }
+
+    /**
      * Navigation entries for the screens in the Tuner activity.
      */
     @Serializable

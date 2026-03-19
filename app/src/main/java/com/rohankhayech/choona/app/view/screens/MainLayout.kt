@@ -40,7 +40,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
@@ -93,6 +95,8 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param onSelectTuningFromList Called when a tuning is selected from the selection panel.
  * @param onSelectChromaticFromList Called when the chromatic mode is selected from the selection panel.
  * @param onOpenTuningEditor Called when the edit tuning screen is opened.
+ * @param onSaveTuningFromEditor Called when the user saves a tuning from the editor.
+ * @param onDeleteTuningFromEditor Called when the user deletes a tuning from the editor.
  * @param onBack Called when the back button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -139,6 +143,8 @@ fun MainLayout(
     onSelectTuningFromList: (Tuning) -> Unit,
     onSelectChromaticFromList: () -> Unit,
     onOpenTuningEditor: (Tuning, Boolean) -> Unit,
+    onSaveTuningFromEditor: (Tuning, Screen.EditTuning) -> Unit,
+    onDeleteTuningFromEditor: (Screen.EditTuning) -> Unit,
     onBack: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit
@@ -156,6 +162,10 @@ fun MainLayout(
         backStack,
         onBack = onBack,
         sceneStrategy = sceneStrategy,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(), // state preservation
+            rememberViewModelStoreNavEntryDecorator(), // enable ViewModel scoping to the NavEntry
+        ),
         entryProvider = entryProvider {
             entry<Screen.Tuner>(metadata = SupportingPaneSceneStrategy.mainPane()) {
                 TunerScreen(
@@ -245,13 +255,24 @@ fun MainLayout(
                 }
             }
 
-            entry<Screen.EditTuning> { key ->
+            entry<Screen.EditTuning> (
+                metadata = SupportingPaneSceneStrategy.extraPane()
+                    + NavDisplay.transitionSpec {
+                    slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
+                } + NavDisplay.popTransitionSpec {
+                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
+                } + NavDisplay.predictivePopTransitionSpec {
+                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
+                }
+            ) { key ->
                 val editVM: EditTuningViewModel = viewModel(
                     factory = EditTuningViewModel.provideFactory(key.tuning, key.new)
                 )
                 val editTuning by editVM.editor.tuning.collectAsStateWithLifecycle()
+                val editName by editVM.name.collectAsStateWithLifecycle()
 
                 EditTuningScreen(
+                    name = editName,
                     new = key.new,
                     tuning = editTuning,
                     onNameChange = editVM::setName,
@@ -267,19 +288,9 @@ fun MainLayout(
                     onTuneDown = editVM.editor::tuneDown,
                     onCancel = onBack,
                     onSave = {
-                        if (key.new) {
-                            tuningList.addCustom(editTuning.name, editVM.returnResult())
-                        } else {
-                            tuningList.updateCustom(key.tuning, editVM.returnResult())
-                        }
-                        onBack()
+                        onSaveTuningFromEditor(editVM.returnResult(), key)
                     },
-                    onDelete = if (key.new) null else {
-                        {
-                            onDelete
-                            onBack()
-                        }
-                    }
+                    onDelete = { onDeleteTuningFromEditor(key) }
                 )
             }
         }

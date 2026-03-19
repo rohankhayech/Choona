@@ -22,6 +22,7 @@ import java.util.Objects
 import java.util.SortedMap
 import android.content.Context
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
@@ -217,8 +218,18 @@ class TuningList(
     /**
      * Saves the specified custom [tuning] under the given [name].
      * @return The named tuning.
+     * @throws ExistingTuningException If an equivalent tuning already exists.
      */
     fun addCustom(name: String?, tuning: Tuning): Tuning {
+        // Check if the tuning already exists.
+        tuning.findEquivalentIn(Tunings.TUNINGS)?.let {
+            throw ExistingTuningException(it.name, true)
+        }
+        tuning.findEquivalentIn(_custom.value)?.let {
+            throw ExistingTuningException(it.name, false)
+        }
+
+        // Add the custom tuning.
         val newTuning = Tuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
         if (current.value?.tuning?.equivalentTo(tuning) == true) {
@@ -232,8 +243,18 @@ class TuningList(
 
     /**
      * Updates an existing custom [tuning] with the new [updatedTuning].
+     * @throws ExistingTuningException If an equivalent tuning already exists (other than the one being updated).
      */
     fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+        // Check if the updated tuning already exists.
+        updatedTuning.findEquivalentIn(Tunings.TUNINGS)?.let {
+            throw ExistingTuningException(it.name, true)
+        }
+        updatedTuning.findEquivalentIn(_custom.value.minusElement(tuning))?.let {
+            throw ExistingTuningException(it.name, false)
+        }
+
+        // Update the custom tuning.
         _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
         if (current.value?.tuning?.equivalentTo(tuning) == true) {
             _current.update { TuningEntry.InstrumentTuning(updatedTuning) }

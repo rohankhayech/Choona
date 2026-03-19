@@ -87,17 +87,30 @@ import kotlinx.coroutines.launch
  * UI screen used to tune individual strings and the tuning
  * itself up and down, as well as select from favourite tunings.
  *
+ * @param name The current name of the tuning.
+ * @param new Whether the tuning is a new custom tuning.
  * @param tuning Guitar tuning used for comparison.
+ * @param onNameChange Called when the name is changed.
+ * @param onInstrumentChange Called when the instrument is changed.
+ * @param onSetString Called when a string is set.
+ * @param onAddLowString Called when a low string is added.
+ * @param onAddHighString Called when a high string is added.
+ * @param onRemoveLowString Called when a low string is removed.
+ * @param onRemoveHighString Called when a high string is removed.
  * @param onTuneStringUp Called when a string is tuned up.
  * @param onTuneStringDown Called when a string is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
  * @param onTuneDown Called when the tuning is tuned down.
+ * @param onCancel Called when the user cancels the edit.
+ * @param onSave Called when the user saves the tuning.
+ * @param onDelete Called when the user deletes the tuning.
  *
  * @author Rohan Khayech
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTuningScreen(
+    name: String,
     new: Boolean,
     tuning: Tuning,
     onNameChange: (String) -> Unit,
@@ -168,7 +181,7 @@ fun EditTuningScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             EditTuningForm(
-                name = tuning.name,
+                name = name,
                 instrument = tuning.instrument,
                 tuning = tuning,
                 onAddLowString = onAddLowString,
@@ -363,6 +376,7 @@ fun AddRemoveRow(
 private fun Preview() {
     AppTheme {
         EditTuningScreen(
+            name = Tunings.BASS_STANDARD.name,
             new = false,
             tuning = Tunings.BASS_STANDARD,
             onAddLowString = {},
@@ -374,7 +388,7 @@ private fun Preview() {
             onTuneUp = {},
             onTuneDown = {},
             onCancel = {},
-            onSave = { true },
+            onSave = { },
             onSetString = {_,_->},
             onNameChange = {},
             onInstrumentChange = {}
@@ -387,6 +401,7 @@ private fun Preview() {
 private fun TrueDarkPreview() {
     AppTheme(fullBlack = true) {
         EditTuningScreen(
+            name = Tunings.BASS_STANDARD.name,
             new = true,
             tuning = Tunings.BASS_STANDARD,
             onAddLowString = {},

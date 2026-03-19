@@ -459,13 +459,15 @@ private fun TabletScreenshot() {
             onConfigurePressed = {},
             onSelectTuningFromList = {},
             onSelectChromaticFromList = {},
-            onOpenTuningEditor = {_,_->},
+            onOpenTuningEditor = { _, _ -> },
             onBack = {},
             canRequest = true,
             onRequestPermission = {},
             onOpenPermissionSettings = {},
             error = null,
-            granted = true
+            granted = true,
+            onSaveTuningFromEditor = { _, _ -> },
+            onDeleteTuningFromEditor = { _ -> }
         )
     }
 }
