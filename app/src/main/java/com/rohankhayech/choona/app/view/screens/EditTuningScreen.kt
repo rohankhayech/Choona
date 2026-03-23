@@ -89,7 +89,7 @@ import kotlinx.coroutines.launch
  *
  * @param name The current name of the tuning.
  * @param new Whether the tuning is a new custom tuning.
- * @param tuning Guitar tuning used for comparison.
+ * @param tuning The guitar tuning being edited.
  * @param onNameChange Called when the name is changed.
  * @param onInstrumentChange Called when the instrument is changed.
  * @param onSetString Called when a string is set.
@@ -201,9 +201,28 @@ fun EditTuningScreen(
     }
 }
 
+/**
+ * Form for editing a tuning.
+ *
+ * @param new Whether the tuning is a new custom tuning.
+ * @param name The current name of the tuning.
+ * @param instrument The current instrument of the tuning.
+ * @param tuning The guitar tuning being edited.
+ * @param onAddLowString Called when a low string is added.
+ * @param onAddHighString Called when a high string is added.
+ * @param onRemoveLowString Called when a low string is removed.
+ * @param onRemoveHighString Called when a high string is removed.
+ * @param onTuneUpString Called when a string is tuned up.
+ * @param onTuneDownString Called when a string is tuned down.
+ * @param onTuneUpTuning Called when the tuning is tuned up.
+ * @param onTuneDownTuning Called when the tuning is tuned down.
+ * @param onNameChange Called when the name is changed.
+ * @param onInstrumentChange Called when the instrument is changed.
+ * @param onDelete Called when the user deletes the tuning.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditTuningForm(
+private fun EditTuningForm(
     new: Boolean,
     name: String,
     instrument: Instrument,
@@ -345,8 +364,15 @@ fun EditTuningForm(
     }
 }
 
+/**
+ * Row with add and remove buttons for strings.
+ *
+ * @param removeEnabled Whether the remove button is enabled.
+ * @param onAddString Called when the add button is pressed.
+ * @param onRemoveString Called when the remove button is pressed.
+ */
 @Composable
-fun AddRemoveRow(
+private fun AddRemoveRow(
     removeEnabled: Boolean,
     onAddString: () -> Unit,
     onRemoveString: () -> Unit

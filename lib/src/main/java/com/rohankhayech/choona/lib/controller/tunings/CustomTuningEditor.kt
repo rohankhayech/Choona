@@ -24,22 +24,48 @@ import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import kotlinx.coroutines.flow.update
 
+/** Maximum number of strings allowed in a tuning. */
 const val MAX_STRINGS = 12
 
+/**
+ * An editor for creating or modifying custom tunings.
+ *
+ * Extends [TuningEditor] to provide additional functionality for modifying
+ * the tuning structure, such as adding/removing strings and changing the instrument.
+ *
+ * @param tuning The initial tuning to edit.
+ *
+ * @author Rohan Khayech
+ */
 class CustomTuningEditor(
     tuning: Tuning
 ): TuningEditor(tuning) {
+
+    /**
+     * Sets the instrument for the tuning.
+     * @param instrument The new instrument.
+     */
     fun setInstrument(instrument: Instrument) {
         _tuning.update {
             Tuning(it.name, instrument, null, it.strings)
         }
     }
 
+    /**
+     * Sets the note for a specific string.
+     * @param n The index of the string to set (0 is the lowest string).
+     * @param noteIndex The index of the note to set.
+     * @throws IllegalArgumentException if the note index is out of range.
+     */
     fun setString(n: Int, noteIndex: Int) {
         requireValidNoteIndex(noteIndex)
         _tuning.update { it.withString(n, GuitarString.fromRootNoteIndex(noteIndex)) }
     }
 
+    /**
+     * Adds a new lowest string to the tuning, duplicating the current lowest string.
+     * @throws IllegalArgumentException if the number of strings is already at [MAX_STRINGS].
+     */
     fun addLowString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
@@ -52,6 +78,10 @@ class CustomTuningEditor(
         }
     }
 
+    /**
+     * Adds a new highest string to the tuning, duplicating the current highest string.
+     * @throws IllegalArgumentException if the number of strings is already at [MAX_STRINGS].
+     */
     fun addHighString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
@@ -64,6 +94,10 @@ class CustomTuningEditor(
         }
     }
 
+    /**
+     * Removes the lowest string from the tuning.
+     * @throws IllegalArgumentException if the tuning only has one string remaining.
+     */
     fun removeLowString() {
         require(tuning.value.numStrings() > 1)
         _tuning.update {
@@ -71,6 +105,10 @@ class CustomTuningEditor(
         }
     }
 
+    /**
+     * Removes the highest string from the tuning.
+     * @throws IllegalArgumentException if the tuning only has one string remaining.
+     */
     fun removeHighString() {
         require(tuning.value.numStrings() > 1)
         _tuning.update {
@@ -78,6 +116,11 @@ class CustomTuningEditor(
         }
     }
 
+    /**
+     * Validates that a note index is within the supported range of the tuner.
+     * @param noteIndex The note index to validate.
+     * @throws IllegalArgumentException if the note index is out of range.
+     */
     fun requireValidNoteIndex(noteIndex: Int) {
         require(noteIndex in Tuner.Companion.LOWEST_NOTE..Tuner.Companion.HIGHEST_NOTE)
     }

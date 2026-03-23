@@ -29,8 +29,13 @@ import kotlinx.coroutines.flow.update
 /**
  * ViewModel for the Edit Tuning screen.
  *
+ * Manages the state for editing a tuning, including its name and the
+ * [CustomTuningEditor] for structural changes.
+ *
  * @param initialTuning The tuning to edit.
  * @param new Whether a new tuning is being created.
+ *
+ * @author Rohan Khayech
  */
 class EditTuningViewModel(
     initialTuning: Tuning,
@@ -38,14 +43,22 @@ class EditTuningViewModel(
 ) : ViewModel() {
     private val _name = MutableStateFlow(if (new) "" else initialTuning.name)
 
+    /** The current name of the tuning. */
     val name = _name.asStateFlow()
 
+    /** Sets the name of the tuning. */
     fun setName(name: String) {
         _name.update { name }
     }
 
+    /** The editor used to modify the tuning. */
     val editor = CustomTuningEditor(initialTuning)
 
+    /**
+     * Returns the edited tuning result.
+     *
+     * @return A new [Tuning] object with the updated name and structure.
+     */
     fun returnResult(): Tuning {
         return Tuning(
             _name.value,
@@ -56,6 +69,13 @@ class EditTuningViewModel(
     }
 
     companion object {
+        /**
+         * Provides a [ViewModelProvider.Factory] for creating [EditTuningViewModel] instances.
+         *
+         * @param initialTuning The tuning to edit.
+         * @param new Whether a new tuning is being created.
+         * @return A factory for the ViewModel.
+         */
         fun provideFactory(
             initialTuning: Tuning,
             new: Boolean
