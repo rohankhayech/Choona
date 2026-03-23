@@ -390,6 +390,7 @@ private fun EditTuningForm(
         // Delete button.
         if (!new) {
             TextButton(
+                modifier = Modifier.padding(bottom = 16.dp),
                 onClick = onDelete,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
