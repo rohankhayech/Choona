@@ -163,7 +163,7 @@ class TunerActivity : BaseTunerActivity() {
                     tuningList = vm.tuningList,
                     error = error,
                     onSelectString = ::selectString,
-                    onSelectTuning = ::setTuning,
+                    onSelectTuning = vm.tuner::setTuning,
                     onSelectChromatic = vm.tuner::setChromatic,
                     onSelectNote = ::selectNote,
                     onTuneUpString = vm.tuner::tuneStringUp,
