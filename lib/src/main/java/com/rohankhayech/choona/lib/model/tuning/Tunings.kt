@@ -67,6 +67,7 @@ object Tunings {
     val ALL_4TH = add(Tuning.fromString("All 4th", GUITAR, MISC, "F4 C4 G3 D3 A2 E2"))
     val NST = add(Tuning.fromString("New Standard Tuning", GUITAR, MISC, "G4 E4 A3 D3 G2 C2"))
     val UKULELE_STANDARD = add(Tuning.fromString("Standard", UKULELE, COMMON, "A4 E4 C4 G4"))
+    val GUITALELE = add(Tuning.fromString("Guitalele", UKULELE, EXTENDED, "A4 E4 C4 G3 D3 A2"))
     val SEVEN_STRING = add(Tuning.fromString("7-String", GUITAR, EXTENDED, "E4 B3 G3 D3 A2 E2 B1"))
     val EIGHT_STRING = add(Tuning.fromString("8-String", GUITAR, EXTENDED, "E4 B3 G3 D3 A2 E2 B1 F#1"))
     val TWELVE_STRING = add(Tuning.fromString("12-String", GUITAR, EXTENDED, "E4 E4 B3 B3 G3 G4 D3 D4 A2 A3 E2 E3"))
