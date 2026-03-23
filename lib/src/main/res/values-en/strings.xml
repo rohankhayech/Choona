@@ -62,7 +62,7 @@
     <string name="favourite">Favourite</string>
     <string name="num_strings_suffix">-String</string>
     <string name="dialog_title_save_tuning">Save tuning as…</string>
-    <string name="dialog_title_select_note">Select note</string>
+    <string name="dialog_title_select_note">Select Note</string>
     <string name="about">About</string>
     <string name="license_desc">is licensed under the GNU General Public License v3.0.</string>
     <string name="copyright">Copyright</string>
@@ -101,4 +101,14 @@
     <string name="error_action_call">Please restart the application to retry.</string>
     <string name="chromatic">Chromatic</string>
     <string name="chromatic_desc">Tune to any note</string>
+    <string name="err_msg_existing_tuning">An identical %1$s tuning %2$s already exists.</string>
+    <string name="err_msg_existing_tuning_custom">custom</string>
+    <string name="err_msg_existing_tuning_built_in">built-in</string>
+    <string name="name">Name</string>
+    <string name="instrument">Instrument</string>
+    <string name="remove_string">Remove String</string>
+    <string name="add_string">Add String</string>
+    <string name="edit_tuning">Edit Tuning</string>
+    <string name="add_tuning">Add Custom Tuning</string>
+    <string name="strings">Strings</string>
 </resources>

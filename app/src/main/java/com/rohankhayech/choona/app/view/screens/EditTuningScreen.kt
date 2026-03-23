@@ -283,14 +283,15 @@ private fun EditTuningForm(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = name,
-            label = { Text("Name") },
+            label = { Text(stringResource(R.string.name)) },
             placeholder = { Text(tuning.toString()) },
             onValueChange = onNameChange
         )
@@ -298,10 +299,12 @@ private fun EditTuningForm(
         var instrExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = instrExpanded, onExpandedChange = { instrExpanded = it }) {
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                 leadingIcon = { Icon(painterResource(R.drawable.guitar_electric), null) },
                 value = instrument.getLocalisedName(),
-                label = { Text("Instrument") },
+                label = { Text(stringResource(R.string.instrument)) },
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = {
@@ -337,7 +340,7 @@ private fun EditTuningForm(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Strings",
+                    stringResource(R.string.strings),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Start
@@ -379,7 +382,7 @@ private fun EditTuningForm(
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text("Tune Down")
+                            Text(stringResource(R.string.tune_down))
                         }
                         TextButton(
                             onClick = onTuneUpTuning,
@@ -392,7 +395,7 @@ private fun EditTuningForm(
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text("Tune Up")
+                            Text(stringResource(R.string.tune_up))
                         }
                 }
             }
@@ -400,7 +403,6 @@ private fun EditTuningForm(
         // Delete button.
         if (!new) {
             TextButton(
-                modifier = Modifier.padding(bottom = 16.dp),
                 onClick = onDelete,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
@@ -408,7 +410,7 @@ private fun EditTuningForm(
             ) {
                 Icon(Icons.Default.Delete, null)
                 Spacer(Modifier.width(8.dp))
-                Text("Delete")
+                Text(stringResource(R.string.delete))
             }
         }
     }
@@ -440,7 +442,7 @@ private fun AddRemoveRow(
             ),
             onClick = onRemoveString,
         ) {
-            Icon(Icons.Default.Delete, "Remove String", modifier = Modifier.size(20.dp))
+            Icon(Icons.Default.Delete, stringResource(R.string.remove_string), modifier = Modifier.size(20.dp))
         }
         FilledTonalIconButton(
             modifier = Modifier.size(32.dp),
@@ -450,7 +452,7 @@ private fun AddRemoveRow(
             ),
             onClick = { onAddString() }
         ) {
-            Icon(Icons.Default.Add, "Add String", modifier = Modifier.size(20.dp))
+            Icon(Icons.Default.Add, stringResource(R.string.add_string), modifier = Modifier.size(20.dp))
         }
 
     }
