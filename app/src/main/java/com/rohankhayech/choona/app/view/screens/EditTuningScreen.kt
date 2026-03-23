@@ -108,6 +108,7 @@ import kotlinx.coroutines.launch
  * @param onTuneStringDown Called when a string is tuned down.
  * @param onTuneUp Called when the tuning is tuned up.
  * @param onTuneDown Called when the tuning is tuned down.
+ * @param onPressNote Called when a note selection button is pressed.
  * @param onCancel Called when the user cancels the edit.
  * @param onSave Called when the user saves the tuning.
  * @param onDelete Called when the user deletes the tuning.
@@ -131,6 +132,7 @@ fun EditTuningScreen(
     onTuneStringDown: (Int) -> Unit,
     onTuneUp: () -> Unit,
     onTuneDown: () -> Unit,
+    onPressNote: (Int, Instrument) -> Unit,
     onCancel: () -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit
@@ -203,6 +205,9 @@ fun EditTuningScreen(
                 onNameChange = onNameChange,
                 onInstrumentChange = onInstrumentChange,
                 onSetString = onSetString,
+                onPressNote = { n ->
+                    onPressNote(n, tuning.instrument)
+                },
                 onDelete = onDelete
             )
         }
@@ -227,6 +232,7 @@ fun EditTuningScreen(
  * @param onNameChange Called when the name is changed.
  * @param onInstrumentChange Called when the instrument is changed.
  * @param onSetString Called when a string is set.
+ * @param onPressNote Called when a note selection button is pressed.
  * @param onDelete Called when the user deletes the tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -247,6 +253,7 @@ private fun EditTuningForm(
     onNameChange: (String) -> Unit,
     onInstrumentChange: (Instrument) -> Unit,
     onSetString: (Int, Int) -> Unit,
+    onPressNote: (Int) -> Unit,
     onDelete: () -> Unit
 ) {
     var stringToEdit by remember { mutableStateOf<Int?>(null) }
@@ -259,6 +266,7 @@ private fun EditTuningForm(
                 onSetString(index, noteIndex)
                 stringToEdit = null
             },
+            onPressNote = onPressNote,
             onDismiss = { stringToEdit = null }
         )
     }
@@ -335,7 +343,10 @@ private fun EditTuningForm(
                     tuning = tuning,
                     selectedString = null,
                     tuned = null,
-                    onSelect = { stringToEdit = it },
+                    onSelect = {
+                        stringToEdit = it
+                        onPressNote(tuning.getString(it).rootNoteIndex)
+                    },
                     onTuneDown = onTuneDownString,
                     onTuneUp = onTuneUpString,
                     editModeEnabled = true
@@ -428,7 +439,7 @@ private fun AddRemoveRow(
             ),
             onClick = { onAddString() }
         ) {
-            Icon(Icons.Default.Add, "Add String", modifier = Modifier.size(20.dp),)
+            Icon(Icons.Default.Add, "Add String", modifier = Modifier.size(20.dp))
         }
 
     }
@@ -439,6 +450,7 @@ private fun AddRemoveRow(
  *
  * @param initialNoteIndex Initial note index to display.
  * @param onConfirm Called when the OK button is pressed. Provides the selected note index.
+ * @param onPressNote Called when a note selection button is pressed.
  * @param onDismiss Called when the dialog is dismissed or the Cancel button is pressed.
  *
  * @author Rohan Khayech
@@ -447,6 +459,7 @@ private fun AddRemoveRow(
 fun NoteSelectionDialog(
     initialNoteIndex: Int,
     onConfirm: (Int) -> Unit,
+    onPressNote: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
     var selectedNoteIndex by remember { mutableIntStateOf(initialNoteIndex) }
@@ -458,7 +471,10 @@ fun NoteSelectionDialog(
             NoteSelector(
                 selectedNoteIndex = selectedNoteIndex,
                 tuned = false,
-                onSelect = { selectedNoteIndex = it },
+                onSelect = {
+                    selectedNoteIndex = it
+                    onPressNote(it)
+                }
             )
         },
         confirmButton = {
@@ -491,6 +507,7 @@ private fun Preview() {
             onTuneStringDown = {},
             onTuneUp = {},
             onTuneDown = {},
+            onPressNote = {_, _ -> },
             onCancel = {},
             onSave = { },
             onSetString = {_,_->},
@@ -517,6 +534,7 @@ private fun TrueDarkPreview() {
             onTuneStringDown = {},
             onTuneUp = {},
             onTuneDown = {},
+            onPressNote = {_, _ ->},
             onCancel = {},
             onSave = {},
             onSetString = {_,_->},
@@ -531,6 +549,6 @@ private fun TrueDarkPreview() {
 @Composable
 private fun DialogPreview() {
     PreviewWrapper {
-        NoteSelectionDialog(initialNoteIndex = -29, onConfirm = {}, onDismiss = {})
+        NoteSelectionDialog(initialNoteIndex = -29, onConfirm = {}, onPressNote = {}, onDismiss = {})
     }
 }

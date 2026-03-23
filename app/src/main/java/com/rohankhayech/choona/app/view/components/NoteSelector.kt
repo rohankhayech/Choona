@@ -82,7 +82,7 @@ fun NoteSelector(
     modifier: Modifier = Modifier,
     selectedNoteIndex: Int,
     tuned: Boolean,
-    onSelect: (Int) -> Unit,
+    onSelect: (Int) -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -144,7 +144,7 @@ fun CompactNoteSelector(
     modifier: Modifier = Modifier,
     selectedNoteIndex: Int,
     tuned: Boolean,
-    onSelect: (Int) -> Unit,
+    onSelect: (Int) -> Unit
 ) {
     Column(
         modifier = modifier,

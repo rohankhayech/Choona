@@ -180,6 +180,7 @@ class TunerActivity : BaseTunerActivity() {
                     onOpenTuningEditor = vm::openTuningEditor,
                     onSaveTuningFromEditor = vm::onSaveFromEditor,
                     onDeleteTuningFromEditor = vm::onDeleteFromEditor,
+                    onPressNote = ::playNote,
                     onBack = ::navBack,
                     onEditModeChanged = vm::setEditMode,
                     editModeEnabled = editModeEnabled,

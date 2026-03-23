@@ -51,6 +51,7 @@ import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.viewmodel.EditTuningViewModel
@@ -99,6 +100,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param onOpenTuningEditor Called when the edit tuning screen is opened.
  * @param onSaveTuningFromEditor Called when the user saves a tuning from the editor.
  * @param onDeleteTuningFromEditor Called when the user deletes a tuning from the editor.
+ * @param onPressNote Called when a note selection button is pressed.
  * @param onBack Called when the back button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
  * @param onOpenPermissionSettings Called when the open permission settings button is pressed.
@@ -147,6 +149,7 @@ fun MainLayout(
     onOpenTuningEditor: (Tuning, Boolean) -> Unit,
     onSaveTuningFromEditor: (Tuning, Screen.EditTuning) -> Unit,
     onDeleteTuningFromEditor: (Screen.EditTuning) -> Unit,
+    onPressNote: (Int, Instrument) -> Unit,
     onBack: () -> Unit,
     onRequestPermission: () -> Unit,
     onOpenPermissionSettings: () -> Unit
@@ -289,6 +292,7 @@ fun MainLayout(
                     onTuneStringDown = editVM.editor::tuneStringDown,
                     onTuneUp = editVM.editor::tuneUp,
                     onTuneDown = editVM.editor::tuneDown,
+                    onPressNote = onPressNote,
                     onCancel = onBack,
                     onSave = {
                         onSaveTuningFromEditor(editVM.returnResult(), key)

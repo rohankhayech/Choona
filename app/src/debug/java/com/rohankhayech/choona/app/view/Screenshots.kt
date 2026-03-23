@@ -466,6 +466,7 @@ private fun TabletScreenshot() {
             onOpenPermissionSettings = {},
             error = null,
             granted = true,
+            onPressNote = {_, _ ->},
             onSaveTuningFromEditor = { _, _ -> },
             onDeleteTuningFromEditor = { _ -> }
         )
