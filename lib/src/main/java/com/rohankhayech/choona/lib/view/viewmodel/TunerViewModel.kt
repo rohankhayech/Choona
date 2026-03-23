@@ -176,7 +176,7 @@ class TunerViewModel : ViewModel() {
      * @param result The tuning result from the editor.
      */
     fun onAddFromEditor(result: Tuning) {
-        tuningList.addCustom(if (result.hasName()) result.name else null, result)
+        tuningList.addCustom(result.rawName, result)
         navBack()
     }
 

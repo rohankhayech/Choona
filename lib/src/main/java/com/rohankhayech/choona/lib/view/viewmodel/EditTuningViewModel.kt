@@ -42,7 +42,7 @@ class EditTuningViewModel(
     val new: Boolean
 ) : ViewModel() {
     private val _name = MutableStateFlow(
-        if (new || !initialTuning.hasName()) "" else initialTuning.name
+        if (new) "" else initialTuning.nameOrBlank
     )
 
     /** The current name of the tuning. */
