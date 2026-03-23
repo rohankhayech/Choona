@@ -28,8 +28,16 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
+/**
+ * Unit tests for [CustomTuningEditor].
+ *
+ * @author Rohan Khayech
+ */
 class CustomTuningEditorTest {
 
+    /**
+     * Verifies that [CustomTuningEditor.setInstrument] correctly updates the instrument of the tuning being edited.
+     */
     @Test
     fun setInstrument() {
         val editor = CustomTuningEditor(Tunings.STANDARD)
@@ -37,6 +45,9 @@ class CustomTuningEditorTest {
         assertEquals(Instrument.BASS, editor.tuning.value.instrument)
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.setString] correctly updates the note of a specific string.
+     */
     @Test
     fun setString() {
         val editor = CustomTuningEditor(Tunings.STANDARD)
@@ -45,6 +56,9 @@ class CustomTuningEditorTest {
         assertEquals(GuitarString.fromRootNoteIndex(newNoteIndex), editor.tuning.value.getString(0))
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.setString] throws an [IllegalArgumentException] when an invalid note index is provided.
+     */
     @Test
     fun setString_invalidIndex_throwsException() {
         val editor = CustomTuningEditor(Tunings.STANDARD)
@@ -56,6 +70,9 @@ class CustomTuningEditorTest {
         }
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.addLowString] correctly adds a new string to the bottom of the tuning.
+     */
     @Test
     fun addLowString() {
         val initialTuning = Tunings.STANDARD
@@ -65,6 +82,9 @@ class CustomTuningEditorTest {
         assertEquals(initialTuning.strings.last(), editor.tuning.value.strings.last())
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.addLowString] throws an [IllegalArgumentException] when the maximum number of strings is reached.
+     */
     @Test
     fun addLowString_maxStrings_throwsException() {
         val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
@@ -73,6 +93,9 @@ class CustomTuningEditorTest {
         }
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.addHighString] correctly adds a new string to the top of the tuning.
+     */
     @Test
     fun addHighString() {
         val initialTuning = Tunings.STANDARD
@@ -82,6 +105,9 @@ class CustomTuningEditorTest {
         assertEquals(initialTuning.strings.first(), editor.tuning.value.strings.first())
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.addHighString] throws an [IllegalArgumentException] when the maximum number of strings is reached.
+     */
     @Test
     fun addHighString_maxStrings_throwsException() {
         val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
@@ -90,6 +116,9 @@ class CustomTuningEditorTest {
         }
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.removeLowString] correctly removes the string from the bottom of the tuning.
+     */
     @Test
     fun removeLowString() {
         val initialTuning = Tunings.STANDARD
@@ -99,6 +128,9 @@ class CustomTuningEditorTest {
         assertEquals(initialTuning.strings.dropLast(1), editor.tuning.value.strings)
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.removeLowString] throws an [IllegalArgumentException] when only one string remains.
+     */
     @Test
     fun removeLowString_oneString_throwsException() {
         val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))
@@ -107,6 +139,9 @@ class CustomTuningEditorTest {
         }
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.removeHighString] correctly removes the string from the top of the tuning.
+     */
     @Test
     fun removeHighString() {
         val initialTuning = Tunings.STANDARD
@@ -116,6 +151,9 @@ class CustomTuningEditorTest {
         assertEquals(initialTuning.strings.drop(1), editor.tuning.value.strings)
     }
 
+    /**
+     * Verifies that [CustomTuningEditor.removeHighString] throws an [IllegalArgumentException] when only one string remains.
+     */
     @Test
     fun removeHighString_oneString_throwsException() {
         val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))

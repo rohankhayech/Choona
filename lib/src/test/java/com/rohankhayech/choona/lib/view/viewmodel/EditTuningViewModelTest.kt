@@ -23,8 +23,16 @@ import com.rohankhayech.choona.lib.model.tuning.Tunings
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+/**
+ * Unit tests for [EditTuningViewModel].
+ *
+ * @author Rohan Khayech
+ */
 class EditTuningViewModelTest {
 
+    /**
+     * Verifies that [EditTuningViewModel.setName] correctly updates the name state.
+     */
     @Test
     fun setName() {
         val viewModel = EditTuningViewModel(Tunings.STANDARD, false)
@@ -33,6 +41,10 @@ class EditTuningViewModelTest {
         assertEquals(newName, viewModel.name.value)
     }
 
+    /**
+     * Verifies that [EditTuningViewModel.returnResult] correctly constructs a [com.rohankhayech.choona.lib.model.tuning.Tuning] object
+     * from the current state of the ViewModel and its editor.
+     */
     @Test
     fun returnResult() {
         val initialTuning = Tunings.STANDARD
@@ -48,6 +60,9 @@ class EditTuningViewModelTest {
         assertEquals(initialTuning.strings, result.strings)
     }
 
+    /**
+     * Verifies that the ViewModel is initialized with correct default values when creating a new tuning.
+     */
     @Test
     fun initialValues_newTuning() {
         val initialTuning = Tunings.STANDARD
@@ -57,6 +72,9 @@ class EditTuningViewModelTest {
         assertEquals(initialTuning, viewModel.editor.tuning.value)
     }
 
+    /**
+     * Verifies that the ViewModel is initialized with values from the existing tuning when in edit mode.
+     */
     @Test
     fun initialValues_editTuning() {
         val initialTuning = Tunings.STANDARD
