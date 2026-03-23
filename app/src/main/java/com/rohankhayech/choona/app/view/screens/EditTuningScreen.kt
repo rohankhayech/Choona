@@ -76,6 +76,7 @@ import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.components.InlineStringControls
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
+import com.rohankhayech.choona.lib.controller.tunings.MAX_STRINGS
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -302,6 +303,7 @@ private fun EditTuningForm(
                 )
 
                 AddRemoveRow(
+                    addEnabled = tuning.numStrings() < MAX_STRINGS,
                     removeEnabled = tuning.numStrings() > 1,
                     onAddString = onAddHighString,
                     onRemoveString = onRemoveHighString
@@ -316,6 +318,7 @@ private fun EditTuningForm(
                     editModeEnabled = true
                 )
                 AddRemoveRow(
+                    addEnabled = tuning.numStrings() < MAX_STRINGS,
                     removeEnabled = tuning.numStrings() > 1,
                     onAddString = onAddLowString,
                     onRemoveString = onRemoveLowString
@@ -367,12 +370,14 @@ private fun EditTuningForm(
 /**
  * Row with add and remove buttons for strings.
  *
+ * @param addEnabled Whether the add button is enabled.
  * @param removeEnabled Whether the remove button is enabled.
  * @param onAddString Called when the add button is pressed.
  * @param onRemoveString Called when the remove button is pressed.
  */
 @Composable
 private fun AddRemoveRow(
+    addEnabled: Boolean,
     removeEnabled: Boolean,
     onAddString: () -> Unit,
     onRemoveString: () -> Unit
@@ -392,6 +397,7 @@ private fun AddRemoveRow(
         }
         FilledTonalIconButton(
             modifier = Modifier.size(32.dp),
+            enabled = addEnabled,
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             ),
