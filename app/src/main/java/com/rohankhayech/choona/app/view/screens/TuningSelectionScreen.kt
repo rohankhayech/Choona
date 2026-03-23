@@ -762,7 +762,10 @@ private fun LazyItemScope.CustomTuningItem(
                 onSelect = onSelect,
                 trailingAction = {
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Tuning")
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_tuning)
+                        )
                     }
                 }
             )
