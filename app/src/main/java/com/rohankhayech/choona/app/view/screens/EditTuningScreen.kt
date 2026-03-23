@@ -252,7 +252,7 @@ private fun EditTuningForm(
             modifier = Modifier.fillMaxWidth(),
             value = name,
             label = { Text("Name") },
-            placeholder = { Text(tuning.name) },
+            placeholder = { Text(tuning.toString()) },
             onValueChange = onNameChange
         )
 
