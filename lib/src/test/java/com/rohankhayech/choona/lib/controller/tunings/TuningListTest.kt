@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.lib.controller.tunings
 
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
@@ -138,6 +139,58 @@ class TuningListTest {
         assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.pinned.value)
     }
 
+    @Test
+    fun testAddCustomThrows() {
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.addCustom("Standard", Tuning.STANDARD)
+        }
+
+        tuningList.addCustom("Custom", Tuning.fromString("E2"))
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.addCustom("Custom 2", Tuning.fromString("E2"))
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testUpdateCustom() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.custom.collect {}
+        }
+
+        val original = tuningList.addCustom("Original", Tuning.fromString("E2"))
+        val updated = Tuning("Updated", Tuning.fromString("D2"))
+
+        // Test update
+        tuningList.updateCustom(original, updated)
+        testScope.advanceUntilIdle()
+
+        assertEquals(setOf(TuningEntry.InstrumentTuning(updated)), tuningList.custom.value)
+
+        // Test update current and pinned and favourites
+        val updatedEntry = TuningEntry.InstrumentTuning(updated)
+
+        tuningList.setCurrent(updatedEntry) // Current is already updated to 'updated'
+        tuningList.setPinned(updatedEntry)
+        tuningList.setFavourited(updatedEntry, true)
+
+        val updated2 = Tuning("Updated 2", Tuning.fromString("C2"))
+        tuningList.updateCustom(updated, updated2)
+        testScope.advanceUntilIdle()
+
+        val updated2Entry = TuningEntry.InstrumentTuning(updated2)
+        assertEquals(updated2Entry, tuningList.current.value)
+        assertEquals(updated2Entry, tuningList.pinned.value)
+        assertTrue(tuningList.favourites.value.contains(updated2Entry))
+        assertFalse(tuningList.favourites.value.contains(updatedEntry))
+
+        // Test duplicate exception
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.updateCustom(updated2, Tuning.STANDARD)
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testFilteredTunings() {
@@ -158,6 +211,9 @@ class TuningListTest {
                 TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
                 TuningEntry.InstrumentTuning(Tunings.BASS_DROP_D),
                 TuningEntry.InstrumentTuning(Tunings.BASS_E_FLAT)
+            ),
+            Pair(Instrument.BASS, Category.EXTENDED) to listOf(
+                TuningEntry.InstrumentTuning(Tunings.BASS_HIGH_C)
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -280,7 +336,7 @@ class TuningListTest {
             Category.COMMON to true,
             Category.POWER to false,
             Category.OPEN to false,
-            Category.EXTENDED to false,
+            Category.EXTENDED to true,
             Category.MISC to false
         )
         tuningList.filterBy(instrument = Instrument.BASS)

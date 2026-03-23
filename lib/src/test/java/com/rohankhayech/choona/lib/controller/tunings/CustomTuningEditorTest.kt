@@ -1,0 +1,126 @@
+/*
+ * Choona - Guitar Tuner
+ * Copyright (C) 2026 Rohan Khayech
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.rohankhayech.choona.lib.controller.tunings
+
+import com.rohankhayech.choona.lib.controller.tuner.Tuner
+import com.rohankhayech.choona.lib.model.tuning.GuitarString
+import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Notes
+import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Test
+
+class CustomTuningEditorTest {
+
+    @Test
+    fun setInstrument() {
+        val editor = CustomTuningEditor(Tunings.STANDARD)
+        editor.setInstrument(Instrument.BASS)
+        assertEquals(Instrument.BASS, editor.tuning.value.instrument)
+    }
+
+    @Test
+    fun setString() {
+        val editor = CustomTuningEditor(Tunings.STANDARD)
+        val newNoteIndex = Notes.getIndex("A4")
+        editor.setString(0, newNoteIndex)
+        assertEquals(GuitarString.fromRootNoteIndex(newNoteIndex), editor.tuning.value.getString(0))
+    }
+
+    @Test
+    fun setString_invalidIndex_throwsException() {
+        val editor = CustomTuningEditor(Tunings.STANDARD)
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.setString(0, Tuner.LOWEST_NOTE - 1)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.setString(0, Tuner.HIGHEST_NOTE + 1)
+        }
+    }
+
+    @Test
+    fun addLowString() {
+        val initialTuning = Tunings.STANDARD
+        val editor = CustomTuningEditor(initialTuning)
+        editor.addLowString()
+        assertEquals(initialTuning.numStrings() + 1, editor.tuning.value.numStrings())
+        assertEquals(initialTuning.strings.last(), editor.tuning.value.strings.last())
+    }
+
+    @Test
+    fun addLowString_maxStrings_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.addLowString()
+        }
+    }
+
+    @Test
+    fun addHighString() {
+        val initialTuning = Tunings.STANDARD
+        val editor = CustomTuningEditor(initialTuning)
+        editor.addHighString()
+        assertEquals(initialTuning.numStrings() + 1, editor.tuning.value.numStrings())
+        assertEquals(initialTuning.strings.first(), editor.tuning.value.strings.first())
+    }
+
+    @Test
+    fun addHighString_maxStrings_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.addHighString()
+        }
+    }
+
+    @Test
+    fun removeLowString() {
+        val initialTuning = Tunings.STANDARD
+        val editor = CustomTuningEditor(initialTuning)
+        editor.removeLowString()
+        assertEquals(initialTuning.numStrings() - 1, editor.tuning.value.numStrings())
+        assertEquals(initialTuning.strings.dropLast(1), editor.tuning.value.strings)
+    }
+
+    @Test
+    fun removeLowString_oneString_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.removeLowString()
+        }
+    }
+
+    @Test
+    fun removeHighString() {
+        val initialTuning = Tunings.STANDARD
+        val editor = CustomTuningEditor(initialTuning)
+        editor.removeHighString()
+        assertEquals(initialTuning.numStrings() - 1, editor.tuning.value.numStrings())
+        assertEquals(initialTuning.strings.drop(1), editor.tuning.value.strings)
+    }
+
+    @Test
+    fun removeHighString_oneString_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))
+        assertThrows(IllegalArgumentException::class.java) {
+            editor.removeHighString()
+        }
+    }
+}
