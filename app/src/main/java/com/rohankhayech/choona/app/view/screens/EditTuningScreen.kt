@@ -69,6 +69,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -112,6 +113,7 @@ import kotlinx.coroutines.launch
  * @param onCancel Called when the user cancels the edit.
  * @param onSave Called when the user saves the tuning.
  * @param onDelete Called when the user deletes the tuning.
+ * @param useRoundedCorners Whether to use rounded corners for the screen.
  *
  * @author Rohan Khayech
  */
@@ -135,81 +137,89 @@ fun EditTuningScreen(
     onPressNote: (Int, Instrument) -> Unit,
     onCancel: () -> Unit,
     onSave: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    useRoundedCorners: Boolean = false,
 ) {
     val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val snackbarHost = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold (
-        Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
-        snackbarHost = { SnackbarHost(snackbarHost) },
-        topBar = {
-            MediumTopAppBar(
-                title = {
-                    Text(if (new) "Add custom tuning" else "Edit Tuning")
-                },
-                actions = {
-                    // Save button.
-                    Button(modifier = Modifier.padding(horizontal = 16.dp), onClick = {
-                        try {
-                            onSave()
-                        } catch (e: ExistingTuningException) {
-                            coroutineScope.launch {
-                                snackbarHost.showSnackbar(
-                                    message = "A ${
-                                        when (e.builtIn) {
-                                            true -> "built-in"
-                                            else -> "custom"
-                                        }
-                                    } tuning already exists as ${e.existingName}.",
-                                )
+    Surface(shape = if (useRoundedCorners) MaterialTheme.shapes.extraLarge else RectangleShape) {
+        Scaffold (
+            Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
+            snackbarHost = { SnackbarHost(snackbarHost) },
+            topBar = {
+                MediumTopAppBar(
+                    title = {
+                        Text(stringResource(if (new) R.string.add_tuning else R.string.edit_tuning))
+                    },
+                    actions = {
+                        val errMsg = stringResource(R.string.err_msg_existing_tuning)
+                        val builtIn = stringResource(R.string.err_msg_existing_tuning_built_in)
+                        val custom = stringResource(R.string.err_msg_existing_tuning_custom)
+
+                        // Save button.
+                        Button(modifier = Modifier.padding(horizontal = 16.dp), onClick = {
+                            try {
+                                onSave()
+                            } catch (e: ExistingTuningException) {
+                                coroutineScope.launch {
+                                    snackbarHost.showSnackbar(
+                                        message = errMsg.format(
+                                            when (e.builtIn) {
+                                                true -> builtIn
+                                                false -> custom
+                                            }, e.existingName
+                                        ),
+                                    )
+                                }
                             }
+                        }) {
+                            Text(stringResource(R.string.save))
                         }
-                    }) {
-                        Text("Save")
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(Icons.Default.Close, stringResource(R.string.dismiss))
-                    }
-                },
-                scrollBehavior = scrollBehaviour,
-            )
-        }
-    ) { padding ->
-        Column(
-            Modifier.padding(padding)
-                .consumeWindowInsets(padding)
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            EditTuningForm(
-                new = new,
-                name = name,
-                instrument = tuning.instrument,
-                tuning = tuning,
-                onAddLowString = onAddLowString,
-                onAddHighString = onAddHighString,
-                onRemoveLowString = onRemoveLowString,
-                onRemoveHighString = onRemoveHighString,
-                onTuneUpString = onTuneStringUp,
-                onTuneDownString = onTuneStringDown,
-                onTuneUpTuning = onTuneUp,
-                onTuneDownTuning = onTuneDown,
-                onNameChange = onNameChange,
-                onInstrumentChange = onInstrumentChange,
-                onSetString = onSetString,
-                onPressNote = { n ->
-                    onPressNote(n, tuning.instrument)
-                },
-                onDelete = onDelete
-            )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onCancel) {
+                            Icon(Icons.Default.Close, stringResource(R.string.dismiss))
+                        }
+                    },
+                    scrollBehavior = scrollBehaviour,
+                )
+            }
+        ) { padding ->
+            Column(
+                Modifier
+                    .padding(padding)
+                    .consumeWindowInsets(padding)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                EditTuningForm(
+                    new = new,
+                    name = name,
+                    instrument = tuning.instrument,
+                    tuning = tuning,
+                    onAddLowString = onAddLowString,
+                    onAddHighString = onAddHighString,
+                    onRemoveLowString = onRemoveLowString,
+                    onRemoveHighString = onRemoveHighString,
+                    onTuneUpString = onTuneStringUp,
+                    onTuneDownString = onTuneStringDown,
+                    onTuneUpTuning = onTuneUp,
+                    onTuneDownTuning = onTuneDown,
+                    onNameChange = onNameChange,
+                    onInstrumentChange = onInstrumentChange,
+                    onSetString = onSetString,
+                    onPressNote = { n ->
+                        onPressNote(n, tuning.instrument)
+                    },
+                    onDelete = onDelete
+                )
+            }
         }
     }
 }

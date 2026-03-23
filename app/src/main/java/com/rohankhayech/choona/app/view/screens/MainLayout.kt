@@ -297,7 +297,8 @@ fun MainLayout(
                     onSave = {
                         onSaveTuningFromEditor(editVM.returnResult(), key)
                     },
-                    onDelete = { onDeleteTuningFromEditor(key) }
+                    onDelete = { onDeleteTuningFromEditor(key) },
+                    useRoundedCorners = expanded
                 )
             }
         }
