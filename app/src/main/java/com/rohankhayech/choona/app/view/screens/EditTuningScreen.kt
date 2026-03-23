@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -61,6 +62,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,7 +77,9 @@ import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.choona.app.view.components.InlineStringControls
+import com.rohankhayech.choona.app.view.components.NoteSelector
 import com.rohankhayech.choona.app.view.theme.AppTheme
+import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.MAX_STRINGS
@@ -198,6 +202,7 @@ fun EditTuningScreen(
                 onTuneDownTuning = onTuneDown,
                 onNameChange = onNameChange,
                 onInstrumentChange = onInstrumentChange,
+                onSetString = onSetString,
                 onDelete = onDelete
             )
         }
@@ -221,6 +226,7 @@ fun EditTuningScreen(
  * @param onTuneDownTuning Called when the tuning is tuned down.
  * @param onNameChange Called when the name is changed.
  * @param onInstrumentChange Called when the instrument is changed.
+ * @param onSetString Called when a string is set.
  * @param onDelete Called when the user deletes the tuning.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,8 +246,23 @@ private fun EditTuningForm(
     onTuneDownTuning: () -> Unit,
     onNameChange: (String) -> Unit,
     onInstrumentChange: (Instrument) -> Unit,
+    onSetString: (Int, Int) -> Unit,
     onDelete: () -> Unit
 ) {
+    var stringToEdit by remember { mutableStateOf<Int?>(null) }
+
+    if (stringToEdit != null) {
+        val index = stringToEdit!!
+        NoteSelectionDialog(
+            initialNoteIndex = tuning.getString(index).rootNoteIndex,
+            onConfirm = { noteIndex ->
+                onSetString(index, noteIndex)
+                stringToEdit = null
+            },
+            onDismiss = { stringToEdit = null }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -314,7 +335,7 @@ private fun EditTuningForm(
                     tuning = tuning,
                     selectedString = null,
                     tuned = null,
-                    onSelect = {},
+                    onSelect = { stringToEdit = it },
                     onTuneDown = onTuneDownString,
                     onTuneUp = onTuneUpString,
                     editModeEnabled = true
@@ -413,6 +434,47 @@ private fun AddRemoveRow(
     }
 }
 
+/**
+ * Dialog allowing the user to select a note and octave.
+ *
+ * @param initialNoteIndex Initial note index to display.
+ * @param onConfirm Called when the OK button is pressed. Provides the selected note index.
+ * @param onDismiss Called when the dialog is dismissed or the Cancel button is pressed.
+ *
+ * @author Rohan Khayech
+ */
+@Composable
+fun NoteSelectionDialog(
+    initialNoteIndex: Int,
+    onConfirm: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedNoteIndex by remember { mutableIntStateOf(initialNoteIndex) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.dialog_title_select_note)) },
+        text = {
+            NoteSelector(
+                selectedNoteIndex = selectedNoteIndex,
+                tuned = false,
+                onSelect = { selectedNoteIndex = it },
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(selectedNoteIndex) }) {
+                Text(stringResource(android.R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
+}
+
+
 @ThemePreview
 @Composable
 private fun Preview() {
@@ -462,5 +524,13 @@ private fun TrueDarkPreview() {
             onInstrumentChange = {},
             onDelete = {}
         )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun DialogPreview() {
+    PreviewWrapper {
+        NoteSelectionDialog(initialNoteIndex = -29, onConfirm = {}, onDismiss = {})
     }
 }

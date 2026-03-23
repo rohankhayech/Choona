@@ -931,7 +931,7 @@ fun SaveTuningDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel))
+                Text(text = stringResource(android.R.string.cancel))
             }
         },
         onDismissRequest = onDismiss

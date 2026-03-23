@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,10 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
+import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.m3.harmonised
 import com.rohankhayech.choona.app.view.theme.PreviewWrapper
@@ -248,7 +250,7 @@ fun NoteSelectionButton(
             if (tuned) MaterialTheme.extColors.green.container.harmonised()
             else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.60f)
         }
-        else MaterialTheme.colorScheme.background,
+        else Color.Transparent,
         label = "String Button Background Color"
     )
 
@@ -288,6 +290,21 @@ private fun Preview() {
     }
 }
 
+@DarkPreview
+@Composable
+private fun TrueDarkPreview() {
+    var noteIndex by remember { mutableIntStateOf(-29) }
+
+    PreviewWrapper(fullBlack = true) {
+        NoteSelector(
+            modifier = Modifier.padding(vertical = 8.dp),
+            selectedNoteIndex = noteIndex,
+            tuned = false,
+            onSelect = { noteIndex = it }
+        )
+    }
+}
+
 @ThemePreview
 @Composable
 private fun CompactPreview() {
@@ -302,3 +319,4 @@ private fun CompactPreview() {
         )
     }
 }
+
