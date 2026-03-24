@@ -328,7 +328,7 @@ private fun EditTuningForm(
                 expanded = instrExpanded,
                 onDismissRequest = { instrExpanded = false }
             ) {
-                Instrument.entries.take(Instrument.entries.size - 1).forEach { instr ->
+                Instrument.entries.filter { it != Instrument.OTHER }.forEach { instr ->
                     DropdownMenuItem(
                         text = { Text(instr.getLocalisedName()) },
                         onClick = {

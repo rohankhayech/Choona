@@ -117,6 +117,7 @@ import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
@@ -166,6 +167,9 @@ fun TuningSelectionScreen(
     val categoryFilters = tuningList.categoryFilters.collectAsStateWithLifecycle()
     val pinned by tuningList.pinned.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     TuningSelectionScreen(
         current = current,
         currentSaved = currentSaved,
@@ -181,11 +185,20 @@ fun TuningSelectionScreen(
         backIcon = backIcon,
         deletedTuning = tuningList.deletedTuning,
         isFavourite = { tuningList.run { this@TuningSelectionScreen.isFavourite() } },
+        snackbarHostState = snackbarHostState,
         onSelectInstrument = { tuningList.filterBy(instrument = it) },
         onSelectCategory = { tuningList.filterBy(category = it) },
         onSave = { name, tuning ->
-            tuningList.addCustom(name, tuning)
-            onSave(name, tuning)
+            try {
+                tuningList.addCustom(name, tuning)
+                onSave(name, tuning)
+            } catch (e: ExistingTuningException) {
+                // This should be blocked by UI, but caught just in-case.
+                // Message doesn't need to be localised.
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(e.message)
+                }
+            }
         },
         onFavouriteSet = tuningList::setFavourited,
         onSelect = {
@@ -251,6 +264,7 @@ fun TuningSelectionScreen(
     backIcon: ImageVector?,
     deletedTuning: SharedFlow<Tuning>,
     isFavourite: TuningEntry.() -> Boolean,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit,
     onSave: (String?, Tuning) -> Unit,
@@ -267,8 +281,6 @@ fun TuningSelectionScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     var showSaveDialog by rememberSaveable { mutableStateOf(false) }
-
-    val snackbarHostState = remember { SnackbarHostState() }
 
     // Collect deleted tuning events and show snackbar.
     val message = stringResource(R.string.deleted_tuning)
@@ -314,7 +326,7 @@ fun TuningSelectionScreen(
                     onOpenTuningEditor(current?.tuning ?: Tunings.STANDARD, true)
                 },
                 icon = { Icon(Icons.Default.Add, null) },
-                text = { Text("New Tuning") }
+                text = { Text(stringResource(R.string.add_tuning)) }
             )
         }
     ) { padding ->

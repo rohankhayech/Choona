@@ -220,6 +220,7 @@ class TuningList(
      * @return The named tuning.
      * @throws ExistingTuningException If an equivalent tuning already exists.
      */
+    @Throws(ExistingTuningException::class)
     fun addCustom(name: String?, tuning: Tuning): Tuning {
         // Check if the tuning already exists.
         tuning.findEquivalentIn(Tunings.TUNINGS)?.let {
@@ -245,6 +246,7 @@ class TuningList(
      * Updates an existing custom [tuning] with the new [updatedTuning].
      * @throws ExistingTuningException If an equivalent tuning already exists (other than the one being updated).
      */
+    @Throws(ExistingTuningException::class)
     fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
         // Check if the updated tuning already exists.
         updatedTuning.findEquivalentIn(Tunings.TUNINGS)?.let {
