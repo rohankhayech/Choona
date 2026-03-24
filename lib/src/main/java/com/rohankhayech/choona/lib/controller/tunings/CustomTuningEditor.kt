@@ -56,7 +56,7 @@ class CustomTuningEditor(
 
     /**
      * Sets the note for a specific string.
-     * @param n The index of the string to set (0 is the lowest string).
+     * @param n The index of the string to set.
      * @param noteIndex The index of the note to set.
      * @throws IllegalArgumentException if the string or note index is out of range.
      */

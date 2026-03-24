@@ -280,7 +280,7 @@ object TuningFileIO {
      * @throws TuningIOException If there is an error parsing the tuning from JSON
      *                           or the tuning is not an instrument tuning.
      */
-    @Throws(JSONException::class, ClassCastException::class)
+    @Throws(TuningIOException::class)
     fun parseTuningFromString(tuningJSON: String): Tuning {
         try {
             return (parseTuning(JSONObject(tuningJSON)) as TuningEntry.InstrumentTuning).tuning
