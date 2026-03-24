@@ -88,6 +88,7 @@ import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.MAX_STRINGS
+import com.rohankhayech.choona.lib.controller.tunings.MIN_STRINGS
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -386,7 +387,7 @@ private fun EditTuningForm(
 
                 AddRemoveRow(
                     addEnabled = tuning.numStrings() < MAX_STRINGS,
-                    removeEnabled = tuning.numStrings() > 1,
+                    removeEnabled = tuning.numStrings() > MIN_STRINGS,
                     onAddString = onAddHighString,
                     onRemoveString = onRemoveHighString
                 )
@@ -404,7 +405,7 @@ private fun EditTuningForm(
                 )
                 AddRemoveRow(
                     addEnabled = tuning.numStrings() < MAX_STRINGS,
-                    removeEnabled = tuning.numStrings() > 1,
+                    removeEnabled = tuning.numStrings() > MIN_STRINGS,
                     onAddString = onAddLowString,
                     onRemoveString = onRemoveLowString
                 )

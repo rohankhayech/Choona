@@ -129,11 +129,11 @@ class CustomTuningEditorTest {
     }
 
     /**
-     * Verifies that [CustomTuningEditor.removeLowString] throws an [IllegalArgumentException] when only one string remains.
+     * Verifies that [CustomTuningEditor.removeLowString] throws an [IllegalArgumentException] when only [MIN_STRINGS] remains.
      */
     @Test
-    fun removeLowString_oneString_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))
+    fun removeLowString_minStrings_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.removeLowString()
         }
@@ -152,11 +152,11 @@ class CustomTuningEditorTest {
     }
 
     /**
-     * Verifies that [CustomTuningEditor.removeHighString] throws an [IllegalArgumentException] when only one string remains.
+     * Verifies that [CustomTuningEditor.removeHighString] throws an [IllegalArgumentException] when only [MIN_STRINGS] remains.
      */
     @Test
-    fun removeHighString_oneString_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, listOf(GuitarString.E2)))
+    fun removeHighString_minStrings_throwsException() {
+        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.removeHighString()
         }

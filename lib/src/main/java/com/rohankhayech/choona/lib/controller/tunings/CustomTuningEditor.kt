@@ -24,6 +24,9 @@ import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import kotlinx.coroutines.flow.update
 
+/** Minimum number of strings allowed in a tuning. */
+const val MIN_STRINGS = 2
+
 /** Maximum number of strings allowed in a tuning. */
 const val MAX_STRINGS = 12
 
@@ -97,10 +100,10 @@ class CustomTuningEditor(
 
     /**
      * Removes the lowest string from the tuning.
-     * @throws IllegalArgumentException if the tuning only has one string remaining.
+     * @throws IllegalArgumentException if the tuning only has [MIN_STRINGS] remaining.
      */
     fun removeLowString() {
-        require(tuning.value.numStrings() > 1)
+        require(tuning.value.numStrings() > MIN_STRINGS)
         _tuning.update {
             Tuning(it.name, it.instrument, null, it.strings.take(it.numStrings() - 1))
         }
@@ -108,10 +111,10 @@ class CustomTuningEditor(
 
     /**
      * Removes the highest string from the tuning.
-     * @throws IllegalArgumentException if the tuning only has one string remaining.
+     * @throws IllegalArgumentException if the tuning only has [MIN_STRINGS] remaining.
      */
     fun removeHighString() {
-        require(tuning.value.numStrings() > 1)
+        require(tuning.value.numStrings() > MIN_STRINGS)
         _tuning.update {
             Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
         }
