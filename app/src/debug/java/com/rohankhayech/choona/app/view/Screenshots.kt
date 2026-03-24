@@ -155,6 +155,7 @@ private fun SelectionScreenshot() {
             backIcon = Icons.Default.Close,
             onSelect = {},
             onSelectChromatic = {},
+            onOpenTuningEditor = {_,_->},
             onDismiss = {}
         )
     }
@@ -189,6 +190,7 @@ private fun CustomScreenshot() {
             onFavouriteSet = {_, _ ->},
             onSelect = {},
             onDelete = {},
+            onOpenTuningEditor = {_,_->},
             onDismiss = {},
             onPin = {},
             onUnpin = {},
@@ -457,12 +459,16 @@ private fun TabletScreenshot() {
             onConfigurePressed = {},
             onSelectTuningFromList = {},
             onSelectChromaticFromList = {},
+            onOpenTuningEditor = { _, _ -> },
             onBack = {},
             canRequest = true,
             onRequestPermission = {},
             onOpenPermissionSettings = {},
             error = null,
-            granted = true
+            granted = true,
+            onPressNote = {_, _ ->},
+            onSaveTuningFromEditor = { _, _ -> },
+            onDeleteTuningFromEditor = { _ -> }
         )
     }
 }

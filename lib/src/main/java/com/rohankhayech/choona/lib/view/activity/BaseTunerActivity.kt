@@ -178,7 +178,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         midi.playNote(
             string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150,
+            NOTE_SELECT_SOUND_DURATION,
             vm.tuner.tuning.value.instrument.midiInstrument
         )
     }
@@ -192,19 +192,26 @@ abstract class BaseTunerActivity : ComponentActivity() {
         vm.tuner.selectNote(noteIndex)
 
         // Play sound on string selection.
-        lifecycleScope.launch {
-            if (prefs.first().enableStringSelectSound) playNoteSelectSound(noteIndex)
-        }
+        playNoteSelectSound(noteIndex)
     }
 
-    /** Plays the note selection sound for the specified [noteIndex]. */
-    private suspend fun playNoteSelectSound(noteIndex: Int) {
-        midi.playNote(
-            0,
-            MidiController.noteIndexToMidi(noteIndex),
-            150,
-            Instrument.GUITAR.midiInstrument
-        )
+    /** Plays the note selection sound for the specified [noteIndex] if enabled. */
+    private fun playNoteSelectSound(noteIndex: Int) {
+        playNote(noteIndex, Instrument.GUITAR)
+    }
+
+    /** Plays the specified note index with the specified instrument if enabled. */
+    protected fun playNote(noteIndex: Int, instrument: Instrument) {
+        lifecycleScope.launch {
+            if (prefs.first().enableStringSelectSound) {
+                midi.playNote(
+                    0,
+                    MidiController.noteIndexToMidi(noteIndex),
+                    NOTE_SELECT_SOUND_DURATION,
+                    instrument.midiInstrument
+                )
+            }
+        }
     }
 
     /**
@@ -307,5 +314,9 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 Uri.fromParts("package", packageName, null)
             )
         )
+    }
+
+    companion object {
+        private const val NOTE_SELECT_SOUND_DURATION = 150L
     }
 }

@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -141,10 +142,66 @@ class TunerViewModel : ViewModel() {
     }
 
     /**
+     * Opens the edit tuning screen for the given [tuning].
+     *
+     * @param tuning The tuning to edit.
+     * @param new Whether the tuning is a new custom tuning.
+     */
+    fun openTuningEditor(tuning: Tuning, new: Boolean) {
+        _backStack.add(Screen.EditTuning(TuningFileIO.encodeTuningToString(tuning), new))
+    }
+
+    /**
      * @return Whether the tuner screen is open.
      */
     fun isTunerScreenOpen(): Boolean =
         backStack.last() == Screen.Tuner || _expanded.value && backStack.last() == Screen.TuningSelection
+
+    /**
+     * Saves the tuning from the editor.
+     *
+     * @param tuning The tuning to add/update
+     * @param key The navigation key for the edit screen.
+     */
+    fun onSaveFromEditor(tuning: Tuning, key: Screen.EditTuning) {
+        if (key.new) {
+            onAddFromEditor(tuning)
+        } else {
+            onUpdateFromEditor(TuningFileIO.parseTuningFromString(key.tuningJSON), tuning)
+        }
+    }
+
+    /**
+     * Adds the tuning from the editor as a new custom tuning.
+     *
+     * @param result The tuning result from the editor.
+     */
+    fun onAddFromEditor(result: Tuning) {
+        tuningList.addCustom(result.rawName, result)
+        navBack()
+    }
+
+    /**
+     * Updates an existing custom tuning from the editor.
+     * @param tuning The initial tuning to update.
+     * @param updatedTuning The tuning result from the editor.
+     */
+    fun onUpdateFromEditor(tuning: Tuning, updatedTuning: Tuning) {
+        tuningList.updateCustom(tuning, updatedTuning)
+        navBack()
+    }
+
+    /**
+     * Deletes the tuning from the editor.
+     *
+     * @param key The navigation key for the edit screen.
+     */
+    fun onDeleteFromEditor(key: Screen.EditTuning) {
+        if (!key.new) {
+            tuningList.removeCustom(TuningFileIO.parseTuningFromString(key.tuningJSON))
+            navBack()
+        }
+    }
 
     /**
      * Navigation entries for the screens in the Tuner activity.
@@ -154,5 +211,6 @@ class TunerViewModel : ViewModel() {
         @Serializable object Tuner: Screen()
         @Serializable object ConfigureTuning: Screen()
         @Serializable object TuningSelection: Screen()
+        @Serializable data class EditTuning(val tuningJSON: String, val new: Boolean): Screen()
     }
 }
