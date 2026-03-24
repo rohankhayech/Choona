@@ -245,9 +245,13 @@ class TuningList(
     /**
      * Updates an existing custom [tuning] with the new [updatedTuning].
      * @throws ExistingTuningException If an equivalent tuning already exists (other than the one being updated).
+     * @throws IllegalStateException If the tuning to be updated does not exist.
      */
-    @Throws(ExistingTuningException::class)
+    @Throws(ExistingTuningException::class, IllegalStateException::class)
     fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+        // Assert that the tuning to be replaced exists.
+        check(_custom.value.contains(tuning)) { "The specified tuning does not exist in the custom tuning list." }
+
         // Check if the updated tuning already exists.
         updatedTuning.findEquivalentIn(Tunings.TUNINGS)?.let {
             throw ExistingTuningException(it.name, true)

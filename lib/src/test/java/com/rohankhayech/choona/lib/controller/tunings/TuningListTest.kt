@@ -210,6 +210,19 @@ class TuningListTest {
     }
 
     /**
+     * Verifies that updating a non-existent tuning throws an [IllegalStateException].
+     */
+    @Test
+    fun testUpdateCustomThrowsMissing() {
+        val original = Tuning.fromString("Original", Tuning.DEFAULT_INSTRUMENT, null, "E2")
+        val updated = Tuning.fromString("Updated", Tuning.DEFAULT_INSTRUMENT, null, "D2")
+
+        assertThrows(IllegalStateException::class.java) {
+            tuningList.updateCustom(original, updated)
+        }
+    }
+
+    /**
      * Verifies that the filtered tunings list correctly updates based on instrument and category filters.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
