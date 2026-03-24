@@ -326,7 +326,7 @@ fun TuningSelectionScreen(
                     onOpenTuningEditor(current?.tuning ?: Tunings.STANDARD, true)
                 },
                 icon = { Icon(Icons.Default.Add, null) },
-                text = { Text(stringResource(R.string.add_tuning)) }
+                text = { Text(stringResource(R.string.new_tuning)) }
             )
         }
     ) { padding ->
