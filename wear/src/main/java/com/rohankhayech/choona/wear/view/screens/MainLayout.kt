@@ -24,14 +24,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.wear.compose.navigation3.rememberSwipeDismissableSceneStrategy
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
+import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.view.viewmodel.EditTuningViewModel
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
 /**
@@ -65,6 +72,10 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
  * @param onTuned Called when the detected note is held in tune.
  * @param onOpenTuningSelector Called when the user opens the tuning selector screen.
  * @param onOpenConfigurePanel Called when the configure tuning panel is opened.
+ * @param onOpenTuningEditor Called when the edit tuning screen is opened.
+ * @param onSaveTuningFromEditor Called when the user saves a tuning from the editor.
+ * @param onDeleteTuningFromEditor Called when the user deletes a tuning from the editor.
+ * @param onPressNote Called when a note selection button is pressed.
  * @param onSettingsPressed Called when the settings button is pressed.
  * @param onBack Called when the back button is pressed.
  * @param onRequestPermission Called when the request permission button is pressed.
@@ -102,6 +113,10 @@ fun MainLayout(
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onOpenConfigurePanel: () -> Unit,
+    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
+    onSaveTuningFromEditor: (Tuning, Screen.EditTuning) -> Unit,
+    onDeleteTuningFromEditor: (Screen.EditTuning) -> Unit,
+    onPressNote: (Int, Instrument) -> Unit,
     onBack: () -> Unit,
     onSettingsPressed: () -> Unit,
     onRequestPermission: () -> Unit,
@@ -111,6 +126,10 @@ fun MainLayout(
         backStack = backStack,
         onBack = onBack,
         sceneStrategy = rememberSwipeDismissableSceneStrategy(),
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(), // state preservation
+            rememberViewModelStoreNavEntryDecorator(), // enable ViewModel scoping to the NavEntry
+        ),
         entryProvider = entryProvider {
             entry<Screen.Tuner> {
                 TunerScreen(
@@ -177,7 +196,47 @@ fun MainLayout(
                     pinnedInitial = prefs.initialTuning == InitialTuningType.PINNED,
                     onSelect = onSelectTuning,
                     onSelectChromatic = onSelectChromatic,
+                    onOpenTuningEditor = onOpenTuningEditor,
                     onDismiss = onBack,
+                )
+            }
+
+            entry<Screen.EditTuning>(
+                metadata = NavDisplay.transitionSpec {
+                    slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
+                } + NavDisplay.popTransitionSpec {
+                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
+                } + NavDisplay.predictivePopTransitionSpec {
+                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.End)
+                }
+            ) { key ->
+                val editVM: EditTuningViewModel = viewModel(
+                    factory = EditTuningViewModel.provideFactory(key.tuningJSON, key.new)
+                )
+                val editTuning by editVM.editor.tuning.collectAsStateWithLifecycle()
+                val editName by editVM.name.collectAsStateWithLifecycle()
+
+                EditTuningScreen(
+                    name = editName,
+                    new = key.new,
+                    tuning = editTuning,
+                    onNameChange = editVM::setName,
+                    onInstrumentChange = editVM.editor::setInstrument,
+                    onSetString = editVM.editor::setString,
+                    onAddLowString = editVM.editor::addLowString,
+                    onAddHighString = editVM.editor::addHighString,
+                    onRemoveLowString = editVM.editor::removeLowString,
+                    onRemoveHighString = editVM.editor::removeHighString,
+                    onTuneStringUp = editVM.editor::tuneStringUp,
+                    onTuneStringDown = editVM.editor::tuneStringDown,
+                    onTuneUp = editVM.editor::tuneUp,
+                    onTuneDown = editVM.editor::tuneDown,
+                    onPressNote = onPressNote,
+                    onCancel = onBack,
+                    onSave = {
+                        onSaveTuningFromEditor(editVM.returnResult(), key)
+                    },
+                    onDelete = { onDeleteTuningFromEditor(key) }
                 )
             }
         }

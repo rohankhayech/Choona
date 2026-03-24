@@ -37,7 +37,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.Star
@@ -107,6 +109,7 @@ import kotlinx.coroutines.flow.SharedFlow
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onSelect Called when a tuning is selected.
  * @param onSelectChromatic Called when chromatic tuning is selected.
+ * @param onOpenTuningEditor Called when the edit tuning screen is opened.
  * @param onDismiss Called when the screen is dismissed.
  *
  * @author Rohan Khayech
@@ -118,6 +121,7 @@ fun TuningListScreen(
     onSave: (String?, Tuning) -> Unit = {_,_->},
     onSelect: (Tuning) -> Unit,
     onSelectChromatic: () -> Unit,
+    onOpenTuningEditor: (Tuning, Boolean) -> Unit = {_,_->},
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
@@ -161,6 +165,7 @@ fun TuningListScreen(
             }
         },
         onDelete = { tuningList.removeCustom(it) },
+        onOpenTuningEditor = onOpenTuningEditor,
         onDismiss = onDismiss,
         onPin = { tuningList.setPinned(it) },
         onUnpin = { tuningList.unpinTuning() }
@@ -190,6 +195,7 @@ fun TuningListScreen(
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
  * @param onDelete Called when a custom tuning is deleted.
+ * @param onOpenTuningEditor Called when the edit tuning screen is opened.
  * @param onDismiss Called when the screen is dismissed.
  * @param onPin Called when a tuning is pinned as default.
  * @param onUnpin Called when the pinned tuning is unpinned as default.
@@ -217,6 +223,7 @@ fun TuningSelectionScreen(
     onFavouriteSet: (TuningEntry, Boolean) -> Unit,
     onSelect: (TuningEntry) -> Unit,
     onDelete: (Tuning) -> Unit,
+    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
     onDismiss: () -> Unit,
     onPin: (tuning: TuningEntry) -> Unit,
     onUnpin: () -> Unit
@@ -251,6 +258,7 @@ fun TuningSelectionScreen(
             onFavouriteSet = onFavouriteSet,
             onSelect = onSelect,
             onDelete = { showDeleteDialogFor = it },
+            onOpenTuningEditor = onOpenTuningEditor,
             onPin = onPin,
             onUnpin = onUnpin
         )
@@ -311,6 +319,7 @@ fun TuningSelectionScreen(
  * @param onUnpin Called when the pinned tuning is unpinned as default.
  * @param onSelect Called when a tuning is selected.
  * @param onDelete Called when a custom tuning is deleted.
+ * @param onOpenTuningEditor Called when the edit tuning screen is opened.
  */
 @Composable
 fun TuningList(
@@ -336,7 +345,8 @@ fun TuningList(
     onPin: (TuningEntry) -> Unit,
     onUnpin: () -> Unit,
     onSelect: (TuningEntry) -> Unit,
-    onDelete: (Tuning) -> Unit
+    onDelete: (Tuning) -> Unit,
+    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
 ) {
     val favsList = remember(favourites) { favourites.toList() }
     val customList = remember(custom) { custom.toList() }
@@ -422,23 +432,34 @@ fun TuningList(
         }
 
         // Custom Tunings
-        if (custom.isNotEmpty()) {
-            item("cus") { CategoryLabel(stringResource(R.string.tuning_list_custom)) }
-            items(customList, key = { it.key }) {
-                val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it.tuning.equivalentTo(pinned.tuning) }
-                CustomTuningItem(
-                    tuning = it,
-                    favourited = favourited,
-                    pinned = isPinned,
-                    pinnedInitial = pinnedInitial,
-                    onFavouriteSet = onFavouriteSet,
-                    onUnpin = onUnpin,
-                    onSelect = onSelect,
-                    onDelete = onDelete
-                )
+        item("cus") { CategoryLabel(stringResource(R.string.tuning_list_custom)) }
+        item("add-custom") {
+            Button(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                onClick = {
+                    onOpenTuningEditor(current?.tuning ?: Tunings.STANDARD, true)
+                }
+            ) {
+                Icon(Icons.Default.Add, null)
+                Text(stringResource(R.string.new_tuning), modifier = Modifier.padding(start = 8.dp))
             }
         }
+        items(customList, key = { it.key }) {
+            val favourited = it.isFavourite()
+            val isPinned = remember(pinned) { it.tuning.equivalentTo(pinned.tuning) }
+            CustomTuningItem(
+                tuning = it,
+                favourited = favourited,
+                pinned = isPinned,
+                pinnedInitial = pinnedInitial,
+                onFavouriteSet = onFavouriteSet,
+                onUnpin = onUnpin,
+                onSelect = onSelect,
+                onDelete = onDelete,
+                onEdit = { onOpenTuningEditor(it.tuning, false) }
+            )
+        }
+
 
         // All Tunings
         item("all") {
@@ -689,6 +710,7 @@ private fun CurrentTuningItem(
  * @param onUnpin Called when this tuning is unpinned as default.
  * @param onSelect Called when this tuning is selected.
  * @param onDelete Called when this tuning is swiped to be removed.
+ * @param onEdit Called when the edit button is pressed.
  */
 @Composable
 private fun CustomTuningItem(
@@ -700,6 +722,7 @@ private fun CustomTuningItem(
     onUnpin: () -> Unit,
     onSelect: (TuningEntry) -> Unit,
     onDelete: (Tuning) -> Unit,
+    onEdit: () -> Unit
 ) {
     val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(tuning = tuning, onSelect = onSelect) {
@@ -733,6 +756,16 @@ private fun CustomTuningItem(
                 Icon(
                     if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
                     contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+                )
+            }
+        }
+        item {
+            IconButton(
+                onClick = onEdit
+            ) {
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.edit_tuning)
                 )
             }
         }
@@ -984,7 +1017,7 @@ fun DeleteTuningDialog(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError
             ), onClick = { onDelete(tuning) }) {
-                Text(text = stringResource(R.string.save))
+                Text(text = stringResource(R.string.delete))
             }
         },
         dismissButton = {
@@ -1012,14 +1045,14 @@ fun DeleteTuningDialog(
 @WearSizePreview
 @Composable
 private fun Preview() {
-    val currentTuning = TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD.higherTuning())
+    val currentTuningEntry = TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD.higherTuning())
     val customTuning = TuningEntry.InstrumentTuning(Tuning.fromString("E4 E3 E3 E3 E2 E2"))
     val favCustomTuning = TuningEntry.InstrumentTuning(Tuning.fromString("Custom", Instrument.GUITAR, null, "C#4 B3 F#3 D3 A2 D2"))
 
     AppTheme {
         AppScaffold {
             TuningSelectionScreen(
-                current = currentTuning,
+                current = currentTuningEntry,
                 currentSaved = false,
                 tunings = TuningList.GROUPED_TUNINGS,
                 pinned = TuningEntry.InstrumentTuning(Tunings.WHOLE_STEP_DOWN),
@@ -1036,6 +1069,7 @@ private fun Preview() {
                 onFavouriteSet = { _, _ -> },
                 onSelect = {},
                 onDelete = {},
+                onOpenTuningEditor = {_,_->},
                 onSelectInstrument = {},
                 onSelectCategory = {},
                 onDismiss = {},

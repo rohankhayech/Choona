@@ -18,4 +18,5 @@
 
 <resources>
     <string name="tune">Tune</string>
+    <string name="err_msg_existing_tuning_title">Already Exists</string>
 </resources>
