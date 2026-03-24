@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,14 +57,14 @@ open class TuningEditor(
     }
 
     /** Tunes the [nth][n] string in the tuning up by one semitone.
-     * @return False if the string could not be tuned any lower, true otherwise.
+     * @return False if the string could not be tuned any higher, true otherwise.
      */
     open fun tuneStringUp(n: Int): Boolean {
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
 
         return if (tuning.value.getString(n).rootNoteIndex < Tuner.Companion.HIGHEST_NOTE) {
-            _tuning.update { tuning ->
-                tuning.withString(n, tuning.getString(n).higherString())
+            _tuning.update {
+                it.withString(n, it.getString(n).higherString())
             }
             true
         } else false
@@ -78,8 +78,8 @@ open class TuningEditor(
         require(n in 0 until tuning.value.numStrings()) { "Invalid string index." }
 
         return if (tuning.value.getString(n).rootNoteIndex > Tuner.Companion.LOWEST_NOTE) {
-            _tuning.update { tuning ->
-                tuning.withString(n, tuning.getString(n).lowerString())
+            _tuning.update {
+                it.withString(n, it.getString(n).lowerString())
             }
             true
         } else false

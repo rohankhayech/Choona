@@ -55,9 +55,10 @@ class CustomTuningEditor(
      * Sets the note for a specific string.
      * @param n The index of the string to set (0 is the lowest string).
      * @param noteIndex The index of the note to set.
-     * @throws IllegalArgumentException if the note index is out of range.
+     * @throws IllegalArgumentException if the string or note index is out of range.
      */
     fun setString(n: Int, noteIndex: Int) {
+        require(n in 0 until tuning.value.numStrings())
         requireValidNoteIndex(noteIndex)
         _tuning.update { it.withString(n, GuitarString.fromRootNoteIndex(noteIndex)) }
     }
