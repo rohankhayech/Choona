@@ -115,6 +115,7 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
+import com.rohankhayech.choona.app.view.util.isScrollingUp
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
@@ -326,7 +327,8 @@ fun TuningSelectionScreen(
                     onOpenTuningEditor(current?.tuning ?: Tunings.STANDARD, true)
                 },
                 icon = { Icon(Icons.Default.Add, null) },
-                text = { Text(stringResource(R.string.new_tuning)) }
+                text = { Text(stringResource(R.string.new_tuning)) },
+                expanded = listState.isScrollingUp()
             )
         }
     ) { padding ->
