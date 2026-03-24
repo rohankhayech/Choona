@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.app.view.components
 
+import kotlin.math.ceil
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,12 @@ import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 
 /**
+ * Max number of strings that can be displayed inline.
+ * Tunings with more strings will always be displayed side-by-side.
+ */
+private const val MAX_INLINE_STRINGS = 7
+
+/**
  * Component displaying each string in the current [tuning] and allowing selection of a string for tuning.
  * @param inline Whether to display the string controls inline or side-by-side.
  * @param tuning Current guitar tuning used for comparison.
@@ -78,7 +85,7 @@ fun StringControls(
             .horizontalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
-        if (inline) {
+        if (inline && tuning.numStrings() <= MAX_INLINE_STRINGS) {
             InlineStringControls(
                 tuning = tuning,
                 selectedString = selectedString,
@@ -129,7 +136,7 @@ private fun SideBySideStringControls(
         val splitTuning = remember(tuning) {
             tuning.mapIndexed { n, gs -> Pair(n, gs) }
                 .reversed()
-                .chunked(tuning.numStrings()/2)
+                .chunked(ceil(tuning.numStrings().toDouble()/2.0).toInt())
         }
 
         InlineStringControls(
@@ -167,7 +174,7 @@ private fun SideBySideStringControls(
  * @param editModeEnabled Whether edit mode is enabled.
  */
 @Composable
-private fun InlineStringControls(
+fun InlineStringControls(
     tuning: Tuning,
     strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
     selectedString: Int?,
@@ -187,7 +194,7 @@ private fun InlineStringControls(
                 index = index,
                 string = string,
                 selected = selectedString == index,
-                tuned = tuned?.get(index) ?: false,
+                tuned = tuned?.get(index) == true,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,
@@ -350,7 +357,16 @@ private fun CompactPreview() {
 @Composable
 private fun StringControlPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
+        StringControl(
+            index = 0,
+            string = GuitarString.E2,
+            selected = false,
+            tuned = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            editModeEnabled = true
+        )
     }
 }
 
@@ -388,6 +404,15 @@ private fun DynamicButtonStatesPreview() {
 @Composable
 private fun LargeFontPreview() {
     PreviewWrapper {
-        StringControl(index = 0, string = GuitarString.D2.higherString(), selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {}, editModeEnabled = true)
+        StringControl(
+            index = 0,
+            string = GuitarString.D2.higherString(),
+            selected = false,
+            tuned = false,
+            onSelect = {},
+            onTuneDown = {},
+            onTuneUp = {},
+            editModeEnabled = true
+        )
     }
 }

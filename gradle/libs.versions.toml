@@ -1,23 +1,22 @@
 [versions]
 aboutLibraries = "13.2.1"
 agp = "8.12.3"
-datastorePreferencesVersion = "1.2.0"
+datastorePreferencesVersion = "1.2.1"
 jsonVersion = "20251224"
 kotlinxCoroutinesTest = "1.10.2"
-lifecycleRuntimeCompose = "2.10.0"
+lifecycle = "2.10.0"
 androidUtils = "v0.8.0"
 tarsosDSPCore = "2.5"
-kotlin = "2.3.10"
-coreKtx = "1.17.0"
+kotlin = "2.3.20"
+coreKtx = "1.18.0"
 junit = "4.13.2"
 androidxJUnit = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.4"
-composeBom = "2026.02.00"
+activityCompose = "1.13.0"
+composeBom = "2026.03.00"
 reviewKtx = "2.0.2"
 nav3Core = "1.0.1"
-kotlinSerialization = "2.3.10"
+kotlinSerialization = "2.3.20"
 kotlinxSerializationCore = "1.10.0"
 adaptiveNavigation3 = "1.3.0-alpha09"
 
@@ -26,7 +25,9 @@ aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3",
 compose-animation = { module = "androidx.compose.animation:animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
-androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }
@@ -36,7 +37,7 @@ tarsos-dsp-core = { module = "be.tarsos.dsp:core", version.ref = "tarsosDSPCore"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJUnit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }

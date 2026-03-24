@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,6 +142,22 @@ public final class TuningTest {
         Arrays.fill(strings, GuitarString.E2);
         Tuning t = new Tuning(strings);
         assertEquals(t.toString(), t.getName());
+    }
+
+    @Test
+    public void testGetNameOrBlank() {
+        assertEquals("Standard", tuning.getNameOrBlank());
+
+        Tuning t = new Tuning(GuitarString.E2);
+        assertEquals("", t.getNameOrBlank());
+    }
+
+    @Test
+    public void testGetRawName() {
+        assertEquals("Standard", tuning.getRawName());
+
+        Tuning t = new Tuning(GuitarString.E2);
+        assertNull(t.getRawName());
     }
 
     @Test

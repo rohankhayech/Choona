@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 package com.rohankhayech.choona.lib.model.tuning;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.compose.runtime.Immutable;
 
 import java.util.ArrayList;
@@ -190,15 +192,29 @@ public final class Tuning implements Iterable<GuitarString> {
     /**
      * @return The standard name of this tuning, or the string representation if it is not named.
      */
-    public String getName() {
-        return name != null ? name : toString();
+    public @NonNull String getName() {
+        return hasName() ? name : toString();
+    }
+
+    /**
+     * @return The standard name of this tuning (if named) or an empty string.
+     */
+    public @NonNull String getNameOrBlank() {
+        return hasName() ? name : "";
+    }
+
+    /**
+     * @return The standard name of this tuning if named, null otherwise.
+     */
+    public @Nullable String getRawName() {
+        return name;
     }
 
     /**
      * @return The standard name of this tuning (if named) including it's string representation.
      */
-    public String getFullName() {
-        return name != null ? name + " (" + this + ")" : toString();
+    public @NonNull String getFullName() {
+        return hasName() ? name + " (" + this + ")" : toString();
     }
 
     /**
@@ -384,6 +400,8 @@ public final class Tuning implements Iterable<GuitarString> {
         POWER,
         /** Open chord tuning. */
         OPEN,
+        /** Extended range tuning. */
+        EXTENDED,
         /** Miscellaneous tuning. */
         MISC
     }

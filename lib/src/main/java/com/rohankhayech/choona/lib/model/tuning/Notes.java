@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 
 package com.rohankhayech.choona.lib.model.tuning;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,8 +41,8 @@ public final class Notes {
     /** The MIDI number of note A4. */
     public static final int A4_MIDI_NOTE_NUMBER = 69;
 
-    public static final List<String> NOTE_SYMBOLS = Collections.unmodifiableList(
-        Arrays.asList("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+    public static final List<String> NOTE_SYMBOLS = List.of(
+        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
     );
 
     /**

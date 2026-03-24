@@ -254,9 +254,7 @@ fun TuningItem(
     val tuningName = when (tuning) {
         is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
         is TuningEntry.InstrumentTuning ->
-            if (tuning.tuning.hasName()) {
-                tuning.tuning.name
-            } else {
+            tuning.tuning.nameOrBlank.ifBlank {
                 getCanonicalName(tuning)
             }
     }
