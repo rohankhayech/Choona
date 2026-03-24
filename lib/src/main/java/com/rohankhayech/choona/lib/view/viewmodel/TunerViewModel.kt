@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -147,7 +148,7 @@ class TunerViewModel : ViewModel() {
      * @param new Whether the tuning is a new custom tuning.
      */
     fun openTuningEditor(tuning: Tuning, new: Boolean) {
-        _backStack.add(Screen.EditTuning(tuning, new))
+        _backStack.add(Screen.EditTuning(TuningFileIO.encodeTuningToString(tuning), new))
     }
 
     /**
@@ -166,7 +167,7 @@ class TunerViewModel : ViewModel() {
         if (key.new) {
             onAddFromEditor(tuning)
         } else {
-            onUpdateFromEditor(key.tuning, tuning)
+            onUpdateFromEditor(TuningFileIO.parseTuningFromString(key.tuningJSON), tuning)
         }
     }
 
@@ -197,7 +198,7 @@ class TunerViewModel : ViewModel() {
      */
     fun onDeleteFromEditor(key: Screen.EditTuning) {
         if (!key.new) {
-            tuningList.removeCustom(key.tuning)
+            tuningList.removeCustom(TuningFileIO.parseTuningFromString(key.tuningJSON))
             navBack()
         }
     }
@@ -210,6 +211,6 @@ class TunerViewModel : ViewModel() {
         @Serializable object Tuner: Screen()
         @Serializable object ConfigureTuning: Screen()
         @Serializable object TuningSelection: Screen()
-        @Serializable data class EditTuning(val tuning: Tuning, val new: Boolean): Screen()
+        @Serializable data class EditTuning(val tuningJSON: String, val new: Boolean): Screen()
     }
 }

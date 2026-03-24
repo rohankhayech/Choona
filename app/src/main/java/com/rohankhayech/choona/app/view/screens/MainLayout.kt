@@ -272,7 +272,7 @@ fun MainLayout(
                 }
             ) { key ->
                 val editVM: EditTuningViewModel = viewModel(
-                    factory = EditTuningViewModel.provideFactory(key.tuning, key.new)
+                    factory = EditTuningViewModel.provideFactory(key.tuningJSON, key.new)
                 )
                 val editTuning by editVM.editor.tuning.collectAsStateWithLifecycle()
                 val editName by editVM.name.collectAsStateWithLifecycle()

@@ -20,6 +20,7 @@ package com.rohankhayech.choona.lib.view.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tunings.CustomTuningEditor
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,16 +75,17 @@ class EditTuningViewModel(
         /**
          * Provides a [ViewModelProvider.Factory] for creating [EditTuningViewModel] instances.
          *
-         * @param initialTuning The tuning to edit.
+         * @param initialTuningJSON JSON representation of the tuning to edit.
          * @param new Whether a new tuning is being created.
          * @return A factory for the ViewModel.
          */
         fun provideFactory(
-            initialTuning: Tuning,
+            initialTuningJSON: String,
             new: Boolean
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val initialTuning = TuningFileIO.parseTuningFromString(initialTuningJSON)
                 return EditTuningViewModel(initialTuning, new) as T
             }
         }

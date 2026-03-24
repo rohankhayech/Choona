@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -263,6 +263,33 @@ object TuningFileIO {
         }
 
         return tuningObj
+    }
+
+    /**
+     * Encodes the specified tuning to a JSON string.
+     * @param tuning The tuning to encode.
+     */
+    fun encodeTuningToString(tuning: Tuning): String {
+        return encodeTuning(TuningEntry.InstrumentTuning(tuning)).toString()
+    }
+
+    /**
+     * Parses the tuning from the specified JSON string.
+     * @param tuningJSON The JSON string representation of the tuning.
+     * @return The tuning represented by the JSON string.
+     * @throws TuningIOException If there is an error parsing the tuning from JSON
+     *                           or the tuning is not an instrument tuning.
+     */
+    @Throws(JSONException::class, ClassCastException::class)
+    fun parseTuningFromString(tuningJSON: String): Tuning {
+        try {
+            return (parseTuning(JSONObject(tuningJSON)) as TuningEntry.InstrumentTuning).tuning
+        } catch (e: JSONException) {
+            throw TuningIOException("Tuning could not be parsed: " + e.message, e)
+        } catch (e: ClassCastException) {
+            throw TuningIOException("Tuning was not an instrument tuning.", e)
+        }
+
     }
 }
 
