@@ -92,6 +92,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -885,28 +886,6 @@ private fun TuningItem(
     }
 }
 
-/** @return The localised name of this instrument. */
-@Composable
-fun Instrument.getLocalisedName(): String {
-    return stringResource(when (this) {
-                              Instrument.GUITAR -> R.string.instr_guitar
-                              Instrument.BASS -> R.string.instr_bass
-                              Instrument.UKULELE -> R.string.instr_ukulele
-                              else -> R.string.instr_other
-                          })
-}
-
-/** @return The localised name of this category. */
-@Composable
-fun Category?.getLocalisedName(): String {
-    return stringResource(when (this) {
-        Category.COMMON -> R.string.tun_cat_common
-        Category.POWER -> R.string.tun_cat_power
-        Category.OPEN -> R.string.tun_cat_open
-        else -> R.string.tun_cat_misc
-    })
-}
-
 /** UI component displaying a tuning category label with [title] text. */
 @Composable
 private fun CategoryLabel(title: String) {
@@ -937,7 +916,7 @@ fun SaveTuningDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel))
+                Text(text = stringResource(android.R.string.cancel))
             }
         },
         onDismissRequest = onDismiss,
@@ -1010,7 +989,7 @@ fun DeleteTuningDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel))
+                Text(text = stringResource(android.R.string.cancel))
             }
         },
         onDismissRequest = onDismiss,

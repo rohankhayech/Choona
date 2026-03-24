@@ -891,18 +891,6 @@ private fun LazyItemScope.TuningItem(
     }
 }
 
-/** @return The localised name of this category. */
-@Composable
-fun Category?.getLocalisedName(): String {
-    return stringResource(when (this) {
-        Category.COMMON -> R.string.tun_cat_common
-        Category.POWER -> R.string.tun_cat_power
-        Category.OPEN -> R.string.tun_cat_open
-        Category.EXTENDED -> R.string.tun_cat_extended
-        else -> R.string.tun_cat_misc
-    })
-}
-
 /** UI component displaying a tuning category label with [title] text. */
 @Composable
 private fun LazyItemScope.SectionTitle(title: String, modifier: Modifier = Modifier) {

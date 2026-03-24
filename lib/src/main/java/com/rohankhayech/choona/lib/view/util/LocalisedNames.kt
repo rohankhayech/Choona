@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 
 /** @return The localised name of this instrument. */
 @Composable
@@ -31,5 +32,17 @@ fun Instrument.getLocalisedName(): String {
         Instrument.BASS -> R.string.instr_bass
         Instrument.UKULELE -> R.string.instr_ukulele
         else -> R.string.instr_other
+    })
+}
+
+/** @return The localised name of this category. */
+@Composable
+fun Category?.getLocalisedName(): String {
+    return stringResource(when (this) {
+        Category.COMMON -> R.string.tun_cat_common
+        Category.POWER -> R.string.tun_cat_power
+        Category.OPEN -> R.string.tun_cat_open
+        Category.EXTENDED -> R.string.tun_cat_extended
+        else -> R.string.tun_cat_misc
     })
 }
