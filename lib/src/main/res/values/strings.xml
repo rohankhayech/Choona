@@ -112,5 +112,6 @@
     <string name="edit_tuning">Edit Tuning</string>
     <string name="add_tuning">Add Custom Tuning</string>
     <string name="strings">Strings</string>
+    <string name="delete_tuning_confirmation">Delete this tuning?</string>
     <string name="new_tuning">New Tuning</string>
 </resources>

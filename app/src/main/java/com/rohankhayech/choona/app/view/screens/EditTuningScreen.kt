@@ -278,6 +278,7 @@ private fun EditTuningForm(
     onDelete: () -> Unit
 ) {
     var stringToEdit by remember { mutableStateOf<Int?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (stringToEdit != null) {
         val index = stringToEdit!!
@@ -289,6 +290,32 @@ private fun EditTuningForm(
             },
             onPressNote = onPressNote,
             onDismiss = { stringToEdit = null }
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(stringResource(R.string.delete)) },
+            text = { Text(stringResource(R.string.delete_tuning_confirmation)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
         )
     }
 
@@ -414,7 +441,7 @@ private fun EditTuningForm(
         // Delete button.
         if (!new) {
             TextButton(
-                onClick = onDelete,
+                onClick = { showDeleteDialog = true },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
                 )
