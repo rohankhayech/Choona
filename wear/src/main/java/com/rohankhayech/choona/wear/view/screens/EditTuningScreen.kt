@@ -207,7 +207,7 @@ fun EditTuningScreen(
         dismissButton = {},
         confirmButton = {
             Button(onClick = { errorMessage = null }) {
-                Icon(Icons.Default.Close, null)
+                Icon(Icons.Default.Close, stringResource(R.string.dismiss))
             }
         },
         visible = errorMessage != null
@@ -296,7 +296,7 @@ fun EditTuningScreen(
             item {
                 Button(
                     onClick = { showInstrumentDialog = true },
-                        Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

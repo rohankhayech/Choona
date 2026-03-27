@@ -92,8 +92,6 @@ import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.choona.wear.view.util.wearTextInput
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * UI screen that allows the user to select a tuning for use,
@@ -143,7 +141,6 @@ fun TuningListScreen(
         categoryFilter = categoryFilter,
         instrumentFilters = instrumentFilters,
         categoryFilters = categoryFilters,
-        deletedTuning = tuningList.deletedTuning,
         isFavourite = { tuningList.run { this@TuningSelectionScreen.isFavourite() } },
         onSelectInstrument = { tuningList.filterBy(instrument = it) },
         onSelectCategory = { tuningList.filterBy(category = it) },
@@ -182,7 +179,6 @@ fun TuningListScreen(
  * @param categoryFilter Current filter for tuning category.
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
- * @param deletedTuning Event indicating the specified tuning was deleted.
  * @param isFavourite Function that returns whether a tuning is marked as a favourite.
  * @param onSelectInstrument Called when an instrument filter is selected.
  * @param onSelectCategory Called when an category filter is selected.
@@ -210,7 +206,6 @@ fun TuningSelectionScreen(
     categoryFilter: Category?,
     instrumentFilters: State<Map<Instrument, Boolean>>,
     categoryFilters: State<Map<Category, Boolean>>,
-    deletedTuning: SharedFlow<Tuning>,
     isFavourite: TuningEntry.() -> Boolean,
     onSelectInstrument: (Instrument?) -> Unit,
     onSelectCategory: (Category?) -> Unit,
@@ -927,7 +922,7 @@ private fun TuningItem(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        if (pinned && pinnedInitial && tuning.tuning != Tuning.STANDARD) {
+                        if (pinned && pinnedInitial && tuning.tuning?.equivalentTo(Tunings.STANDARD) != true) {
                             Icon(
                                 Icons.Default.PushPin,
                                 contentDescription = stringResource(R.string.tuning_list_pinned),
@@ -1100,7 +1095,6 @@ private fun Preview() {
                 categoryFilter = null,
                 instrumentFilters = remember { mutableStateOf(Instrument.entries.dropLast(1).associateWith { true }) },
                 categoryFilters = remember { mutableStateOf(Category.entries.associateWith { true }) },
-                deletedTuning = MutableSharedFlow(),
                 isFavourite = { this == favCustomTuning },
                 onSave = { _, _ -> },
                 onFavouriteSet = { _, _ -> },
