@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import java.time.LocalDateTime
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -40,8 +39,6 @@ android {
         versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "BUILD_YEAR", "\"${buildYear()}\"")
     }
 
     buildTypes {
@@ -106,8 +103,11 @@ dependencies {
     implementation(libs.compose.animation)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.material3.window.size)
+    implementation(libs.compose.adaptive.navigation3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
     // Audio
     implementation(libs.tarsos.dsp.core)
@@ -151,8 +151,4 @@ aboutLibraries {
         // Configure the duplication rule, to match "duplicates" with
         duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
     }
-}
-
-fun buildYear(): String {
-    return LocalDateTime.now().year.toString()
 }

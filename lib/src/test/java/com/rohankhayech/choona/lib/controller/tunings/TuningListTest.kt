@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.lib.controller.tunings
 
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
@@ -54,12 +55,18 @@ class TuningListTest {
         tuningList = TuningList(coroutineScope = testScope)
     }
 
+    /**
+     * Verifies that the constructor correctly initializes the current tuning.
+     */
     @Test
     fun testConstructor() {
         val tl = TuningList(Tuning.STANDARD)
         assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tl.current.value)
     }
 
+    /**
+     * Tests setting and getting the current tuning, including handling of equivalent tunings and chromatic tuning.
+     */
     @Test
     fun testCurrent() {
         // Test default value.
@@ -80,6 +87,9 @@ class TuningListTest {
         assertEquals(TuningEntry.ChromaticTuning, tuningList.current.value)
     }
 
+    /**
+     * Tests adding and removing tunings from the favorites list.
+     */
     @Test
     fun testFavourites() {
         // Test default value.
@@ -94,6 +104,9 @@ class TuningListTest {
         assertEquals(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.ChromaticTuning), tuningList.favourites.value)
     }
 
+    /**
+     * Tests adding and removing custom tunings, and its effects on current and pinned tunings.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testCustom() {
@@ -138,6 +151,80 @@ class TuningListTest {
         assertEquals(TuningEntry.InstrumentTuning(Tuning.STANDARD), tuningList.pinned.value)
     }
 
+    /**
+     * Verifies that adding a duplicate custom or built-in tuning throws an [ExistingTuningException].
+     */
+    @Test
+    fun testAddCustomThrows() {
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.addCustom("Standard", Tuning.STANDARD)
+        }
+
+        tuningList.addCustom("Custom", Tuning.fromString("E2"))
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.addCustom("Custom 2", Tuning.fromString("E2"))
+        }
+    }
+
+    /**
+     * Tests updating an existing custom tuning and ensures current, pinned, and favorite references are updated accordingly.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testUpdateCustom() {
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            tuningList.custom.collect {}
+        }
+
+        val original = tuningList.addCustom("Original", Tuning.fromString("E2"))
+        val updated = Tuning("Updated", Tuning.fromString("D2"))
+
+        // Test update
+        tuningList.updateCustom(original, updated)
+        testScope.advanceUntilIdle()
+
+        assertEquals(setOf(TuningEntry.InstrumentTuning(updated)), tuningList.custom.value)
+
+        // Test update current and pinned and favourites
+        val updatedEntry = TuningEntry.InstrumentTuning(updated)
+
+        tuningList.setCurrent(updatedEntry) // Current is already updated to 'updated'
+        tuningList.setPinned(updatedEntry)
+        tuningList.setFavourited(updatedEntry, true)
+
+        val updated2 = Tuning("Updated 2", Tuning.fromString("C2"))
+        tuningList.updateCustom(updated, updated2)
+        testScope.advanceUntilIdle()
+
+        val updated2Entry = TuningEntry.InstrumentTuning(updated2)
+        assertEquals(updated2Entry, tuningList.current.value)
+        assertEquals(updated2Entry, tuningList.pinned.value)
+        assertTrue(tuningList.favourites.value.contains(updated2Entry))
+        assertFalse(tuningList.favourites.value.contains(updatedEntry))
+
+        // Test duplicate exception
+        assertThrows(ExistingTuningException::class.java) {
+            tuningList.updateCustom(updated2, Tuning.STANDARD)
+        }
+    }
+
+    /**
+     * Verifies that updating a non-existent tuning throws an [IllegalStateException].
+     */
+    @Test
+    fun testUpdateCustomThrowsMissing() {
+        val original = Tuning.fromString("Original", Tuning.DEFAULT_INSTRUMENT, null, "E2")
+        val updated = Tuning.fromString("Updated", Tuning.DEFAULT_INSTRUMENT, null, "D2")
+
+        assertThrows(IllegalStateException::class.java) {
+            tuningList.updateCustom(original, updated)
+        }
+    }
+
+    /**
+     * Verifies that the filtered tunings list correctly updates based on instrument and category filters.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testFilteredTunings() {
@@ -158,6 +245,9 @@ class TuningListTest {
                 TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
                 TuningEntry.InstrumentTuning(Tunings.BASS_DROP_D),
                 TuningEntry.InstrumentTuning(Tunings.BASS_E_FLAT)
+            ),
+            Pair(Instrument.BASS, Category.EXTENDED) to listOf(
+                TuningEntry.InstrumentTuning(Tunings.BASS_HIGH_C)
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -196,6 +286,9 @@ class TuningListTest {
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
     }
 
+    /**
+     * Tests the logic for setting and clearing instrument and category filters.
+     */
     @Test
     fun testFilterBy() {
         // Test instrument
@@ -230,6 +323,9 @@ class TuningListTest {
         }
     }
 
+    /**
+     * Verifies the availability of instrument filters based on the selected category.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testInstrumentFilters() {
@@ -258,6 +354,9 @@ class TuningListTest {
         assertEquals(expected, tuningList.instrumentFilters.value)
     }
 
+    /**
+     * Verifies the availability of category filters based on the selected instrument.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testCategoryFilters() {
@@ -280,6 +379,7 @@ class TuningListTest {
             Category.COMMON to true,
             Category.POWER to false,
             Category.OPEN to false,
+            Category.EXTENDED to true,
             Category.MISC to false
         )
         tuningList.filterBy(instrument = Instrument.BASS)
@@ -287,6 +387,9 @@ class TuningListTest {
         assertEquals(expected, tuningList.categoryFilters.value)
     }
 
+    /**
+     * Tests that deleted custom tunings are correctly emitted to the [TuningList.deletedTuning] flow.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testDeletedTuning() {
@@ -310,6 +413,9 @@ class TuningListTest {
         assertEquals(deleted.size, 2)
     }
 
+    /**
+     * Tests the equality logic for [TuningList].
+     */
     @Test
     fun testEquals() {
         val newList = TuningList()
@@ -319,12 +425,14 @@ class TuningListTest {
         assertNotEquals(tuningList, newList)
     }
 
+    /** Tests the hash code generation for [TuningList] */
     @Test
     fun testHashCode() {
         val equal = TuningList()
         assertEquals(equal.hashCode(), tuningList.hashCode())
     }
 
+    /** Verifies the logic for grouping and sorting tunings by instrument and category. */
     @Test
     fun testGroupAndSort() {
         val guitarCommon = TuningEntry.InstrumentTuning(Tuning.fromString("", Instrument.GUITAR, Category.COMMON, "E2"))
@@ -347,6 +455,7 @@ class TuningListTest {
         assertEquals(expectedGroups, grouped)
     }
 
+    /** Tests the [TuningList.currentSaved] flow, which indicates if the current tuning exists in the built-in or custom lists. */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testCurrentSaved() {
@@ -387,6 +496,7 @@ class TuningListTest {
         assertTrue(tuningList.currentSaved.value)
     }
 
+    /** Tests the `TuningEntry.isFavourite` extension function on [TuningEntry]. */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testIsFavourite() {
@@ -414,6 +524,9 @@ class TuningListTest {
         }
     }
 
+    /**
+     * Tests retrieving the display name for a tuning, prioritizing custom names and built-in names over the raw note list.
+     */
     @Test
     fun testGetCanonicalName() {
         with (tuningList) {

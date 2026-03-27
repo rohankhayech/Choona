@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import com.rohankhayech.choona.lib.view.theme.Green700
 import com.rohankhayech.choona.lib.view.theme.backgroundDark
 import com.rohankhayech.choona.lib.view.theme.errorContainerDark
 import com.rohankhayech.choona.lib.view.theme.errorDark
+import com.rohankhayech.choona.lib.view.theme.extendedDark
 import com.rohankhayech.choona.lib.view.theme.onBackgroundDark
 import com.rohankhayech.choona.lib.view.theme.onErrorContainerDark
 import com.rohankhayech.choona.lib.view.theme.onErrorDark
@@ -200,15 +201,5 @@ private val extendedLight = ExtendedColorScheme(
         onPrimaryLight,
         primaryContainerLight,
         onPrimaryContainerLight
-    )
-)
-
-/** Extra dark theme colors. */
-private val extendedDark = ExtendedColorScheme(
-    green = ColorFamily(
-        primaryDark,
-        onPrimaryDark,
-        primaryContainerDark,
-        onPrimaryContainerDark
     )
 )

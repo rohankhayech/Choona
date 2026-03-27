@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.util.Objects
 import java.util.SortedMap
 import android.content.Context
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
+import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
@@ -217,8 +218,19 @@ class TuningList(
     /**
      * Saves the specified custom [tuning] under the given [name].
      * @return The named tuning.
+     * @throws ExistingTuningException If an equivalent tuning already exists.
      */
+    @Throws(ExistingTuningException::class)
     fun addCustom(name: String?, tuning: Tuning): Tuning {
+        // Check if the tuning already exists.
+        tuning.findEquivalentIn(Tunings.TUNINGS)?.let {
+            throw ExistingTuningException(it.name, true)
+        }
+        tuning.findEquivalentIn(_custom.value)?.let {
+            throw ExistingTuningException(it.name, false)
+        }
+
+        // Add the custom tuning.
         val newTuning = Tuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
         if (current.value?.tuning?.equivalentTo(tuning) == true) {
@@ -228,6 +240,39 @@ class TuningList(
             _pinned.update { TuningEntry.InstrumentTuning(newTuning) }
         }
         return newTuning
+    }
+
+    /**
+     * Updates an existing custom [tuning] with the new [updatedTuning].
+     * @throws ExistingTuningException If an equivalent tuning already exists (other than the one being updated).
+     * @throws IllegalStateException If the tuning to be updated does not exist.
+     */
+    @Throws(ExistingTuningException::class, IllegalStateException::class)
+    fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+        // Assert that the tuning to be replaced exists.
+        check(_custom.value.contains(tuning)) { "The specified tuning does not exist in the custom tuning list." }
+
+        // Check if the updated tuning already exists.
+        updatedTuning.findEquivalentIn(Tunings.TUNINGS)?.let {
+            throw ExistingTuningException(it.name, true)
+        }
+        updatedTuning.findEquivalentIn(_custom.value.minusElement(tuning))?.let {
+            throw ExistingTuningException(it.name, false)
+        }
+
+        // Update the custom tuning.
+        _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
+        if (current.value?.tuning?.equivalentTo(tuning) == true) {
+            _current.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        }
+        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
+            _pinned.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        }
+        _favourites.update {
+            if (it.contains(TuningEntry.InstrumentTuning(tuning))) {
+                it.minusElement(TuningEntry.InstrumentTuning(tuning)).plusElement(TuningEntry.InstrumentTuning(updatedTuning))
+            } else it
+        }
     }
 
     /**

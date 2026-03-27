@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@ import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.lifecycleScope
@@ -72,12 +70,6 @@ abstract class BaseTunerActivity : ComponentActivity() {
     /** User preferences for the tuner. */
     protected lateinit var prefs: Flow<TunerPreferences>
 
-    /** Callback used to dismiss tuning selection screen when the back button is pressed. */
-    private lateinit var dismissTuningSelectorOnBack: OnBackPressedCallback
-
-    /** Callback used to dismiss configure tuning panel when the back button is pressed. */
-    private lateinit var dismissConfigurePanelOnBack: OnBackPressedCallback
-
     /**
      * Called when activity is created.
      * 
@@ -97,7 +89,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         ph = PermissionHandler(this, Manifest.permission.RECORD_AUDIO)
 
         // Setup MIDI controller for note playback.
-        midi = MidiController(vm.tuner.tuning.value.numStrings())
+        midi = MidiController()
 
         // Load tunings
         lifecycleScope.launch {
@@ -111,32 +103,19 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 if (!intent.hasExtra(EXTRA_LAUNCHED_TUNING)) {
                     when (preferences.initialTuning) {
                         InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
-                            is TuningEntry.InstrumentTuning -> setTuning(vm.tuningList.pinned.value.tuning!!)
+                            is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(vm.tuningList.pinned.value.tuning!!)
                             is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
                         }
 
                         InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
                             when (it) {
-                                is TuningEntry.InstrumentTuning -> setTuning(it.tuning)
+                                is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(it.tuning)
                                 is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
                             }
                         }
                     }
                 }
             }
-        }
-
-        // Setup custom back navigation.
-        dismissConfigurePanelOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.configurePanelOpen.value,
-        ) {
-            dismissConfigurePanel()
-        }
-
-        dismissTuningSelectorOnBack = onBackPressedDispatcher.addCallback(this,
-            enabled = vm.tuningSelectorOpen.value
-        ) {
-            dismissTuningSelector()
         }
 
         // Keep the screen on while tuning.
@@ -156,13 +135,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         midi.start()
 
         // Start the tuner if no panels are open.
-        if (!vm.tuningSelectorOpen.value && !vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch (_: Exception) {
-                // Catch and ignore, error will be displayed in the UI.
-            }
-        }
+        checkAndStartTuner()
     }
 
     /**
@@ -213,7 +186,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
         midi.playNote(
             string,
             MidiController.noteIndexToMidi(vm.tuner.tuning.value.getString(string).rootNoteIndex),
-            150,
+            NOTE_SELECT_SOUND_DURATION,
             vm.tuner.tuning.value.instrument.midiInstrument
         )
     }
@@ -227,19 +200,26 @@ abstract class BaseTunerActivity : ComponentActivity() {
         vm.tuner.selectNote(noteIndex)
 
         // Play sound on string selection.
-        lifecycleScope.launch {
-            if (prefs.first().enableStringSelectSound) playNoteSelectSound(noteIndex)
-        }
+        playNoteSelectSound(noteIndex)
     }
 
-    /** Plays the note selection sound for the specified [noteIndex]. */
-    private suspend fun playNoteSelectSound(noteIndex: Int) {
-        midi.playNote(
-            0,
-            MidiController.noteIndexToMidi(noteIndex),
-            150,
-            Instrument.GUITAR.midiInstrument
-        )
+    /** Plays the note selection sound for the specified [noteIndex] if enabled. */
+    private fun playNoteSelectSound(noteIndex: Int) {
+        playNote(noteIndex, Instrument.GUITAR)
+    }
+
+    /** Plays the specified note index with the specified instrument if enabled. */
+    protected fun playNote(noteIndex: Int, instrument: Instrument) {
+        lifecycleScope.launch {
+            if (prefs.first().enableStringSelectSound) {
+                midi.playNote(
+                    0,
+                    MidiController.noteIndexToMidi(noteIndex),
+                    NOTE_SELECT_SOUND_DURATION,
+                    instrument.midiInstrument
+                )
+            }
+        }
     }
 
     /**
@@ -274,110 +254,64 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * Opens the configure tuning panel, and stops the tuner.
      */
     protected fun openConfigurePanel() {
-        dismissConfigurePanelOnBack.isEnabled = true
         vm.openConfigurePanel()
-        vm.tuner.stop()
+        checkAndStopTuner()
     }
 
     /**
      * Opens the tuning selection screen, and stops the tuner.
      */
     protected fun openTuningSelector() {
-        dismissTuningSelectorOnBack.isEnabled = true
         vm.openTuningSelector()
-        vm.tuner.stop()
+        checkAndStopTuner()
     }
 
     /**
-     * Dismisses the tuning selection screen and restarts the tuner if no other panel is open.
+     * Navigates back and restarts the tuner if no other panel is open.
      */
-    protected fun dismissTuningSelector() {
-        dismissTuningSelectorOnBack.isEnabled = false
-        vm.dismissTuningSelector()
-        if (!vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch(_: Exception) {}
-        }
-    }
+    protected fun navBack() {
+        vm.navBack()
 
-    /** Dismisses the configure panel and restarts the tuner if no other panel is open. */
-    protected fun dismissConfigurePanel() {
-        dismissConfigurePanelOnBack.isEnabled = false
-        vm.dismissConfigurePanel()
-        if (!vm.tuningSelectorOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch (_: Exception) {}
-        }
+        // Start tuner if no other panel is open.
+        checkAndStartTuner()
     }
 
     /**
      * Sets the current tuning to the [tuning] selected on the tuning
-     * selection screen, restarts the tuner if no other panel is open,
-     * and recreates the MIDI driver if necessary.
+     * selection screen and restarts the tuner if no other panel is open.
      */
-    protected fun selectTuning(tuning: Tuning) {
-        // Consume back stack entry.
-        dismissTuningSelectorOnBack.isEnabled = false
-
-        // Recreate MIDI driver if number of strings different.
-        checkAndRecreateMidiDriver(tuning)
-
+    protected fun selectTuningFromList(tuning: Tuning) {
         // Select the tuning.
-        vm.selectTuning(tuning)
+        vm.selectTuningFromList(tuning)
 
         // Start tuner if no other panel is open.
-        if (!vm.configurePanelOpen.value) {
-            try {
-                vm.tuner.start(ph)
-            } catch(_: Exception) {}
-        }
+        checkAndStartTuner()
     }
 
     /**
      * Sets chromatic mode on as selected on the tuning selection screen
      * and restarts the tuner if no other panel is open.
      */
-    protected open fun selectChromatic() {
-        // Consume back stack entry.
-        dismissTuningSelectorOnBack.isEnabled = false
-
+    protected fun selectChromaticFromList() {
         // Select the tuning.
-        vm.selectChromatic()
+        vm.selectChromaticFromList()
 
         // Start tuner if no other panel is open.
-        if (!vm.configurePanelOpen.value) {
+        checkAndStartTuner()
+    }
+
+    /** Starts tuner if no other panel is open above it. */
+    protected fun checkAndStartTuner() {
+        if (vm.isTunerScreenOpen()) {
             try {
                 vm.tuner.start(ph)
             } catch(_: Exception) {}
         }
     }
 
-    /**
-     * Sets the current tuning to the [tuning] specified,
-     * and recreates the MIDI driver if necessary.
-     */
-    protected fun setTuning(tuning: Tuning) {
-        // Recreate MIDI driver if number of strings different.
-        checkAndRecreateMidiDriver(tuning)
-
-        // Select the tuning.
-        vm.tuner.setTuning(tuning)
-    }
-
-    /**
-     * Recreates the MIDI driver when the number of strings
-     * in the new tuning is different from the current tuning.
-     *
-     * @param newTuning The new selected tuning.
-     */
-    private fun checkAndRecreateMidiDriver(newTuning: Tuning) {
-        if (newTuning.numStrings() != vm.tuner.tuning.value.numStrings()) {
-            midi.stop()
-            midi = MidiController(newTuning.numStrings())
-            midi.start()
-        }
+    /** Stops tuner if a panel is open above it. */
+    protected fun checkAndStopTuner() {
+        if (!vm.isTunerScreenOpen()) vm.tuner.stop()
     }
 
     /** Opens the permission settings screen in the device settings. */
@@ -388,5 +322,9 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 Uri.fromParts("package", packageName, null)
             )
         )
+    }
+
+    companion object {
+        private const val NOTE_SELECT_SOUND_DURATION = 150L
     }
 }
