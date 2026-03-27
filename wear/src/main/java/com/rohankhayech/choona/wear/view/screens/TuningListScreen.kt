@@ -18,12 +18,6 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
-import android.app.RemoteInput
-import android.content.Intent
-import android.os.Bundle
-import android.view.inputmethod.EditorInfo
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -82,8 +76,6 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TitleCard
-import androidx.wear.input.RemoteInputIntentHelper
-import androidx.wear.input.wearableExtender
 import com.rohankhayech.android.util.ui.layout.ItemScrollPosition
 import com.rohankhayech.android.util.ui.layout.LazyListAutoScroll
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
@@ -97,6 +89,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.wear.view.util.wearTextInput
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -959,36 +952,12 @@ fun SaveTuningDialog(
         )},
     ) {
         item {
-            val launcher = rememberLauncherForActivityResult(
-                ActivityResultContracts.StartActivityForResult()
-            ) {
-                it.data?.let { data ->
-                    // Get all the results
-                    val results: Bundle = RemoteInput.getResultsFromIntent(data)
-                    // Use the inputTextKey to select the input we are interested in
-                    val newInputText: CharSequence? = results.getCharSequence("tuning-name")
-                    // Save the text to our variable as a string. Ensure to handle the null case
-                    name = newInputText?.toString() ?: ""
-                }
-            }
-
-            val intent: Intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-
-            val remoteInputs: List<RemoteInput> = listOf(
-                RemoteInput.Builder("tuning-name")
-                    .setLabel(stringResource(id = R.string.dialog_title_save_tuning))
-                    .wearableExtender {
-                        setEmojisAllowed(true)
-                        setInputActionType(EditorInfo.IME_ACTION_DONE)
-                    }.build()
-            )
-
-            RemoteInputIntentHelper.putRemoteInputsExtra(intent, remoteInputs)
-
             CompactButton(
-                onClick = {
-                    // Use the launcher to launch the intent on click of a button
-                    launcher.launch(intent)
+                onClick = wearTextInput(
+                    stringResource(id = R.string.dialog_title_save_tuning),
+                    "tuning-name"
+                ) {
+                    name = it
                 },
             ) {
                 Text(text = name)

@@ -18,12 +18,6 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
-import android.app.RemoteInput
-import android.content.Intent
-import android.os.Bundle
-import android.view.inputmethod.EditorInfo
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,8 +61,6 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
-import androidx.wear.input.RemoteInputIntentHelper
-import androidx.wear.input.wearableExtender
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
@@ -83,6 +75,7 @@ import com.rohankhayech.choona.wear.view.components.NoteSelector
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.components.StringControls
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.wear.view.util.wearTextInput
 import com.rohankhayech.choona.wear.R as WearR
 
 /**
@@ -259,29 +252,13 @@ fun EditTuningScreen(
 
             // Name edit
             item {
-                val launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    it.data?.let { data ->
-                        val results: Bundle = RemoteInput.getResultsFromIntent(data)
-                        val newInputText: CharSequence? = results.getCharSequence("tuning-name")
-                        newInputText?.let { txt -> onNameChange(txt.toString()) }
-                    }
-                }
-                val intent: Intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-                val remoteInputs: List<RemoteInput> = listOf(
-                    RemoteInput.Builder("tuning-name")
-                        .setLabel(stringResource(R.string.name))
-                        .wearableExtender {
-                            setEmojisAllowed(true)
-                            setInputActionType(EditorInfo.IME_ACTION_DONE)
-                        }.build()
-                )
-                RemoteInputIntentHelper.putRemoteInputsExtra(intent, remoteInputs)
-
                 Button(
-                    onClick = { launcher.launch(intent) },
-                    Modifier.fillMaxWidth(),
+                    onClick = wearTextInput(
+                        stringResource(R.string.name),
+                        "tuning-name",
+                        onInput = onNameChange
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(
                         Modifier.fillMaxWidth(),
