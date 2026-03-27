@@ -164,7 +164,7 @@ fun EditTuningScreen(
         onDismissRequest = { showDeleteDialog = false },
         visible = showDeleteDialog,
         title = { Text(
-            "${stringResource(R.string.delete)} ${name}?"
+            "${stringResource(R.string.delete)} ${name.ifBlank { tuning.toString() }}?"
         )},
         icon = {
             Icon(
