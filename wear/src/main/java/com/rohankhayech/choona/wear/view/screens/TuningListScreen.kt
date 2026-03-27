@@ -383,13 +383,16 @@ fun TuningList(
                 CurrentTuningItem(
                     tuning = current,
                     saved = currentSaved,
+                    favourited = current.isFavourite(),
                     pinned = currentPinned,
                     pinnedInitial = pinnedInitial,
                     onSave = onSave,
-                    onSelect = onSelect
-                ) { tuning, pinned ->
-                    if (pinned) onPin(tuning) else onUnpin()
-                }
+                    onSelect = onSelect,
+                    onPinnedSet = { tuning, pinned ->
+                        if (pinned) onPin(tuning) else onUnpin()
+                    },
+                    onFavouriteSet = onFavouriteSet
+                )
             }
         }
 
@@ -637,25 +640,30 @@ private fun <T> TuningFilterChip(
  *
  * @param tuning Currently selected tuning.
  * @param saved Whether the tuning is currently saved.
+ * @param favourited Whether the tuning is currently favourited.
  * @param pinned Whether the tuning is currently pinned.
  * @param pinnedInitial Whether the pinned tuning is used as the initial tuning.
  * @param onSave Called when the save button is pressed.
  * @param onSelect Called when this tuning is selected.
  * @param onPinnedSet Called when the pin button is pressed.
+ * @param onFavouriteSet Called when the favourite button is pressed.
  */
 @Composable
 private fun CurrentTuningItem(
     tuning: TuningEntry,
     saved: Boolean,
+    favourited: Boolean,
     pinned: Boolean,
     pinnedInitial: Boolean,
     onSave: (Tuning) -> Unit,
     onSelect: (TuningEntry) -> Unit,
-    onPinnedSet: (TuningEntry, Boolean) -> Unit
+    onPinnedSet: (TuningEntry, Boolean) -> Unit,
+    onFavouriteSet: (TuningEntry, Boolean) -> Unit
 ) {
     val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
     TuningItem(
         tuning = tuning,
+        favourited = favourited,
         pinned = pinned,
         pinnedInitial = pinnedInitial,
         onSelect = onSelect,
@@ -668,13 +676,28 @@ private fun CurrentTuningItem(
                         onPinnedSet(tuning, it)
                     },
                     colors = IconToggleButtonDefaults.colors(
-                        checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 ) {
                     Icon(
                         if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
                         contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
+                    )
+                }
+            }
+            if (saved) {
+                IconToggleButton(
+                    checked = favourited,
+                    onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+                    colors = IconToggleButtonDefaults.colors(
+                        checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    Icon(
+                        if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
+                        contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
                     )
                 }
             }
@@ -720,6 +743,7 @@ private fun CustomTuningItem(
     val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(
         tuning = tuning,
+        favourited = favourited,
         pinned = pinned,
         pinnedInitial = pinnedInitial,
         onSelect = onSelect
@@ -803,6 +827,7 @@ private fun FavouritableTuningItem(
     val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
     TuningItem(
         tuning = tuning,
+        favourited = favourited,
         pinned = pinned,
         pinnedInitial = pinnedInitial,
         onSelect = onSelect
@@ -843,6 +868,7 @@ private fun FavouritableTuningItem(
  * List item displaying a custom tuning, with support for long press actions.
  *
  * @param tuning The tuning to display.
+ * @param favourited Whether the tuning is currently favourited.
  * @param pinned Whether the tuning is currently pinned.
  * @param pinnedInitial Whether the pinned tuning is used as the initial tuning.
  * @param onSelect Called when this tuning is selected.
@@ -851,6 +877,7 @@ private fun FavouritableTuningItem(
 @Composable
 private fun TuningItem(
     tuning: TuningEntry,
+    favourited: Boolean = false,
     pinned: Boolean = false,
     pinnedInitial: Boolean = false,
     onSelect: (TuningEntry) -> Unit,
@@ -885,21 +912,37 @@ private fun TuningItem(
             Text(desc)
 
         },
-        time = if (tuning is TuningEntry.InstrumentTuning || (pinned && pinnedInitial)) {
+        time = if (tuning is TuningEntry.InstrumentTuning || (pinned && pinnedInitial) || favourited) {
             {
                 Row(Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     if (tuning is TuningEntry.InstrumentTuning) {
                         Text("${tuning.tuning.instrument.getLocalisedName()} ‧ ${tuning.tuning.numStrings()}" + stringResource(R.string.num_strings_suffix))
+                    } else {
+                        Text(stringResource(R.string.tun_cat_misc))
                     }
-                    if (pinned && pinnedInitial && tuning.tuning != Tuning.STANDARD) {
-                        Icon(
-                            Icons.Default.PushPin,
-                            contentDescription = stringResource(R.string.tuning_list_pinned),
-                            modifier = Modifier.size(12.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        if (pinned && pinnedInitial && tuning.tuning != Tuning.STANDARD) {
+                            Icon(
+                                Icons.Default.PushPin,
+                                contentDescription = stringResource(R.string.tuning_list_pinned),
+                                modifier = Modifier.size(12.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (favourited) {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = stringResource(R.string.tuning_list_favourites),
+                                modifier = Modifier.size(12.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
