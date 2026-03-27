@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ fun StringControls(
                 index = index,
                 string = string,
                 selected = selectedString == index,
-                tuned = tuned?.get(index) ?: false,
+                tuned = tuned?.getOrNull(index) ?: false,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,

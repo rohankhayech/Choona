@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -44,6 +43,7 @@ import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
+import com.rohankhayech.choona.wear.R as WearR
 
 /**
  * A UI screen that displays and allows selection of the user's tuner preferences.
@@ -159,9 +159,10 @@ fun SettingsScreen(
             // Default tuning.
             item { SectionLabel(stringResource(R.string.pref_initial_tuning)) }
 
-            item { Text("Set the tuning used on app launch:",
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        style = MaterialTheme.typography.bodyMedium) }
+            item { Text(
+                stringResource(WearR.string.pref_initial_tuning_desc),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodyMedium) }
 
             // Last Used
             item {
@@ -204,7 +205,6 @@ fun SettingsScreen(
                     secondaryLabel = { Text(stringResource(R.string.pref_use_dynamic_color_desc)) },
                     checked = prefs.useDynamicColor,
                     onCheckedChange = onSetUseDynamicColor,
-                    modifier = Modifier.clickable { onSetUseDynamicColor(!prefs.useDynamicColor) }
                 )
             }
         }

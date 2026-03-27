@@ -194,7 +194,7 @@ fun InlineStringControls(
                 index = index,
                 string = string,
                 selected = selectedString == index,
-                tuned = tuned?.get(index) == true,
+                tuned = tuned?.getOrNull(index) == true,
                 onSelect = onSelect,
                 onTuneDown = onTuneDown,
                 onTuneUp = onTuneUp,

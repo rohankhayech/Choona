@@ -71,6 +71,8 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
  * @param tuning Guitar tuning used for comparison.
  * @param noteOffset The offset between the currently playing note and the selected string.
  * @param selectedString Index of the currently selected string within the tuning.
+ * @param selectedNote Index of the currently selected note within the string when in chromatic mode.
+ * @param chromatic Whether the tuning is chromatic.
  * @param tuned Whether each string has been tuned.
  * @param autoDetect Whether the tuner will automatically detect the currently playing string.
  * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.

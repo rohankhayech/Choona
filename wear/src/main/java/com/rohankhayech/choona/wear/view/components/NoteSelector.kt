@@ -123,7 +123,7 @@ fun NoteSelector(
                 else -> BooleanArray(HIGHEST_OCTAVE-LOWEST_OCTAVE + 1) { false }
             }},
             onSelect = remember (selectedNote, onSelect) {{ index ->
-                onSelect(Notes.getIndex("${Notes.NOTE_SYMBOLS[selectedNote]}${index + 1}"))
+                onSelect(Notes.getIndex("${Notes.NOTE_SYMBOLS[selectedNote]}${index + LOWEST_OCTAVE}"))
             }}
         )
     }

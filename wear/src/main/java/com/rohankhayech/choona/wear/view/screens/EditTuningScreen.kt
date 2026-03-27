@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Remove
@@ -198,14 +199,14 @@ fun EditTuningScreen(
         dismissButton = {},
         confirmButton = {
             Button(onClick = { errorMessage = null }) {
-                Icon(Icons.Default.Done, null)
+                Icon(Icons.Default.Close, null)
             }
         },
         visible = errorMessage != null
     ) {
         item {
             Text(
-                errorMessage!!,
+                errorMessage?: "",
                 textAlign = TextAlign.Center
             )
         }
@@ -230,7 +231,7 @@ fun EditTuningScreen(
                     )
                 }
             }) {
-                Icon(Icons.Default.Done, stringResource(R.string.save))
+                Text(stringResource(R.string.save))
             }
         }
     ) { padding ->

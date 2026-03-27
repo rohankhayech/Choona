@@ -132,7 +132,7 @@ fun AboutScreen(
                 )
                 Text(
                     stringResource(
-                        AppR.string.dist_desc,
+                        R.string.dist_desc,
                         stringResource(AppR.string.dist_platform)
                     ),
                     modifier = Modifier.padding(horizontal = 16.dp),

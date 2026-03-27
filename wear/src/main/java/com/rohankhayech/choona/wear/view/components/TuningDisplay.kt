@@ -280,25 +280,23 @@ private fun LabelTextRow(text: @Composable () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AccidentalIcon(R.drawable.music_accidental_flat, contentDescription = "Flat")
+        AccidentalIcon(R.drawable.music_accidental_flat)
         text()
-        AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
+        AccidentalIcon(R.drawable.music_accidental_sharp)
     }
 }
 
 /**
  * Composable displaying an accidental (sharp or flat) icon.
  * @param icon The icon resource.
- * @param contentDescription Description of the icon for accessibility.
  */
 @Composable
 private fun AccidentalIcon(
-    @DrawableRes icon: Int,
-    contentDescription: String
+    @DrawableRes icon: Int
 ) {
     Icon(
         painter = painterResource(icon),
-        contentDescription = contentDescription,
+        contentDescription = null,
         modifier = Modifier.requiredSize(24.dp),
         tint = LocalContentColor.current.copy(alpha = 0.38f)
     )

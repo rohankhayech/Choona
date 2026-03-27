@@ -839,17 +839,17 @@ private fun FavouritableTuningItem(
 }
 
 /**
- * List item displaying a custom tuning, with support for a trailing action.
+ * List item displaying a custom tuning, with support for long press actions.
  *
  * @param tuning The tuning to display.
  * @param onSelect Called when this tuning is selected.
- * @param trailing The trailing action to display.
+ * @param actions The actions to display on long press.
  */
 @Composable
 private fun TuningItem(
     tuning: TuningEntry,
     onSelect: (TuningEntry) -> Unit,
-    trailing: (LazyListScope.() -> Unit)? = null
+    actions: @Composable (RowScope.() -> Unit)? = null
 ) {
     val name = when (tuning) {
         is TuningEntry.InstrumentTuning -> tuning.tuning.name
@@ -932,7 +932,7 @@ fun SaveTuningDialog(
     onSave: (String?, Tuning) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var name by rememberSaveable { mutableStateOf(tuning.name) }
+    var name by rememberSaveable(visible, tuning.name) { mutableStateOf(tuning.name) }
 
     AlertDialog(
         confirmButton = {

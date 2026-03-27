@@ -18,11 +18,13 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +44,7 @@ import com.rohankhayech.choona.wear.BuildConfig
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.choona.lib.BuildConfig as LibBuildConfig
+import com.rohankhayech.choona.wear.R as WearR
 
 @Composable
 fun AboutScreen(
@@ -75,7 +78,10 @@ fun AboutScreen(
             }
             item {
                 Text(
-                    "Wear Build",
+                    stringResource(
+                        R.string.dist_desc,
+                        stringResource(WearR.string.build_name)
+                    ),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
@@ -130,11 +136,18 @@ fun AboutScreen(
 @Composable
 private fun LinkButton(text: String, url: String) {
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
     Button(
         label = {
             Text(text)
         },
-        onClick = remember {{ uriHandler.openUri(url) }},
+        onClick = remember {{
+            try {
+                uriHandler.openUri(url)
+            } catch(_: Exception) {
+                Toast.makeText(context, "Cannot open link: $url", Toast.LENGTH_SHORT).show()
+            }
+        }},
     )
 }
 
