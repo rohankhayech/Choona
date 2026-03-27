@@ -21,12 +21,13 @@ package com.rohankhayech.choona.wear.view.screens
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -65,7 +66,6 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
@@ -655,37 +655,33 @@ private fun CurrentTuningItem(
     TuningItem(
         tuning = tuning,
         onSelect = onSelect,
-        trailing = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved)) {{
+        actions = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved)) {{
             if(!standard && (pinned || (saved && pinnedInitial))) {
-                item {
-                    IconToggleButton(
-                        enabled = pinnedInitial,
-                        checked = pinned,
-                        onCheckedChange = {
-                            onPinnedSet(tuning, it)
-                        },
-                        colors = IconToggleButtonDefaults.colors(
-                            checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    ) {
-                        Icon(
-                            if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                            contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
-                        )
-                    }
+                IconToggleButton(
+                    enabled = pinnedInitial,
+                    checked = pinned,
+                    onCheckedChange = {
+                        onPinnedSet(tuning, it)
+                    },
+                    colors = IconToggleButtonDefaults.colors(
+                        checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    Icon(
+                        if (pinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin)
+                    )
                 }
             }
             if (tuning is TuningEntry.InstrumentTuning && !saved) {
-                item {
-                    IconButton(
-                        onClick = { onSave(tuning.tuning) }
-                    ) {
-                        Icon(
-                            Icons.Default.SaveAs,
-                            contentDescription = stringResource(R.string.save)
-                        )
-                    }
+                FilledIconButton(
+                    onClick = { onSave(tuning.tuning) }
+                ) {
+                    Icon(
+                        Icons.Default.SaveAs,
+                        contentDescription = stringResource(R.string.save)
+                    )
                 }
             }
         }} else null
@@ -720,61 +716,56 @@ private fun CustomTuningItem(
     val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
     TuningItem(tuning = tuning, onSelect = onSelect) {
         if (pinned && !standard) {
-            item {
-                IconToggleButton(
-                    enabled = pinnedInitial,
-                    checked = true,
-                    colors = IconToggleButtonDefaults.colors(
-                        checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ),
-                    onCheckedChange = { onUnpin() }
-                ) {
-                    Icon(
-                        Icons.Default.PushPin,
-                        contentDescription = stringResource(R.string.unpin)
-                    )
-                }
-            }
-        }
-        item {
             IconToggleButton(
-                checked = favourited,
-                onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+                enabled = pinnedInitial,
+                checked = true,
                 colors = IconToggleButtonDefaults.colors(
-                    checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            ) {
-                Icon(
-                    if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
-                    contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
-                )
-            }
-        }
-        item {
-            IconButton(
-                onClick = onEdit
-            ) {
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.edit_tuning)
-                )
-            }
-        }
-        item {
-            FilledIconButton(
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ),
-                onClick = { onDelete(tuning.tuning) }
+                onCheckedChange = { onUnpin() }
             ) {
                 Icon(
-                    Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.delete)
+                    Icons.Default.PushPin,
+                    contentDescription = stringResource(R.string.unpin)
                 )
             }
+        }
+
+        IconToggleButton(
+            checked = favourited,
+            onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+            colors = IconToggleButtonDefaults.colors(
+                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        ) {
+            Icon(
+                if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
+                contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+            )
+        }
+
+        FilledIconButton(
+            onClick = onEdit
+        ) {
+            Icon(
+                Icons.Default.Edit,
+                contentDescription = stringResource(R.string.edit_tuning)
+            )
+        }
+
+        FilledIconButton(
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+            onClick = { onDelete(tuning.tuning) }
+        ) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = stringResource(R.string.delete)
+            )
         }
     }
 }
@@ -803,37 +794,33 @@ private fun FavouritableTuningItem(
     val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
     TuningItem(tuning = tuning, onSelect = onSelect) {
         if (pinned && !standard) {
-            item {
-                IconToggleButton(
-                    enabled = pinnedInitial,
-                    checked = true,
-                    colors = IconToggleButtonDefaults.colors(
-                        checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ),
-                    onCheckedChange = { onUnpin() }
-                ) {
-                    Icon(
-                        Icons.Default.PushPin,
-                        contentDescription = stringResource(R.string.unpin)
-                    )
-                }
-            }
-        }
-        item {
             IconToggleButton(
-                checked = favourited,
-                onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+                enabled = pinnedInitial,
+                checked = true,
                 colors = IconToggleButtonDefaults.colors(
-                    checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+                    checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                onCheckedChange = { onUnpin() }
             ) {
                 Icon(
-                    if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
-                    contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+                    Icons.Default.PushPin,
+                    contentDescription = stringResource(R.string.unpin)
                 )
             }
+        }
+        IconToggleButton(
+            checked = favourited,
+            onCheckedChange = { onFavouriteSet(tuning, !favourited) },
+            colors = IconToggleButtonDefaults.colors(
+                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        ) {
+            Icon(
+                if (favourited) Icons.Default.Star else Icons.Default.StarOutline,
+                contentDescription = if (favourited) stringResource(R.string.unfavourite) else stringResource(R.string.favourite)
+            )
         }
     }
 }
@@ -896,19 +883,23 @@ private fun TuningItem(
         },
         confirmButton = {},
         onDismissRequest = { expanded = false },
-        visible = expanded && trailing != null,
+        visible = expanded && actions != null,
         title = {
             Text(name)
         },
         verticalArrangement = Arrangement.Center,
     ) {
-        item { LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            trailing?.invoke(this)
-        }}
+        item {
+            FlowRow(
+                modifier = Modifier.fillMaxSize().padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
+                maxItemsInEachRow = 2
+            ) {
+                actions?.invoke(this)
+            }
+        }
     }
 }
 
