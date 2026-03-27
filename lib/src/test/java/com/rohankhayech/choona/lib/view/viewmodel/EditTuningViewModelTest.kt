@@ -20,7 +20,14 @@ package com.rohankhayech.choona.lib.view.viewmodel
 
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -28,7 +35,20 @@ import org.junit.Test
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class EditTuningViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     /**
      * Verifies that [EditTuningViewModel.setName] correctly updates the name state.
@@ -70,6 +90,7 @@ class EditTuningViewModelTest {
         assertEquals("", viewModel.name.value)
         assertEquals(true, viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
+        assertEquals(false, viewModel.hasChanges.value)
     }
 
     /**
@@ -82,5 +103,36 @@ class EditTuningViewModelTest {
         assertEquals(initialTuning.name, viewModel.name.value)
         assertEquals(false, viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
+        assertEquals(false, viewModel.hasChanges.value)
+    }
+
+    /**
+     * Verifies that [EditTuningViewModel.hasChanges] correctly reflects whether the tuning has been modified.
+     */
+    @Test
+    fun hasChanges() {
+        val initialTuning = Tunings.STANDARD
+        val viewModel = EditTuningViewModel(initialTuning, false)
+        assertEquals(false, viewModel.hasChanges.value)
+
+        // Change name
+        viewModel.setName("Changed")
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(true, viewModel.hasChanges.value)
+
+        // Reset name
+        viewModel.setName(initialTuning.name)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(false, viewModel.hasChanges.value)
+
+        // Change tuning structure
+        viewModel.editor.tuneUp()
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(true, viewModel.hasChanges.value)
+
+        // Reset tuning structure
+        viewModel.editor.tuneDown()
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(false, viewModel.hasChanges.value)
     }
 }

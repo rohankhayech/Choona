@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.wear.view.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -85,6 +86,7 @@ import com.rohankhayech.choona.wear.R as WearR
  * @param name The current name of the tuning.
  * @param new Whether the tuning is a new custom tuning.
  * @param tuning The guitar tuning being edited.
+ * @param hasChanges Whether the tuning has been modified.
  * @param onNameChange Called when the name is changed.
  * @param onInstrumentChange Called when the instrument is changed.
  * @param onSetString Called when a string is set.
@@ -108,6 +110,7 @@ fun EditTuningScreen(
     name: String,
     new: Boolean,
     tuning: Tuning,
+    hasChanges: Boolean = false,
     onNameChange: (String) -> Unit,
     onInstrumentChange: (Instrument) -> Unit,
     onSetString: (n: Int, noteIndex: Int) -> Unit,
@@ -127,8 +130,19 @@ fun EditTuningScreen(
     val listState = rememberScalingLazyListState()
     var stringToEdit by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
     var showInstrumentDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val handleCancel = {
+        if (hasChanges) {
+            showDiscardDialog = true
+        } else {
+            onCancel()
+        }
+    }
+
+    BackHandler(enabled = true, onBack = handleCancel)
 
     if (stringToEdit != null) {
         val index = stringToEdit!!
@@ -174,6 +188,44 @@ fun EditTuningScreen(
             )
         }
     )
+
+    // Discard dialog
+    AlertDialog(
+        confirmButton = {
+            Button(colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ), onClick = {
+                showDiscardDialog = false
+                onCancel() }
+            ) {
+                Text(text = stringResource(R.string.discard))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { showDiscardDialog = false }) {
+                Text(text = stringResource(android.R.string.cancel))
+            }
+        },
+        onDismissRequest = { showDiscardDialog = false },
+        visible = showDiscardDialog,
+        title = { Text(stringResource(R.string.discard_changes)) },
+        icon = {
+            Icon(
+                Icons.Default.Close,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = null
+            )
+        }
+    ) {
+        item {
+            Text(
+                stringResource(R.string.discard_changes_confirmation),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
 
     // Instrument dialog
     AlertDialog(
@@ -388,7 +440,7 @@ fun EditTuningScreen(
 
             item {
                 TextButton(
-                    onClick = onCancel
+                    onClick = handleCancel
                 ) {
                     Text(stringResource(android.R.string.cancel))
                 }
