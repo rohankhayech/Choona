@@ -220,9 +220,9 @@ fun TuningSelectionScreen(
 ) {
     val listState = rememberScalingLazyListState()
 
-    var showSaveDialog by rememberSaveable { mutableStateOf(false) }
+    var showSaveDialog by remember { mutableStateOf(false) }
 
-    var showDeleteDialogFor by rememberSaveable { mutableStateOf<Tuning?>(null) }
+    var showDeleteDialogFor by remember { mutableStateOf<Tuning?>(null) }
 
     ScreenScaffold(
         scrollState = listState,
