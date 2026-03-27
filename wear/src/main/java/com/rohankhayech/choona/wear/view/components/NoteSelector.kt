@@ -49,7 +49,7 @@ import com.rohankhayech.android.util.ui.theme.wear.harmonised
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
+import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.choona.wear.view.theme.extColors
 
 /** Octave of the lowest note detectable by the tuner. */
@@ -282,7 +282,7 @@ fun NoteSelectionButton(
 private fun CompactPreview() {
     var noteIndex by remember { mutableIntStateOf(-29) }
 
-    PreviewWrapper {
+    AppTheme {
         CompactNoteSelector (
             modifier = Modifier.padding(vertical = 8.dp),
             selectedNoteIndex = noteIndex,

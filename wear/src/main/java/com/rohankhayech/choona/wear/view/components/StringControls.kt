@@ -43,7 +43,7 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
+import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 /**
  * Component displaying each string in the current [tuning] and allowing selection of a string for tuning.
@@ -190,7 +190,7 @@ private fun StringSelectionButton(
 @Preview
 @Composable
 fun InlinePreview() {
-    PreviewWrapper {
+    AppTheme {
         StringControls(
             tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
             selectedString = 1,
@@ -205,7 +205,7 @@ fun InlinePreview() {
 @Preview
 @Composable
 private fun CompactPreview() {
-    PreviewWrapper {
+    AppTheme {
         CompactStringSelector(
             tuning = Tuning.STANDARD,
             selectedString = 5,
@@ -218,7 +218,7 @@ private fun CompactPreview() {
 @Preview
 @Composable
 private fun StringControlPreview() {
-    PreviewWrapper {
+    AppTheme {
         StringControl(index = 0, string = GuitarString.E2, selected = false, tuned = false, onSelect = {}, onTuneDown = {}, onTuneUp = {})
     }
 }
@@ -226,7 +226,7 @@ private fun StringControlPreview() {
 @Preview
 @Composable
 private fun ButtonStatesPreview() {
-    PreviewWrapper {
+    AppTheme {
         Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StringSelectionButton(tuned = false, selected = false, onSelect = {}, index = 0, string = GuitarString.E2)
             StringSelectionButton(tuned = false, selected = true, onSelect = {}, index = 0, string = GuitarString.E2)

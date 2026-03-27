@@ -38,11 +38,3 @@ fun AppTheme(
         content = content
     )
 }
-
-@Composable
-fun PreviewWrapper(
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    AppTheme(dynamicColor, content)
-}

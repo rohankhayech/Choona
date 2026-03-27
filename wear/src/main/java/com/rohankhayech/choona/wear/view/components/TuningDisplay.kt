@@ -66,7 +66,7 @@ import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTunin
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterIndicatorWidth
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.drawMeter
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.isInTune
-import com.rohankhayech.choona.wear.view.theme.PreviewWrapper
+import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 /**
  * UI component consisting of a visual meter and
@@ -307,7 +307,7 @@ private fun AccidentalIcon(
 @Preview(device = "id:wearos_small_round")
 @Composable
 private fun ListeningPreview() {
-    PreviewWrapper {
+    AppTheme {
         TuningDisplay(
             noteIndex = -29,
             noteOffset = remember { mutableStateOf(null) },
@@ -320,7 +320,7 @@ private fun ListeningPreview() {
 @Preview(device = "id:wearos_small_round")
 @Composable
 private fun InTunePreview() {
-    PreviewWrapper {
+    AppTheme {
         TuningDisplay(
             noteIndex = -29,
             noteOffset = remember { mutableDoubleStateOf(0.09) },
@@ -334,7 +334,7 @@ private fun InTunePreview() {
 @Preview(device = "id:wearos_small_round")
 @Composable
 private fun YellowPreview() {
-    PreviewWrapper(dynamicColor = true) {
+    AppTheme(dynamicColor = true) {
         TuningDisplay(
             noteIndex = -29,
             noteOffset = remember { mutableDoubleStateOf(.2) },
@@ -347,7 +347,7 @@ private fun YellowPreview() {
 @Preview(device = "id:wearos_small_round")
 @Composable
 private fun RedPreview() {
-    PreviewWrapper {
+    AppTheme {
         TuningDisplay(
             noteIndex = -29,
             noteOffset = remember { mutableDoubleStateOf(-27.0) },
