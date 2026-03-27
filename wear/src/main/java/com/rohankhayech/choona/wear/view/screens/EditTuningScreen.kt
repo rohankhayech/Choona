@@ -145,26 +145,34 @@ fun EditTuningScreen(
 
     // Delete dialog.
     AlertDialog(
-        onDismissRequest = { showDeleteDialog = false },
-        title = { Text(
-            "${stringResource(R.string.delete)} ${tuning.name}?",
-            textAlign = TextAlign.Center
-        ) },
         confirmButton = {
-            Button(
-                onClick = {
-                    showDeleteDialog = false
-                    onDelete()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                )
+            Button(colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ), onClick = {
+                showDeleteDialog = false
+                onDelete() }
             ) {
-                Icon(Icons.Default.Delete, null)
+                Text(text = stringResource(R.string.delete))
             }
         },
-        visible = showDeleteDialog
+        dismissButton = {
+            TextButton(onClick = { showDeleteDialog = false }) {
+                Text(text = stringResource(android.R.string.cancel))
+            }
+        },
+        onDismissRequest = { showDeleteDialog = false },
+        visible = showDeleteDialog,
+        title = { Text(
+            "${stringResource(R.string.delete)} ${name}?"
+        )},
+        icon = {
+            Icon(
+                Icons.Default.Delete,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = null
+            )
+        }
     )
 
     // Instrument dialog

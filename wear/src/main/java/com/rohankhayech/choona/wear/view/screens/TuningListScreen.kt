@@ -468,7 +468,7 @@ fun TuningList(
         }
 
         tunings.forEach { group ->
-            item(group.toString()) {
+            item(group.key.toString()) {
                 CategoryLabel("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}")
             }
             items(group.value, key = { it.key }) {

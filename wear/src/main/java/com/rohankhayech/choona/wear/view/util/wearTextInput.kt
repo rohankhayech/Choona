@@ -61,7 +61,7 @@ fun wearTextInput(
         }
     }
 
-    val intent = remember(launcher) {
+    val intent = remember(key, title, emojisAllowed, imeActionType) {
         RemoteInputIntentHelper.createActionRemoteInputIntent().also {
             RemoteInputIntentHelper.putRemoteInputsExtra(it, listOf(
                 RemoteInput.Builder(key)

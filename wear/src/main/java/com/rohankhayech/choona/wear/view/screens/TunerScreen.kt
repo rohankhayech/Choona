@@ -212,7 +212,10 @@ private fun TunerBody(
                     checked = autoDetect,
                     onCheckedChange = onAutoChanged
                 ) {
-                    Icon(Icons.Default.HdrAuto, null)
+                    Icon(
+                        Icons.Default.HdrAuto,
+                        stringResource(R.string.auto_detect_label)
+                    )
                 }
             }
         }

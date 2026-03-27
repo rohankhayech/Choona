@@ -137,6 +137,7 @@ fun AboutScreen(
 private fun LinkButton(text: String, url: String) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val errMsg = stringResource(WearR.string.err_msg_open_link, url)
     Button(
         label = {
             Text(text)
@@ -145,7 +146,7 @@ private fun LinkButton(text: String, url: String) {
             try {
                 uriHandler.openUri(url)
             } catch(_: Exception) {
-                Toast.makeText(context, "Cannot open link: $url", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
             }
         }},
     )

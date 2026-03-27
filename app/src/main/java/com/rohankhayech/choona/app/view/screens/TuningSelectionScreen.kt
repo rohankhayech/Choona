@@ -513,7 +513,7 @@ fun TuningList(
         }
 
         tunings.forEach { group ->
-            item(group.toString()) {
+            item(group.key.toString()) {
                 SectionTitle("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
             items(group.value, key = { it.key }) {
