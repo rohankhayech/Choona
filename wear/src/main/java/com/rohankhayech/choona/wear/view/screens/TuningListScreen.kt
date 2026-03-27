@@ -662,7 +662,7 @@ private fun CurrentTuningItem(
         pinned = pinned,
         pinnedInitial = pinnedInitial,
         onSelect = onSelect,
-        actions = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved)) {{
+        actions = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved) || saved) {{
             if(!standard && (pinned || (saved && pinnedInitial))) {
                 IconToggleButton(
                     enabled = pinnedInitial,
