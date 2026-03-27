@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.androidutils.layout)
     implementation(libs.androidutils.theme.wear)
     implementation(libs.androidutils.preview.wear)
+    implementation(libs.androidutils.wear)
 
     // Open Source Licenses
     implementation(libs.aboutlibraries.compose.wear.m3)

@@ -108,6 +108,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rohankhayech.android.util.ui.layout.isScrollingUp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.StatusBarColor
 import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
@@ -115,7 +116,6 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
-import com.rohankhayech.choona.app.view.util.isScrollingUp
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException

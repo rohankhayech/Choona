@@ -63,6 +63,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
+import com.rohankhayech.android.util.ui.wear.input.wearTextInput
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.MAX_STRINGS
@@ -76,7 +77,6 @@ import com.rohankhayech.choona.wear.view.components.NoteSelector
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.components.StringControls
 import com.rohankhayech.choona.wear.view.theme.AppTheme
-import com.rohankhayech.choona.wear.view.util.wearTextInput
 import com.rohankhayech.choona.wear.R as WearR
 
 /**
