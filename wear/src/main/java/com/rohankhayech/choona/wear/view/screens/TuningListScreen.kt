@@ -23,11 +23,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -654,6 +656,8 @@ private fun CurrentTuningItem(
     val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
     TuningItem(
         tuning = tuning,
+        pinned = pinned,
+        pinnedInitial = pinnedInitial,
         onSelect = onSelect,
         actions = if ((!standard && (pinned || (saved && pinnedInitial))) || (tuning is TuningEntry.InstrumentTuning && !saved)) {{
             if(!standard && (pinned || (saved && pinnedInitial))) {
@@ -714,7 +718,12 @@ private fun CustomTuningItem(
     onEdit: () -> Unit
 ) {
     val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
-    TuningItem(tuning = tuning, onSelect = onSelect) {
+    TuningItem(
+        tuning = tuning,
+        pinned = pinned,
+        pinnedInitial = pinnedInitial,
+        onSelect = onSelect
+    ) {
         if (pinned && !standard) {
             IconToggleButton(
                 enabled = pinnedInitial,
@@ -792,7 +801,12 @@ private fun FavouritableTuningItem(
     onUnpin: () -> Unit
 ) {
     val standard = remember(tuning) { tuning.tuning?.equivalentTo(Tunings.STANDARD) == true }
-    TuningItem(tuning = tuning, onSelect = onSelect) {
+    TuningItem(
+        tuning = tuning,
+        pinned = pinned,
+        pinnedInitial = pinnedInitial,
+        onSelect = onSelect
+    ) {
         if (pinned && !standard) {
             IconToggleButton(
                 enabled = pinnedInitial,
@@ -829,12 +843,16 @@ private fun FavouritableTuningItem(
  * List item displaying a custom tuning, with support for long press actions.
  *
  * @param tuning The tuning to display.
+ * @param pinned Whether the tuning is currently pinned.
+ * @param pinnedInitial Whether the pinned tuning is used as the initial tuning.
  * @param onSelect Called when this tuning is selected.
  * @param actions The actions to display on long press.
  */
 @Composable
 private fun TuningItem(
     tuning: TuningEntry,
+    pinned: Boolean = false,
+    pinnedInitial: Boolean = false,
     onSelect: (TuningEntry) -> Unit,
     actions: @Composable (RowScope.() -> Unit)? = null
 ) {
@@ -867,8 +885,24 @@ private fun TuningItem(
             Text(desc)
 
         },
-        time = if (tuning is TuningEntry.InstrumentTuning) {
-            { Text("${tuning.tuning.instrument.getLocalisedName()} ‧ ${tuning.tuning.numStrings()}" + stringResource(R.string.num_strings_suffix)) }
+        time = if (tuning is TuningEntry.InstrumentTuning || (pinned && pinnedInitial)) {
+            {
+                Row(Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    if (tuning is TuningEntry.InstrumentTuning) {
+                        Text("${tuning.tuning.instrument.getLocalisedName()} ‧ ${tuning.tuning.numStrings()}" + stringResource(R.string.num_strings_suffix))
+                    }
+                    if (pinned && pinnedInitial && tuning.tuning != Tuning.STANDARD) {
+                        Icon(
+                            Icons.Default.PushPin,
+                            contentDescription = stringResource(R.string.tuning_list_pinned),
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         } else null,
         onClick = { onSelect(tuning) },
         onLongClick = { expanded = true }
