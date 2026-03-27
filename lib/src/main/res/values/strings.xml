@@ -102,7 +102,7 @@
     <string name="error_action_call">Please restart the application to retry.</string>
     <string name="chromatic">Chromatic</string>
     <string name="chromatic_desc">Tune to any note</string>
-    <string name="err_msg_existing_tuning">An identical %1$s tuning %2$s already exists.</string>
+    <string name="err_msg_existing_tuning">An identical %1$s tuning already exists: %2$s</string>
     <string name="err_msg_existing_tuning_custom">custom</string>
     <string name="err_msg_existing_tuning_built_in">built-in</string>
     <string name="name">Name</string>
@@ -114,4 +114,5 @@
     <string name="strings">Strings</string>
     <string name="delete_tuning_confirmation">Delete this tuning?</string>
     <string name="new_tuning">New Tuning</string>
+    <string name="dist_desc">%1$s Build</string>
 </resources>

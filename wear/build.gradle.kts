@@ -21,24 +21,22 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.serialization.plugin)
 }
 
 android {
-    namespace = "com.rohankhayech.choona.app"
+    namespace = "com.rohankhayech.choona.wear"
 
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rohankhayech.choona"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 36
         versionCode = 15
-        versionName = "1.6.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionName = "1.6.0-wear-beta.1"
     }
 
     buildTypes {
@@ -52,17 +50,8 @@ android {
             versionNameSuffix = "-dev"
         }
     }
-    flavorDimensions += listOf("dist")
 
-    productFlavors {
-        create("play") {
-            dimension = "dist"
-            isDefault = true
-        }
-        create("open") {
-            dimension = "dist"
-        }
-    }
+    useLibrary("wear-sdk")
 
     buildFeatures {
         compose = true
@@ -86,51 +75,39 @@ dependencies {
     implementation(project(":lib"))
 
     // Android
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-    implementation(libs.kotlinx.serialization)
-
-    // Google Play
-    "playImplementation"(libs.review.ktx)
-
-    // Compose
-    val composeBOM = platform(libs.compose.bom)
-    implementation(composeBOM)
-    implementation(libs.compose.material3)
-    implementation(libs.compose.animation)
-    implementation(libs.compose.material.icons.extended)
-    implementation(libs.compose.material3.window.size)
-    implementation(libs.compose.adaptive.navigation3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.wear.input)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Audio
-    implementation(libs.tarsos.dsp.core)
+    // Compose
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.wear.material3)
+    implementation(libs.compose.wear.foundation)
+    implementation(libs.compose.wear.navigation3)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
 
     // Utility
-    implementation(libs.androidutils.theme)
-    implementation(libs.androidutils.preview)
     implementation(libs.androidutils.layout)
+    implementation(libs.androidutils.theme.wear)
+    implementation(libs.androidutils.preview.wear)
+    implementation(libs.androidutils.wear)
 
     // Open Source Licenses
-    implementation(libs.aboutlibraries.compose.m3)
+    implementation(libs.aboutlibraries.compose.wear.m3)
 
     // Testing
-    testImplementation(libs.junit)
-    testImplementation(libs.json)
-    testImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(composeBOM)
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
 
     // Tooling / Preview
     implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.wear.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 }

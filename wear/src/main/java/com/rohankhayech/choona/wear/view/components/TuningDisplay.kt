@@ -16,30 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rohankhayech.choona.app.view.components
+package com.rohankhayech.choona.wear.view.components
 
 import kotlin.math.abs
 import kotlin.math.sign
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -55,18 +49,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewDynamicColors
-import androidx.compose.ui.tooling.preview.Wallpapers.BLUE_DOMINATED_EXAMPLE
-import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
-import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
-import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.rohankhayech.android.util.ui.preview.LargeFontPreview
-import com.rohankhayech.android.util.ui.preview.ThemePreview
-import com.rohankhayech.android.util.ui.theme.m3.harmonisedWith
-import com.rohankhayech.android.util.ui.theme.m3.isDynamicColor
-import com.rohankhayech.choona.app.view.theme.PreviewWrapper
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.LocalContentColor
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
+import com.rohankhayech.android.util.ui.theme.wear.harmonisedWith
+import com.rohankhayech.android.util.ui.theme.wear.usesDynamicColor
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
@@ -76,6 +66,7 @@ import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTunin
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterIndicatorWidth
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.drawMeter
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.isInTune
+import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 /**
  * UI component consisting of a visual meter and
@@ -108,7 +99,7 @@ fun TuningDisplay(
         meterPosition,
         onBack = MaterialTheme.colorScheme.onBackground,
         back = MaterialTheme.colorScheme.background,
-        dynamicColors = MaterialTheme.isDynamicColor
+        dynamicColors = MaterialTheme.usesDynamicColor
     ) { harmonisedWith(themeColors) }
 
     val inTune = isInTune(offset)
@@ -117,13 +108,10 @@ fun TuningDisplay(
 
     // Content
     Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier = Modifier,
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        AccidentalIcon(R.drawable.music_accidental_flat, contentDescription = "Flat")
         TuningMeter(
             indicatorPosition = meterPosition,
             indicatorSize = indicatorSize,
@@ -135,7 +123,6 @@ fun TuningDisplay(
                 showNote = showNote
             )
         }
-        AccidentalIcon(R.drawable.music_accidental_sharp, contentDescription = "Sharp")
     }
 }
 
@@ -161,7 +148,8 @@ private fun TuningMeter(
 
     Column(
         modifier = Modifier
-            .defaultMinSize(210.dp, 116.dp)
+            .fillMaxWidth()
+            .aspectRatio(1.8f)
             .drawBehind {
                 drawMeter(
                     indicatorColor = color,
@@ -190,12 +178,12 @@ private fun NoteDisplay(noteIndex: Int, color: Color) {
         Text( // Root Note
             color = color,
             text = Notes.getRootNote(Notes.getSymbol(noteIndex)),
-            style = MaterialTheme.typography.displayMedium
+            style = MaterialTheme.typography.displayLarge
         )
         Text( // Octave
             color = color,
             text = Notes.getOctave(Notes.getSymbol(noteIndex)).toString(),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Bold
         )
     }
@@ -225,7 +213,9 @@ private fun TuningMeterLabel(
             imageVector = Icons.Default.GraphicEq,
             contentDescription = null
         )
-        Text(text = stringResource(R.string.listening))
+        LabelTextRow {
+            Text(text = stringResource(R.string.listening))
+        }
 
     // In Tune
     } else if (abs(noteOffset) < Tuner.TUNED_OFFSET_THRESHOLD) {
@@ -241,7 +231,9 @@ private fun TuningMeterLabel(
                 contentDescription = null
             )
         }
-        Text(text = stringResource(R.string.in_tune))
+        LabelTextRow {
+            Text(text = stringResource(R.string.in_tune))
+        }
 
     // Out of Tune
     } else {
@@ -251,40 +243,60 @@ private fun TuningMeterLabel(
 
         if (showNote) {
             NoteDisplay(noteIndex = noteIndex, color = color)
-            Text(text = when (displayType) {
-                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
-                TuningDisplayType.SEMITONES -> "$formattedOffset ${stringResource(R.string.semitones)}"
-                TuningDisplayType.CENTS -> "$formattedOffset ${stringResource(R.string.cents)}"
-            })
+            LabelTextRow {
+                Text(text = when (displayType) {
+                    TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
+                    TuningDisplayType.SEMITONES -> "$formattedOffset ${stringResource(R.string.semitones)}"
+                    TuningDisplayType.CENTS -> "$formattedOffset ${stringResource(R.string.cents)}"
+                })
+            }
         } else {
             Text( // Offset Value
                 color = color,
                 text = formattedOffset,
-                style = MaterialTheme.typography.displayMedium
+                style = MaterialTheme.typography.displayLarge
             )
-            Text(text = when (displayType) {
-                TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(R.string.tune_up)
-                TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
-                TuningDisplayType.CENTS -> stringResource(R.string.cents)
-            })
+            LabelTextRow {
+                Text(
+                    text = when (displayType) {
+                        TuningDisplayType.SIMPLE -> if (noteOffset.sign > 0) stringResource(R.string.tune_down) else stringResource(
+                            R.string.tune_up
+                        )
+
+                        TuningDisplayType.SEMITONES -> stringResource(R.string.semitones)
+                        TuningDisplayType.CENTS -> stringResource(R.string.cents)
+                    }
+                )
+            }
         }
 
+    }
+}
+
+@Composable
+private fun LabelTextRow(text: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AccidentalIcon(R.drawable.music_accidental_flat)
+        text()
+        AccidentalIcon(R.drawable.music_accidental_sharp)
     }
 }
 
 /**
  * Composable displaying an accidental (sharp or flat) icon.
  * @param icon The icon resource.
- * @param contentDescription Description of the icon for accessibility.
  */
 @Composable
 private fun AccidentalIcon(
-    @DrawableRes icon: Int,
-    contentDescription: String
+    @DrawableRes icon: Int
 ) {
     Icon(
         painter = painterResource(icon),
-        contentDescription = contentDescription,
+        contentDescription = null,
         modifier = Modifier.requiredSize(24.dp),
         tint = LocalContentColor.current.copy(alpha = 0.38f)
     )
@@ -292,110 +304,55 @@ private fun AccidentalIcon(
 
 // PREVIEWS
 
-@ThemePreview
+@Preview(device = "id:wearos_small_round")
 @Composable
 private fun ListeningPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableStateOf(null) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
+    AppTheme {
+        TuningDisplay(
+            noteIndex = -29,
+            noteOffset = remember { mutableStateOf(null) },
+            displayType = TuningDisplayType.SEMITONES,
+            showNote = false
+        ) {}
     }
 }
 
-@ThemePreview
+@Preview(device = "id:wearos_small_round")
 @Composable
 private fun InTunePreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
+    AppTheme {
+        TuningDisplay(
+            noteIndex = -29,
+            noteOffset = remember { mutableDoubleStateOf(0.09) },
+            displayType = TuningDisplayType.SEMITONES,
+            showNote = false
+        ) {}
     }
 }
 
-@PreviewDynamicColors
-@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-private fun DynamicInTunePreview() {
-    PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
-    }
-}
 
-@ThemePreview
+@Preview(device = "id:wearos_small_round")
 @Composable
 private fun YellowPreview() {
-    PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
+    AppTheme(dynamicColor = true) {
+        TuningDisplay(
+            noteIndex = -29,
+            noteOffset = remember { mutableDoubleStateOf(.2) },
+            displayType = TuningDisplayType.SEMITONES,
+            showNote = true
+        ) {}
     }
 }
 
-@PreviewDynamicColors
-@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-private fun DynamicYellowPreview() {
-    PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.07) }, displayType = TuningDisplayType.SIMPLE, showNote = false) {}
-    }
-}
-
-@ThemePreview
+@Preview(device = "id:wearos_small_round")
 @Composable
 private fun RedPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(-27.0) }, displayType = TuningDisplayType.CENTS, showNote = false) {}
-    }
-}
-
-@PreviewDynamicColors
-@Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-private fun DynamicRedPreview() {
-    PreviewWrapper(dynamicColor = true) {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(-27.0) }, displayType = TuningDisplayType.CENTS, showNote = false) {}
-    }
-}
-
-@LargeFontPreview
-@Composable
-private fun LargeFontLabelPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(2.7) }, displayType = TuningDisplayType.SIMPLE, showNote = false) {}
-    }
-}
-
-@LargeFontPreview
-@Composable
-private fun LargeFontIconPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = false) {}
-    }
-}
-
-@ThemePreview
-@Composable
-private fun InTuneNotePreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.09) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
-    }
-}
-
-@ThemePreview
-@Composable
-private fun NoteCentsPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.3) }, displayType = TuningDisplayType.CENTS, showNote = true) {}
-    }
-}
-
-@ThemePreview
-@Composable
-private fun NoteSemitonesPreview() {
-    PreviewWrapper {
-        TuningDisplay(noteIndex = -29, noteOffset = remember { mutableDoubleStateOf(0.5) }, displayType = TuningDisplayType.SEMITONES, showNote = true) {}
+    AppTheme {
+        TuningDisplay(
+            noteIndex = -29,
+            noteOffset = remember { mutableDoubleStateOf(-27.0) },
+            displayType = TuningDisplayType.CENTS,
+            showNote = false
+        ) {}
     }
 }

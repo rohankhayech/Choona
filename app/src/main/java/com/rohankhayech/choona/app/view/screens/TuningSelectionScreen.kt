@@ -108,6 +108,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rohankhayech.android.util.ui.layout.isScrollingUp
 import com.rohankhayech.android.util.ui.preview.ThemePreview
 import com.rohankhayech.android.util.ui.theme.StatusBarColor
 import com.rohankhayech.android.util.ui.theme.StatusBarIconColor
@@ -115,7 +116,6 @@ import com.rohankhayech.android.util.ui.theme.m3.isLight
 import com.rohankhayech.android.util.ui.theme.m3.isTrueDark
 import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
-import com.rohankhayech.choona.app.view.util.isScrollingUp
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
@@ -513,7 +513,7 @@ fun TuningList(
         }
 
         tunings.forEach { group ->
-            item(group.toString()) {
+            item(group.key.toString()) {
                 SectionTitle("${group.key.first.getLocalisedName()} ‧ ${group.key.second.getLocalisedName()}", Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
             }
             items(group.value, key = { it.key }) {
@@ -889,18 +889,6 @@ private fun LazyItemScope.TuningItem(
             HorizontalDivider()
         }
     }
-}
-
-/** @return The localised name of this category. */
-@Composable
-fun Category?.getLocalisedName(): String {
-    return stringResource(when (this) {
-        Category.COMMON -> R.string.tun_cat_common
-        Category.POWER -> R.string.tun_cat_power
-        Category.OPEN -> R.string.tun_cat_open
-        Category.EXTENDED -> R.string.tun_cat_extended
-        else -> R.string.tun_cat_misc
-    })
 }
 
 /** UI component displaying a tuning category label with [title] text. */
