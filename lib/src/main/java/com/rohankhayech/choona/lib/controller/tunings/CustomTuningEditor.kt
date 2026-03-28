@@ -125,7 +125,7 @@ class CustomTuningEditor(
      * @param noteIndex The note index to validate.
      * @throws IllegalArgumentException if the note index is out of range.
      */
-    fun requireValidNoteIndex(noteIndex: Int) {
+    private fun requireValidNoteIndex(noteIndex: Int) {
         require(noteIndex in Tuner.Companion.LOWEST_NOTE..Tuner.Companion.HIGHEST_NOTE)
     }
 }

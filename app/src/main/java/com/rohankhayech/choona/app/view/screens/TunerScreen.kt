@@ -616,9 +616,9 @@ fun TunerErrorBody(
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 256.dp)
         )
-        if (error?.message != null) {
+        error?.message?.let {
             Text( // Error message
-                text = error.message!!,
+                text = it,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.widthIn(max = 256.dp),
                 color = MaterialTheme.colorScheme.error,

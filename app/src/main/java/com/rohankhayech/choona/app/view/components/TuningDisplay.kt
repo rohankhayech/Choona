@@ -18,7 +18,6 @@
 
 package com.rohankhayech.choona.app.view.components
 
-import kotlin.math.abs
 import kotlin.math.sign
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
@@ -68,7 +67,6 @@ import com.rohankhayech.android.util.ui.theme.m3.harmonisedWith
 import com.rohankhayech.android.util.ui.theme.m3.isDynamicColor
 import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
-import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
 import com.rohankhayech.choona.lib.model.tuning.Notes
 import com.rohankhayech.choona.lib.view.components.TuningMeterUtils.animateTuningMeterColor
@@ -228,7 +226,7 @@ private fun TuningMeterLabel(
         Text(text = stringResource(R.string.listening))
 
     // In Tune
-    } else if (abs(noteOffset) < Tuner.TUNED_OFFSET_THRESHOLD) {
+    } else if (isInTune(noteOffset)) {
         if (showNote) {
             NoteDisplay(noteIndex = noteIndex, color = color)
         } else {

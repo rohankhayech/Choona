@@ -156,14 +156,16 @@ fun MainLayout(
                 )
             }
 
+            val transitionSpec = NavDisplay.transitionSpec {
+                slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
+            } + NavDisplay.popTransitionSpec {
+                fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
+            } + NavDisplay.predictivePopTransitionSpec {
+                fadeIn() togetherWith slideOutOfContainer(SlideDirection.End)
+            }
+
             entry<Screen.ConfigureTuning>(
-                metadata = NavDisplay.transitionSpec {
-                    slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
-                } + NavDisplay.popTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
-                } + NavDisplay.predictivePopTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.End)
-                }
+                metadata = transitionSpec
             ) {
                 ConfigureTuningScreen(
                     tuning = tuning,
@@ -182,13 +184,7 @@ fun MainLayout(
             }
 
             entry<Screen.TuningSelection>(
-                metadata = NavDisplay.transitionSpec {
-                    slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
-                } + NavDisplay.popTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
-                } + NavDisplay.predictivePopTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.End)
-                }
+                metadata = transitionSpec
             ) {
                 TuningListScreen(
                     tuningList = tuningList,
@@ -201,13 +197,7 @@ fun MainLayout(
             }
 
             entry<Screen.EditTuning>(
-                metadata = NavDisplay.transitionSpec {
-                    slideIntoContainer(SlideDirection.Up) togetherWith fadeOut()
-                } + NavDisplay.popTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.Down)
-                } + NavDisplay.predictivePopTransitionSpec {
-                    fadeIn() togetherWith slideOutOfContainer(SlideDirection.End)
-                }
+                metadata = transitionSpec
             ) { key ->
                 val editVM: EditTuningViewModel = viewModel(
                     factory = EditTuningViewModel.provideFactory(key.tuningJSON, key.new)

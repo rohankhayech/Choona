@@ -130,12 +130,12 @@ fun EditTuningScreen(
     var showInstrumentDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    if (stringToEdit != null) {
-        val index = stringToEdit!!
+    // Note selection dialog.
+    stringToEdit?.let {
         NoteSelectionDialog(
-            initialNoteIndex = tuning.getString(index).rootNoteIndex,
+            initialNoteIndex = tuning.getString(it).rootNoteIndex,
             onConfirm = { noteIndex ->
-                onSetString(index, noteIndex)
+                onSetString(it, noteIndex)
                 stringToEdit = null
             },
             onPressNote = { onPressNote(it, tuning.instrument) },
