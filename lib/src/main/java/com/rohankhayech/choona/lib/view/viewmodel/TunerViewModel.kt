@@ -163,7 +163,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The tuning to add/update
      * @param key The navigation key for the edit screen.
      */
-    fun onSaveFromEditor(tuning: Tuning, key: Screen.EditTuning) {
+    fun saveTuningFromEditor(tuning: Tuning, key: Screen.EditTuning) {
         if (key.new) {
             onAddFromEditor(tuning)
         } else {
@@ -196,7 +196,7 @@ class TunerViewModel : ViewModel() {
      *
      * @param key The navigation key for the edit screen.
      */
-    fun onDeleteFromEditor(key: Screen.EditTuning) {
+    fun deleteTuningFromEditor(key: Screen.EditTuning) {
         if (!key.new) {
             tuningList.removeCustom(TuningFileIO.parseTuningFromString(key.tuningJSON))
             navBack()

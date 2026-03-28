@@ -292,12 +292,53 @@ abstract class BaseTunerActivity : ComponentActivity() {
         checkAndStartTuner()
     }
 
+    /**
+     * Opens the tuning editor,
+     * and stops the tuner if no other panel is open.
+     */
+    protected fun openTuningEditor(tuning: Tuning, new: Boolean) {
+        // Open the tuning editor.
+        vm.openTuningEditor(tuning, new)
+
+        // Stop tuner if in expanded layout.
+        checkAndStopTuner()
+    }
+
+    /**
+     * Saves the tuning to the tuning list,
+     * and restarts the tuner if no other panel is open.
+     */
+    protected fun saveTuningFromEditor(tuning: Tuning, key: TunerViewModel.Screen.EditTuning) {
+        // Save the tuning.
+        vm.saveTuningFromEditor(tuning, key)
+
+        // Start tuner if no other panel is open.
+        checkAndStartTuner()
+    }
+
+    /**
+     * Deletes the tuning from the tuning list,
+     * and restarts the tuner if no other panel is open.
+     */
+    protected fun deleteTuningFromEditor(key: TunerViewModel.Screen.EditTuning) {
+        // Delete the tuning.
+        vm.deleteTuningFromEditor(key)
+
+        // Start tuner if no other panel is open.
+        checkAndStartTuner()
+    }
+
     /** Starts tuner if no other panel is open above it. */
     protected fun checkAndStartTuner() {
         if (vm.isTunerScreenOpen()) {
             try {
                 vm.tuner.start(ph)
-            } catch(_: Exception) {}
+            } catch(_: Exception) {
+                // Ignore IllegalStateExceptions as either
+                // - tuner already started
+                // or permission not granted, shown and handled in UI.
+                // Ignore other exceptions - shown and handled in UI.
+            }
         }
     }
 

@@ -127,7 +127,7 @@ fun ConfigureTuningScreen(
                     IconButton(
                         onClick = onDismiss
                     ) {
-                        Icon(Icons.Default.Done, null)
+                        Icon(Icons.Default.Done, stringResource(R.string.dismiss))
                     }
                 }
             }
@@ -194,8 +194,9 @@ private fun Preview() {
                 onTuneDownTuning = {},
                 onOpenTuningSelector = {},
                 onDismiss = {},
-                onSelectNote = {}
-            ) {}
+                onSelectNote = {},
+                onSettingsPressed = {}
+            )
         }
     }
 }
