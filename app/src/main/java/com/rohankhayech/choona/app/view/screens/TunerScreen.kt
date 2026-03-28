@@ -594,7 +594,7 @@ fun TunerPermissionBody(
 @Composable
 fun TunerErrorBody(
     padding: PaddingValues,
-    error: Exception?,
+    error: Exception,
 ) {
     Column(
         modifier = Modifier
@@ -616,7 +616,7 @@ fun TunerErrorBody(
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 256.dp)
         )
-        error?.message?.let {
+        error.message?.let {
             Text( // Error message
                 text = it,
                 textAlign = TextAlign.Center,

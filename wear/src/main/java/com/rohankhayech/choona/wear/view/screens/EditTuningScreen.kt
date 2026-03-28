@@ -481,7 +481,7 @@ fun NoteSelectionDialog(
         title = { Text(stringResource(R.string.dialog_title_select_note)) },
         confirmButton = {
             Button(onClick = { onConfirm(selectedNoteIndex) }) {
-                Icon(Icons.Default.Done, null)
+                Icon(Icons.Default.Done, stringResource(android.R.string.ok))
             }
         },
         dismissButton = {
