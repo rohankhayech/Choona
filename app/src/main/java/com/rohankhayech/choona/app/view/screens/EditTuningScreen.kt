@@ -332,6 +332,7 @@ private fun EditTuningForm(
             value = name,
             label = { Text(stringResource(R.string.name)) },
             placeholder = { Text(tuning.toString()) },
+            singleLine = true,
             onValueChange = onNameChange
         )
 

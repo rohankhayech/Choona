@@ -96,8 +96,8 @@ abstract class BaseTunerActivity : ComponentActivity() {
 
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
-                    InitialTuningType.PINNED -> when (vm.tuningList.pinned.value) {
-                        is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(vm.tuningList.pinned.value.tuning!!)
+                    InitialTuningType.PINNED -> when (val pinned = vm.tuningList.pinned.value) {
+                        is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(pinned.tuning)
                         is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
                     }
                     InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
