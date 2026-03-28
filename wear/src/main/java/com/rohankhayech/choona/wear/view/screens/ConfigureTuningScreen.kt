@@ -26,9 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,7 +80,6 @@ fun ConfigureTuningScreen(
     tuning: TuningEntry,
     chromatic: Boolean,
     selectedNote: Int,
-    favTunings: State<Set<TuningEntry>>,
     getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
@@ -190,7 +187,6 @@ private fun Preview() {
                 tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
                 chromatic = false,
                 selectedNote = -29,
-                favTunings = remember { mutableStateOf(emptySet()) },
                 getCanonicalName = { it.toString() },
                 onTuneUpString = {},
                 onTuneDownString = {},

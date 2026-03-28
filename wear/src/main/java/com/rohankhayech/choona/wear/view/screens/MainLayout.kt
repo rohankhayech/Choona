@@ -169,7 +169,6 @@ fun MainLayout(
                     tuning = tuning,
                     chromatic = chromatic,
                     selectedNote = selectedNote,
-                    favTunings = favTunings,
                     getCanonicalName = getCanonicalName,
                     onTuneUpString = onTuneUpString,
                     onTuneDownString = onTuneDownString,
