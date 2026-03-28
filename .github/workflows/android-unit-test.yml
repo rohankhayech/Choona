@@ -27,7 +27,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Unit Test
-      run: ./gradlew testDebugUnitTest
+      run: ./gradlew :app:testOpenDebugUnitTest :app:testPlayDebugUnitTest :lib:testDebugUnitTest :wear:testDebugUnitTest
       
     - name: Android Test Report
       uses: FlickerSoul/android-test-report-actions@v1.2
