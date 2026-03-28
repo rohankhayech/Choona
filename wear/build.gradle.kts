@@ -36,7 +36,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 15
-        versionName = "1.6.0-wear-beta.1"
+        versionName = "1.6.0-beta.1"
     }
 
     buildTypes {
