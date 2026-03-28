@@ -108,9 +108,9 @@ private fun InTuneScreenshot() {
             tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
             noteOffset = remember { mutableDoubleStateOf(0.01) },
             selectedString = 5,
-            selectedNote = 0, // Assuming a valid note for Drop D, string 5
+            selectedNote = 0,
             tuned = BooleanArray(6) { it == 5 },
-            noteTuned = true, // Implied by "InTune"
+            noteTuned = true,
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
