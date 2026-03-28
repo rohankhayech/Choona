@@ -538,6 +538,9 @@ fun TuningList(
                 )
             }
         }
+
+        // Spacer so last item is not covered by FAB.
+        item { Spacer(Modifier.height(88.dp)) }
     }
 }
 
