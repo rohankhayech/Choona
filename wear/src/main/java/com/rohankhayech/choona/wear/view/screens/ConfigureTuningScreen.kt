@@ -62,7 +62,6 @@ import com.rohankhayech.choona.wear.R as WearR
  * @param tuning Guitar tuning used for comparison.
  * @param chromatic Whether the chromatic tuning mode is enabled.
  * @param selectedNote The selected note in chromatic mode.
- * @param favTunings Set of tunings marked as favourite by the user.
  * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
