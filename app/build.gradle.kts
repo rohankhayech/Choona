@@ -16,8 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import java.util.Properties
-import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -26,12 +24,6 @@ plugins {
     alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization.plugin)
-}
-
-val keystorePropertiesFile: File = rootProject.file("keystore.properties")
-val keystoreProperties = Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
 
 android {
@@ -49,23 +41,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        create("release") {
-            if (keystoreProperties.isNotEmpty()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-            }
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".dev"
@@ -162,13 +142,13 @@ aboutLibraries {
     }
 
     export {
-        // Allows to exclude some fields from the generated metadata field.
+        // Allows to exclude some fields from the generated meta data field.
         // If the class name is specified, the field is only excluded for that class; without a class name, the exclusion is global.
         excludeFields.addAll("generated", "funding", "scm", "website")
     }
 
     library {
         // Configure the duplication rule, to match "duplicates" with
-        duplicationRule = DuplicateRule.SIMPLE
+        duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
     }
 }
