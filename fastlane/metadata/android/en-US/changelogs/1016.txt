@@ -1,0 +1,4 @@
+Beta Release of Choona for Wear OS:
+- Tune right from your wrist with the new watch app for Wear OS devices.
+- Tailored UI for small watch screens.
+- Full feature parity with the mobile app.

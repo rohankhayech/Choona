@@ -1,0 +1,11 @@
+Added extended string tunings, a dedicated tuning editor, and beta support for Wear OS.
+
+Features Added:
+- Tunings with up to 12 strings.
+- Presets for Guitar, Bass & Ukulele with extra strings.
+- New Tuning Editor screen allowing you to rename, add/remove strings & directly set the note/octave of strings.
+
+Beta Release of Choona for Wear OS:
+- Tune right from your wrist with the new watch app for Wear OS devices.
+- Tailored UI for small watch screens.
+- Full feature parity with the mobile app.
