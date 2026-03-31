@@ -1,6 +1,6 @@
 [versions]
 aboutLibraries = "14.0.0-b03"
-agp = "8.12.3"
+agp = "8.13.2"
 datastorePreferencesVersion = "1.2.1"
 jsonVersion = "20251224"
 kotlinxCoroutinesTest = "1.10.2"
