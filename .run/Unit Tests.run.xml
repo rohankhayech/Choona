@@ -1,6 +1,6 @@
 <!--
   ~ Choona - Guitar Tuner
-  ~ Copyright (C) 2025 Rohan Khayech
+  ~ Copyright (C) 2026 Rohan Khayech
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -28,7 +28,10 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="testPlayDebugUnitTest" />
+          <option value=":app:testOpenDebugUnitTest" />
+          <option value=":app:testPlayDebugUnitTest" />
+          <option value=":lib:testDebugUnitTest" />
+          <option value=":wear:testDebugUnitTest" />
         </list>
       </option>
       <option name="vmOptions" />
@@ -36,6 +39,7 @@
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>false</RunAsTest>
     <method v="2" />
   </configuration>
 </component>

@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.aboutLibraries)
+    alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization.plugin)
 }
 
 android {
-    namespace = "com.rohankhayech.choona"
+    namespace = "com.rohankhayech.choona.app"
 
     compileSdk = 36
 
@@ -34,8 +35,8 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 24
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.5.2"
+        versionCode = 15
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,8 +52,7 @@ android {
             versionNameSuffix = "-dev"
         }
     }
-
-    flavorDimensions("dist" )
+    flavorDimensions += listOf("dist")
 
     productFlavors {
         create("play") {
@@ -70,43 +70,44 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 
 dependencies {
-    // Local
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    // Project
+    implementation(project(":lib"))
 
     // Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.kotlinx.serialization)
 
     // Google Play
     "playImplementation"(libs.review.ktx)
 
     // Compose
-    val composeBOM = platform(libs.androidx.compose.bom)
+    val composeBOM = platform(libs.compose.bom)
     implementation(composeBOM)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.animation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.material3.window.size)
+    implementation(libs.compose.adaptive.navigation3)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.animation)
-    implementation(libs.ui.tooling)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.material3.window.size)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
     // Audio
     implementation(libs.tarsos.dsp.core)
@@ -117,21 +118,21 @@ dependencies {
     implementation(libs.androidutils.layout)
 
     // Open Source Licenses
-    implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.m3)
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.json.json)
+    testImplementation(libs.json)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(composeBOM)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 
-    // Debug
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Tooling / Preview
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 aboutLibraries {
@@ -147,8 +148,6 @@ aboutLibraries {
     }
 
     library {
-        // Enable the duplication mode, allows to merge, or link dependencies which relate
-        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.LINK
         // Configure the duplication rule, to match "duplicates" with
         duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
     }

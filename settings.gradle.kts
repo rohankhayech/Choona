@@ -44,3 +44,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Choona"
 include(":app")
+include(":lib")
+include(":wear")

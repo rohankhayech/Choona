@@ -3,10 +3,10 @@ name: Unit Test
 on:
   push:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
+    paths: [ 'app/**', 'lib/**', "wear/**", '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
   pull_request:
     branches: [ main, develop ]
-    paths: [ 'app/**', '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
+    paths: [ 'app/**', 'lib/**', "wear/**", '*.gradle', '*.gradle.kts', 'gradle.properties', '**.versions.toml', '.github/workflows/android-unit-test.yml' ]
 
 jobs:
   build:
@@ -27,8 +27,8 @@ jobs:
       run: chmod +x gradlew
       
     - name: Unit Test
-      run: ./gradlew testPlayDebugUnitTest
+      run: ./gradlew :app:testOpenDebugUnitTest :app:testPlayDebugUnitTest :lib:testDebugUnitTest :wear:testDebugUnitTest
       
     - name: Android Test Report
-      uses: asadmansr/android-test-report-action@v1.2.0
+      uses: FlickerSoul/android-test-report-actions@v1.2
       if: ${{ always() }} # always run
