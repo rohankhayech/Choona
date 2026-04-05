@@ -24,8 +24,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Add
@@ -61,6 +63,8 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.view.util.getLocalisedName
 
 /**
  * Row UI component displaying and allowing selection and retuning of the current tuning.
@@ -259,6 +263,8 @@ fun TuningItem(
             }
     }
 
+    val instrumentName = tuning.tuning?.instrument?.getLocalisedName()
+
     val strings = remember(tuning) {
         tuning.tuning?.strings
             ?.reversed()
@@ -277,13 +283,27 @@ fun TuningItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = horizontalAlignment
     ) {
-        Text(
-            tuningName,
-            style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
-            fontWeight = fontWeight,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                tuningName,
+                style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                fontWeight = fontWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            instrumentName?.let {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    instrumentName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
         Text(
             desc,
             style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
@@ -323,7 +343,7 @@ private fun EditOffPreview() {
     PreviewWrapper {
         TuningSelector(
             Modifier.padding(8.dp),
-            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            tuning = TuningEntry.ChromaticTuning,
             favTunings = remember { mutableStateOf(setOf(TuningEntry.InstrumentTuning(Tuning.STANDARD), TuningEntry.InstrumentTuning(Tuning.DROP_D))) },
             getCanonicalName = { it.tuning.toString() },
             openDirect = false,
@@ -345,7 +365,7 @@ private fun TuningItemPreview() {
     PreviewWrapper {
         TuningItem(
             Modifier.padding(8.dp),
-            tuning = TuningEntry.InstrumentTuning(Tuning.STANDARD),
+            tuning = TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
             getCanonicalName = { it.tuning.toString() },
             fontWeight = FontWeight.Bold
         )
