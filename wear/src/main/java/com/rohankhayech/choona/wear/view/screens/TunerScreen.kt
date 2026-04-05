@@ -313,7 +313,7 @@ private fun TunerPermissionBody(
 @Composable
 private fun TunerErrorBody(
     contentPadding: PaddingValues,
-    error: Exception?,
+    error: Exception,
 ) {
     ScalingLazyColumn(
         modifier = Modifier
@@ -338,7 +338,7 @@ private fun TunerErrorBody(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        if (error?.message != null) {
+        if (error.message != null) {
             item {
                 Text( // Error message
                     text = error.message!!,

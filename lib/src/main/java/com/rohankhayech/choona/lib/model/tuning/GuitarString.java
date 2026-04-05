@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,12 +174,11 @@ public final class GuitarString implements Iterable<Double>, Comparable<GuitarSt
     @Override
     public Iterator<Double> iterator() {
         return new Iterator<>() {
-
             int fret = 0;
 
             @Override
             public boolean hasNext() {
-                return fret < FRETS;
+                return fret <= FRETS;
             }
 
             @Override

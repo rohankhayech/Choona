@@ -322,12 +322,11 @@ private fun EditTuningForm(
     var stringToEdit by remember { mutableStateOf<Int?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    if (stringToEdit != null) {
-        val index = stringToEdit!!
+    stringToEdit?.let {
         NoteSelectionDialog(
-            initialNoteIndex = tuning.getString(index).rootNoteIndex,
+            initialNoteIndex = tuning.getString(it).rootNoteIndex,
             onConfirm = { noteIndex ->
-                onSetString(index, noteIndex)
+                onSetString(it, noteIndex)
                 stringToEdit = null
             },
             onPressNote = onPressNote,
@@ -338,7 +337,7 @@ private fun EditTuningForm(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.delete)) },
+            title = { Text("${stringResource(R.string.delete)} ${name.ifBlank { tuning.toString() }}?") },
             text = { Text(stringResource(R.string.delete_tuning_confirmation)) },
             confirmButton = {
                 TextButton(
@@ -373,6 +372,7 @@ private fun EditTuningForm(
             value = name,
             label = { Text(stringResource(R.string.name)) },
             placeholder = { Text(tuning.toString()) },
+            singleLine = true,
             onValueChange = onNameChange
         )
 
@@ -530,7 +530,7 @@ private fun AddRemoveRow(
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             ),
-            onClick = { onAddString() }
+            onClick = onAddString
         ) {
             Icon(Icons.Default.Add, stringResource(R.string.add_string), modifier = Modifier.size(20.dp))
         }

@@ -30,12 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rohankhayech.android.util.ui.preview.CompactOrientationPreview
 import com.rohankhayech.android.util.ui.preview.DarkPreview
 import com.rohankhayech.android.util.ui.preview.TabletThemePreview
+import com.rohankhayech.choona.app.view.screens.EditTuningScreen
 import com.rohankhayech.choona.app.view.screens.MainLayout
-import com.rohankhayech.choona.app.view.screens.SaveTuningDialog
 import com.rohankhayech.choona.app.view.screens.SettingsScreen
 import com.rohankhayech.choona.app.view.screens.TunerScreen
 import com.rohankhayech.choona.app.view.screens.TuningSelectionScreen
@@ -50,7 +49,7 @@ import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
-// Previews for generating screenshots.
+/** @file Previews for generating screenshots. */
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @DarkPreview
@@ -109,9 +108,9 @@ private fun InTuneScreenshot() {
             tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
             noteOffset = remember { mutableDoubleStateOf(0.01) },
             selectedString = 5,
-            selectedNote = 0, // Assuming a valid note for Drop D, string 5
+            selectedNote = 0,
             tuned = BooleanArray(6) { it == 5 },
-            noteTuned = true, // Implied by "InTune"
+            noteTuned = true,
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
@@ -165,45 +164,28 @@ private fun SelectionScreenshot() {
 @DarkPreview
 @Composable
 private fun CustomScreenshot() {
-    val current = TuningEntry.InstrumentTuning(Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
-    val tunings = TuningList(current.tuning).apply {
-        setFavourited(TuningEntry.InstrumentTuning(Tunings.DROP_D), true)
-    }
+    val custom = TuningEntry.InstrumentTuning(Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
 
     AppTheme {
-        TuningSelectionScreen (
-            current = tunings.current.value,
-            tunings = tunings.filteredTunings.value,
-            favourites = tunings.favourites.value,
-            custom = tunings.custom.value,
-            pinned = TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            pinnedInitial = true,
-            instrumentFilter = null,
-            categoryFilter = null,
-            instrumentFilters = tunings.instrumentFilters.collectAsStateWithLifecycle(),
-            categoryFilters = tunings.categoryFilters.collectAsStateWithLifecycle(),
-            backIcon = Icons.Default.Close,
-            deletedTuning = tunings.deletedTuning,
-            onSelectInstrument = {},
-            onSelectCategory = {},
-            onSave = {_, _ ->},
-            onFavouriteSet = {_, _ ->},
-            onSelect = {},
-            onDelete = {},
-            onOpenTuningEditor = {_,_->},
-            onDismiss = {},
-            onPin = {},
-            onUnpin = {},
-            isFavourite = { tunings.run {
-                this@TuningSelectionScreen.isFavourite()
-            }},
-            currentSaved = false
-        )
-
-        SaveTuningDialog(
-            tuning = current.tuning,
-            onSave = { _, _ -> },
-            onDismiss = {}
+        EditTuningScreen(
+            name = "",
+            new = true,
+            tuning = custom.tuning,
+            onNameChange = {},
+            onInstrumentChange = {},
+            onSetString = { _, _ -> },
+            onAddLowString = {},
+            onAddHighString = {},
+            onRemoveLowString = {},
+            onRemoveHighString = {},
+            onTuneStringUp = {},
+            onTuneStringDown = {},
+            onTuneUp = {},
+            onTuneDown = {},
+            onPressNote = { _, _ -> },
+            onCancel = {},
+            onSave = {},
+            onDelete = {}
         )
     }
 }

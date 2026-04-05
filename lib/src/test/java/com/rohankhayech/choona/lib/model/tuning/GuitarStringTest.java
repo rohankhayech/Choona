@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,13 +147,21 @@ public final class GuitarStringTest {
         assertEquals("Iterator returning incorrect values.", 82.407, lastPitch, 0.001);
 
         // Check enough values.
+        double last = 0;
         try {
             for (int i = 1; i <= GuitarString.FRETS; i++) {
-                iter.next();
+                assertTrue(
+                    "Iterator not reporting all values.",
+                    iter.hasNext()
+                );
+                last = iter.next();
             }
         } catch (NoSuchElementException e) {
             throw new AssertionError("Iterator does not provide all values.", e);
         }
+
+        assertEquals("Iterator returning incorrect values.", 329.63, last, 0.01);
+
 
         // Check no more values.
         assertFalse("Iterator has too many values.", iter.hasNext());

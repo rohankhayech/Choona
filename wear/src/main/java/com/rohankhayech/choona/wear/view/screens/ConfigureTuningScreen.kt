@@ -26,9 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +62,6 @@ import com.rohankhayech.choona.wear.R as WearR
  * @param tuning Guitar tuning used for comparison.
  * @param chromatic Whether the chromatic tuning mode is enabled.
  * @param selectedNote The selected note in chromatic mode.
- * @param favTunings Set of tunings marked as favourite by the user.
  * @param getCanonicalName Gets the name of the tuning if it is saved as a custom tuning.
  * @param onTuneUpString Called when a string is tuned up.
  * @param onTuneDownString Called when a string is tuned down.
@@ -82,7 +79,6 @@ fun ConfigureTuningScreen(
     tuning: TuningEntry,
     chromatic: Boolean,
     selectedNote: Int,
-    favTunings: State<Set<TuningEntry>>,
     getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
@@ -130,7 +126,7 @@ fun ConfigureTuningScreen(
                     IconButton(
                         onClick = onDismiss
                     ) {
-                        Icon(Icons.Default.Done, null)
+                        Icon(Icons.Default.Done, stringResource(R.string.dismiss))
                     }
                 }
             }
@@ -190,7 +186,6 @@ private fun Preview() {
                 tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
                 chromatic = false,
                 selectedNote = -29,
-                favTunings = remember { mutableStateOf(emptySet()) },
                 getCanonicalName = { it.toString() },
                 onTuneUpString = {},
                 onTuneDownString = {},
@@ -198,8 +193,9 @@ private fun Preview() {
                 onTuneDownTuning = {},
                 onOpenTuningSelector = {},
                 onDismiss = {},
-                onSelectNote = {}
-            ) {}
+                onSelectNote = {},
+                onSettingsPressed = {}
+            )
         }
     }
 }

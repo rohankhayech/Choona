@@ -19,8 +19,11 @@ Guitar tuner application for Android and Wear OS with support for custom tunings
 - Tune your instrument right from your wrist with full Wear OS support.
 
 ## Screenshots
+### Phone
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01-tuner.jpg" width=30%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02-in_tune.jpg" width=30%> 
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01-tuner.jpg" width=30%> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02-in_tune.jpg" width=30%>
+### Watch
+<img src="fastlane/metadata/android/en-US/images/wearScreenshots/01-tuner.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/wearScreenshots/02-in_tune.jpg" width=20%>
 
 <details>
   <summary>
@@ -33,6 +36,9 @@ Guitar tuner application for Android and Wear OS with support for custom tunings
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/09-splitscreen.jpg" width="20%"> 
   <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/10-tablet.jpg" width=40%>
   <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/11-tablet.jpg" width=40%>
+  <img src="fastlane/metadata/android/en-US/images/wearScreenshots/03-selection.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/wearScreenshots/04-custom.jpg" width=20%>
+  <img src="fastlane/metadata/android/en-US/images/wearScreenshots/05-chromatic.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/wearScreenshots/06-configure.jpg" width=20%> 
+  <img src="fastlane/metadata/android/en-US/images/wearScreenshots/07-semitones.jpg" width=20%> <img src="fastlane/metadata/android/en-US/images/wearScreenshots/08-settings.jpg" width=20%>
 </details>
 
 ## Installation

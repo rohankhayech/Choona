@@ -30,7 +30,7 @@ import org.billthefarmer.mididriver.MidiDriver
  * Controller class responsible for generating and sending MIDI events representing guitar notes.
  * @author Rohan Khayech
  */
-class MidiController() {
+class MidiController {
 
     /** The system MIDI driver. */
     private var midiDriver: MidiDriver = MidiDriver.getInstance()

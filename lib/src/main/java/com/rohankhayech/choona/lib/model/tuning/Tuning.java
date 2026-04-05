@@ -166,7 +166,7 @@ public final class Tuning implements Iterable<GuitarString> {
         if (stringNum != -1) {
             return stringNum;
         } else {
-            throw new NoSuchElementException("The specified string"+string.toFullString()+"is not present in this tuning.");
+            throw new NoSuchElementException("The specified string "+string.toFullString()+" is not present in this tuning.");
         }
     }
 

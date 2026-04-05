@@ -189,7 +189,7 @@ private fun StringSelectionButton(
 
 @Preview
 @Composable
-fun InlinePreview() {
+private fun InlinePreview() {
     AppTheme {
         StringControls(
             tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),

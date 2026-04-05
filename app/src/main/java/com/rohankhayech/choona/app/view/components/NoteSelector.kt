@@ -118,10 +118,10 @@ fun NoteSelector(
             activatedButtons = BooleanArray(NUM_OCTAVES) { i -> tuned && i == selectedOctave - LOWEST_OCTAVE },
             disabledButtons = remember (selectedNote) { when {
                 selectedNote < LOWEST_ROOT_NOTE_INDEX ->
-                    BooleanArray(NUM_OCTAVES) { i -> i <= LOWEST_OCTAVE - 1 }
+                    BooleanArray(NUM_OCTAVES) { i -> i == 0 }
                 selectedNote > HIGHEST_ROOT_NOTE_INDEX ->
-                    BooleanArray(NUM_OCTAVES) { i -> i >= HIGHEST_OCTAVE - 1}
-                else -> BooleanArray(HIGHEST_OCTAVE-LOWEST_OCTAVE + 1) { false }
+                    BooleanArray(NUM_OCTAVES) { i -> i == NUM_OCTAVES - 1}
+                else -> BooleanArray(NUM_OCTAVES) { false }
             }},
             onSelect = remember (selectedNote, onSelect) {{ index ->
                 onSelect(Notes.getIndex("${Notes.NOTE_SYMBOLS[selectedNote]}${index + 1}"))

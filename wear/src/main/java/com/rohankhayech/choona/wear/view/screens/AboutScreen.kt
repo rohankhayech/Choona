@@ -165,6 +165,7 @@ fun LicencesScreen() {
         val libs by produceLibraries()
         LibrariesContainer(
             libs,
+            lazyListState = listState,
             contentPadding = padding,
             header = {
                 item {

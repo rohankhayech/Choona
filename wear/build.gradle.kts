@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -24,6 +25,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.aboutLibraries.android)
     alias(libs.plugins.kotlin.serialization.plugin)
+}
+
+val keystorePropertiesFile: File = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
 
 android {
@@ -35,8 +42,19 @@ android {
         applicationId = "com.rohankhayech.choona"
         minSdk = 28
         targetSdk = 36
-        versionCode = 15
-        versionName = "1.6.0-wear-beta.1"
+        versionCode = 1017 // Wear Version Code prefixed with 10
+        versionName = "1.6.2-beta.2"
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystoreProperties.isNotEmpty()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
     }
 
     buildTypes {
@@ -44,6 +62,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".dev"

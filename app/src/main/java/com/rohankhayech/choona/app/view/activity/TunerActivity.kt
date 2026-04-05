@@ -113,13 +113,13 @@ class TunerActivity : BaseTunerActivity() {
                 // Open tuning selector when switching to expanded view.
                 LaunchedEffect(expanded) {
                     vm.setExpanded(expanded)
-                    if (granted && error == null) {
-                        if (expanded) {
-                            checkAndStartTuner()
-                            vm.openTuningSelector()
-                        } else {
-                            checkAndStopTuner()
-                        }
+                }
+                LaunchedEffect(expanded, granted, error) {
+                    if (expanded && granted && error == null) {
+                        checkAndStartTuner()
+                        vm.openTuningSelector()
+                    } else {
+                        checkAndStopTuner()
                     }
                 }
 
@@ -177,9 +177,9 @@ class TunerActivity : BaseTunerActivity() {
                     onConfigurePressed = ::openConfigurePanel,
                     onSelectTuningFromList = ::selectTuningFromList,
                     onSelectChromaticFromList = ::selectChromaticFromList,
-                    onOpenTuningEditor = vm::openTuningEditor,
-                    onSaveTuningFromEditor = vm::onSaveFromEditor,
-                    onDeleteTuningFromEditor = vm::onDeleteFromEditor,
+                    onOpenTuningEditor = ::openTuningEditor,
+                    onSaveTuningFromEditor = ::saveTuningFromEditor,
+                    onDeleteTuningFromEditor = ::deleteTuningFromEditor,
                     onPressNote = ::playNote,
                     onBack = ::navBack,
                     onEditModeChanged = vm::setEditMode,

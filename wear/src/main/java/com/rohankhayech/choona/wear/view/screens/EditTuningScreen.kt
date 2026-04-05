@@ -134,22 +134,21 @@ fun EditTuningScreen(
     var showInstrumentDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val handleCancel = {
+    // Handle discard confirmation on back.
+    BackHandler(enabled = true, onBack = {
         if (hasChanges) {
             showDiscardDialog = true
         } else {
             onCancel()
         }
-    }
+    })
 
-    BackHandler(enabled = true, onBack = handleCancel)
-
-    if (stringToEdit != null) {
-        val index = stringToEdit!!
+    // Note selection dialog.
+    stringToEdit?.let {
         NoteSelectionDialog(
-            initialNoteIndex = tuning.getString(index).rootNoteIndex,
+            initialNoteIndex = tuning.getString(it).rootNoteIndex,
             onConfirm = { noteIndex ->
-                onSetString(index, noteIndex)
+                onSetString(it, noteIndex)
                 stringToEdit = null
             },
             onPressNote = { onPressNote(it, tuning.instrument) },
@@ -533,7 +532,7 @@ fun NoteSelectionDialog(
         title = { Text(stringResource(R.string.dialog_title_select_note)) },
         confirmButton = {
             Button(onClick = { onConfirm(selectedNoteIndex) }) {
-                Icon(Icons.Default.Done, null)
+                Icon(Icons.Default.Done, stringResource(android.R.string.ok))
             }
         },
         dismissButton = {
