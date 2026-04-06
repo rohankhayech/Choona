@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tunings.CustomTuningEditor
 import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.equivalentTo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,7 +65,7 @@ class EditTuningViewModel(
     /** Whether the tuning has been modified. */
     val hasChanges = combine(_name, editor.tuning) { name, tuning ->
         val initialName = if (new) "" else initialTuning.nameOrBlank
-        name != initialName || tuning != initialTuning
+        name != initialName || !(tuning equivalentTo initialTuning)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
