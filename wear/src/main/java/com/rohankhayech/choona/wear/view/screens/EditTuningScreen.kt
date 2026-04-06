@@ -135,20 +135,21 @@ fun EditTuningScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Handle discard confirmation on back.
-    BackHandler(enabled = true, onBack = {
+    val handleCancel = {
         if (hasChanges) {
             showDiscardDialog = true
         } else {
             onCancel()
         }
-    })
-
+    }
+    BackHandler(enabled = true, onBack = handleCancel)
+    
     // Note selection dialog.
-    stringToEdit?.let {
+    stringToEdit?.let { str ->
         NoteSelectionDialog(
-            initialNoteIndex = tuning.getString(it).rootNoteIndex,
+            initialNoteIndex = tuning.getString(str).rootNoteIndex,
             onConfirm = { noteIndex ->
-                onSetString(it, noteIndex)
+                onSetString(str, noteIndex)
                 stringToEdit = null
             },
             onPressNote = { onPressNote(it, tuning.instrument) },

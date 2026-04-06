@@ -124,6 +124,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.model.tuning.equivalentTo
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -236,7 +237,7 @@ fun TuningSelectionScreen(
  * @param deletedTuning Event indicating the specified tuning was deleted.
  * @param isFavourite Function that returns whether a tuning is marked as a favourite.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
@@ -395,7 +396,7 @@ fun TuningSelectionScreen(
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onPin Called when a tuning is pinned as default.
@@ -488,7 +489,7 @@ fun TuningList(
             item("cus") { SectionTitle(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(customList, key = { "cus-${it.key}" }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it.tuning.equivalentTo(pinned.tuning) }
+                val isPinned = remember(pinned) { it.tuning equivalentTo pinned.tuning }
                 CustomTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onUnpin = onUnpin, onSelect = onSelect, onDelete = onDelete, onEdit = { onEdit(it.tuning, false) })
             }
         }
@@ -518,7 +519,7 @@ fun TuningList(
             }
             items(group.value, key = { it.key }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it.tuning.equivalentTo(pinned.tuning) }
+                val isPinned = remember(pinned) { it.tuning equivalentTo pinned.tuning }
                 FavouritableTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
             }
         }
@@ -552,7 +553,7 @@ fun TuningList(
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  */
 // Note: Recomposition could be improved.
 @Composable
@@ -736,7 +737,8 @@ private fun LazyItemScope.CustomTuningItem(
             modifier = Modifier.animateItem(),
             state = dismissState,
             enableDismissFromStartToEnd = false,
-            onDismiss = { it -> coroutineScope.launch {
+            onDismiss = {
+                coroutineScope.launch {
                 visible = false
                 dismissState.reset()
                 onDelete(tuning.tuning)
