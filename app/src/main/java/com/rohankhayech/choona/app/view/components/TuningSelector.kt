@@ -65,8 +65,6 @@ import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
-import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
 
 /**
@@ -133,8 +131,11 @@ fun TuningSelector(
             ) {
                 // Current InstrumentTuning
                 CurrentTuningField(
-                    modifier = Modifier.animateBounds(lookaheadScope = this@LookaheadScope).menuAnchor(
-                        ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
+                    modifier = Modifier
+                        .animateBounds(lookaheadScope = this@LookaheadScope)
+                        .menuAnchor(
+                            ExposedDropdownMenuAnchorType.PrimaryNotEditable, true
+                        ),
                     tuning = tuning,
                     getCanonicalName,
                     expanded = expanded,
@@ -267,7 +268,7 @@ fun TuningItem(
         else -> tuning.name
     }
 
-    val instrumentName = tuning.tuning?.instrument?.getLocalisedName()
+    val instrumentName = (tuning as? InstrumentTuning)?.instrument?.getLocalisedName()
 
     val strings = remember(tuning) {
         (tuning as? InstrumentTuning)?.strings

@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,9 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.curvedText
 import com.rohankhayech.choona.lib.R
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 
 /**
  * UI component displaying the name and strings of the specified tuning.
@@ -59,30 +61,33 @@ import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 @Composable
 fun CurvedTuningItem(
     modifier: Modifier = Modifier,
-    tuning: TuningEntry,
+    tuning: Tuning,
     fontWeight: FontWeight = FontWeight.Normal,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
 ) {
     if (LocalConfiguration.current.isScreenRound) {
         val tuningName = when (tuning) {
-            is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
-            is TuningEntry.InstrumentTuning ->
-                if (tuning.tuning.hasName()) {
-                    tuning.tuning.name
+            is ChromaticTuning -> stringResource(R.string.chromatic)
+            is InstrumentTuning ->
+                if (tuning.hasName()) {
+                    tuning.name
                 } else {
                     getCanonicalName(tuning)
                 }
+
+            else -> throw IllegalStateException("Invalid tuning type.")
         }
 
         val strings = remember(tuning) {
-            tuning.tuning?.strings
+            (tuning as? InstrumentTuning)?.strings
                 ?.reversed()
                 ?.joinToString("") { it.toString() }
         } ?: ""
 
         val desc = when (tuning) {
-            is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
-            is TuningEntry.InstrumentTuning -> strings
+            is ChromaticTuning -> stringResource(R.string.chromatic_desc)
+            is InstrumentTuning -> strings
+            else -> throw IllegalStateException("Invalid tuning type.")
         }
 
         val titleStyle = MaterialTheme.typography.titleSmall
@@ -135,29 +140,32 @@ fun CurvedTuningItem(
 @Composable
 fun TuningItem(
     modifier: Modifier = Modifier,
-    tuning: TuningEntry,
+    tuning: Tuning,
     fontWeight: FontWeight = FontWeight.Normal,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
 ) {
     val tuningName = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
-        is TuningEntry.InstrumentTuning ->
-            if (tuning.tuning.hasName()) {
-                tuning.tuning.name
+        is ChromaticTuning -> stringResource(R.string.chromatic)
+        is InstrumentTuning ->
+            if (tuning.hasName()) {
+                tuning.name
             } else {
                 getCanonicalName(tuning)
             }
+
+        else -> throw IllegalStateException("Invalid tuning type.")
     }
 
     val strings = remember(tuning) {
-        tuning.tuning?.strings
+        (tuning as? InstrumentTuning)?.strings
             ?.reversed()
             ?.joinToString("") { it.toString() }
     } ?: ""
 
     val desc = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
-        is TuningEntry.InstrumentTuning -> strings
+        is ChromaticTuning -> stringResource(R.string.chromatic_desc)
+        is InstrumentTuning -> strings
+        else -> throw IllegalStateException("Invalid tuning type.")
     }
 
     Row(
@@ -196,29 +204,32 @@ fun TuningItem(
 @Composable
 fun VerticalTuningItem(
     modifier: Modifier = Modifier,
-    tuning: TuningEntry,
+    tuning: Tuning,
     fontWeight: FontWeight = FontWeight.Normal,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
 ) {
     val tuningName = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic)
-        is TuningEntry.InstrumentTuning ->
-            if (tuning.tuning.hasName()) {
-                tuning.tuning.name
+        is ChromaticTuning -> stringResource(R.string.chromatic)
+        is InstrumentTuning ->
+            if (tuning.hasName()) {
+                tuning.name
             } else {
                 getCanonicalName(tuning)
             }
+
+        else -> throw IllegalStateException("Invalid tuning type.")
     }
 
     val strings = remember(tuning) {
-        tuning.tuning?.strings
+        (tuning as? InstrumentTuning)?.strings
             ?.reversed()
             ?.joinToString("") { it.toString() }
     } ?: ""
 
     val desc = when (tuning) {
-        is TuningEntry.ChromaticTuning -> stringResource(R.string.chromatic_desc)
-        is TuningEntry.InstrumentTuning -> strings
+        is ChromaticTuning -> stringResource(R.string.chromatic_desc)
+        is InstrumentTuning -> strings
+        else -> throw IllegalStateException("Invalid tuning type.")
     }
 
     Column(

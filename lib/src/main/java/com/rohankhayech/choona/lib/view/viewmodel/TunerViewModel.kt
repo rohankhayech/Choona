@@ -147,7 +147,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The tuning to edit.
      * @param new Whether the tuning is a new custom tuning.
      */
-    fun openTuningEditor(tuning: Tuning, new: Boolean) {
+    fun openTuningEditor(tuning: InstrumentTuning, new: Boolean) {
         _backStack.add(Screen.EditTuning(TuningFileIO.encodeTuningToString(tuning), new))
     }
 
@@ -163,7 +163,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The tuning to add/update
      * @param key The navigation key for the edit screen.
      */
-    fun saveTuningFromEditor(tuning: Tuning, key: Screen.EditTuning) {
+    fun saveTuningFromEditor(tuning: InstrumentTuning, key: Screen.EditTuning) {
         if (key.new) {
             onAddFromEditor(tuning)
         } else {
@@ -176,7 +176,7 @@ class TunerViewModel : ViewModel() {
      *
      * @param result The tuning result from the editor.
      */
-    fun onAddFromEditor(result: Tuning) {
+    private fun onAddFromEditor(result: InstrumentTuning) {
         tuningList.addCustom(result.rawName, result)
         navBack()
     }
@@ -186,7 +186,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The initial tuning to update.
      * @param updatedTuning The tuning result from the editor.
      */
-    fun onUpdateFromEditor(tuning: Tuning, updatedTuning: Tuning) {
+    private fun onUpdateFromEditor(tuning: InstrumentTuning, updatedTuning: InstrumentTuning) {
         tuningList.updateCustom(tuning, updatedTuning)
         navBack()
     }

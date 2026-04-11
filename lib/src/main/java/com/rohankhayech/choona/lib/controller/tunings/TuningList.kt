@@ -22,8 +22,8 @@ import java.util.Objects
 import java.util.SortedMap
 import android.content.Context
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
-import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -242,7 +242,7 @@ class TuningList(
      * @throws IllegalStateException If the tuning to be updated does not exist.
      */
     @Throws(ExistingTuningException::class, IllegalStateException::class)
-    fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+    fun updateCustom(tuning: InstrumentTuning, updatedTuning: InstrumentTuning) {
         // Assert that the tuning to be replaced exists.
         check(_custom.value.contains(tuning)) { "The specified tuning does not exist in the custom tuning list." }
 
@@ -256,15 +256,15 @@ class TuningList(
 
         // Update the custom tuning.
         _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
-        if (current.value?.tuning?.equivalentTo(tuning) == true) {
-            _current.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        if ((current.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+            _current.update { updatedTuning }
         }
-        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
-            _pinned.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        if ((pinned.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+            _pinned.update { updatedTuning }
         }
         _favourites.update {
-            if (it.contains(TuningEntry.InstrumentTuning(tuning))) {
-                it.minusElement(TuningEntry.InstrumentTuning(tuning)).plusElement(TuningEntry.InstrumentTuning(updatedTuning))
+            if (it.contains(tuning)) {
+                it.minusElement(tuning).plusElement(updatedTuning)
             } else it
         }
     }

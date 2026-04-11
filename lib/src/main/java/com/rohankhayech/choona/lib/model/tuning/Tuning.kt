@@ -44,11 +44,21 @@ abstract class Tuning protected constructor(
      * @return The standard name of this tuning, or the string representation if it is not named.
      */
     val name: String
-        get() = _name ?: toString()
+        get() = if (hasName()) _name!! else toString()
 
-    /** The standard name of this tuning (if named) including it's string representation. */
+    /** The standard name of this tuning (if named) including its string representation. */
     val fullName: String
         get() = if (hasName()) "$name ($this)" else toString()
+
+    /**
+     * The standard name of this tuning (if named) or an empty string.
+     */
+    val nameOrBlank: String = if (hasName()) _name!! else ""
+
+    /**
+     * The standard name of this tuning if named, null otherwise.
+     */
+    val rawName: String? = _name
 
     /** The tuning's key for use in lists. */
     abstract val key: String
@@ -79,6 +89,9 @@ abstract class Tuning protected constructor(
 
         /** Open chord tuning.  */
         OPEN,
+
+        /** Extended range tuning. */
+        EXTENDED,
 
         /** Miscellaneous tuning.  */
         MISC

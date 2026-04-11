@@ -24,4 +24,8 @@ import androidx.compose.runtime.Immutable
 @Immutable
 object ChromaticTuning: Tuning("Chromatic", Category.MISC) {
     override val key: String = "chromatic"
+
+    override fun toString(): String {
+        return name
+    }
 }

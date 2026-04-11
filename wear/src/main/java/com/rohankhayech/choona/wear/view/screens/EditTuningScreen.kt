@@ -71,7 +71,7 @@ import com.rohankhayech.choona.lib.controller.tunings.MAX_STRINGS
 import com.rohankhayech.choona.lib.controller.tunings.MIN_STRINGS
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
 import com.rohankhayech.choona.lib.model.tuning.Instrument
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import com.rohankhayech.choona.wear.view.components.NoteSelector
@@ -109,7 +109,7 @@ import com.rohankhayech.choona.wear.R as WearR
 fun EditTuningScreen(
     name: String,
     new: Boolean,
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     hasChanges: Boolean = false,
     onNameChange: (String) -> Unit,
     onInstrumentChange: (Instrument) -> Unit,

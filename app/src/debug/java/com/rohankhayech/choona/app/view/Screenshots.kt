@@ -164,13 +164,13 @@ private fun SelectionScreenshot() {
 @DarkPreview
 @Composable
 private fun CustomScreenshot() {
-    val custom = TuningEntry.InstrumentTuning(Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
+    val custom = InstrumentTuning.fromString("F4 C4 G#3 D#3 A#2 F2")
 
     AppTheme {
         EditTuningScreen(
             name = "",
             new = true,
-            tuning = custom.tuning,
+            tuning = custom,
             onNameChange = {},
             onInstrumentChange = {},
             onSetString = { _, _ -> },

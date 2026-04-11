@@ -30,11 +30,11 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.screens.ConfigureTuningScreen
 import com.rohankhayech.choona.wear.view.screens.EditTuningScreen
@@ -52,7 +52,7 @@ private fun TunerScreenshot() {
         AppScaffold(timeText = {}) {
             TunerScreen(
                 granted = true,
-                tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+                tuning = Tunings.STANDARD,
                 prefs = TunerPreferences(),
                 noteOffset = remember { mutableStateOf<Double?>(0.3) },
                 selectedString = 3,
@@ -66,7 +66,7 @@ private fun TunerScreenshot() {
                 onSelectString = {},
                 onSelectNote = {},
                 onAutoChanged = {},
-                getCanonicalName = { it.tuning.toString() },
+                getCanonicalName = { it.toString() },
                 onTuned = {},
                 onOpenConfigurePanel = {},
                 onRequestPermission = {},
@@ -83,7 +83,7 @@ private fun InTuneScreenshot() {
         AppScaffold(timeText = {}) {
             TunerScreen(
                 granted = true,
-                tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
+                tuning = Tunings.DROP_D,
                 prefs = TunerPreferences(),
                 noteOffset = remember { mutableStateOf<Double?>(0.01) },
                 selectedString = 5,
@@ -97,7 +97,7 @@ private fun InTuneScreenshot() {
                 onSelectString = {},
                 onSelectNote = {},
                 onAutoChanged = {},
-                getCanonicalName = { it.tuning.toString() },
+                getCanonicalName = { it.toString() },
                 onTuned = {},
                 onOpenConfigurePanel = {},
                 onRequestPermission = {},
@@ -110,7 +110,7 @@ private fun InTuneScreenshot() {
 @WearLargePreview
 @Composable
 private fun SelectionScreenshot() {
-    val customTuning = TuningEntry.InstrumentTuning(Tuning.fromString("Example", Instrument.GUITAR, null, "F4 C4 G#3 D#3 A#2 F2"))
+    val customTuning = InstrumentTuning.fromString("Example", Instrument.GUITAR, null, "F4 C4 G#3 D#3 A#2 F2")
 
     AppTheme {
         AppScaffold(
@@ -123,15 +123,15 @@ private fun SelectionScreenshot() {
                 current = null,
                 currentSaved = true,
                 tunings = TuningList.GROUPED_TUNINGS,
-                pinned = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+                pinned = Tunings.STANDARD,
                 pinnedInitial = true,
-                favourites = setOf(TuningEntry.InstrumentTuning(Tunings.WHOLE_STEP_DOWN)),
+                favourites = setOf(Tunings.WHOLE_STEP_DOWN),
                 custom = setOf(customTuning),
                 instrumentFilter = null,
                 categoryFilter = null,
                 instrumentFilters = remember { mutableStateOf(Instrument.entries.associateWith { true }) },
                 categoryFilters = remember { mutableStateOf(Category.entries.associateWith { true }) },
-                isFavourite = { this == TuningEntry.InstrumentTuning(Tunings.WHOLE_STEP_DOWN) },
+                isFavourite = { this == Tunings.WHOLE_STEP_DOWN },
                 onSelectInstrument = {},
                 onSelectCategory = {},
                 onSave = { _, _ -> },
@@ -150,7 +150,7 @@ private fun SelectionScreenshot() {
 @WearLargePreview
 @Composable
 private fun CustomScreenshot() {
-    val custom = Tuning.fromString("F4 C4 G#3 D#3 A#2 F2")
+    val custom = InstrumentTuning.fromString("F4 C4 G#3 D#3 A#2 F2")
 
     AppTheme {
         AppScaffold(
@@ -190,7 +190,7 @@ private fun ChromaticScreenshot() {
         AppScaffold(timeText = {}) {
             TunerScreen(
                 granted = true,
-                tuning = TuningEntry.ChromaticTuning,
+                tuning = ChromaticTuning,
                 prefs = TunerPreferences(),
                 noteOffset = remember { mutableStateOf<Double?>(-0.4) },
                 selectedString = 3,
@@ -204,7 +204,7 @@ private fun ChromaticScreenshot() {
                 onSelectString = {},
                 onSelectNote = {},
                 onAutoChanged = {},
-                getCanonicalName = { it.tuning.toString() },
+                getCanonicalName = { it.toString() },
                 onTuned = {},
                 onOpenConfigurePanel = {},
                 onRequestPermission = {},
@@ -223,11 +223,11 @@ private fun ConfigureScreenshot() {
     ) {
         AppScaffold(timeText = {}) {
             ConfigureTuningScreen(
-                tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
+                tuning = Tunings.DROP_D,
                 selectedNote = -29,
                 chromatic = false,
                 onSelectNote = {},
-                getCanonicalName = { it.tuning.toString() },
+                getCanonicalName = { it.toString() },
                 onTuneUpString = {},
                 onTuneDownString = {},
                 onTuneUpTuning = {},
@@ -248,7 +248,7 @@ private fun SemitonesScreenshot() {
         AppScaffold(timeText = {}) {
             TunerScreen(
                 granted = true,
-                tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+                tuning = Tunings.STANDARD,
                 prefs = TunerPreferences(
                     displayType = TuningDisplayType.SEMITONES
                 ),
@@ -264,7 +264,7 @@ private fun SemitonesScreenshot() {
                 onSelectString = {},
                 onSelectNote = {},
                 onAutoChanged = {},
-                getCanonicalName = { it.tuning.toString() },
+                getCanonicalName = { it.toString() },
                 onTuned = {},
                 onOpenConfigurePanel = {},
                 onRequestPermission = {},

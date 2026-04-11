@@ -30,7 +30,8 @@ import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.timeTextCurvedText
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.view.activity.BaseSettingsActivity
 import com.rohankhayech.choona.lib.view.activity.BaseTunerActivity
 import com.rohankhayech.choona.wear.view.screens.MainLayout
@@ -71,7 +72,7 @@ class MainActivity : BaseTunerActivity() {
                     MainLayout(
                         backStack = vm.backStack,
                         granted = granted,
-                        tuning = if (chromatic) TuningEntry.ChromaticTuning else TuningEntry.InstrumentTuning(tuning),
+                        tuning = if (chromatic) ChromaticTuning else tuning,
                         noteOffset = noteOffset,
                         selectedString = selectedString,
                         selectedNote = selectedNote,
@@ -114,8 +115,9 @@ class MainActivity : BaseTunerActivity() {
     /** Opens the tuner settings activity. */
     private fun openSettings() {
         val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
-            is TuningEntry.InstrumentTuning -> pinned.tuning.fullName
-            is TuningEntry.ChromaticTuning -> getString(R.string.chromatic)
+            is InstrumentTuning -> pinned.fullName
+            is ChromaticTuning -> getString(R.string.chromatic)
+            else -> throw IllegalStateException("Invalid tuning type.")
         }
 
         val intent = Intent(this, SettingsActivity::class.java)

@@ -54,7 +54,6 @@ import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.viewmodel.EditTuningViewModel
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
@@ -147,8 +146,8 @@ fun MainLayout(
     onConfigurePressed: () -> Unit,
     onSelectTuningFromList: (InstrumentTuning) -> Unit,
     onSelectChromaticFromList: () -> Unit,
-    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
-    onSaveTuningFromEditor: (Tuning, Screen.EditTuning) -> Unit,
+    onOpenTuningEditor: (InstrumentTuning, Boolean) -> Unit,
+    onSaveTuningFromEditor: (InstrumentTuning, Screen.EditTuning) -> Unit,
     onDeleteTuningFromEditor: (Screen.EditTuning) -> Unit,
     onPressNote: (Int, Instrument) -> Unit,
     onBack: () -> Unit,

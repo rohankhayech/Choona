@@ -198,7 +198,7 @@ class TunerActivity : BaseTunerActivity() {
         val pinnedName = when (val pinned = vm.tuningList.pinned.value) {
             is InstrumentTuning -> pinned.fullName
             is ChromaticTuning -> getString(R.string.chromatic)
-            else -> pinned.fullName
+            else -> throw IllegalStateException("Invalid tuning type.")
         }
 
         val intent = Intent(this, SettingsActivity::class.java)

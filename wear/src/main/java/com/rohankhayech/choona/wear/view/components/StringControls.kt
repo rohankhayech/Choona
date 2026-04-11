@@ -42,7 +42,8 @@ import androidx.wear.compose.material3.IconButton
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 
 /**
@@ -59,7 +60,7 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
 @Composable
 fun StringControls(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     selectedString: Int?,
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
@@ -99,7 +100,7 @@ fun StringControls(
 @Composable
 fun CompactStringSelector(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     selectedString: Int,
     tuned: BooleanArray,
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
@@ -192,7 +193,7 @@ private fun StringSelectionButton(
 private fun InlinePreview() {
     AppTheme {
         StringControls(
-            tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
+            tuning = Tunings.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
             selectedString = 1,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
@@ -207,7 +208,7 @@ private fun InlinePreview() {
 private fun CompactPreview() {
     AppTheme {
         CompactStringSelector(
-            tuning = Tuning.STANDARD,
+            tuning = Tunings.STANDARD,
             selectedString = 5,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},

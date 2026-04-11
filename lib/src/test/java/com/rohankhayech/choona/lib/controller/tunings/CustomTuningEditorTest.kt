@@ -21,8 +21,8 @@ package com.rohankhayech.choona.lib.controller.tunings
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -87,7 +87,7 @@ class CustomTuningEditorTest {
      */
     @Test
     fun addLowString_maxStrings_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
+        val editor = CustomTuningEditor(InstrumentTuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.addLowString()
         }
@@ -110,7 +110,7 @@ class CustomTuningEditorTest {
      */
     @Test
     fun addHighString_maxStrings_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
+        val editor = CustomTuningEditor(InstrumentTuning("", Instrument.GUITAR, null, List(MAX_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.addHighString()
         }
@@ -133,7 +133,7 @@ class CustomTuningEditorTest {
      */
     @Test
     fun removeLowString_minStrings_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
+        val editor = CustomTuningEditor(InstrumentTuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.removeLowString()
         }
@@ -156,7 +156,7 @@ class CustomTuningEditorTest {
      */
     @Test
     fun removeHighString_minStrings_throwsException() {
-        val editor = CustomTuningEditor(Tuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
+        val editor = CustomTuningEditor(InstrumentTuning("", Instrument.GUITAR, null, List(MIN_STRINGS) { GuitarString.E2 }))
         assertThrows(IllegalArgumentException::class.java) {
             editor.removeHighString()
         }

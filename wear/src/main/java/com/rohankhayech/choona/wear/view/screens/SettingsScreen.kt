@@ -40,7 +40,7 @@ import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
 import com.rohankhayech.choona.wear.R as WearR
@@ -187,7 +187,10 @@ fun SettingsScreen(
             }
             item {
                 Text(
-                    if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning),
+                    if (pinnedTuning == Tunings.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(
+                        R.string.pref_initial_tuning_pinned_desc,
+                        pinnedTuning
+                    ),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -219,7 +222,7 @@ private fun Preview() {
         AppScaffold {
             SettingsScreen(
                 prefs = TunerPreferences(),
-                pinnedTuning = Tuning.STANDARD.fullName,
+                pinnedTuning = Tunings.STANDARD.fullName,
                 onSelectDisplayType = {},
                 onEnableStringSelectSound = {},
                 onEnableInTuneSound = {},

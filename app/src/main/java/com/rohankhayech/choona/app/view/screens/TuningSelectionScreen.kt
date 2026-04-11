@@ -118,8 +118,8 @@ import com.rohankhayech.choona.app.view.components.SectionLabel
 import com.rohankhayech.choona.app.view.theme.AppTheme
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
-import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
@@ -155,7 +155,7 @@ fun TuningSelectionScreen(
     onSave: (String?, InstrumentTuning) -> Unit = {_,_->},
     onSelect: (InstrumentTuning) -> Unit,
     onSelectChromatic: () -> Unit,
-    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
+    onOpenTuningEditor: (InstrumentTuning, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     // Collect UI state.
@@ -274,7 +274,7 @@ fun TuningSelectionScreen(
     onFavouriteSet: (Tuning, Boolean) -> Unit,
     onSelect: (Tuning) -> Unit,
     onDelete: (InstrumentTuning) -> Unit,
-    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
+    onOpenTuningEditor: (InstrumentTuning, Boolean) -> Unit,
     onDismiss: () -> Unit,
     onPin: (tuning: Tuning) -> Unit,
     onUnpin: () -> Unit
@@ -326,7 +326,7 @@ fun TuningSelectionScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    onOpenTuningEditor(current?.tuning ?: Tunings.STANDARD, true)
+                    onOpenTuningEditor(current as? InstrumentTuning ?: Tunings.STANDARD, true)
                 },
                 icon = { Icon(Icons.Default.Add, null) },
                 text = { Text(stringResource(R.string.new_tuning)) },
@@ -431,7 +431,7 @@ fun TuningList(
     onUnpin: () -> Unit,
     onSelect: (Tuning) -> Unit,
     onDelete: (InstrumentTuning) -> Unit,
-    onEdit: (Tuning, Boolean) -> Unit
+    onEdit: (InstrumentTuning, Boolean) -> Unit
 ) {
     val favsList = remember(favourites) { favourites.toList() }
     val customList = remember(custom) { custom.toList() }
@@ -491,7 +491,16 @@ fun TuningList(
             items(customList, key = { "cus-${it.key}" }) {
                 val favourited = it.isFavourite()
                 val isPinned = remember(pinned) { it equivalentTo pinned as? InstrumentTuning }
-                CustomTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onUnpin = onUnpin, onSelect = onSelect, onDelete = onDelete)
+                CustomTuningItem(
+                    tuning = it,
+                    favourited = favourited,
+                    pinned = isPinned,
+                    pinnedInitial = pinnedInitial,
+                    onFavouriteSet = onFavouriteSet,
+                    onUnpin = onUnpin,
+                    onSelect = onSelect,
+                    onDelete = onDelete,
+                    onEdit = { onEdit(it, false) })
             }
         }
 
@@ -520,7 +529,7 @@ fun TuningList(
             }
             items(group.value, key = { it.key }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { (it as InstrumentTuning) equivalentTo pinned as InstrumentTuning }
+                val isPinned = remember(pinned) { it equivalentTo pinned as InstrumentTuning }
                 FavouritableTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
             }
         }

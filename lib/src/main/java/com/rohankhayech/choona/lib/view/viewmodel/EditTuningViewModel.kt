@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tunings.CustomTuningEditor
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.equivalentTo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +45,7 @@ import kotlinx.coroutines.flow.update
  * @author Rohan Khayech
  */
 class EditTuningViewModel(
-    private val initialTuning: Tuning,
+    private val initialTuning: InstrumentTuning,
     val new: Boolean
 ) : ViewModel() {
     private val _name = MutableStateFlow(
@@ -73,8 +74,8 @@ class EditTuningViewModel(
      *
      * @return A new [Tuning] object with the updated name and structure.
      */
-    fun returnResult(): Tuning {
-        return Tuning(
+    fun returnResult(): InstrumentTuning {
+        return InstrumentTuning(
             _name.value.ifBlank { null },
             editor.tuning.value.instrument,
             null,

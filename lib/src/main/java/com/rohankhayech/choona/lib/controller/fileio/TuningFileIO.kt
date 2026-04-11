@@ -268,8 +268,8 @@ object TuningFileIO {
      * Encodes the specified tuning to a JSON string.
      * @param tuning The tuning to encode.
      */
-    fun encodeTuningToString(tuning: Tuning): String {
-        return encodeTuning(TuningEntry.InstrumentTuning(tuning)).toString()
+    fun encodeTuningToString(tuning: InstrumentTuning): String {
+        return encodeTuning(tuning).toString()
     }
 
     /**
@@ -280,9 +280,9 @@ object TuningFileIO {
      *                           or the tuning is not an instrument tuning.
      */
     @Throws(TuningIOException::class)
-    fun parseTuningFromString(tuningJSON: String): Tuning {
+    fun parseTuningFromString(tuningJSON: String): InstrumentTuning {
         try {
-            return (parseTuning(JSONObject(tuningJSON)) as TuningEntry.InstrumentTuning).tuning
+            return (parseTuning(JSONObject(tuningJSON)) as InstrumentTuning)
         } catch (e: JSONException) {
             throw TuningIOException("Tuning could not be parsed: " + e.message, e)
         } catch (e: ClassCastException) {

@@ -18,10 +18,11 @@
 
 package com.rohankhayech.choona.lib.controller.tunings
 
-import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -159,12 +160,12 @@ class TuningListTest {
     @Test
     fun testAddCustomThrows() {
         assertThrows(ExistingTuningException::class.java) {
-            tuningList.addCustom("Standard", Tuning.STANDARD)
+            tuningList.addCustom("Standard", Tunings.STANDARD)
         }
 
-        tuningList.addCustom("Custom", Tuning.fromString("E2"))
+        tuningList.addCustom("Custom", InstrumentTuning.fromString("E2"))
         assertThrows(ExistingTuningException::class.java) {
-            tuningList.addCustom("Custom 2", Tuning.fromString("E2"))
+            tuningList.addCustom("Custom 2", InstrumentTuning.fromString("E2"))
         }
     }
 
@@ -179,35 +180,34 @@ class TuningListTest {
             tuningList.custom.collect {}
         }
 
-        val original = tuningList.addCustom("Original", Tuning.fromString("E2"))
-        val updated = Tuning("Updated", Tuning.fromString("D2"))
+        val original = tuningList.addCustom("Original", InstrumentTuning.fromString("E2"))
+        val updated = InstrumentTuning("Updated", InstrumentTuning.fromString("D2"))
 
         // Test update
         tuningList.updateCustom(original, updated)
         testScope.advanceUntilIdle()
 
-        assertEquals(setOf(TuningEntry.InstrumentTuning(updated)), tuningList.custom.value)
+        assertEquals(setOf(updated), tuningList.custom.value)
 
         // Test update current and pinned and favourites
-        val updatedEntry = TuningEntry.InstrumentTuning(updated)
+        val updatedEntry = updated
 
         tuningList.setCurrent(updatedEntry) // Current is already updated to 'updated'
         tuningList.setPinned(updatedEntry)
         tuningList.setFavourited(updatedEntry, true)
 
-        val updated2 = Tuning("Updated 2", Tuning.fromString("C2"))
+        val updated2 = InstrumentTuning("Updated 2", InstrumentTuning.fromString("C2"))
         tuningList.updateCustom(updated, updated2)
         testScope.advanceUntilIdle()
 
-        val updated2Entry = TuningEntry.InstrumentTuning(updated2)
-        assertEquals(updated2Entry, tuningList.current.value)
-        assertEquals(updated2Entry, tuningList.pinned.value)
-        assertTrue(tuningList.favourites.value.contains(updated2Entry))
+        assertEquals(updated2, tuningList.current.value)
+        assertEquals(updated2, tuningList.pinned.value)
+        assertTrue(tuningList.favourites.value.contains(updated2))
         assertFalse(tuningList.favourites.value.contains(updatedEntry))
 
         // Test duplicate exception
         assertThrows(ExistingTuningException::class.java) {
-            tuningList.updateCustom(updated2, Tuning.STANDARD)
+            tuningList.updateCustom(updated2, Tunings.STANDARD)
         }
     }
 
@@ -216,8 +216,8 @@ class TuningListTest {
      */
     @Test
     fun testUpdateCustomThrowsMissing() {
-        val original = Tuning.fromString("Original", Tuning.DEFAULT_INSTRUMENT, null, "E2")
-        val updated = Tuning.fromString("Updated", Tuning.DEFAULT_INSTRUMENT, null, "D2")
+        val original = InstrumentTuning.fromString("Original", InstrumentTuning.DEFAULT_INSTRUMENT, null, "E2")
+        val updated = InstrumentTuning.fromString("Updated", InstrumentTuning.DEFAULT_INSTRUMENT, null, "D2")
 
         assertThrows(IllegalStateException::class.java) {
             tuningList.updateCustom(original, updated)
@@ -244,12 +244,12 @@ class TuningListTest {
         testScope.advanceUntilIdle()
         var expectedInstr = mapOf(
             Pair(Instrument.BASS, Category.COMMON) to listOf(
-                TuningEntry.InstrumentTuning(Tunings.BASS_STANDARD),
-                TuningEntry.InstrumentTuning(Tunings.BASS_DROP_D),
-                TuningEntry.InstrumentTuning(Tunings.BASS_E_FLAT)
+                Tunings.BASS_STANDARD,
+                Tunings.BASS_DROP_D,
+                Tunings.BASS_E_FLAT
             ),
             Pair(Instrument.BASS, Category.EXTENDED) to listOf(
-                TuningEntry.InstrumentTuning(Tunings.BASS_HIGH_C)
+                Tunings.BASS_HIGH_C
             )
         )
         assertEquals(expectedInstr, tuningList.filteredTunings.value)
@@ -498,7 +498,7 @@ class TuningListTest {
         assertTrue(tuningList.currentSaved.value)
     }
 
-    /** Tests the `TuningEntry.isFavourite` extension function on [TuningEntry]. */
+    /** Tests the `isFavourite` extension function on [Tuning]. */
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testIsFavourite() {

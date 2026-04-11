@@ -330,4 +330,20 @@ public final class InstrumentTuningTest {
         // Check equal tunings have same hashcode.
         assertEquals("Equal tunings have different hashcodes", tuning.hashCode(), Tunings.STANDARD.hashCode());
     }
+
+    @Test
+    public void testGetNameOrBlank() {
+        assertEquals("Standard", tuning.getNameOrBlank());
+
+        Tuning t = new InstrumentTuning(GuitarString.E2);
+        assertEquals("", t.getNameOrBlank());
+    }
+
+    @Test
+    public void testGetRawName() {
+        assertEquals("Standard", tuning.getRawName());
+
+        Tuning t = new InstrumentTuning(GuitarString.E2);
+        assertNull(t.getRawName());
+    }
 }

@@ -19,7 +19,9 @@
 package com.rohankhayech.choona.lib.model.tuning
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,7 +32,7 @@ class TuningTest {
         assertEquals("Chromatic", chromatic.name)
         assertEquals("chromatic", chromatic.key)
         assertTrue(chromatic.hasName())
-        assertEquals("Chromatic Tuning", chromatic.toString())
+        assertEquals("Chromatic", chromatic.toString())
     }
 
     @Test
@@ -47,5 +49,13 @@ class TuningTest {
         assertNotEquals(entry1.hashCode(), entry4.hashCode())
         assertNotEquals(entry1, entry3)
         assertNotEquals(entry1.hashCode(), entry3.hashCode())
+    }
+
+    @Test
+    fun testUnnamedInstrument() {
+        val tuning = InstrumentTuning(GuitarString.E2)
+        assertEquals(GuitarString.E2.toString(), tuning.name)
+        assertNull(tuning.rawName)
+        assertFalse(tuning.hasName())
     }
 }

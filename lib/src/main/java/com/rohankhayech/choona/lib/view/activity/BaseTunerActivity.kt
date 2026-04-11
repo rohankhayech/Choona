@@ -97,8 +97,8 @@ abstract class BaseTunerActivity : ComponentActivity() {
                 // Switch to initial tuning
                 when(preferences.initialTuning) {
                     InitialTuningType.PINNED -> when (val pinned = vm.tuningList.pinned.value) {
-                        is TuningEntry.InstrumentTuning -> vm.tuner.setTuning(pinned.tuning)
-                        is TuningEntry.ChromaticTuning -> vm.tuner.setChromatic(true)
+                        is InstrumentTuning -> vm.tuner.setTuning(pinned)
+                        is ChromaticTuning -> vm.tuner.setChromatic(true)
                     }
                     InitialTuningType.LAST_USED -> vm.tuningList.lastUsed.value?.let {
                         when (it) {
@@ -296,7 +296,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * Opens the tuning editor,
      * and stops the tuner if no other panel is open.
      */
-    protected fun openTuningEditor(tuning: Tuning, new: Boolean) {
+    protected fun openTuningEditor(tuning: InstrumentTuning, new: Boolean) {
         // Open the tuning editor.
         vm.openTuningEditor(tuning, new)
 
@@ -308,7 +308,7 @@ abstract class BaseTunerActivity : ComponentActivity() {
      * Saves the tuning to the tuning list,
      * and restarts the tuner if no other panel is open.
      */
-    protected fun saveTuningFromEditor(tuning: Tuning, key: TunerViewModel.Screen.EditTuning) {
+    protected fun saveTuningFromEditor(tuning: InstrumentTuning, key: TunerViewModel.Screen.EditTuning) {
         // Save the tuning.
         vm.saveTuningFromEditor(tuning, key)
 
