@@ -23,6 +23,4 @@ package com.rohankhayech.choona.lib.model.tuning
  * @param other The tuning to check equivalence with.
  * @return True if the other tuning has the same strings as this tuning, false otherwise.
  */
-infix fun Tuning.equivalentTo(other: Tuning?): Boolean {
-    return this.equivalentTo(other)
-}
+infix fun Tuning.equivalentTo(other: Tuning?): Boolean = equivalentTo(other)
