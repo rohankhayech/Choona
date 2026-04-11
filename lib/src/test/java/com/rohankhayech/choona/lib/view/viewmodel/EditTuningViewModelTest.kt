@@ -22,11 +22,17 @@ import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -39,6 +45,7 @@ import org.junit.Test
 class EditTuningViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
 
     @Before
     fun setUp() {
@@ -87,6 +94,12 @@ class EditTuningViewModelTest {
     fun initialValues_newTuning() {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, true)
+
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            viewModel.hasChanges.collect {}
+        }
+
         assertEquals("", viewModel.name.value)
         assertEquals(true, viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
@@ -100,6 +113,12 @@ class EditTuningViewModelTest {
     fun initialValues_editTuning() {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, false)
+
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            viewModel.hasChanges.collect {}
+        }
+
         assertEquals(initialTuning.name, viewModel.name.value)
         assertEquals(false, viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
@@ -113,26 +132,32 @@ class EditTuningViewModelTest {
     fun hasChanges() {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, false)
+
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            viewModel.hasChanges.collect {}
+        }
+
         assertEquals(false, viewModel.hasChanges.value)
 
         // Change name
         viewModel.setName("Changed")
-        testDispatcher.scheduler.runCurrent()
-        assertEquals(true, viewModel.hasChanges.value)
+        testScope.advanceUntilIdle()
+        assertTrue(viewModel.hasChanges.value)
 
         // Reset name
         viewModel.setName(initialTuning.name)
-        testDispatcher.scheduler.runCurrent()
-        assertEquals(false, viewModel.hasChanges.value)
+        testScope.runCurrent()
+        assertFalse(viewModel.hasChanges.value)
 
         // Change tuning structure
         viewModel.editor.tuneUp()
-        testDispatcher.scheduler.runCurrent()
-        assertEquals(true, viewModel.hasChanges.value)
+        testScope.runCurrent()
+        assertTrue(viewModel.hasChanges.value)
 
         // Reset tuning structure
         viewModel.editor.tuneDown()
-        testDispatcher.scheduler.runCurrent()
+        testScope.runCurrent()
         assertEquals(false, viewModel.hasChanges.value)
     }
 }
