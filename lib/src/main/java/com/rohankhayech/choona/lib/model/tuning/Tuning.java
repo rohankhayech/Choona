@@ -352,7 +352,7 @@ public final class Tuning implements Iterable<GuitarString> {
     /**
      * Returns whether this tuning is equivalent to the specified tuning.
      * @param other The tuning to check equivalence with.
-     * @return True if the other tuning has the same strings as this tuning, false otherwise.
+     * @return True if the other tuning has the same strings and isntrument as this tuning, false otherwise.
      */
     public boolean equivalentTo(@Nullable Tuning other) {
         if (other == null) return false;
