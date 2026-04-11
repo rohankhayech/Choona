@@ -18,6 +18,10 @@ This file contains the relevant notices and licenses for the following 3rd party
     
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+### Changes
+- Modifications to application branding.
+- Added tone generation and custom A4 pitch support.
 
 ## Android Open Source Project ([Apache License, Version 2.0](#apache-license-version-20))
 This project uses various libraries part of the Android Open Source Project.
@@ -35,10 +39,6 @@ This project uses various libraries part of the Android Open Source Project.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-### Changes
-- Modifications to application branding.
-- Added tone generation and custom A4 pitch support.
 
 ## TarsosDSP by Joren Six ([GNU General Public License v3.0](#gnu-general-public-license-v30))
          _______                       _____   _____ _____        
