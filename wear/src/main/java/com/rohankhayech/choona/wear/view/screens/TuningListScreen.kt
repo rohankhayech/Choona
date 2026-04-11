@@ -89,6 +89,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
 import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import com.rohankhayech.choona.lib.model.tuning.equivalentTo
 import com.rohankhayech.choona.lib.view.util.getLocalisedName
 import com.rohankhayech.choona.wear.view.components.SectionLabel
 import com.rohankhayech.choona.wear.view.theme.AppTheme
@@ -181,7 +182,7 @@ fun TuningListScreen(
  * @param categoryFilters Available category filters and their enabled states.
  * @param isFavourite Function that returns whether a tuning is marked as a favourite.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onSelect Called when a tuning is selected.
@@ -302,7 +303,7 @@ fun TuningSelectionScreen(
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  * @param onSave Called when a custom tuning is saved with the specified name.
  * @param onFavouriteSet Called when a tuning is favourited or unfavourited.
  * @param onPin Called when a tuning is pinned as default.
@@ -507,7 +508,7 @@ fun TuningList(
  * @param instrumentFilters Available instrument filters and their enabled states.
  * @param categoryFilters Available category filters and their enabled states.
  * @param onSelectInstrument Called when an instrument filter is selected.
- * @param onSelectCategory Called when an category filter is selected.
+ * @param onSelectCategory Called when a category filter is selected.
  */
 // Note: Recomposition could be improved.
 @Composable
@@ -735,7 +736,7 @@ private fun CustomTuningItem(
     onDelete: (Tuning) -> Unit,
     onEdit: () -> Unit
 ) {
-    val standard = remember(tuning) { tuning.tuning.equivalentTo(Tunings.STANDARD) }
+    val standard = remember(tuning) { tuning.tuning equivalentTo Tunings.STANDARD }
     TuningItem(
         tuning = tuning,
         favourited = favourited,

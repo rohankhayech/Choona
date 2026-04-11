@@ -20,7 +20,20 @@ package com.rohankhayech.choona.lib.view.viewmodel
 
 import com.rohankhayech.choona.lib.model.tuning.Instrument
 import com.rohankhayech.choona.lib.model.tuning.Tunings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -28,7 +41,21 @@ import org.junit.Test
  *
  * @author Rohan Khayech
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class EditTuningViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     /**
      * Verifies that [EditTuningViewModel.setName] correctly updates the name state.
@@ -67,9 +94,11 @@ class EditTuningViewModelTest {
     fun initialValues_newTuning() {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, true)
+
         assertEquals("", viewModel.name.value)
-        assertEquals(true, viewModel.new)
+        assertTrue(viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
+        assertFalse(viewModel.hasChanges.value)
     }
 
     /**
@@ -79,8 +108,46 @@ class EditTuningViewModelTest {
     fun initialValues_editTuning() {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, false)
+
         assertEquals(initialTuning.name, viewModel.name.value)
-        assertEquals(false, viewModel.new)
+        assertFalse(viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
+        assertFalse(viewModel.hasChanges.value)
+    }
+
+    /**
+     * Verifies that [EditTuningViewModel.hasChanges] correctly reflects whether the tuning has been modified.
+     */
+    @Test
+    fun hasChanges() {
+        val initialTuning = Tunings.STANDARD
+        val viewModel = EditTuningViewModel(initialTuning, false)
+
+        assertFalse(viewModel.hasChanges.value)
+
+        // Starts the cold flow
+        testScope.backgroundScope.launch {
+            viewModel.hasChanges.collect {}
+        }
+
+        // Change name
+        viewModel.setName("Changed")
+        testScope.advanceUntilIdle()
+        assertTrue(viewModel.hasChanges.value)
+
+        // Reset name
+        viewModel.setName(initialTuning.name)
+        testScope.runCurrent()
+        assertFalse(viewModel.hasChanges.value)
+
+        // Change tuning structure
+        viewModel.editor.tuneUp()
+        testScope.runCurrent()
+        assertTrue(viewModel.hasChanges.value)
+
+        // Reset tuning structure
+        viewModel.editor.tuneDown()
+        testScope.runCurrent()
+        assertFalse(viewModel.hasChanges.value)
     }
 }

@@ -115,4 +115,7 @@
     <string name="delete_tuning_confirmation">Delete this tuning?</string>
     <string name="new_tuning">New Tuning</string>
     <string name="dist_desc">%1$s Build</string>
+    <string name="discard_changes">Discard changes?</string>
+    <string name="discard_changes_confirmation">Discard unsaved changes to this tuning?</string>
+    <string name="discard">Discard</string>
 </resources>

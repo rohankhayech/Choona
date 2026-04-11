@@ -204,11 +204,13 @@ fun MainLayout(
                 )
                 val editTuning by editVM.editor.tuning.collectAsStateWithLifecycle()
                 val editName by editVM.name.collectAsStateWithLifecycle()
+                val hasChanges by editVM.hasChanges.collectAsStateWithLifecycle()
 
                 EditTuningScreen(
                     name = editName,
                     new = key.new,
                     tuning = editTuning,
+                    hasChanges = hasChanges,
                     onNameChange = editVM::setName,
                     onInstrumentChange = editVM.editor::setInstrument,
                     onSetString = editVM.editor::setString,

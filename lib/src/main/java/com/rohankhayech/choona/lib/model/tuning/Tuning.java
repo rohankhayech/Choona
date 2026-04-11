@@ -352,9 +352,9 @@ public final class Tuning implements Iterable<GuitarString> {
     /**
      * Returns whether this tuning is equivalent to the specified tuning.
      * @param other The tuning to check equivalence with.
-     * @return True if the other tuning has the same strings as this tuning, false otherwise.
+     * @return True if the other tuning has the same strings and isntrument as this tuning, false otherwise.
      */
-    public boolean equivalentTo(Tuning other) {
+    public boolean equivalentTo(@Nullable Tuning other) {
         if (other == null) return false;
         return other == this || (strings.equals(other.strings) && instrument == other.instrument);
     }
@@ -367,7 +367,7 @@ public final class Tuning implements Iterable<GuitarString> {
      *
      * @see #equivalentTo(Tuning)
      */
-    public boolean hasEquivalentIn(Collection<Tuning> tunings) {
+    public boolean hasEquivalentIn(@NonNull Collection<Tuning> tunings) {
         Objects.requireNonNull(tunings);
         return tunings.stream().anyMatch(this::equivalentTo);
     }
@@ -378,7 +378,7 @@ public final class Tuning implements Iterable<GuitarString> {
      * @return The equivalent tuning in the collection, or null if one is not found.
      * @throws NullPointerException If the collection of tunings is null.
      */
-    public Tuning findEquivalentIn(Collection<Tuning> tunings) {
+    public Tuning findEquivalentIn(@NonNull Collection<Tuning> tunings) {
         Objects.requireNonNull(tunings);
         return tunings.stream()
             .filter(this::equivalentTo)

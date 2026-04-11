@@ -20,11 +20,16 @@ package com.rohankhayech.choona.lib.view.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tunings.CustomTuningEditor
 import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.equivalentTo
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 /**
@@ -39,7 +44,7 @@ import kotlinx.coroutines.flow.update
  * @author Rohan Khayech
  */
 class EditTuningViewModel(
-    initialTuning: Tuning,
+    private val initialTuning: Tuning,
     val new: Boolean
 ) : ViewModel() {
     private val _name = MutableStateFlow(
@@ -56,6 +61,12 @@ class EditTuningViewModel(
 
     /** The editor used to modify the tuning. */
     val editor = CustomTuningEditor(initialTuning)
+
+    /** Whether the tuning has been modified. */
+    val hasChanges = combine(_name, editor.tuning) { name, tuning ->
+        val initialName = if (new) "" else initialTuning.nameOrBlank
+        name != initialName || !(tuning equivalentTo initialTuning)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * Returns the edited tuning result.
