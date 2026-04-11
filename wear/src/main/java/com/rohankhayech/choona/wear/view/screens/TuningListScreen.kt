@@ -343,13 +343,12 @@ fun TuningList(
     val customList = remember(custom) { custom.toList() }
 
     val currentPinned = remember(pinned, current) {
-        current == pinned ||
-            (pinned as? InstrumentTuning)?.equivalentTo(current as? InstrumentTuning) == true
+        pinned equivalentTo current
     }
     val pinnedInFavs = remember(favsList, pinned) {
         pinned.isFavourite()
     }
-    val pinnedIsStandard = remember(pinned) { (pinned as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+    val pinnedIsStandard = remember(pinned) { pinned equivalentTo Tunings.STANDARD }
 
     ScalingLazyColumn(
         modifier = modifier,
@@ -412,7 +411,7 @@ fun TuningList(
         if (favourites.isNotEmpty()) {
             item("favs") { CategoryLabel(stringResource(R.string.tuning_list_favourites)) }
             items(favsList, key = { "fav-${it.key}" }) {
-                val isPinned = remember(pinned) { it == pinned || (it as? InstrumentTuning)?.equivalentTo(pinned as? InstrumentTuning) == true }
+                val isPinned = remember(pinned) { it equivalentTo pinned }
                 FavouritableTuningItem(
                     tuning = it,
                     favourited = true,
@@ -442,7 +441,7 @@ fun TuningList(
         }
         items(customList, key = { it.key }) {
             val favourited = it.isFavourite()
-            val isPinned = remember(pinned) { (pinned as? InstrumentTuning)?.equivalentTo(it) == true }
+            val isPinned = remember(pinned) { pinned equivalentTo it }
             CustomTuningItem(
                 tuning = it,
                 favourited = favourited,
@@ -471,7 +470,7 @@ fun TuningList(
             }
             items(group.value, key = { it.key }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it.equivalentTo(pinned as? InstrumentTuning) }
+                val isPinned = remember(pinned) { it equivalentTo pinned }
                 FavouritableTuningItem(
                     tuning = it,
                     favourited = favourited,
@@ -658,7 +657,7 @@ private fun CurrentTuningItem(
     onPinnedSet: (Tuning, Boolean) -> Unit,
     onFavouriteSet: (Tuning, Boolean) -> Unit
 ) {
-    val standard = remember(tuning) { (tuning as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+    val standard = remember(tuning) { tuning equivalentTo Tunings.STANDARD }
     TuningItem(
         tuning = tuning,
         favourited = favourited,
@@ -823,7 +822,7 @@ private fun FavouritableTuningItem(
     onSelect: (Tuning) -> Unit,
     onUnpin: () -> Unit
 ) {
-    val standard = remember(tuning) { (tuning as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+    val standard = remember(tuning) { tuning equivalentTo Tunings.STANDARD }
     TuningItem(
         tuning = tuning,
         favourited = favourited,
@@ -928,7 +927,7 @@ private fun TuningItem(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        if (pinned && pinnedInitial && (tuning as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) != true) {
+                        if (pinned && pinnedInitial && !(tuning equivalentTo Tunings.STANDARD)) {
                             Icon(
                                 Icons.Default.PushPin,
                                 contentDescription = stringResource(R.string.tuning_list_pinned),

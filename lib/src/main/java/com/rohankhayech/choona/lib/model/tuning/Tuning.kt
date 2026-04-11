@@ -77,6 +77,33 @@ abstract class Tuning protected constructor(
     }
 
     /**
+     * Returns whether this tuning is equivalent to the specified tuning.
+     * @param other The tuning to check equivalence with.
+     * @return True if the other tuning has the same strings and instrument as this tuning, false otherwise.
+     */
+    abstract infix fun equivalentTo(other: Tuning?): Boolean
+
+    /**
+     * Returns whether the specified collection contains an equivalent tuning to this tuning.
+     * @param tunings The collection of tunings to search.
+     * @return True if the collection contains an equivalent tuning, false otherwise.
+     *
+     * @see equivalentTo
+     */
+    fun hasEquivalentIn(tunings: Collection<Tuning>): Boolean {
+        return tunings.any(::equivalentTo)
+    }
+
+    /**
+     * Searches for an equivalent tuning in the specified collection.
+     * @param tunings The collection of tunings to search.
+     * @return The equivalent tuning in the collection, or null if one is not found.
+     */
+    fun findEquivalentIn(tunings: Collection<Tuning>): Tuning? {
+        return tunings.firstOrNull(::equivalentTo)
+    }
+
+    /**
      * Enum describing tuning categories.
      */
     enum class Category {

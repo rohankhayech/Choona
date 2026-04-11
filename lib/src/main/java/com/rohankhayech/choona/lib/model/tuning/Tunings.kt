@@ -34,7 +34,7 @@ import com.rohankhayech.choona.lib.model.tuning.Tuning.Category.POWER
 @Suppress("unused")
 object Tunings {
     /** Internal list of common guitar tunings.  */
-    private val tunings: MutableSet<InstrumentTuning> = LinkedHashSet()
+    private val tunings: MutableSet<InstrumentTuning> = linkedSetOf()
 
     /** A list of common guitar tunings.  */
     val TUNINGS: Set<InstrumentTuning> = tunings

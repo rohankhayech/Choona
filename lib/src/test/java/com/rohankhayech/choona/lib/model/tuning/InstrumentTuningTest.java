@@ -24,13 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -272,57 +270,6 @@ public final class InstrumentTuningTest {
         assertNotEquals("", Tunings.STANDARD, bass);
         InstrumentTuning diffCat = new InstrumentTuning("Standard", Instrument.GUITAR, null, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
         assertNotEquals("", Tunings.STANDARD, diffCat);
-    }
-
-    @Test
-    public void testEquivalentTo() {
-        // Check same are equivalent
-        assertTrue("Same objects are not equal.", Tunings.STANDARD.equivalentTo(tuning));
-
-        // Check equivalence.
-        InstrumentTuning standard = new InstrumentTuning(GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-        assertTrue("Tunings were not equivalent.", Tunings.STANDARD.equivalentTo(standard));
-        assertFalse("Different tunings were equivalent.", Tunings.DROP_D.equivalentTo(Tunings.STANDARD));
-        InstrumentTuning bass = new InstrumentTuning(Instrument.BASS, GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-        assertFalse("Different instrument tunings were equivalent.", bass.equivalentTo(Tunings.STANDARD));
-    }
-
-    @Test
-    public void testHasEquivalentIn() {
-        InstrumentTuning standard = new InstrumentTuning(GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-
-        // Check containing
-        List<InstrumentTuning> list = new ArrayList<>();
-        list.add(Tunings.DROP_D);
-        list.add(Tunings.STANDARD);
-        assertTrue("Returned false for list containing equivalent.", standard.hasEquivalentIn(list));
-
-        // Check not containing
-        list = new ArrayList<>();
-        list.add(Tunings.DROP_D);
-        assertFalse("Returned true for list not containing equivalent.", standard.hasEquivalentIn(list));
-
-        // Check null
-        assertThrows(NullPointerException.class, ()->standard.hasEquivalentIn(null));
-    }
-
-    @Test
-    public void testFindEquivalentIn() {
-        InstrumentTuning standard = new InstrumentTuning(GuitarString.E4, GuitarString.B3, GuitarString.G3, GuitarString.D3, GuitarString.A2, GuitarString.E2);
-
-        // Check containing
-        List<InstrumentTuning> list = new ArrayList<>();
-        list.add(Tunings.DROP_D);
-        list.add(Tunings.STANDARD);
-        assertSame("Did not return correct tuning for list containing equivalent.", Tunings.STANDARD, standard.findEquivalentIn(list));
-
-        // Check not containing
-        list = new ArrayList<>();
-        list.add(Tunings.DROP_D);
-        assertNull("Returned tuning for list containing equivalent.", standard.findEquivalentIn(list));
-
-        // Check null
-        assertThrows(NullPointerException.class, ()->standard.findEquivalentIn(null));
     }
 
     @Test

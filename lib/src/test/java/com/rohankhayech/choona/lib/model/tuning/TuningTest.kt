@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.lib.model.tuning
 
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -57,5 +58,80 @@ class TuningTest {
         assertEquals(GuitarString.E2.toString(), tuning.name)
         assertNull(tuning.rawName)
         assertFalse(tuning.hasName())
+    }
+
+    @Test
+    fun testEquivalentTo() {
+        // Check same are equivalent
+        assertTrue("Same objects are not equal.", Tunings.STANDARD.equivalentTo(Tunings.STANDARD))
+        assertTrue(ChromaticTuning equivalentTo ChromaticTuning)
+
+        // Check equivalence.
+        val standard = InstrumentTuning(
+            GuitarString.E4,
+            GuitarString.B3,
+            GuitarString.G3,
+            GuitarString.D3,
+            GuitarString.A2,
+            GuitarString.E2
+        )
+        assertTrue("Tunings were not equivalent.", Tunings.STANDARD.equivalentTo(standard))
+        assertFalse("Different tunings were equivalent.", Tunings.DROP_D.equivalentTo(Tunings.STANDARD))
+        val bass = InstrumentTuning(
+            Instrument.BASS,
+            GuitarString.E4,
+            GuitarString.B3,
+            GuitarString.G3,
+            GuitarString.D3,
+            GuitarString.A2,
+            GuitarString.E2
+        )
+        assertFalse("Different instrument tunings were equivalent.", bass.equivalentTo(Tunings.STANDARD))
+        assertFalse("Instrument and chromatic tunings were equivalent.", Tunings.STANDARD equivalentTo ChromaticTuning)
+        assertFalse("Instrument and chromatic tunings were equivalent.", ChromaticTuning equivalentTo Tunings.STANDARD)
+    }
+
+    @Test
+    fun testHasEquivalentIn() {
+        val standard = InstrumentTuning(
+            GuitarString.E4,
+            GuitarString.B3,
+            GuitarString.G3,
+            GuitarString.D3,
+            GuitarString.A2,
+            GuitarString.E2
+        )
+
+        // Check containing
+        var list = listOf(Tunings.DROP_D, Tunings.STANDARD)
+        assertTrue("Returned false for list containing equivalent.", standard.hasEquivalentIn(list))
+
+        // Check not containing
+        list = listOf(Tunings.DROP_D)
+        assertFalse("Returned true for list not containing equivalent.", standard.hasEquivalentIn(list))
+    }
+
+    @Test
+    fun testFindEquivalentIn() {
+        val standard = InstrumentTuning(
+            GuitarString.E4,
+            GuitarString.B3,
+            GuitarString.G3,
+            GuitarString.D3,
+            GuitarString.A2,
+            GuitarString.E2
+        )
+
+        // Check containing
+        var list = listOf(Tunings.DROP_D, Tunings.STANDARD)
+        Assert.assertSame(
+            "Did not return correct tuning for list containing equivalent.",
+            Tunings.STANDARD,
+            standard.findEquivalentIn(list)
+        )
+
+        // Check not containing
+        list = listOf(Tunings.DROP_D)
+        assertNull("Returned tuning for list containing equivalent.", standard.findEquivalentIn(list))
     }
 }

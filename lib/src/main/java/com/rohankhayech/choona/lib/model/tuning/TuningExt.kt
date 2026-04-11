@@ -23,4 +23,4 @@ package com.rohankhayech.choona.lib.model.tuning
  * @param other The tuning to check equivalence with.
  * @return True if the other tuning has the same strings and instrument as this tuning, false otherwise.
  */
-infix fun InstrumentTuning.equivalentTo(other: InstrumentTuning?): Boolean = equivalentTo(other)
+infix fun InstrumentTuning.equivalentTo(other: Tuning?) = equivalentTo(other)

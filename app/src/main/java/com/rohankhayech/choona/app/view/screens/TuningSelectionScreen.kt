@@ -437,13 +437,12 @@ fun TuningList(
     val customList = remember(custom) { custom.toList() }
 
     val currentPinned = remember(pinned, current) {
-        current == pinned ||
-            (pinned as? InstrumentTuning)?.equivalentTo(current as? InstrumentTuning) == true
+        pinned equivalentTo current
     }
     val pinnedInFavs = remember(favsList, pinned) {
         pinned.isFavourite()
     }
-    val pinnedIsStandard = remember(pinned) { (pinned as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+    val pinnedIsStandard = remember(pinned) { pinned equivalentTo Tunings.STANDARD }
 
     LazyColumn(modifier = modifier, state = listState) {
         // Current Tuning
@@ -480,7 +479,7 @@ fun TuningList(
         if (favourites.isNotEmpty()) {
             item("favs") { SectionTitle(stringResource(R.string.tuning_list_favourites), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(favsList, key = { "fav-${it.key}" }) {
-                val isPinned = remember(pinned) { it == pinned || (it as? InstrumentTuning)?.equivalentTo(pinned as? InstrumentTuning) == true }
+                val isPinned = remember(pinned) { it equivalentTo pinned }
                 FavouritableTuningItem(tuning = it, favourited = true, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
             }
         }
@@ -490,7 +489,7 @@ fun TuningList(
             item("cus") { SectionTitle(stringResource(R.string.tuning_list_custom), Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) }
             items(customList, key = { "cus-${it.key}" }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it equivalentTo pinned as? InstrumentTuning }
+                val isPinned = remember(pinned) { it equivalentTo pinned }
                 CustomTuningItem(
                     tuning = it,
                     favourited = favourited,
@@ -529,7 +528,7 @@ fun TuningList(
             }
             items(group.value, key = { it.key }) {
                 val favourited = it.isFavourite()
-                val isPinned = remember(pinned) { it equivalentTo pinned as InstrumentTuning }
+                val isPinned = remember(pinned) { it equivalentTo pinned }
                 FavouritableTuningItem(tuning = it, favourited = favourited, pinned = isPinned, pinnedInitial = pinnedInitial, onFavouriteSet = onFavouriteSet, onSelect = onSelect, onUnpin = onUnpin)
             }
         }
@@ -679,7 +678,7 @@ private fun LazyItemScope.CurrentTuningItem(
         tuning = tuning,
         onSelect = onSelect,
         trailing = {
-            val standard = remember(tuning) { (tuning as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+            val standard = remember(tuning) { tuning equivalentTo Tunings.STANDARD }
             Row {
                 AnimatedVisibility(!standard && (pinned || (saved && pinnedInitial)), enter = fadeIn(), exit = fadeOut()) {
                     IconToggleButton(
@@ -826,7 +825,7 @@ private fun LazyItemScope.FavouritableTuningItem(
     trailingAction: (@Composable () -> Unit)? = null
 ) {
     TuningItem(tuning = tuning, onSelect = onSelect) {
-        val standard = remember(tuning) { (tuning as? InstrumentTuning)?.equivalentTo(Tunings.STANDARD) == true }
+        val standard = remember(tuning) { tuning equivalentTo Tunings.STANDARD }
         Row {
             AnimatedVisibility(pinned && !standard, enter = fadeIn(), exit = fadeOut()) {
                 IconToggleButton(

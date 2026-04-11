@@ -77,12 +77,6 @@ class TuningList(
     /** Set of tunings marked as favourite by the user. */
     val favourites = _favourites.asStateFlow()
 
-    /** Set of instrument tunings marked as favourite by the user. */
-    val instrFavs = _favourites.map { favs ->
-        favs.filterIsInstance<InstrumentTuning>()
-            .map {it}
-    }.stateIn(coroutineScope, SharingStarted.Eagerly, listOf(Tunings.STANDARD))
-
     /** Mutable backing property for [custom]. */
     private val _custom = MutableStateFlow<Set<InstrumentTuning>>(emptySet())
 
@@ -143,7 +137,7 @@ class TuningList(
 
     /** Whether the current tuning has been saved (or is a built-in tuning). */
     val currentSaved = combine(current, _custom) { current, custom ->
-        current is ChromaticTuning || (current as? InstrumentTuning)?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
+        current is ChromaticTuning || current?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), true)
 
     /** Whether tunings have been loaded from file. */
@@ -227,10 +221,10 @@ class TuningList(
         // Add the custom tuning.
         val newTuning = InstrumentTuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
-        if ((current.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (current.value?.equivalentTo(tuning) == true) {
             _current.update { newTuning }
         }
-        if ((pinned.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (pinned.value equivalentTo tuning) {
             _pinned.update { newTuning }
         }
         return newTuning
@@ -256,10 +250,10 @@ class TuningList(
 
         // Update the custom tuning.
         _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
-        if ((current.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (current.value?.equivalentTo(tuning) == true) {
             _current.update { updatedTuning }
         }
-        if ((pinned.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (pinned.value equivalentTo tuning) {
             _pinned.update { updatedTuning }
         }
         _favourites.update {
@@ -275,10 +269,10 @@ class TuningList(
     fun removeCustom(tuning: InstrumentTuning) {
         _custom.update { it.minusElement(tuning) }
         _favourites.update { it.minusElement(tuning) }
-        if ((current.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (current.value?.equivalentTo(tuning) == true) {
             _current.update { InstrumentTuning(null, tuning) }
         }
-        if ((pinned.value as? InstrumentTuning)?.equivalentTo(tuning) == true) {
+        if (pinned.value equivalentTo tuning) {
             unpinTuning()
         }
         _deletedTuning.tryEmit(tuning)
@@ -314,8 +308,7 @@ class TuningList(
 
     /** @return Whether this tuning is favourited in the tuning list. */
     fun Tuning.isFavourite(): Boolean {
-        return (this is ChromaticTuning && favourites.value.contains(this))
-            || this is InstrumentTuning && this.hasEquivalentIn(instrFavs.value)
+        return hasEquivalentIn(favourites.value)
     }
 
     /** @return The name of the specified [tuning] if it is saved as a built-in or custom tuning. */
@@ -326,9 +319,7 @@ class TuningList(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as TuningList
+        if (other !is TuningList) return false
 
         if (current.value != other.current.value) return false
         if (favourites.value != other.favourites.value) return false

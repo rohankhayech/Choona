@@ -28,4 +28,13 @@ object ChromaticTuning: Tuning("Chromatic", Category.MISC) {
     override fun toString(): String {
         return name
     }
+
+    /**
+     * Returns whether this tuning is equivalent to the specified tuning.
+     * @param other The tuning to check equivalence with.
+     * @return True if the other tuning has the same strings and instrument as this tuning, false otherwise.
+     */
+    override fun equivalentTo(other: Tuning?): Boolean {
+        return this === other
+    }
 }

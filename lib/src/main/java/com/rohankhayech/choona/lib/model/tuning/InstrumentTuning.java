@@ -24,7 +24,6 @@ import androidx.compose.runtime.Immutable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -306,37 +305,15 @@ public final class InstrumentTuning extends Tuning implements Iterable<GuitarStr
     /**
      * Returns whether this tuning is equivalent to the specified tuning.
      * @param other The tuning to check equivalence with.
-     * @return True if the other tuning has the same strings and isntrument as this tuning, false otherwise.
+     * @return True if the other tuning has the same strings and instrument as this tuning, false otherwise.
      */
-    public boolean equivalentTo(@Nullable InstrumentTuning other) {
+    @Override
+    public boolean equivalentTo(@Nullable Tuning other) {
         if (other == null) return false;
-        return other == this || (strings.equals(other.strings) && instrument == other.instrument);
-    }
-
-    /**
-     * Returns whether the specified collection contains an equivalent tuning to this tuning.
-     * @param tunings The collection of tunings to search.
-     * @return True if the collection contains an equivalent tuning, false otherwise.
-     * @throws NullPointerException If the collection of tunings is null.
-     *
-     * @see #equivalentTo(InstrumentTuning)
-     */
-    public boolean hasEquivalentIn(@NonNull Collection<InstrumentTuning> tunings) {
-        Objects.requireNonNull(tunings);
-        return tunings.stream().anyMatch(this::equivalentTo);
-    }
-
-    /**
-     * Searches for an equivalent tuning in the specified collection.
-     * @param tunings The collection of tunings to search.
-     * @return The equivalent tuning in the collection, or null if one is not found.
-     * @throws NullPointerException If the collection of tunings is null.
-     */
-    public InstrumentTuning findEquivalentIn(@NonNull Collection<InstrumentTuning> tunings) {
-        Objects.requireNonNull(tunings);
-        return tunings.stream()
-            .filter(this::equivalentTo)
-            .findAny().orElse(null);
+        if (other == this) return true;
+        if (!(other instanceof InstrumentTuning)) return false;
+        InstrumentTuning o = (InstrumentTuning)other;
+        return strings.equals(o.strings) && instrument == o.instrument;
     }
 
     @Override
