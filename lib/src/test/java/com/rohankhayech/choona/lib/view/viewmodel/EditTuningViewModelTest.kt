@@ -95,15 +95,10 @@ class EditTuningViewModelTest {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, true)
 
-        // Starts the cold flow
-        testScope.backgroundScope.launch {
-            viewModel.hasChanges.collect {}
-        }
-
         assertEquals("", viewModel.name.value)
-        assertEquals(true, viewModel.new)
+        assertTrue(viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
-        assertEquals(false, viewModel.hasChanges.value)
+        assertFalse(viewModel.hasChanges.value)
     }
 
     /**
@@ -114,15 +109,10 @@ class EditTuningViewModelTest {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, false)
 
-        // Starts the cold flow
-        testScope.backgroundScope.launch {
-            viewModel.hasChanges.collect {}
-        }
-
         assertEquals(initialTuning.name, viewModel.name.value)
-        assertEquals(false, viewModel.new)
+        assertFalse(viewModel.new)
         assertEquals(initialTuning, viewModel.editor.tuning.value)
-        assertEquals(false, viewModel.hasChanges.value)
+        assertFalse(viewModel.hasChanges.value)
     }
 
     /**
@@ -133,12 +123,12 @@ class EditTuningViewModelTest {
         val initialTuning = Tunings.STANDARD
         val viewModel = EditTuningViewModel(initialTuning, false)
 
+        assertFalse(viewModel.hasChanges.value)
+
         // Starts the cold flow
         testScope.backgroundScope.launch {
             viewModel.hasChanges.collect {}
         }
-
-        assertEquals(false, viewModel.hasChanges.value)
 
         // Change name
         viewModel.setName("Changed")
@@ -158,6 +148,6 @@ class EditTuningViewModelTest {
         // Reset tuning structure
         viewModel.editor.tuneDown()
         testScope.runCurrent()
-        assertEquals(false, viewModel.hasChanges.value)
+        assertFalse(viewModel.hasChanges.value)
     }
 }
