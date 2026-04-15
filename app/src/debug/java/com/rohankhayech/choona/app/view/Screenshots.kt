@@ -43,9 +43,9 @@ import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
@@ -61,7 +61,7 @@ private fun TunerScreenshot() {
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+            tuning = Tunings.STANDARD,
             noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
             selectedNote = -29,
@@ -70,7 +70,7 @@ private fun TunerScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             canRequest = true,
             error = null,
@@ -105,7 +105,7 @@ private fun InTuneScreenshot() {
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
+            tuning = Tunings.DROP_D,
             noteOffset = remember { mutableDoubleStateOf(0.01) },
             selectedString = 5,
             selectedNote = 0,
@@ -114,7 +114,7 @@ private fun InTuneScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             canRequest = true,
             error = null,
@@ -143,8 +143,8 @@ private fun InTuneScreenshot() {
 @Composable
 private fun SelectionScreenshot() {
     val tunings = TuningList(Tunings.WHOLE_STEP_DOWN).apply {
-        setFavourited(TuningEntry.InstrumentTuning(Tunings.DROP_D), true)
-        addCustom("Example", Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
+        setFavourited(Tunings.DROP_D, true)
+        addCustom("Example", InstrumentTuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
     }
 
     AppTheme {
@@ -164,13 +164,13 @@ private fun SelectionScreenshot() {
 @DarkPreview
 @Composable
 private fun CustomScreenshot() {
-    val custom = TuningEntry.InstrumentTuning(Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
+    val custom = InstrumentTuning.fromString("F4 C4 G#3 D#3 A#2 F2")
 
     AppTheme {
         EditTuningScreen(
             name = "",
             new = true,
-            tuning = custom.tuning,
+            tuning = custom,
             onNameChange = {},
             onInstrumentChange = {},
             onSetString = { _, _ -> },
@@ -199,7 +199,7 @@ private fun ChromaticScreenshot() {
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.ChromaticTuning,
+            tuning = ChromaticTuning,
             noteOffset = remember { mutableDoubleStateOf(-0.4) },
             selectedString = 3,
             selectedNote = Notes.getIndex("D3"),
@@ -208,7 +208,7 @@ private fun ChromaticScreenshot() {
             autoDetect = true,
             chromatic = true,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 stringLayout = StringLayout.SIDE_BY_SIDE
             ),
@@ -246,7 +246,7 @@ private fun SemitonesScreenshot() {
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+            tuning = Tunings.STANDARD,
             noteOffset = remember { mutableDoubleStateOf(-3.6) },
             selectedString = 3,
             selectedNote = -29,
@@ -255,7 +255,7 @@ private fun SemitonesScreenshot() {
             autoDetect = false,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 displayType = TuningDisplayType.SEMITONES,
                 stringLayout = StringLayout.SIDE_BY_SIDE
@@ -316,7 +316,7 @@ private fun BlackThemeScreenshot() {
             compact = false,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.DROP_D),
+            tuning = Tunings.DROP_D,
             noteOffset = remember { mutableDoubleStateOf(-0.42) },
             selectedString = 3,
             selectedNote = -29,
@@ -325,7 +325,7 @@ private fun BlackThemeScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(
                 useBlackTheme = true,
                 displayType = TuningDisplayType.CENTS
@@ -363,7 +363,7 @@ private fun SplitScreenScreenshot() {
             compact = true,
             expanded = false,
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(411.dp, 891.dp)),
-            tuning = TuningEntry.InstrumentTuning(Tunings.STANDARD),
+            tuning = Tunings.STANDARD,
             noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
             selectedNote = -29,
@@ -372,7 +372,7 @@ private fun SplitScreenScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             canRequest = true,
             error = null,
@@ -402,8 +402,8 @@ private fun SplitScreenScreenshot() {
 @Composable
 private fun TabletScreenshot() {
     val tunings = TuningList(Tunings.WHOLE_STEP_DOWN).apply {
-        setFavourited(TuningEntry.InstrumentTuning(Tunings.DROP_D), true)
-        addCustom("Example", Tuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
+        setFavourited(Tunings.DROP_D, true)
+        addCustom("Example", InstrumentTuning.fromString("F4 C4 G#3 D#3 A#2 F2"))
     }
 
     AppTheme {
@@ -412,7 +412,7 @@ private fun TabletScreenshot() {
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(891.dp, 891.dp)),
             compact = false,
             expanded = true,
-            tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+            tuning = Tunings.HALF_STEP_DOWN,
             noteOffset = remember { mutableDoubleStateOf(0.3) },
             selectedString = 3,
             selectedNote = -28,
@@ -421,7 +421,7 @@ private fun TabletScreenshot() {
             autoDetect = true,
             chromatic = false,
             favTunings = remember { mutableStateOf(emptySet()) },
-            getCanonicalName = { it.tuning.toString() },
+            getCanonicalName = { it.toString() },
             prefs = TunerPreferences(),
             tuningList = tunings,
             editModeEnabled = true,

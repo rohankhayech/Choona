@@ -21,7 +21,7 @@ package com.rohankhayech.choona.lib.controller.tunings
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
 import com.rohankhayech.choona.lib.model.tuning.Instrument
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import kotlinx.coroutines.flow.update
 
 /** Minimum number of strings allowed in a tuning. */
@@ -41,7 +41,7 @@ const val MAX_STRINGS = 12
  * @author Rohan Khayech
  */
 class CustomTuningEditor(
-    tuning: Tuning
+    tuning: InstrumentTuning
 ): TuningEditor(tuning) {
 
     /**
@@ -50,7 +50,7 @@ class CustomTuningEditor(
      */
     fun setInstrument(instrument: Instrument) {
         _tuning.update {
-            Tuning(it.name, instrument, null, it.strings)
+            InstrumentTuning(it.name, instrument, null, it.strings)
         }
     }
 
@@ -73,7 +73,7 @@ class CustomTuningEditor(
     fun addLowString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
-            Tuning(
+            InstrumentTuning(
                 it.name,
                 it.instrument,
                 null,
@@ -89,7 +89,7 @@ class CustomTuningEditor(
     fun addHighString() {
         require(tuning.value.numStrings() < MAX_STRINGS)
         _tuning.update {
-            Tuning(
+            InstrumentTuning(
                 it.name,
                 it.instrument,
                 null,
@@ -105,7 +105,7 @@ class CustomTuningEditor(
     fun removeLowString() {
         require(tuning.value.numStrings() > MIN_STRINGS)
         _tuning.update {
-            Tuning(it.name, it.instrument, null, it.strings.take(it.numStrings() - 1))
+            InstrumentTuning(it.name, it.instrument, null, it.strings.take(it.numStrings() - 1))
         }
     }
 
@@ -116,7 +116,7 @@ class CustomTuningEditor(
     fun removeHighString() {
         require(tuning.value.numStrings() > MIN_STRINGS)
         _tuning.update {
-            Tuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
+            InstrumentTuning(it.name, it.instrument, null, it.strings.takeLast(it.numStrings() - 1))
         }
     }
 
@@ -126,6 +126,6 @@ class CustomTuningEditor(
      * @throws IllegalArgumentException if the note index is out of range.
      */
     private fun requireValidNoteIndex(noteIndex: Int) {
-        require(noteIndex in Tuner.Companion.LOWEST_NOTE..Tuner.Companion.HIGHEST_NOTE)
+        require(noteIndex in Tuner.LOWEST_NOTE..Tuner.HIGHEST_NOTE)
     }
 }

@@ -56,7 +56,8 @@ import androidx.wear.compose.material3.Text
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.CompactNoteSelector
 import com.rohankhayech.choona.wear.view.components.CompactStringSelector
@@ -91,7 +92,7 @@ import com.rohankhayech.choona.wear.view.theme.AppTheme
 @Composable
 fun TunerScreen(
     granted: Boolean,
-    tuning: TuningEntry,
+    tuning: Tuning,
     prefs: TunerPreferences,
     noteOffset: State<Double?>,
     selectedString: Int,
@@ -105,7 +106,7 @@ fun TunerScreen(
     onSelectString: (Int) -> Unit,
     onSelectNote: (Int) -> Unit,
     onAutoChanged: (Boolean) -> Unit,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
     onTuned: () -> Unit,
     onOpenConfigurePanel: () -> Unit,
     onRequestPermission: () -> Unit,
@@ -146,7 +147,7 @@ fun TunerScreen(
 
 @Composable
 private fun TunerBody(
-    tuning: TuningEntry,
+    tuning: Tuning,
     prefs: TunerPreferences,
     noteIndex: Int,
     noteOffset: State<Double?>,
@@ -159,7 +160,7 @@ private fun TunerBody(
     onSelectString: (Int) -> Unit,
     onSelectNote: (Int) -> Unit,
     onAutoChanged: (Boolean) -> Unit,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
     onTuned: () -> Unit,
     onOpenConfigurePanel: () -> Unit,
 ) {
@@ -193,7 +194,7 @@ private fun TunerBody(
             } else {
                 CompactStringSelector(
                     modifier = Modifier.weight(1f),
-                    tuning = tuning.tuning!!,
+                    tuning = (tuning as InstrumentTuning),
                     selectedString = selectedString,
                     contentPadding = PaddingValues(if (round) 48.dp else 8.dp, end = 8.dp),
                     tuned = tuned,
@@ -221,18 +222,28 @@ private fun TunerBody(
         }
         if (!round) {
             CurvedTuningItem(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp).clickable(onClick = onOpenConfigurePanel),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
+                    .clickable(onClick = onOpenConfigurePanel),
                 tuning = tuning,
                 getCanonicalName = getCanonicalName,
                 fontWeight = FontWeight.Bold
             )
         } else {
-            Spacer(Modifier.fillMaxWidth().height(30.dp).clickable(onClick = onOpenConfigurePanel))
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .clickable(onClick = onOpenConfigurePanel)
+            )
         }
     }
     if (round) {
         CurvedTuningItem(
-            modifier = Modifier.fillMaxSize().padding(4.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
             tuning = tuning,
             getCanonicalName = getCanonicalName,
             fontWeight = FontWeight.Bold
@@ -370,7 +381,7 @@ private fun BasePreview(
         AppScaffold {
             TunerScreen(
                 granted = granted,
-                tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+                tuning = Tunings.HALF_STEP_DOWN,
                 prefs = TunerPreferences(),
                 noteOffset = remember { mutableDoubleStateOf(2.0) },
                 selectedString = 0,

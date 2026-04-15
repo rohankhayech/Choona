@@ -56,7 +56,7 @@ import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.StringLayout
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.preferences.TuningDisplayType
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.app.R as AppR
 
 /**
@@ -228,7 +228,7 @@ fun SettingsScreen(
             // Pinned
             ListItem(
                 headlineContent = { Text(stringResource(R.string.pref_initial_tuning_pinned)) },
-                supportingContent = { Text(if (pinnedTuning == Tuning.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning)) },
+                supportingContent = { Text(if (pinnedTuning == Tunings.STANDARD.fullName) stringResource(R.string.pref_initial_tuning_pinned_desc_standard) else stringResource(R.string.pref_initial_tuning_pinned_desc, pinnedTuning)) },
                 trailingContent = {
                     RadioButton(
                         selected = prefs.initialTuning == InitialTuningType.PINNED,
@@ -313,7 +313,7 @@ private fun Preview() {
     AppTheme {
         SettingsScreen(
             prefs = TunerPreferences(),
-            pinnedTuning = Tuning.STANDARD.fullName,
+            pinnedTuning = Tunings.STANDARD.fullName,
             onSelectDisplayType = {},
             onSelectStringLayout = {},
             onEnableStringSelectSound = {},

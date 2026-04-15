@@ -26,8 +26,8 @@ import androidx.navigation3.runtime.NavKey
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.controller.tunings.TuningList
-import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -40,7 +40,10 @@ class TunerViewModel : ViewModel() {
     val tuner = Tuner()
 
     /** State holder containing the lists of favourite and custom tunings. */
-    val tuningList = TuningList(tuner.tuning.value, viewModelScope)
+    val tuningList = TuningList(
+        if (tuner.chromatic.value) ChromaticTuning else tuner.tuning.value,
+        viewModelScope
+    )
 
     /** Mutable backing property for [backStack]. */
     private val _backStack: NavBackStack<Screen> = NavBackStack(Screen.Tuner)
@@ -67,16 +70,16 @@ class TunerViewModel : ViewModel() {
         // Update the tuning list when the tuner's tuning is updated.
         viewModelScope.launch {
             tuner.tuning.collect {
-                tuningList.setCurrent(TuningEntry.InstrumentTuning(it))
+                tuningList.setCurrent(it)
             }
         }
         viewModelScope.launch {
             tuner.chromatic.collect { chromatic ->
                 if (chromatic) {
-                    tuningList.setCurrent(TuningEntry.ChromaticTuning)
+                    tuningList.setCurrent(ChromaticTuning)
                 } else {
                     // If switching back to the same instrument tuning, the tuning flow above will not emit, so update here.
-                    tuningList.setCurrent(TuningEntry.InstrumentTuning(tuner.tuning.value))
+                    tuningList.setCurrent(tuner.tuning.value)
                 }
             }
         }
@@ -84,11 +87,9 @@ class TunerViewModel : ViewModel() {
         // Update tuner when the current selection in the tuning list is updated.
         viewModelScope.launch {
             tuningList.current.collect {
-                it?.let {
-                    when (it) {
-                        is TuningEntry.InstrumentTuning -> tuner.setTuning(it.tuning)
-                        is TuningEntry.ChromaticTuning -> tuner.setChromatic(true)
-                    }
+                when (it) {
+                    is InstrumentTuning -> tuner.setTuning(it)
+                    is ChromaticTuning -> tuner.setChromatic(true)
                 }
             }
         }
@@ -125,7 +126,7 @@ class TunerViewModel : ViewModel() {
     }
 
     /** Sets the current tuning to that selected in the tuning selection screen and dismisses it. */
-    fun selectTuningFromList(tuning: Tuning) {
+    fun selectTuningFromList(tuning: InstrumentTuning) {
         navBack()
         tuner.setTuning(tuning)
     }
@@ -147,7 +148,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The tuning to edit.
      * @param new Whether the tuning is a new custom tuning.
      */
-    fun openTuningEditor(tuning: Tuning, new: Boolean) {
+    fun openTuningEditor(tuning: InstrumentTuning, new: Boolean) {
         _backStack.add(Screen.EditTuning(TuningFileIO.encodeTuningToString(tuning), new))
     }
 
@@ -163,7 +164,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The tuning to add/update
      * @param key The navigation key for the edit screen.
      */
-    fun saveTuningFromEditor(tuning: Tuning, key: Screen.EditTuning) {
+    fun saveTuningFromEditor(tuning: InstrumentTuning, key: Screen.EditTuning) {
         if (key.new) {
             onAddFromEditor(tuning)
         } else {
@@ -176,7 +177,7 @@ class TunerViewModel : ViewModel() {
      *
      * @param result The tuning result from the editor.
      */
-    fun onAddFromEditor(result: Tuning) {
+    private fun onAddFromEditor(result: InstrumentTuning) {
         tuningList.addCustom(result.rawName, result)
         navBack()
     }
@@ -186,7 +187,7 @@ class TunerViewModel : ViewModel() {
      * @param tuning The initial tuning to update.
      * @param updatedTuning The tuning result from the editor.
      */
-    fun onUpdateFromEditor(tuning: Tuning, updatedTuning: Tuning) {
+    private fun onUpdateFromEditor(tuning: InstrumentTuning, updatedTuning: InstrumentTuning) {
         tuningList.updateCustom(tuning, updatedTuning)
         navBack()
     }

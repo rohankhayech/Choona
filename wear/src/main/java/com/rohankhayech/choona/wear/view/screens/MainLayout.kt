@@ -36,8 +36,8 @@ import com.rohankhayech.choona.lib.controller.tunings.TuningList
 import com.rohankhayech.choona.lib.model.preferences.InitialTuningType
 import com.rohankhayech.choona.lib.model.preferences.TunerPreferences
 import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.view.viewmodel.EditTuningViewModel
 import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 
@@ -87,7 +87,7 @@ import com.rohankhayech.choona.lib.view.viewmodel.TunerViewModel.Screen
 fun MainLayout(
     backStack: List<Screen>,
     granted: Boolean,
-    tuning: TuningEntry,
+    tuning: Tuning,
     noteOffset: State<Double?>,
     selectedString: Int,
     selectedNote: Int,
@@ -95,14 +95,14 @@ fun MainLayout(
     noteTuned: Boolean,
     autoDetect: Boolean,
     chromatic: Boolean,
-    favTunings: State<Set<TuningEntry>>,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    favTunings: State<Set<Tuning>>,
+    getCanonicalName: (InstrumentTuning) -> String,
     prefs: TunerPreferences,
     tuningList: TuningList,
     canRequest: Boolean,
     error: Exception?,
     onSelectString: (Int) -> Unit,
-    onSelectTuning: (Tuning) -> Unit,
+    onSelectTuning: (InstrumentTuning) -> Unit,
     onSelectChromatic: () -> Unit,
     onSelectNote: (Int) -> Unit,
     onTuneUpString: (Int) -> Unit,
@@ -113,8 +113,8 @@ fun MainLayout(
     onTuned: () -> Unit,
     onOpenTuningSelector: () -> Unit,
     onOpenConfigurePanel: () -> Unit,
-    onOpenTuningEditor: (Tuning, Boolean) -> Unit,
-    onSaveTuningFromEditor: (Tuning, Screen.EditTuning) -> Unit,
+    onOpenTuningEditor: (InstrumentTuning, Boolean) -> Unit,
+    onSaveTuningFromEditor: (InstrumentTuning, Screen.EditTuning) -> Unit,
     onDeleteTuningFromEditor: (Screen.EditTuning) -> Unit,
     onPressNote: (Int, Instrument) -> Unit,
     onBack: () -> Unit,

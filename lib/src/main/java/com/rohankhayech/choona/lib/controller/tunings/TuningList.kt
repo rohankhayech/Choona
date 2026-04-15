@@ -23,10 +23,11 @@ import java.util.SortedMap
 import android.content.Context
 import com.rohankhayech.choona.lib.controller.fileio.TuningFileIO
 import com.rohankhayech.choona.lib.model.error.ExistingTuningException
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
 import com.rohankhayech.choona.lib.model.tuning.Instrument
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning.Category
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,12 +50,12 @@ import kotlinx.coroutines.flow.update
  * @author Rohan Khayech
  */
 class TuningList(
-    initialCurrentTuning: Tuning? = null,
+    initialCurrentTuning: Tuning = Tunings.STANDARD,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) {
 
     /** Mutable backing property for [current]. */
-    private val _current = MutableStateFlow<TuningEntry?>(initialCurrentTuning?.let { TuningEntry.InstrumentTuning(it) })
+    private val _current = MutableStateFlow(initialCurrentTuning)
 
     /** The current tuning, or null if N/A. */
     val current = _current.asStateFlow()
@@ -68,41 +69,29 @@ class TuningList(
     /** Mutable backing property for [favourites]. */
     private val _favourites = MutableStateFlow(
         setOf(
-            TuningEntry.InstrumentTuning(Tuning.STANDARD),
-            TuningEntry.ChromaticTuning
+            Tunings.STANDARD,
+            ChromaticTuning
         )
     )
 
     /** Set of tunings marked as favourite by the user. */
     val favourites = _favourites.asStateFlow()
 
-    /** Set of instrument tunings marked as favourite by the user. */
-    val instrFavs = _favourites.map { favs ->
-        favs.filterIsInstance<TuningEntry.InstrumentTuning>()
-            .map {it.tuning}
-    }.stateIn(coroutineScope, SharingStarted.Eagerly, listOf(Tuning.STANDARD))
-
     /** Mutable backing property for [custom]. */
-    private val _custom = MutableStateFlow<Set<Tuning>>(emptySet())
+    private val _custom = MutableStateFlow<Set<InstrumentTuning>>(emptySet())
 
     /** Set of custom tunings added by the user. */
-    val custom = _custom.map { c -> c.map { TuningEntry.InstrumentTuning(it) }.toSet() }
+    val custom = _custom.map { c -> c.toSet() }
         .stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     /** Mutable backing property for [pinned]. */
-    private val _pinned = MutableStateFlow<TuningEntry>(TuningEntry.InstrumentTuning(Tuning.STANDARD))
+    private val _pinned = MutableStateFlow<Tuning>(Tunings.STANDARD)
 
     /** Pinned tuning to open when the app is launched. */
     val pinned = _pinned.asStateFlow()
 
-    /** Mutable backing property for [chromaticPinned]. */
-    private val _chromaticPinned = MutableStateFlow(false)
-
-    /** Whether chromatic tuning is pinned to open when the app is launched. */
-    val chromaticPinned = _chromaticPinned.asStateFlow()
-
     /** Mutable backing property for [lastUsed]. */
-    private val _lastUsed = MutableStateFlow<TuningEntry?>(null)
+    private val _lastUsed = MutableStateFlow<Tuning?>(null)
 
     /** The tuning used last time the app was opened. */
     val lastUsed = _lastUsed.asStateFlow()
@@ -125,8 +114,8 @@ class TuningList(
      */
     val filteredTunings = combine(instrumentFilter, categoryFilter) { instrument, category ->
         TUNINGS.filter {
-            (instrument == null || it.tuning.instrument == instrument)
-                && (category == null || it.tuning.category == category)
+            (instrument == null || it.instrument == instrument)
+                && (category == null || it.category == category)
         }.groupAndSort()
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), TUNINGS.groupAndSort())
 
@@ -148,14 +137,14 @@ class TuningList(
 
     /** Whether the current tuning has been saved (or is a built-in tuning). */
     val currentSaved = combine(current, _custom) { current, custom ->
-        current is TuningEntry.ChromaticTuning || current?.tuning?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
+        current is ChromaticTuning || current.hasEquivalentIn(custom + Tunings.TUNINGS)
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), true)
 
     /** Whether tunings have been loaded from file. */
     private var loaded = false
 
     /** Event indicating the specified tuning was deleted. */
-    private val _deletedTuning = MutableSharedFlow<Tuning>(extraBufferCapacity = 1)
+    private val _deletedTuning = MutableSharedFlow<InstrumentTuning>(extraBufferCapacity = 1)
 
     /** Event indicating the specified tuning was deleted. */
     val deletedTuning = _deletedTuning.asSharedFlow()
@@ -191,15 +180,14 @@ class TuningList(
     /**
      * Sets the current tuning to the specified [tuning], or its existing equivalent.
      */
-    fun setCurrent(tuning: TuningEntry) {
+    fun setCurrent(tuning: Tuning) {
         _current.update {
             when (tuning) {
-                is TuningEntry.ChromaticTuning -> tuning
-                is TuningEntry.InstrumentTuning -> if (tuning.hasName()) tuning else {
-                    tuning.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.let {
-                        TuningEntry.InstrumentTuning(it)
-                    } ?: tuning
+                is ChromaticTuning -> tuning
+                is InstrumentTuning -> if (tuning.hasName()) tuning else {
+                    tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?: tuning
                 }
+                else -> tuning
             }
         }
     }
@@ -207,7 +195,7 @@ class TuningList(
     /**
      * Marks the specified [tuning] as a favourite if [fav] set to true, otherwise un-marks it.
      */
-    fun setFavourited(tuning: TuningEntry, fav: Boolean) {
+    fun setFavourited(tuning: Tuning, fav: Boolean) {
         if (fav) {
             _favourites.update { it.plusElement(tuning) }
         } else {
@@ -221,7 +209,7 @@ class TuningList(
      * @throws ExistingTuningException If an equivalent tuning already exists.
      */
     @Throws(ExistingTuningException::class)
-    fun addCustom(name: String?, tuning: Tuning): Tuning {
+    fun addCustom(name: String?, tuning: InstrumentTuning): InstrumentTuning {
         // Check if the tuning already exists.
         tuning.findEquivalentIn(Tunings.TUNINGS)?.let {
             throw ExistingTuningException(it.name, true)
@@ -231,13 +219,13 @@ class TuningList(
         }
 
         // Add the custom tuning.
-        val newTuning = Tuning(name, tuning)
+        val newTuning = InstrumentTuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
-        if (current.value?.tuning?.equivalentTo(tuning) == true) {
-            _current.update { TuningEntry.InstrumentTuning(newTuning) }
+        if (current.value.equivalentTo(tuning)) {
+            _current.update { newTuning }
         }
-        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
-            _pinned.update { TuningEntry.InstrumentTuning(newTuning) }
+        if (pinned.value equivalentTo tuning) {
+            _pinned.update { newTuning }
         }
         return newTuning
     }
@@ -248,7 +236,7 @@ class TuningList(
      * @throws IllegalStateException If the tuning to be updated does not exist.
      */
     @Throws(ExistingTuningException::class, IllegalStateException::class)
-    fun updateCustom(tuning: Tuning, updatedTuning: Tuning) {
+    fun updateCustom(tuning: InstrumentTuning, updatedTuning: InstrumentTuning) {
         // Assert that the tuning to be replaced exists.
         check(_custom.value.contains(tuning)) { "The specified tuning does not exist in the custom tuning list." }
 
@@ -262,15 +250,15 @@ class TuningList(
 
         // Update the custom tuning.
         _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
-        if (current.value?.tuning?.equivalentTo(tuning) == true) {
-            _current.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        if (current.value.equivalentTo(tuning)) {
+            _current.update { updatedTuning }
         }
-        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
-            _pinned.update { TuningEntry.InstrumentTuning(updatedTuning) }
+        if (pinned.value equivalentTo tuning) {
+            _pinned.update { updatedTuning }
         }
         _favourites.update {
-            if (it.contains(TuningEntry.InstrumentTuning(tuning))) {
-                it.minusElement(TuningEntry.InstrumentTuning(tuning)).plusElement(TuningEntry.InstrumentTuning(updatedTuning))
+            if (it.contains(tuning)) {
+                it.minusElement(tuning).plusElement(updatedTuning)
             } else it
         }
     }
@@ -278,26 +266,26 @@ class TuningList(
     /**
      * Removes the specified custom [tuning].
      */
-    fun removeCustom(tuning: Tuning) {
+    fun removeCustom(tuning: InstrumentTuning) {
         _custom.update { it.minusElement(tuning) }
-        _favourites.update { it.minusElement(TuningEntry.InstrumentTuning(tuning)) }
-        if (current.value?.tuning?.equivalentTo(tuning) == true) {
-            _current.update { TuningEntry.InstrumentTuning(Tuning(null, tuning)) }
+        _favourites.update { it.minusElement(tuning) }
+        if (current.value.equivalentTo(tuning)) {
+            _current.update { InstrumentTuning(null, tuning) }
         }
-        if (pinned.value.tuning?.equivalentTo(tuning) == true) {
+        if (pinned.value equivalentTo tuning) {
             unpinTuning()
         }
         _deletedTuning.tryEmit(tuning)
     }
 
     /** Sets the pinned [tuning]. */
-    fun setPinned(tuning: TuningEntry) {
+    fun setPinned(tuning: Tuning) {
         _pinned.update { tuning }
     }
 
     /** Unpins the pinned tuning. */
     fun unpinTuning() {
-        _pinned.update { TuningEntry.InstrumentTuning(Tuning.STANDARD) }
+        _pinned.update { Tunings.STANDARD }
     }
 
     /**
@@ -319,22 +307,19 @@ class TuningList(
     }
 
     /** @return Whether this tuning is favourited in the tuning list. */
-    fun TuningEntry.isFavourite(): Boolean {
-        return (this is TuningEntry.ChromaticTuning && favourites.value.contains(this)) ||
-            this.tuning?.hasEquivalentIn(instrFavs.value) == true
+    fun Tuning.isFavourite(): Boolean {
+        return hasEquivalentIn(favourites.value)
     }
 
     /** @return The name of the specified [tuning] if it is saved as a built-in or custom tuning. */
-    fun getCanonicalName(tuning: TuningEntry.InstrumentTuning): String {
-        return tuning.tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
-            ?: tuning.tuning.toString()
+    fun getCanonicalName(tuning: InstrumentTuning): String {
+        return tuning.findEquivalentIn(_custom.value + Tunings.TUNINGS)?.name
+            ?: tuning.toString()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as TuningList
+        if (other !is TuningList) return false
 
         if (current.value != other.current.value) return false
         if (favourites.value != other.favourites.value) return false
@@ -349,9 +334,7 @@ class TuningList(
 
     companion object {
         /** List of built-in tuning entries. */
-        private val TUNINGS = Tunings.TUNINGS.map {
-            TuningEntry.InstrumentTuning(it)
-        }
+        private val TUNINGS = Tunings.TUNINGS.toList()
 
         /** Common tunings, grouped by instrument and category. */
         val GROUPED_TUNINGS = TUNINGS.groupAndSort()
@@ -362,9 +345,9 @@ class TuningList(
          *
          * @return Map of tuning groups and their list of tunings.
          */
-        fun Collection<TuningEntry.InstrumentTuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<TuningEntry.InstrumentTuning>> {
+        fun Collection<InstrumentTuning>.groupAndSort(): SortedMap<Pair<Instrument, Category?>, List<InstrumentTuning>> {
             return groupBy {
-                it.tuning.instrument to it.tuning.category
+                it.instrument to it.category
             }.toSortedMap(
                 compareBy ({ it.first }, { it.second })
             )

@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
  */
 package com.rohankhayech.choona.lib.controller.fileio
 
+import com.rohankhayech.choona.lib.model.tuning.ChromaticTuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Tuning
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -33,22 +35,22 @@ class TuningFileIOTest {
     @Test
     fun testParseTunings() {
         val tunings = TuningFileIO.parseTunings(TUNINGS_JSON)
-        val expected: MutableSet<TuningEntry> = LinkedHashSet()
-        expected.add(TuningEntry.InstrumentTuning(Tuning.STANDARD))
-        expected.add(TuningEntry.InstrumentTuning(Tuning.DROP_D))
-        expected.add(TuningEntry.InstrumentTuning(Tuning.fromString("G3 D3 A2 E2")))
-        expected.add(TuningEntry.ChromaticTuning)
+        val expected: MutableSet<Tuning> = LinkedHashSet()
+        expected.add(Tunings.STANDARD)
+        expected.add(Tunings.DROP_D)
+        expected.add(InstrumentTuning.fromString("G3 D3 A2 E2"))
+        expected.add(ChromaticTuning)
         Assert.assertEquals(expected, tunings)
     }
 
     @Test
     @Throws(JSONException::class)
     fun testEncodeTunings() {
-        val tunings: MutableSet<TuningEntry> = LinkedHashSet()
-        tunings.add(TuningEntry.InstrumentTuning(Tuning.STANDARD))
-        tunings.add(TuningEntry.InstrumentTuning(Tuning.DROP_D))
-        tunings.add(TuningEntry.InstrumentTuning(Tuning.fromString("G3 D3 A2 E2")))
-        tunings.add(TuningEntry.ChromaticTuning)
+        val tunings: MutableSet<Tuning> = LinkedHashSet()
+        tunings.add(Tunings.STANDARD)
+        tunings.add(Tunings.DROP_D)
+        tunings.add(InstrumentTuning.fromString("G3 D3 A2 E2"))
+        tunings.add(ChromaticTuning)
         val json = TuningFileIO.encodeTunings(tunings)
         Assert.assertEquals(JSONObject(TUNINGS_JSON).toString(), JSONObject(json).toString())
     }

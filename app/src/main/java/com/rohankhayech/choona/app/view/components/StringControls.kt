@@ -47,7 +47,8 @@ import com.rohankhayech.choona.app.view.theme.PreviewWrapper
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
 import com.rohankhayech.choona.lib.model.tuning.GuitarString
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 
 /**
  * Max number of strings that can be displayed inline.
@@ -72,7 +73,7 @@ private const val MAX_INLINE_STRINGS = 7
 fun StringControls(
     modifier: Modifier = Modifier,
     inline: Boolean,
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     selectedString: Int?,
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
@@ -121,7 +122,7 @@ fun StringControls(
  */
 @Composable
 private fun SideBySideStringControls(
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     selectedString: Int?,
     tuned: BooleanArray?,
     onSelect: (Int) -> Unit,
@@ -175,7 +176,7 @@ private fun SideBySideStringControls(
  */
 @Composable
 fun InlineStringControls(
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     strings: List<Pair<Int, GuitarString>> = remember(tuning) { tuning.mapIndexed { n, gs -> Pair(n, gs) } },
     selectedString: Int?,
     tuned: BooleanArray?,
@@ -216,7 +217,7 @@ fun InlineStringControls(
 @Composable
 fun CompactStringSelector(
     modifier: Modifier = Modifier,
-    tuning: Tuning,
+    tuning: InstrumentTuning,
     selectedString: Int,
     tuned: BooleanArray,
     onSelect: (Int) -> Unit,
@@ -312,7 +313,7 @@ fun InlinePreview() {
     PreviewWrapper {
         StringControls(
             inline = true,
-            tuning = Tuning.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
+            tuning = Tunings.STANDARD.withString(4, GuitarString.fromRootNote("D#3")),
             selectedString = 1,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
@@ -329,7 +330,7 @@ private fun SideBySidePreview() {
     PreviewWrapper {
         StringControls(
             inline = false,
-            tuning = Tuning.STANDARD,
+            tuning = Tunings.STANDARD,
             selectedString = 1,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},
@@ -345,7 +346,7 @@ private fun SideBySidePreview() {
 private fun CompactPreview() {
     PreviewWrapper {
         CompactStringSelector(
-            tuning = Tuning.STANDARD,
+            tuning = Tunings.STANDARD,
             selectedString = 5,
             tuned = BooleanArray(6) { it == 4 },
             onSelect = {},

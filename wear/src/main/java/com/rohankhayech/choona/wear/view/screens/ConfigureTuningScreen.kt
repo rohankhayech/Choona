@@ -47,7 +47,8 @@ import androidx.wear.compose.material3.Text
 import com.rohankhayech.android.util.ui.preview.wear.WearSizePreview
 import com.rohankhayech.choona.lib.R
 import com.rohankhayech.choona.lib.controller.tuner.Tuner
-import com.rohankhayech.choona.lib.model.tuning.TuningEntry
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
+import com.rohankhayech.choona.lib.model.tuning.Tuning
 import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.wear.view.components.NoteSelector
 import com.rohankhayech.choona.wear.view.components.StringControls
@@ -76,10 +77,10 @@ import com.rohankhayech.choona.wear.R as WearR
  */
 @Composable
 fun ConfigureTuningScreen(
-    tuning: TuningEntry,
+    tuning: Tuning,
     chromatic: Boolean,
     selectedNote: Int,
-    getCanonicalName: (TuningEntry.InstrumentTuning) -> String,
+    getCanonicalName: (InstrumentTuning) -> String,
     onTuneUpString: (Int) -> Unit,
     onTuneDownString: (Int) -> Unit,
     onTuneUpTuning: () -> Unit,
@@ -138,7 +139,7 @@ fun ConfigureTuningScreen(
                     ) {
                         IconButton(
                             onClick = onTuneDownTuning,
-                            enabled = remember(tuning) { derivedStateOf { tuning.tuning!!.min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
+                            enabled = remember(tuning) { derivedStateOf { (tuning as InstrumentTuning).min().rootNoteIndex > Tuner.LOWEST_NOTE } }.value
                         ) {
                             Icon(Icons.Default.Remove, stringResource(R.string.tune_down))
                         }
@@ -148,7 +149,7 @@ fun ConfigureTuningScreen(
                         )
                         IconButton(
                             onClick = onTuneUpTuning,
-                            enabled = remember(tuning) { derivedStateOf { tuning.tuning!!.max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
+                            enabled = remember(tuning) { derivedStateOf { (tuning as InstrumentTuning).max().rootNoteIndex < Tuner.HIGHEST_NOTE } }.value
                         ) {
                             Icon(Icons.Default.Add, stringResource(R.string.tune_up))
                         }
@@ -164,7 +165,7 @@ fun ConfigureTuningScreen(
                     )
                 } else {
                     StringControls(
-                        tuning = tuning.tuning!!,
+                        tuning = tuning as InstrumentTuning,
                         selectedString = null,
                         tuned = null,
                         onSelect = {},
@@ -183,7 +184,7 @@ private fun Preview() {
     AppTheme {
         AppScaffold {
             ConfigureTuningScreen(
-                tuning = TuningEntry.InstrumentTuning(Tunings.HALF_STEP_DOWN),
+                tuning = Tunings.HALF_STEP_DOWN,
                 chromatic = false,
                 selectedNote = -29,
                 getCanonicalName = { it.toString() },

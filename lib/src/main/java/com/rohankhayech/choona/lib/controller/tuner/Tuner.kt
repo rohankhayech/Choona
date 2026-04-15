@@ -1,6 +1,6 @@
 /*
  * Choona - Guitar Tuner
- * Copyright (C) 2025 Rohan Khayech
+ * Copyright (C) 2026 Rohan Khayech
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,9 @@ import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.LOWEST_NOTE
 import com.rohankhayech.choona.lib.controller.tunings.TuningEditor
 import com.rohankhayech.choona.lib.controller.util.alsoIfTrue
 import com.rohankhayech.choona.lib.model.error.TunerException
+import com.rohankhayech.choona.lib.model.tuning.InstrumentTuning
 import com.rohankhayech.choona.lib.model.tuning.Notes
-import com.rohankhayech.choona.lib.model.tuning.Tuning
+import com.rohankhayech.choona.lib.model.tuning.Tunings
 import com.rohankhayech.choona.lib.view.PermissionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +47,7 @@ import kotlinx.coroutines.flow.update
  * @author Rohan Khayech
  */
 class Tuner(
-    tuning: Tuning = Tuning.STANDARD
+    tuning: InstrumentTuning = Tunings.STANDARD
 ): TuningEditor(tuning) {
 
     companion object {
@@ -133,7 +134,7 @@ class Tuner(
     }
 
     /** Sets the guitar tuning for comparison. */
-    fun setTuning(tuning: Tuning) {
+    fun setTuning(tuning: InstrumentTuning) {
         if (chromatic.value) {
             setChromatic(false)
         }
@@ -223,7 +224,7 @@ class Tuner(
     /**
      * Checks if any strings in the [new][newTuning] tuning are the same as in the [old][oldTuning] tuning and allows them to keep their tuned status.
      */
-    private fun updateTunedStatus(oldTuning: Tuning, newTuning: Tuning) {
+    private fun updateTunedStatus(oldTuning: InstrumentTuning, newTuning: InstrumentTuning) {
         _tuned.update {
             if (oldTuning.numStrings() != newTuning.numStrings()) {
                 BooleanArray(newTuning.numStrings()) { false }
