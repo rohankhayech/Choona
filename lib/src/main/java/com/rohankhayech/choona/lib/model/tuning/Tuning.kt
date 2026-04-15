@@ -67,9 +67,8 @@ abstract class Tuning protected constructor(
         if (other === this) return true
         if (other !is Tuning) return false
 
-        val o = other as InstrumentTuning
-        return name == o.name
-            && category == o.category
+        return name == other.name
+            && category == other.category
     }
 
     override fun hashCode(): Int {
