@@ -40,7 +40,10 @@ class TunerViewModel : ViewModel() {
     val tuner = Tuner()
 
     /** State holder containing the lists of favourite and custom tunings. */
-    val tuningList = TuningList(tuner.tuning.value, viewModelScope)
+    val tuningList = TuningList(
+        if (tuner.chromatic.value) ChromaticTuning else tuner.tuning.value,
+        viewModelScope
+    )
 
     /** Mutable backing property for [backStack]. */
     private val _backStack: NavBackStack<Screen> = NavBackStack(Screen.Tuner)
@@ -84,11 +87,9 @@ class TunerViewModel : ViewModel() {
         // Update tuner when the current selection in the tuning list is updated.
         viewModelScope.launch {
             tuningList.current.collect {
-                it?.let {
-                    when (it) {
-                        is InstrumentTuning -> tuner.setTuning(it)
-                        is ChromaticTuning -> tuner.setChromatic(true)
-                    }
+                when (it) {
+                    is InstrumentTuning -> tuner.setTuning(it)
+                    is ChromaticTuning -> tuner.setChromatic(true)
                 }
             }
         }

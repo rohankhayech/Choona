@@ -253,7 +253,7 @@ fun TuningSelectionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuningSelectionScreen(
-    current: Tuning? = null,
+    current: Tuning,
     currentSaved: Boolean,
     tunings: Map<Pair<Instrument, Category?>, List<InstrumentTuning>>,
     favourites: Set<Tuning>,
@@ -411,7 +411,7 @@ fun TuningSelectionScreen(
 fun TuningList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
-    current: Tuning? = null,
+    current: Tuning,
     currentSaved: Boolean,
     tunings: Map<Pair<Instrument, Category?>, List<InstrumentTuning>>,
     favourites: Set<Tuning>,
@@ -446,25 +446,23 @@ fun TuningList(
 
     LazyColumn(modifier = modifier, state = listState) {
         // Current Tuning
-        current?.let {
-            item("cur") {
-                SectionTitle(
-                    stringResource(R.string.tuning_list_current),
-                    Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
-                )
-            }
-            item("cur-${current.key}") {
-                CurrentTuningItem(
-                    tuning = current,
-                    saved = currentSaved,
-                    pinned = currentPinned,
-                    pinnedInitial = pinnedInitial,
-                    onSave = onSave,
-                    onSelect = onSelect,
-                    onPinnedSet = { tuning, pinned ->
-                        if (pinned) onPin(tuning) else onUnpin()
-                    })
-            }
+        item("cur") {
+            SectionTitle(
+                stringResource(R.string.tuning_list_current),
+                Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+            )
+        }
+        item("cur-${current.key}") {
+            CurrentTuningItem(
+                tuning = current,
+                saved = currentSaved,
+                pinned = currentPinned,
+                pinnedInitial = pinnedInitial,
+                onSave = onSave,
+                onSelect = onSelect,
+                onPinnedSet = { tuning, pinned ->
+                    if (pinned) onPin(tuning) else onUnpin()
+                })
         }
 
         if (pinnedInitial && !currentPinned && !pinnedInFavs && !pinnedIsStandard) {

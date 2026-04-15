@@ -50,12 +50,12 @@ import kotlinx.coroutines.flow.update
  * @author Rohan Khayech
  */
 class TuningList(
-    initialCurrentTuning: InstrumentTuning? = null,
+    initialCurrentTuning: Tuning = Tunings.STANDARD,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) {
 
     /** Mutable backing property for [current]. */
-    private val _current = MutableStateFlow<Tuning?>(initialCurrentTuning)
+    private val _current = MutableStateFlow(initialCurrentTuning)
 
     /** The current tuning, or null if N/A. */
     val current = _current.asStateFlow()
@@ -137,7 +137,7 @@ class TuningList(
 
     /** Whether the current tuning has been saved (or is a built-in tuning). */
     val currentSaved = combine(current, _custom) { current, custom ->
-        current is ChromaticTuning || current?.hasEquivalentIn(custom + Tunings.TUNINGS) == true
+        current is ChromaticTuning || current.hasEquivalentIn(custom + Tunings.TUNINGS)
     }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), true)
 
     /** Whether tunings have been loaded from file. */
@@ -221,7 +221,7 @@ class TuningList(
         // Add the custom tuning.
         val newTuning = InstrumentTuning(name, tuning)
         _custom.update { it.plusElement(newTuning) }
-        if (current.value?.equivalentTo(tuning) == true) {
+        if (current.value.equivalentTo(tuning)) {
             _current.update { newTuning }
         }
         if (pinned.value equivalentTo tuning) {
@@ -250,7 +250,7 @@ class TuningList(
 
         // Update the custom tuning.
         _custom.update { it.minusElement(tuning).plusElement(updatedTuning) }
-        if (current.value?.equivalentTo(tuning) == true) {
+        if (current.value.equivalentTo(tuning)) {
             _current.update { updatedTuning }
         }
         if (pinned.value equivalentTo tuning) {
@@ -269,7 +269,7 @@ class TuningList(
     fun removeCustom(tuning: InstrumentTuning) {
         _custom.update { it.minusElement(tuning) }
         _favourites.update { it.minusElement(tuning) }
-        if (current.value?.equivalentTo(tuning) == true) {
+        if (current.value.equivalentTo(tuning)) {
             _current.update { InstrumentTuning(null, tuning) }
         }
         if (pinned.value equivalentTo tuning) {

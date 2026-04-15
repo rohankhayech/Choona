@@ -120,7 +120,7 @@ private fun SelectionScreenshot() {
             }
         ) {
             TuningSelectionScreen(
-                current = null,
+                current = Tunings.STANDARD,
                 currentSaved = true,
                 tunings = TuningList.GROUPED_TUNINGS,
                 pinned = Tunings.STANDARD,

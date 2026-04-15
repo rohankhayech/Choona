@@ -71,7 +71,7 @@ class TuningListTest {
     @Test
     fun testCurrent() {
         // Test default value.
-        assertNull(tuningList.current.value)
+        assertEquals(tuningList.current.value, Tunings.STANDARD)
 
         // Test not in list.
         var new = InstrumentTuning.fromString("E2")
@@ -423,7 +423,7 @@ class TuningListTest {
         val newList = TuningList()
         assertEquals(tuningList, newList)
 
-        newList.setCurrent(Tunings.STANDARD)
+        newList.setCurrent(Tunings.DROP_D)
         assertNotEquals(tuningList, newList)
     }
 
@@ -468,7 +468,7 @@ class TuningListTest {
         testScope.advanceUntilIdle()
 
         // Test default value.
-        assertFalse(tuningList.currentSaved.value)
+        assertTrue(tuningList.currentSaved.value)
 
         val new = InstrumentTuning.fromString("E2")
 

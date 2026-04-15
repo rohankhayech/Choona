@@ -196,7 +196,7 @@ fun TuningListScreen(
  */
 @Composable
 fun TuningSelectionScreen(
-    current: Tuning? = null,
+    current: Tuning,
     currentSaved: Boolean,
     tunings: Map<Pair<Instrument, Category?>, List<InstrumentTuning>>,
     favourites: Set<Tuning>,
@@ -317,7 +317,7 @@ fun TuningList(
     modifier: Modifier = Modifier,
     padding: PaddingValues = PaddingValues(),
     listState: ScalingLazyListState = rememberScalingLazyListState(),
-    current: Tuning? = null,
+    current: Tuning,
     currentSaved: Boolean,
     tunings: Map<Pair<Instrument, Category?>, List<InstrumentTuning>>,
     favourites: Set<Tuning>,
@@ -368,27 +368,25 @@ fun TuningList(
         }
 
         // Current Tuning
-        current?.let {
-            item("cur") {
-                CategoryLabel(
-                    stringResource(R.string.tuning_list_current)
-                )
-            }
-            item("cur-${current.key}") {
-                CurrentTuningItem(
-                    tuning = current,
-                    saved = currentSaved,
-                    favourited = current.isFavourite(),
-                    pinned = currentPinned,
-                    pinnedInitial = pinnedInitial,
-                    onSave = onSave,
-                    onSelect = onSelect,
-                    onPinnedSet = { tuning, pinned ->
-                        if (pinned) onPin(tuning) else onUnpin()
-                    },
-                    onFavouriteSet = onFavouriteSet
-                )
-            }
+        item("cur") {
+            CategoryLabel(
+                stringResource(R.string.tuning_list_current)
+            )
+        }
+        item("cur-${current.key}") {
+            CurrentTuningItem(
+                tuning = current,
+                saved = currentSaved,
+                favourited = current.isFavourite(),
+                pinned = currentPinned,
+                pinnedInitial = pinnedInitial,
+                onSave = onSave,
+                onSelect = onSelect,
+                onPinnedSet = { tuning, pinned ->
+                    if (pinned) onPin(tuning) else onUnpin()
+                },
+                onFavouriteSet = onFavouriteSet
+            )
         }
 
         if (pinnedInitial && !currentPinned && !pinnedInFavs && !pinnedIsStandard) {
