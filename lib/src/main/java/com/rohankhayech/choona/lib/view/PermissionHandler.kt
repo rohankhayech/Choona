@@ -18,6 +18,7 @@
 
 package com.rohankhayech.choona.lib.view
 
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +45,9 @@ class PermissionHandler(
     private val activity: ComponentActivity,
     private val permission: String
 ) {
+
+    val context: Context
+        get() = activity
 
     /** Permission request launcher. */
     private val launcher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { grant ->

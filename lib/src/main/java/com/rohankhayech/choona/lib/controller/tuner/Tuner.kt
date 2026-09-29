@@ -21,8 +21,7 @@ package com.rohankhayech.choona.lib.controller.tuner
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import be.tarsos.dsp.AudioDispatcher
-import be.tarsos.dsp.io.android.AudioDispatcherFactory
-import be.tarsos.dsp.pitch.AMDF
+import be.tarsos.dsp.pitch.FastYin
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchDetectionResult
 import com.rohankhayech.choona.lib.controller.tuner.Tuner.Companion.HIGHEST_NOTE
@@ -56,13 +55,6 @@ class Tuner(
 
         /** Time in ms that a note must be held below the threshold for before being considered in tune. */
         const val TUNED_SUSTAIN_TIME = 900
-
-        // Audio Dispatcher Constants
-        /** Microphone sample rate. */
-        private const val SAMPLE_RATE = 22050
-
-        /** Audio buffer size. */
-        private const val AUDIO_BUFFER_SIZE = 1024
 
         /** Index of the lowest detectable note. */
         val LOWEST_NOTE = Notes.getIndex("D1")
@@ -300,43 +292,23 @@ class Tuner(
 
         running = true
         _error.update { null }
-        var bufferSize = AUDIO_BUFFER_SIZE
-        var sampleRate = SAMPLE_RATE
-        while (dispatcher == null) {
-            try {
-                // Create audio dispatcher from default microphone.
-                dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(sampleRate, bufferSize, 0)
-
-                // Setup and add pitch processor.
-                val pdh = PitchDetectionHandler { result, _ -> processPitch(result) }
-                val pitchProcessor = PitchProcessor(
-                    AMDF(
-                        sampleRate.toFloat(),
-                        bufferSize,
-                        Notes.getPitch(LOWEST_NOTE),
-                        Notes.getPitch(HIGHEST_NOTE)
-                    ),
-                    pdh
-                )
-                dispatcher?.addAudioProcessor(pitchProcessor)
-
-                // Start the audio dispatcher (producer) thread.
-                Thread(dispatcher, "audio-dispatcher").start()
-            } catch(e: Exception) {
-                    // Extract the required buffer size from the exception message.
-                    val requiredBufferSize = e.message?.substringAfter("should be at least ")?.substringBefore("\n")?.trim()?.toIntOrNull()
-
-                    if (requiredBufferSize == null || requiredBufferSize == bufferSize) {
-                        // If we have tried the device's required buffer size and still failed, throw an exception.
-                        val err = TunerException(e.message, e)
-                        _error.update { err }
-                        running = false
-                        throw err
-                    } else {
-                        bufferSize = requiredBufferSize
-                        sampleRate = (SAMPLE_RATE.toFloat() * (bufferSize.toFloat() / AUDIO_BUFFER_SIZE.toFloat())).roundToInt()
-                    }
-            }
+        try {
+            val capture = MicrophoneCapture.open(ph.context)
+            dispatcher = capture.dispatcher
+            val pdh = PitchDetectionHandler { result, _ -> processPitch(result) }
+            val pitchProcessor = PitchProcessor(
+                FastYin(capture.sampleRate, capture.analysisSamples),
+                pdh
+            )
+            capture.dispatcher.addAudioProcessor(pitchProcessor)
+            Thread(capture.dispatcher, "audio-dispatcher").start()
+        } catch (e: Exception) {
+            val err = if (e is TunerException) e else TunerException(e.message, e)
+            _error.update { err }
+            running = false
+            dispatcher?.stop()
+            dispatcher = null
+            throw err
         }
     }
 
